@@ -238,6 +238,8 @@ Esto te permite correr `api`, `worker` y `web` de forma independiente, compartir
 
 ### A. Temas de pixel art seleccionables
 
+> **Avance (25-09-2026):** dirección definida en [lectio-temas.md](lectio-temas.md): cuatro temas (Scriptorium, Bosque élfico, Solarpunk y Clásico), con día y noche, 16-bit, compañeros y audio generado por código.
+
 **Idea:** varios temas visuales de pixel art (creados para Lectio) que el usuario elige y que cambian la UI/UX: marcos, botones, íconos, colores y pequeños detalles del reproductor.
 
 **Ambición (precisada el 25-09-2026):** uno o varios temas muy estilizados, con el máximo nivel de diseño, que hagan que la app se sienta **casi como un juego**: la biblioteca, la navegación, el reproductor y las transiciones con identidad de pixel art. La excepción es **todo lo que sea lectura** (el texto del libro, su tamaño, su interlineado y su contraste), que se toca lo mínimo posible para no afectar la lectura.

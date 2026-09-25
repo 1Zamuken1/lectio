@@ -12,3 +12,4 @@ Orden de lectura sugerido:
 | 6 | [lectio-pipeline-limpieza.md](lectio-pipeline-limpieza.md) | Pipeline de procesamiento de EPUB: limpieza, oraciones y alineación. |
 | 7 | [lectio-decision-tts.md](lectio-decision-tts.md) | Decisión de proveedor TTS y control de consumo. |
 | 8 | [lectio-frontend.md](lectio-frontend.md) | PWA: lector, reproductor, sincronización y modo sin conexión. |
+| 9 | [lectio-temas.md](lectio-temas.md) | Temas de pixel art (Scriptorium, Bosque élfico, Solarpunk y Clásico): especificación de diseño. |
