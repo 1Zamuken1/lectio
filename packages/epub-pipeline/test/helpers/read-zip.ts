@@ -3,6 +3,8 @@ import { fromBuffer, type Entry } from 'yauzl';
 export interface ZipEntryInfo {
   path: string;
   compressed: boolean;
+  data: Buffer;
+  /** `data` decodificado como UTF-8. */
   content: string;
 }
 
@@ -19,10 +21,12 @@ export function readZip(buffer: Buffer): Promise<ZipEntryInfo[]> {
           const chunks: Buffer[] = [];
           stream.on('data', (chunk: Buffer) => chunks.push(chunk));
           stream.on('end', () => {
+            const data = Buffer.concat(chunks);
             entries.push({
               path: entry.fileName,
               compressed: entry.compressionMethod !== 0,
-              content: Buffer.concat(chunks).toString('utf8'),
+              data,
+              content: data.toString('utf8'),
             });
             zip.readEntry();
           });

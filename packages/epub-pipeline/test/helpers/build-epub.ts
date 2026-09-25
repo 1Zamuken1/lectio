@@ -55,7 +55,7 @@ export interface BuildEpubOptions {
   mimetype?: string | null;
   /** Omite META-INF/container.xml. */
   omitContainer?: boolean;
-  /** Directorio del OPF dentro del ZIP. */
+  /** Directorio del OPF dentro del ZIP. `''` lo pone en la raíz. */
   opfDir?: string;
   /** Items extra del manifest, en crudo (ej. imágenes o una portada). */
   extraManifestItems?: string;
@@ -70,6 +70,7 @@ export async function buildEpub(options: BuildEpubOptions): Promise<Buffer> {
   const version = options.version ?? 3;
   const navigation = options.navigation ?? (version === 3 ? 'both' : 'ncx');
   const opfDir = options.opfDir ?? 'OEBPS';
+  const inOpfDir = (path: string): string => (opfDir ? `${opfDir}/${path}` : path);
   const metadata = {
     title: 'Libro de prueba',
     creators: ['Autora de Prueba'],
@@ -91,10 +92,10 @@ export async function buildEpub(options: BuildEpubOptions): Promise<Buffer> {
     files.set('mimetype', options.mimetype ?? 'application/epub+zip');
   }
   if (!options.omitContainer) {
-    files.set('META-INF/container.xml', containerXml(`${opfDir}/content.opf`));
+    files.set('META-INF/container.xml', containerXml(inOpfDir('content.opf')));
   }
   files.set(
-    `${opfDir}/content.opf`,
+    inOpfDir('content.opf'),
     opfXml({
       version,
       metadata,
@@ -104,16 +105,22 @@ export async function buildEpub(options: BuildEpubOptions): Promise<Buffer> {
       extraManifestItems: options.extraManifestItems ?? '',
     }),
   );
-  if (includeNav) files.set(`${opfDir}/nav.xhtml`, navXhtml(toc));
-  if (includeNcx) files.set(`${opfDir}/toc.ncx`, ncxXml(metadata.identifier, metadata.title, toc));
+  if (includeNav) files.set(inOpfDir('nav.xhtml'), navXhtml(toc));
+  if (includeNcx) files.set(inOpfDir('toc.ncx'), ncxXml(metadata.identifier, metadata.title, toc));
   for (const chapter of chapters) {
-    files.set(`${opfDir}/${chapter.href}`, chapterXhtml(chapter, metadata.language));
+    // El href del manifest es una URL (`cap%201.xhtml`); el archivo del ZIP usa el nombre real.
+    files.set(inOpfDir(decodeURIComponent(chapter.href)), chapterXhtml(chapter, metadata.language));
   }
   for (const [path, content] of Object.entries(options.extraFiles ?? {})) {
     files.set(path, content);
   }
 
   return zip(files);
+}
+
+/** ZIP arbitrario (no necesariamente un EPUB), para probar el contenedor. */
+export function buildZip(files: Record<string, string | Buffer>): Promise<Buffer> {
+  return zip(new Map(Object.entries(files)));
 }
 
 function zip(files: Map<string, string | Buffer>): Promise<Buffer> {

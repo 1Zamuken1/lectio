@@ -122,13 +122,17 @@ Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
 
 ### Fase 1 — Contenedor y paquete (etapas 1–2)
 
-- [ ] Apertura del ZIP con límites: tamaño comprimido, descomprimido total, número de entradas, rechazo de rutas con `..`.
-- [ ] `container.xml` → ruta del OPF; parser XML sin entidades externas.
-- [ ] Detección de DRM (`encryption.xml` con recursos que no son fuentes, `rights.xml`, `license.lcpl`, `sinf.xml`); la ofuscación de fuentes no cuenta.
-- [ ] OPF: metadata, manifest, spine (`linear="no"`), portada (3 estrategias).
-- [ ] Resolución de `href` relativos al OPF, con decodificación de URL (`%20`).
+- [x] Apertura del ZIP con límites: tamaño comprimido, descomprimido total, número de entradas, rechazo de rutas con `..`.
+- [x] `container.xml` → ruta del OPF; parser XML sin entidades externas.
+- [x] Detección de DRM (`encryption.xml` con recursos que no son fuentes, `rights.xml`, `license.lcpl`, `sinf.xml`); la ofuscación de fuentes no cuenta.
+- [x] OPF: metadata, manifest, spine (`linear="no"`), portada (3 estrategias).
+- [x] Resolución de `href` relativos al OPF, con decodificación de URL (`%20`).
 
 **Tests:** ZIP corrupto, zip bomb sintético, path traversal, EPUB con DRM simulado, EPUB con solo ofuscación de fuentes (debe pasar), EPUB 2 vs 3 para la portada.
+
+**Hecho.** Además de lo previsto: test de humo sobre el corpus (`test/corpus/`), que se salta si no está descargado. Los 8 libros abren en 5–80 ms sin warnings; *The Waste Land* (fuentes ofuscadas) no se detecta como DRM.
+
+**Observaciones para la fase 2:** *Don Quijote* tiene 142 entradas de TOC repartidas en 14 documentos del spine (hasta 21 en un mismo archivo) y *Marianela* 25 entradas en 4 documentos: el corte por fragmento (`#id`) es imprescindible, no un caso raro. Standard Ebooks trae `guide` con `title-page` y `notes`, útil para la fase 3.
 
 ### Fase 2 — Navegación y segmentación (etapas 3–4)
 

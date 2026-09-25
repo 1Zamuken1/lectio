@@ -22,6 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "fast-xml-parser": "^5.11.1",
     "yauzl": "^3.4.0"
   },
   "devDependencies": {
