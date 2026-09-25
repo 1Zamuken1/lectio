@@ -1,0 +1,25 @@
+# Dependencias y builds
+node_modules/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# Salidas locales de la CLI y corpus de prueba (EPUB descargados)
+out/
+corpus/*
+!corpus/sources.json
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Editor / SO
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,235 @@
+# Plan de implementación: `epub-pipeline` + CLI
+
+> Documento temporal de trabajo. Se elimina al terminar esta etapa; las decisiones permanentes viven en `docs/`.
+
+## Objetivo
+
+Construir `packages/epub-pipeline` (etapas 1–11 de `docs/lectio-pipeline-limpieza.md`) y una CLI que lo use para **narrar un EPUB real en tu propio computador**:
+
+```bash
+lectio inspect libro.epub            # estructura, clasificación y reporte, sin TTS
+lectio preview libro.epub            # HTML local para revisar qué se narra y qué se omite
+lectio narrate libro.epub --chapters 1-3 --voice es-ES-AlvaroNeural
+```
+
+Al final de la etapa hay algo usable a diario (convertir tus EPUB en MP3 por capítulo con buena limpieza) y la pieza central del backend queda probada antes de escribir NestJS.
+
+### Fuera de esta etapa
+
+NestJS, base de datos, colas, auth, frontend, Kokoro (se deja el puerto listo) y la biblioteca pública. La CLI no se despliega en ningún lado.
+
+---
+
+## Decisiones técnicas de arranque
+
+| Tema | Decisión |
+|---|---|
+| Runtime | Node 24 LTS, TypeScript estricto, ESM. |
+| Monorepo | pnpm workspaces + Turborepo, desde el día 1 (aunque solo haya 2 paquetes). |
+| Paquetes de esta etapa | `packages/epub-pipeline` (lógica pura, **sin red ni sistema de archivos**: recibe `Buffer`, devuelve objetos) y `apps/cli` (lee y escribe archivos, contiene el adaptador de Edge TTS). |
+| Tests | Vitest. |
+| Build | `tsup` para la librería; la CLI se ejecuta con `tsx` en desarrollo. |
+| Calidad | ESLint + Prettier; `tsc --noEmit` en CI local (`turbo run lint typecheck test`). |
+| Librerías | `yauzl` (ZIP), `fast-xml-parser` (OPF/NCX), `linkedom` (DOM), `sanitize-html`, `Intl.Segmenter` (nativo), `commander` (CLI), `edge-tts-universal` (TTS; verificar al instalar que expone `WordBoundary`). |
+| Audio | MP3 24 kHz mono de Edge (`audio-24khz-48kbitrate-mono-mp3`). Los fragmentos se concatenan a nivel de bytes (mismo códec y bitrate → MP3 válido). La duración sale de las marcas de tiempo, así que **no hace falta ffmpeg**. |
+| Fixtures de test | Los EPUB sintéticos se **generan en el test** con un helper `buildEpub({...})` (usando `yazl`), no como binarios versionados: cada test declara exactamente el caso que prueba. |
+| Corpus real | Carpeta `corpus/` ignorada por git, poblada con un script `pnpm corpus:download` que descarga desde URLs listadas en `corpus/sources.json`. |
+
+### Estructura objetivo al final de la etapa
+
+```
+lectio/
+├── docs/
+├── apps/
+│   └── cli/
+│       └── src/
+│           ├── commands/        # inspect, preview, narrate
+│           ├── tts/             # edge-tts.adapter.ts
+│           └── index.ts
+├── packages/
+│   └── epub-pipeline/
+│       ├── src/
+│       │   ├── container/       # etapa 1
+│       │   ├── package/         # etapa 2
+│       │   ├── navigation/      # etapas 3–4
+│       │   ├── classification/  # etapa 5
+│       │   ├── cleaning/        # etapas 6 y 8, un archivo por regla (S1..S4, N1..N5)
+│       │   ├── sentences/       # etapa 7
+│       │   ├── normalization/   # etapa 9
+│       │   ├── audio/           # chunking y alineación (10–11), sin llamar a TTS
+│       │   ├── report/
+│       │   ├── types.ts         # ProcessedBook, Chapter, Sentence, TtsProvider...
+│       │   └── index.ts         # processEpub(), buildChunks(), buildAlignment()
+│       └── test/
+│           ├── helpers/build-epub.ts
+│           ├── unit/
+│           └── golden/
+├── corpus/                      # ignorado por git
+├── package.json
+├── pnpm-workspace.yaml
+└── turbo.json
+```
+
+### Contrato público del paquete
+
+```typescript
+export function processEpub(file: Buffer, options?: PipelineOptions): Promise<ProcessedBook>;
+
+export interface ProcessedBook {
+  metadata: { title: string; authors: string[]; language: string };
+  cover?: { mediaType: string; data: Buffer };
+  navSource: 'nav' | 'ncx' | 'spine';
+  chapters: ProcessedChapter[];
+  resources: Map<string, { mediaType: string; data: Buffer }>; // imágenes referenciadas
+  report: ProcessingReport;
+  pipelineVersion: number;
+}
+
+export interface ProcessedChapter {
+  orderIndex: number;
+  title: string;
+  parentTitle: string | null;
+  kind: 'narrative' | 'front_matter' | 'back_matter' | 'notes';
+  contentHtml: string;
+  sentences: Sentence[];
+  notes: { id: string; html: string }[];
+  characterCount: number; // caracteres de narración
+}
+
+export class PipelineError extends Error {
+  code: 'INVALID_ARCHIVE' | 'MISSING_PACKAGE' | 'DRM_PROTECTED' | 'NO_TEXT_CONTENT' | 'LIMITS_EXCEEDED';
+}
+```
+
+Este contrato es el que después consumirá el worker de NestJS sin cambios.
+
+---
+
+## Fases
+
+Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
+
+### Fase 0 — Andamiaje
+
+- [ ] `git init`, `.gitignore` (node_modules, dist, corpus, `out/`).
+- [ ] `package.json` raíz, `pnpm-workspace.yaml`, `turbo.json` con tareas `build`, `test`, `lint`, `typecheck`.
+- [ ] `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`), ESLint y Prettier.
+- [ ] `packages/epub-pipeline` y `apps/cli` vacíos, con un test trivial cada uno.
+- [ ] Helper `buildEpub()` para generar EPUB sintéticos en memoria (EPUB 2 y 3, con o sin nav/NCX).
+- [ ] `corpus/sources.json` + script de descarga (ver lista abajo).
+
+**Listo cuando:** `pnpm turbo run lint typecheck test` pasa desde la raíz.
+
+### Fase 1 — Contenedor y paquete (etapas 1–2)
+
+- [ ] Apertura del ZIP con límites: tamaño comprimido, descomprimido total, número de entradas, rechazo de rutas con `..`.
+- [ ] `container.xml` → ruta del OPF; parser XML sin entidades externas.
+- [ ] Detección de DRM (`encryption.xml` con recursos que no son fuentes, `rights.xml`, `license.lcpl`, `sinf.xml`); la ofuscación de fuentes no cuenta.
+- [ ] OPF: metadata, manifest, spine (`linear="no"`), portada (3 estrategias).
+- [ ] Resolución de `href` relativos al OPF, con decodificación de URL (`%20`).
+
+**Tests:** ZIP corrupto, zip bomb sintético, path traversal, EPUB con DRM simulado, EPUB con solo ofuscación de fuentes (debe pasar), EPUB 2 vs 3 para la portada.
+
+### Fase 2 — Navegación y segmentación (etapas 3–4)
+
+- [ ] Parser de `nav.xhtml` (`epub:type="toc"`), de NCX y respaldo por spine.
+- [ ] Aplanado del árbol (umbral de tamaño y profundidad máxima 2, configurables) con `parentTitle`.
+- [ ] Flujo lineal del spine y resolución de cada entrada a `(índice de spine, nodo)`.
+- [ ] Corte por fragmento (`#id`), anexado de archivos sin entrada propia, sección inicial previa al primer punto, warning `TOC_ORDER_MISMATCH`.
+
+**Tests:** varios capítulos en un archivo, un capítulo en 3 archivos (`_split_`), TOC vacío (respaldo por spine), TOC desordenado, entrada que apunta a un `id` inexistente.
+
+### Fase 3 — Clasificación (etapa 5)
+
+- [ ] Señales por precedencia: `epub:type`/`role` → landmarks/guide → regex de título (es/en) → heurísticas.
+- [ ] Marca de confianza baja para las decididas por heurística.
+
+**Tests:** un caso por señal, y un caso de conflicto para verificar la precedencia (título "Notas" pero `epub:type="bodymatter"` → narrativa).
+
+### Fase 4 — Limpieza estructural y HTML de lectura (etapa 6)
+
+- [ ] Reglas S1 (números de página), S2 (running headers y títulos duplicados), S3 (ocultos), S4 (extracción de notas a `notes[]`).
+- [ ] Sanitización por lista blanca, reescritura de rutas de imágenes a claves de `resources`, atributo `data-b` por bloque.
+- [ ] Cada regla reporta cuántos elementos tocó y por qué vía (semántica o heurística).
+
+**Tests:** positivos y negativos por regla (ej. un párrafo que es solo "1984" dentro de una novela no es un número de página si no hay señal adicional).
+
+### Fase 5 — Oraciones, narración y normalización (etapas 7–9)
+
+- [ ] Recorrido por bloques, `Intl.Segmenter` por idioma + lista de abreviaturas (es/en).
+- [ ] `start`/`end` sobre el `textContent` del bloque; bloques no narrables (tablas, código).
+- [ ] Reglas N1–N5, cada una desactivable desde `PipelineOptions`.
+- [ ] Normalización: NFC, guiones blandos, capitulares, guiones de división silábica, anuncio de capítulo, romanos en títulos, escape SSML.
+
+**Tests:** los casos negativos del documento de pipeline ("(Madrid, 1605)", "(1984)", "Luis XIV"), abreviaturas ("El Sr. García llegó."), e **invariantes**: `text === blockText.slice(start, end)`, índices contiguos, `narration.length <= text.length` salvo el anuncio.
+
+### Fase 6 — Reporte y comandos `inspect` / `preview`
+
+- [ ] `ProcessingReport` completo (versión, duración, fuente de navegación, conteos por tipo, reglas, warnings, muestras).
+- [ ] `lectio inspect libro.epub [--json]`: tabla de capítulos (orden, tipo, título, caracteres de narración) + resumen del reporte.
+- [ ] `lectio preview libro.epub`: genera `out/<libro>/preview.html`, un único archivo con el HTML de lectura donde **lo que se narra, lo que se omite y las notas se ven con colores distintos**, más un panel con el reporte. Es la herramienta para calibrar reglas a ojo.
+
+**Listo cuando:** puedes abrir el preview de un libro del corpus y revisar la limpieza sin leer JSON.
+
+### Fase 7 — Golden tests sobre el corpus
+
+- [ ] Descargar el corpus (lista abajo).
+- [ ] Por libro, guardar en `test/golden/` la narración de 2–3 capítulos elegidos y el resumen del reporte. Solo se versiona el texto derivado, no los EPUB.
+- [ ] Métrica de regresión: porcentaje de caracteres narrados sobre caracteres del cuerpo, por libro, con una tolerancia (ej. ±2 %).
+- [ ] Los tests golden se saltan automáticamente si el corpus no está descargado (para que `pnpm test` funcione en un clon limpio).
+
+**Listo cuando:** los 6 libros del corpus se procesan sin errores fatales y revisaste sus previews.
+
+### Fase 8 — Chunking, alineación y `narrate`
+
+- [ ] `buildChunks(sentences, maxChunkChars)` en el paquete: no corta oraciones, prefiere fin de párrafo, divide oraciones gigantes por comas.
+- [ ] `buildAlignment(chunks, results)` en el paquete: offsets acumulados → `{ index, startMs, endMs }` por oración, omitiendo las no narradas.
+- [ ] Puerto `TtsProvider` en `types.ts` (tal como está en `docs/lectio-arquitectura-api.md` §1.4).
+- [ ] `apps/cli/src/tts/edge-tts.adapter.ts`: implementa el puerto, pide `WordBoundary`, `maxChunkChars = 3000`, reintento con backoff por fragmento, concurrencia 2.
+- [ ] `lectio narrate libro.epub [--chapters 1-3] [--voice ...] [--out dir]`:
+  - por defecto solo capítulos `narrative`;
+  - escribe `NN - Título.mp3` + `NN.alignment.json` por capítulo y un `playlist.m3u`;
+  - muestra el progreso y los caracteres enviados;
+  - reanudable: si el MP3 de un capítulo ya existe, lo salta.
+- [ ] Añadir la alineación al `preview`: botón para reproducir el MP3 junto al texto con la oración actual resaltada. Es la primera prueba real de la sincronización.
+
+**Tests:** `buildChunks` y `buildAlignment` con resultados de TTS simulados (incluyendo oraciones con narración vacía y un proveedor sin `boundaries`). El adaptador de Edge se prueba manualmente, no en CI (depende de la red y de un servicio no oficial).
+
+### Fase 9 — Validación de uso real
+
+- [ ] Narrar 3 capítulos de un libro en español del corpus y escucharlos completos.
+- [ ] Anotar cada artefacto que se escuche mal (número leído, nota colada, corte raro) → caso de test → corrección.
+- [ ] Narrar un libro propio (no del corpus) de principio a fin y usarlo de verdad unos días.
+- [ ] Actualizar `docs/lectio-pipeline-limpieza.md` con lo aprendido: umbrales calibrados y reglas que cambiaron.
+- [ ] Borrar este plan.
+
+---
+
+## Corpus inicial
+
+| Libro | Fuente | Qué pone a prueba |
+|---|---|---|
+| Un clásico en inglés con endnotes (ej. *The Adventures of Sherlock Holmes*, u otro con notas) | Standard Ebooks | Caso ideal semántico: todo debe resolverse sin heurísticas. |
+| *Don Quijote* (Gutenberg #2000) | Project Gutenberg (EPUB 3) | Español, libro largo, estructura en dos partes (`parentTitle`), marcado pobre. |
+| Otro clásico en español (ej. Galdós o Bécquer) | Project Gutenberg | Números de página `pagenum`, notas del editor. |
+| Un ensayo o libro de no ficción con citas | Project Gutenberg o Standard Ebooks | Reglas N2–N5 (citas, referencias). |
+| Ejemplos de `epub3-samples` (2–3 archivos) | Repositorio IDPF / W3C en GitHub | Casos límite del estándar: nav complejo, notas emergentes. |
+| Un documento propio convertido con Calibre (DOCX o PDF → EPUB) | Tú | Archivos `_split_`, running headers, guiones de división silábica. |
+
+---
+
+## Riesgos de la etapa
+
+| Riesgo | Mitigación |
+|---|---|
+| Edge TTS responde 403 al empezar la fase 8 | Actualizar la librería; si persiste, implementar en la CLI el adaptador de Kokoro vía DeepInfra (el puerto ya existe) y seguir. |
+| `linkedom` no cubre algún caso del DOM (ej. `Range` o selectores complejos) | Los offsets se calculan recorriendo nodos de texto, sin depender de `Range`; si algo falta, `parse5` + utilidades propias. |
+| Las reglas heurísticas se sobreajustan al corpus | Cada ajuste de regla lleva un caso negativo; la métrica de caracteres narrados detecta regresiones masivas. |
+| El alcance crece (más reglas, más idiomas) | Solo español e inglés en esta etapa; lo nuevo va a una lista para después de la fase 9. |
+
+## Definición de terminado
+
+1. `pnpm turbo run lint typecheck test` en verde en un clon limpio.
+2. Los 6 libros del corpus se procesan sin error fatal; el preview de cada uno revisado.
+3. Un libro en español narrado con `lectio narrate`, escuchado, con los artefactos corregidos.
+4. `processEpub` expone el contrato de arriba, listo para usarlo desde el worker de NestJS.
