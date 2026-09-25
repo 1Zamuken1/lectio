@@ -1,0 +1,7 @@
+dist/
+.turbo/
+corpus/
+out/
+pnpm-lock.yaml
+docs/
+PLAN-implementacion-pipeline.md

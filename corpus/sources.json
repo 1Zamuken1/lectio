@@ -1,0 +1,75 @@
+{
+  "$comment": "Corpus de referencia del pipeline (docs/lectio-pipeline-limpieza.md §7). Todos los libros son de dominio público o de ejemplo. Los EPUB no se versionan: se descargan con `pnpm corpus:download`.",
+  "books": [
+    {
+      "id": "se-sherlock-holmes",
+      "title": "The Adventures of Sherlock Holmes",
+      "language": "en",
+      "source": "Standard Ebooks",
+      "tests": "Caso ideal semántico: epub:type en todo, landmarks, front/back matter bien marcados.",
+      "url": "https://standardebooks.org/ebooks/arthur-conan-doyle/the-adventures-of-sherlock-holmes/downloads/arthur-conan-doyle_the-adventures-of-sherlock-holmes.epub?source=download"
+    },
+    {
+      "id": "se-vindication-rights-woman",
+      "title": "A Vindication of the Rights of Woman",
+      "language": "en",
+      "source": "Standard Ebooks",
+      "tests": "Ensayo con endnotes semánticos: extracción de notas (S4) y llamadas a nota (N1).",
+      "url": "https://standardebooks.org/ebooks/mary-wollstonecraft/a-vindication-of-the-rights-of-woman/downloads/mary-wollstonecraft_a-vindication-of-the-rights-of-woman.epub?source=download"
+    },
+    {
+      "id": "pg-don-quijote",
+      "title": "Don Quijote",
+      "language": "es",
+      "source": "Project Gutenberg #2000",
+      "tests": "Español, libro largo, dos partes (parentTitle), marcado pobre.",
+      "url": "https://www.gutenberg.org/ebooks/2000.epub3.images"
+    },
+    {
+      "id": "pg-marianela",
+      "title": "Marianela",
+      "language": "es",
+      "source": "Project Gutenberg #17340",
+      "tests": "Edición anotada: notas del editor, material de back matter, números de página.",
+      "url": "https://www.gutenberg.org/ebooks/17340.epub3.images"
+    },
+    {
+      "id": "pg-becquer-obras-escogidas",
+      "title": "Obras escogidas (Bécquer)",
+      "language": "es",
+      "source": "Project Gutenberg #53552",
+      "tests": "Poesía y prosa mezcladas: segmentación de oraciones en verso, capítulos muy cortos.",
+      "url": "https://www.gutenberg.org/ebooks/53552.epub3.images"
+    },
+    {
+      "id": "idpf-accessible-epub-3",
+      "title": "Accessible EPUB 3",
+      "language": "en",
+      "source": "IDPF epub3-samples",
+      "tests": "Semántica EPUB 3 completa: nav, landmarks, pagebreaks, notas.",
+      "url": "https://github.com/IDPF/epub3-samples/releases/download/20230704/accessible_epub_3.epub"
+    },
+    {
+      "id": "idpf-wasteland-otf-obf",
+      "title": "The Waste Land (fuentes ofuscadas)",
+      "language": "en",
+      "source": "IDPF epub3-samples",
+      "tests": "encryption.xml con ofuscación de fuentes: NO debe detectarse como DRM. Notas del autor.",
+      "url": "https://github.com/IDPF/epub3-samples/releases/download/20230704/wasteland-otf-obf.epub"
+    },
+    {
+      "id": "idpf-moby-dick",
+      "title": "Moby-Dick",
+      "language": "en",
+      "source": "IDPF epub3-samples",
+      "tests": "Libro largo con estructura estándar.",
+      "url": "https://github.com/IDPF/epub3-samples/releases/download/20230704/moby-dick.epub"
+    }
+  ],
+  "manual": [
+    {
+      "id": "calibre-propio",
+      "tests": "Un documento propio (DOCX o PDF) convertido a EPUB con Calibre: archivos _split_, running headers, guiones de división silábica. Copiarlo como corpus/calibre-propio.epub."
+    }
+  ]
+}

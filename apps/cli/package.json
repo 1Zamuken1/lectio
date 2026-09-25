@@ -1,0 +1,26 @@
+{
+  "name": "@lectio/cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI para inspeccionar y narrar EPUB con el pipeline de Lectio.",
+  "bin": {
+    "lectio": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx --conditions=source src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lectio/epub-pipeline": "workspace:*",
+    "commander": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.2"
+  }
+}
