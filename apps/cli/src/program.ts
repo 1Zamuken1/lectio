@@ -1,6 +1,7 @@
 import { PIPELINE_VERSION, PipelineError } from '@lectio/epub-pipeline';
 import { Command } from 'commander';
 import { inspect } from './commands/inspect.js';
+import { library } from './commands/library.js';
 import { narrate, type NarrateOptions } from './commands/narrate.js';
 import { preview } from './commands/preview.js';
 import { voices } from './commands/voices.js';
@@ -56,6 +57,12 @@ export function createProgram(): Command {
     .option('--concurrency <n>', 'fragmentos en paralelo (1 a 4)', '2')
     .option('--force', 'regenerar aunque el capítulo ya exista')
     .action(withErrors((file: string, options: NarrateOptions) => narrate(file, options)));
+
+  program
+    .command('library')
+    .description('Genera la biblioteca (index.html) con los libros que tienen preview.')
+    .argument('[carpeta]', 'carpeta con un preview por libro', 'out')
+    .action(withErrors((folder: string) => library(folder)));
 
   program
     .command('voices')

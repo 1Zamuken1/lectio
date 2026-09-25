@@ -24,6 +24,8 @@
 
   --font-read: 'Literata', Georgia, 'Times New Roman', serif;
   --font-ui: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Títulos de la interfaz: en el Clásico, la misma serif; los temas de pixel art la cambian. */
+  --font-display: var(--font-read);
   --text-size: 20px;
   --measure: 65ch;
   --sidebar: 20rem;
@@ -31,8 +33,8 @@
   color-scheme: light;
 }
 
-/* Tema oscuro cálido: café muy oscuro y texto marfil, no negro puro. */
-:root[data-theme='dark'] {
+/* Tema Clásico de noche: café muy oscuro y texto marfil, no negro puro. */
+:root[data-mode='night'] {
   --paper: #1c1814;
   --paper-raised: #25201a;
   --paper-sunken: #151210;
@@ -119,6 +121,7 @@ button {
   letter-spacing: 0.01em;
   color: var(--accent);
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .brand small {

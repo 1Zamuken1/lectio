@@ -1,0 +1,555 @@
+/*
+ * Lectio · biblioteca: portada (pantalla de título) y estantería. Hereda los tokens del
+ * preview (Clásico) y del tema activo. En el Clásico no hay escena: papel y tipografía.
+ */
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.scene .px-scene {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+:root:not([data-world='scriptorium']) .scene {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Portada */
+
+.title-screen {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 4.5rem 1rem 2rem;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.title-banner {
+  position: relative;
+  display: grid;
+  gap: 0.6rem;
+  justify-items: center;
+  text-align: center;
+}
+
+.title-card {
+  grid-row: 3;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  width: min(44rem, 100%);
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.logo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 12vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.slots-title {
+  margin: 0.8rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.world-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .world-slots {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.world-slot {
+  display: grid;
+  gap: 0.15rem;
+  justify-items: start;
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.world-slot strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.world-slot small {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.slot-number {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.world-slot:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.world-slot[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.world-slot:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.press-start {
+  margin-top: 0.8rem;
+  padding: 0.8rem 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.title-footer {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.title-tools {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---------------------------------------------------------------- Biblioteca */
+
+.library {
+  display: flex;
+  flex-direction: column;
+}
+
+.library-scene {
+  display: none;
+}
+
+.library-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  width: min(72rem, 100%);
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+@media (min-width: 900px) {
+  .library-body {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    align-items: start;
+  }
+}
+
+.bookcase {
+  position: relative;
+  padding: 1rem;
+  background: var(--paper-sunken);
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+}
+
+.shelf {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0 0.3rem;
+  /* Cada fila mide 13rem; la tabla es el borde inferior de la fila. */
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(13rem - 10px),
+    var(--line) calc(13rem - 10px) 13rem
+  );
+}
+
+.shelf.empty {
+  align-items: center;
+  justify-content: center;
+  min-height: 13rem;
+  color: var(--muted);
+}
+
+.slot {
+  display: flex;
+  align-items: flex-end;
+  height: 13rem;
+  padding-bottom: 10px;
+}
+
+.spine {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--spine-w);
+  height: var(--spine-h);
+  padding: 1.4rem 0.2rem;
+  color: #f7ecd2;
+  background: var(--spine);
+  border: 2px solid color-mix(in srgb, var(--spine) 55%, black);
+  border-radius: 2px 2px 0 0;
+  box-shadow:
+    inset 3px 0 0 color-mix(in srgb, var(--spine) 70%, white),
+    inset -3px 0 0 color-mix(in srgb, var(--spine) 70%, black);
+  cursor: pointer;
+  transition: transform 0.12s steps(2);
+}
+
+/* Bandas doradas del lomo, arriba y abajo. */
+.spine::before,
+.spine::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 4px;
+  background: var(--px-gold);
+  box-shadow: 0 6px 0 var(--px-gold-d);
+}
+
+.spine::before {
+  top: 6px;
+}
+
+.spine::after {
+  bottom: 14px;
+}
+
+.spine-title {
+  overflow: hidden;
+  max-height: 100%;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.spine.has-audio {
+  padding-bottom: 2.6rem;
+}
+
+.spine-mark {
+  position: absolute;
+  bottom: 24px;
+  font-size: 0.7rem;
+  color: var(--px-gold);
+}
+
+.spine:hover,
+.spine:focus-visible,
+.spine[aria-pressed='true'] {
+  transform: translateY(-8px);
+}
+
+.spine[aria-pressed='true'] {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.shelf-owl {
+  display: none;
+}
+
+/* Ficha del libro */
+
+.book-detail {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+  padding: 1.25rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  box-shadow: var(--shadow);
+}
+
+.book-detail h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.book-detail h2:focus {
+  outline: none;
+}
+
+.book-detail .author,
+.book-detail.placeholder p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.book-detail code {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  background: var(--paper-sunken);
+  border-radius: 0.3rem;
+}
+
+.cover {
+  width: 9rem;
+  max-width: 100%;
+  border-radius: 0.3rem;
+  box-shadow: var(--shadow);
+}
+
+.book-stats {
+  display: grid;
+  gap: 0.4rem;
+  width: 100%;
+  margin: 0.4rem 0;
+}
+
+.book-stats div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px dashed var(--line);
+}
+
+.book-stats dt {
+  color: var(--muted);
+}
+
+.book-stats dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.open-book {
+  display: inline-block;
+  padding: 0.7rem 1.3rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--accent-contrast);
+  text-decoration: none;
+  background: var(--accent);
+  border-radius: 0.6rem;
+}
+
+/* ---------------------------------------------------------------- Scriptorium */
+
+[data-world='scriptorium'] .title-screen {
+  background: var(--px-ink);
+}
+
+[data-world='scriptorium'] .title-card {
+  width: min(44rem, 100%);
+  padding: 1.2rem 1.5rem;
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border: 4px solid var(--chrome-dark);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--px-gold-d),
+    inset 0 0 0 5px var(--paper),
+    inset 0 0 0 7px var(--px-red),
+    0 6px 0 rgb(0 0 0 / 35%);
+}
+
+[data-world='scriptorium'] .tagline {
+  padding: 0.2rem 0.8rem;
+  font-family: var(--font-display);
+  color: var(--chrome-ink);
+  background: var(--chrome-dark);
+  box-shadow: 0 0 0 2px var(--px-gold-d);
+}
+
+[data-world='scriptorium'] .logo {
+  font-size: clamp(3.5rem, 14vw, 7rem);
+  color: var(--px-gold);
+  text-shadow:
+    3px 3px 0 var(--px-red-d),
+    6px 6px 0 var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .world-slot,
+[data-world='scriptorium'] .press-start,
+[data-world='scriptorium'] .open-book {
+  border-radius: 0;
+}
+
+[data-world='scriptorium'] .world-slot {
+  background: var(--paper-raised);
+  border: 2px solid var(--line);
+}
+
+[data-world='scriptorium'] .world-slot[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    3px 3px 0 var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .press-start,
+[data-world='scriptorium'] .open-book {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  box-shadow:
+    inset 2px 2px 0 rgb(255 255 255 / 18%),
+    inset -2px -2px 0 rgb(0 0 0 / 25%),
+    3px 3px 0 var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .press-start:active,
+[data-world='scriptorium'] .open-book:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--chrome-dark);
+}
+
+/* "Pulsa para comenzar" parpadea como en las consolas, en dos pasos. */
+:root[data-world='scriptorium'][data-motion='full'] .press-start {
+  animation: press-blink 1.6s steps(1) infinite;
+}
+
+:root[data-world='scriptorium'][data-motion='full'] .press-start:hover,
+:root[data-world='scriptorium'][data-motion='full'] .press-start:focus-visible {
+  animation: none;
+}
+
+@keyframes press-blink {
+  50% {
+    color: var(--px-gold);
+  }
+}
+
+[data-world='scriptorium'] .title-footer {
+  font-family: var(--font-display);
+}
+
+/* Biblioteca: la escena queda como friso sobre la estantería. */
+[data-world='scriptorium'] .library-scene {
+  position: relative;
+  display: block;
+  height: clamp(9rem, 26vw, 15rem);
+  border-bottom: 4px solid var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .library-body {
+  margin-top: -3.5rem;
+  position: relative;
+}
+
+[data-world='scriptorium'] .bookcase {
+  padding: 1.2rem 1rem 0.6rem;
+  background: var(--px-wood-d);
+  border: 4px solid var(--px-ink);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--px-wood),
+    inset 0 0 0 5px var(--px-wood-l),
+    0 6px 0 rgb(0 0 0 / 30%);
+}
+
+[data-world='scriptorium'] .shelf {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(13rem - 10px),
+    var(--px-wood-l) calc(13rem - 10px) calc(13rem - 8px),
+    var(--px-wood) calc(13rem - 8px) calc(13rem - 2px),
+    var(--px-ink) calc(13rem - 2px) 13rem
+  );
+}
+
+[data-world='scriptorium'] .shelf.empty {
+  color: var(--chrome-muted);
+  font-family: var(--font-display);
+}
+
+[data-world='scriptorium'] .shelf-owl {
+  position: absolute;
+  top: -44px;
+  right: 1.25rem;
+  display: block;
+  margin: 0;
+}
+
+[data-world='scriptorium'] .book-detail {
+  border: 4px solid var(--chrome-dark);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--px-gold-d),
+    0 6px 0 rgb(0 0 0 / 30%);
+}
+
+[data-world='scriptorium'] .cover {
+  border: 3px solid var(--chrome-dark);
+  border-radius: 0;
+}
+
+@media (max-width: 600px) {
+  [data-world='scriptorium'] .library-body {
+    margin-top: -2rem;
+  }
+
+  .title-card {
+    padding: 1.5rem 1rem 1rem;
+  }
+}

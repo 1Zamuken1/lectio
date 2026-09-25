@@ -70,7 +70,6 @@
     review: store.get('review', false),
     hideAux: store.get('hideAux', false),
     size: store.get('size', 20),
-    theme: store.get('theme', 'system'),
   };
 
   // ------------------------------------------------------------ utilidades DOM
@@ -107,12 +106,7 @@
 
   // ------------------------------------------------------------ tema y tamaño
 
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
-  function applyTheme() {
-    const dark = state.theme === 'dark' || (state.theme === 'system' && systemDark.matches);
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  }
-  systemDark.addEventListener('change', applyTheme);
+  // El mundo y el modo día/noche los maneja LectioTheme (assets/theme/theme.js).
 
   function applySize() {
     document.documentElement.style.setProperty('--text-size', `${state.size}px`);
@@ -129,9 +123,6 @@
     hidden: true,
   });
   let popover = null;
-
-  const themeLabels = { system: 'Tema: sistema', light: 'Tema: claro', dark: 'Tema: oscuro' };
-  const themeIcons = { system: '◐', light: '☀', dark: '☾' };
 
   function topbar() {
     const tab = (view, label) =>
@@ -152,7 +143,14 @@
         },
         '☰',
       ),
-      h('div', { class: 'brand' }, 'Lectio', h('small', {}, 'preview')),
+      data.library
+        ? h(
+            'a',
+            { class: 'brand', href: data.library, title: 'Volver a la biblioteca' },
+            'Lectio',
+            h('small', {}, 'preview'),
+          )
+        : h('div', { class: 'brand' }, 'Lectio', h('small', {}, 'preview')),
       h(
         'div',
         { class: 'tabs', role: 'tablist', 'aria-label': 'Vista' },
@@ -182,16 +180,8 @@
           },
           'A+',
         ),
-        h(
-          'button',
-          {
-            class: 'tool',
-            'aria-label': themeLabels[state.theme],
-            title: themeLabels[state.theme],
-            onclick: cycleTheme,
-          },
-          themeIcons[state.theme],
-        ),
+        window.LectioTheme.modeButton(),
+        window.LectioTheme.settingsButton(),
         h(
           'button',
           {
@@ -258,6 +248,7 @@
         ),
       ),
       h('ul', { class: 'toc' }, items),
+      companion(),
       auxCount
         ? h(
             'button',
@@ -268,6 +259,35 @@
           )
         : null,
     );
+  }
+
+  /** El búho del scriptorium: solo decorativo; el CSS lo oculta en otros mundos. */
+  function companion() {
+    const Pixel = window.LectioPixel;
+    if (!Pixel) return null;
+    const slot = h('div', { class: 'companion-slot', 'aria-hidden': 'true' });
+    slot.innerHTML = Pixel.owlBadge();
+    slot.append(h('span', {}, 'Sabio, el búho, vela tu lectura.'));
+    return slot;
+  }
+
+  /** Esquineros ornamentales de la página (solo Scriptorium, por CSS). */
+  function pageCorners() {
+    const Pixel = window.LectioPixel;
+    if (!Pixel) return [];
+    return ['tl', 'tr', 'bl', 'br'].map((corner) => {
+      const node = h('span', { class: `page-corner ${corner}`, 'aria-hidden': 'true' });
+      node.innerHTML = Pixel.fleuron();
+      return node;
+    });
+  }
+
+  /** Inicial iluminada en el primer párrafo con texto real (no en epígrafes ni títulos). */
+  function illuminate(prose) {
+    const first = [...prose.querySelectorAll('p')].find(
+      (p) => (p.textContent || '').trim().length > 80 && !p.closest('blockquote, aside, figure'),
+    );
+    if (first) first.classList.add('illuminated');
   }
 
   // ------------------------------------------------------------ capítulo
@@ -296,6 +316,7 @@
       h(
         'article',
         { class: `chapter${state.review ? ' review' : ''}` },
+        ...pageCorners(),
         h(
           'header',
           { class: 'chapter-header' },
@@ -337,6 +358,7 @@
     );
 
     prose.addEventListener('click', onProseClick);
+    illuminate(prose);
     applyHighlights(prose, chapter);
     player.current = -1;
     if (player.chapter === state.chapter) requestAnimationFrame(syncToTime);
@@ -1196,17 +1218,29 @@
     syncToTime();
     if (!audio.paused) frame = requestAnimationFrame(tick);
   };
+  const narrating = (value) => {
+    if (window.LectioSound) window.LectioSound.setNarrating(value);
+    else document.documentElement.dataset.playing = String(value);
+  };
   audio.addEventListener('play', () => {
+    narrating(true);
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(tick);
     syncToTime();
   });
-  audio.addEventListener('pause', syncToTime);
+  audio.addEventListener('pause', () => {
+    narrating(false);
+    syncToTime();
+  });
   audio.addEventListener('seeked', syncToTime);
   audio.addEventListener('ended', () => {
     const next = audioChapter(state.chapter, 1);
     if (next !== null) playChapter(next);
-    else syncToTime();
+    else {
+      narrating(false);
+      window.LectioSound?.play('hoot');
+      syncToTime();
+    }
   });
 
   // ------------------------------------------------------------ acciones
@@ -1234,6 +1268,7 @@
 
   function go(index) {
     if (!data.chapters[index]) return;
+    if (index !== state.chapter) window.LectioSound?.play('page');
     state.chapter = index;
     history.replaceState(null, '', `#c${index}`);
     closeNote();
@@ -1262,14 +1297,6 @@
     state.size = Math.min(28, Math.max(16, state.size + delta));
     store.set('size', state.size);
     applySize();
-  }
-
-  function cycleTheme() {
-    const order = ['system', 'light', 'dark'];
-    state.theme = order[(order.indexOf(state.theme) + 1) % order.length];
-    store.set('theme', state.theme);
-    applyTheme();
-    render();
   }
 
   function toggleReview() {
@@ -1307,7 +1334,6 @@
     if (event.key === 'ArrowLeft') requestChapter(state.chapter - 1, false);
   });
 
-  applyTheme();
   applySize();
   render();
 })();

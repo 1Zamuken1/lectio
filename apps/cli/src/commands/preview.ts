@@ -6,9 +6,8 @@ import { processEpub, type Alignment, type ProcessedBook } from '@lectio/epub-pi
 import type { ManifestEntry } from './narrate.js';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, style, userPath } from '../ui/terminal.js';
-
-/** Los assets viven en apps/cli/assets: misma profundidad desde src/commands y dist/commands. */
-const ASSETS = new URL('../../assets/preview/', import.meta.url);
+import { embedJson, escapeHtml, FONT_LINKS, pageAssets } from '../web/assets.js';
+import { library } from './library.js';
 
 export async function preview(
   file: string,
@@ -19,13 +18,17 @@ export async function preview(
   const slug = slugify(book.metadata.title ?? basename(input, '.epub'));
   const output = userPath(options.out ?? `out/${slug}/preview.html`);
 
-  const [css, js] = await Promise.all([
-    readFile(new URL('preview.css', ASSETS), 'utf8'),
-    readFile(new URL('preview.js', ASSETS), 'utf8'),
-  ]);
+  const { css, js } = await pageAssets('preview');
   await mkdir(dirname(output), { recursive: true });
   const audio = await loadAudio(book, dirname(output), options.audio);
-  await writeFile(output, renderPage(book, css, js, audio), 'utf8');
+  await writeFile(
+    output,
+    renderPage(book, css, js, audio, options.out ? null : '../index.html'),
+    'utf8',
+  );
+  await writeBookCard(book, output, slug, audio);
+  // Con la ruta por defecto (out/<libro>/), la biblioteca de out/ se actualiza sola.
+  if (!options.out) await library(dirname(dirname(output)), { quiet: true });
 
   const shown = relative(process.env.INIT_CWD ?? process.cwd(), output) || output;
   console.log(
@@ -86,13 +89,19 @@ async function loadAudio(
 }
 
 /** Datos del libro para el cliente, en forma compacta (una sola página HTML autocontenida). */
-function previewData(book: ProcessedBook, audio: Map<number, ChapterAudio>) {
+function previewData(
+  book: ProcessedBook,
+  audio: Map<number, ChapterAudio>,
+  libraryHref: string | null,
+) {
   const dataUri = (mediaType: string, data: Buffer) =>
     `data:${mediaType};base64,${data.toString('base64')}`;
   return {
     book: book.metadata,
     cover: book.cover ? dataUri(book.cover.mediaType, book.cover.data) : null,
     report: book.report,
+    /** Enlace de vuelta a la biblioteca, si el preview está en su carpeta por defecto. */
+    library: libraryHref,
     resources: Object.fromEntries(
       [...book.resources].map(([path, r]) => [path, dataUri(r.mediaType, r.data)]),
     ),
@@ -121,10 +130,9 @@ function renderPage(
   css: string,
   js: string,
   audio: Map<number, ChapterAudio>,
+  libraryHref: string | null,
 ): string {
-  // "<" escapado dentro del JSON: un libro no puede cerrar el <script> con "</script>".
-  const lessThan = String.fromCharCode(92) + 'u003c';
-  const json = JSON.stringify(previewData(book, audio)).replaceAll('<', lessThan);
+  const json = embedJson(previewData(book, audio, libraryHref));
   const title = escapeHtml(book.metadata.title ?? 'Libro');
   return `<!doctype html>
 <html lang="${escapeHtml(book.metadata.language)}">
@@ -133,9 +141,7 @@ function renderPage(
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>${title} · Lectio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+${FONT_LINKS}
 <style>${css}</style>
 </head>
 <body>
@@ -147,12 +153,47 @@ function renderPage(
 `;
 }
 
-function escapeHtml(text: string): string {
-  return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
+/** Ficha del libro para la biblioteca (`lectio library`), junto al preview. */
+export interface BookCard {
+  slug: string;
+  title: string;
+  author: string | null;
+  language: string;
+  /** Rutas relativas a la carpeta de la ficha. */
+  preview: string;
+  cover: string | null;
+  chapters: number;
+  narratedChapters: number;
+  estimatedMinutes: number;
+  generatedAt: string;
+}
+
+async function writeBookCard(
+  book: ProcessedBook,
+  previewPath: string,
+  slug: string,
+  audio: Map<number, ChapterAudio>,
+): Promise<void> {
+  const dir = dirname(previewPath);
+  let cover: string | null = null;
+  if (book.cover) {
+    const extension = book.cover.mediaType.split('/')[1]?.replace('jpeg', 'jpg') ?? 'img';
+    cover = `cover.${extension}`;
+    await writeFile(join(dir, cover), book.cover.data);
+  }
+  const card: BookCard = {
+    slug,
+    title: book.metadata.title ?? slug,
+    author: book.metadata.authors[0] ?? null,
+    language: book.metadata.language,
+    preview: basename(previewPath),
+    cover,
+    chapters: book.report.chapters.total,
+    narratedChapters: audio.size,
+    estimatedMinutes: book.report.characters.estimatedMinutes,
+    generatedAt: new Date().toISOString(),
+  };
+  await writeFile(join(dir, 'book.json'), `${JSON.stringify(card, null, 2)}\n`, 'utf8');
 }
 
 function openInBrowser(path: string): void {

@@ -45,12 +45,19 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 ## 4. Arquitectura prevista
 
 - Cada tema es un **módulo**: tokens de color, tipografía y espaciado para día y noche, sus piezas de arte (escena, marcos, íconos, compañero), su paleta de sonidos y su música.
-- Un **registro de temas** activa uno con `data-theme` y `data-mode` (día o noche) en la raíz, sin recargar.
+- Un **registro de temas** activa uno con `data-world` y `data-mode` (día o noche) en la raíz, sin recargar.
 - El tema **Clásico** es el que ya existe: el sistema de temas se construye alrededor de él sin romperlo.
 - La elección se guarda por usuario (hoy en `localStorage`; en la app, en sus preferencias).
 
 ## 5. Pendiente de decidir
 
-- Qué tema se construye primero.
-- Nombres y personalidad de los compañeros.
+- ~~Qué tema se construye primero~~: el Scriptorium (ver §6).
+- Nombres y personalidad de los compañeros (el del Scriptorium: Sabio, el búho).
 - Motivos musicales de cada tema (instrumentación chiptune: laúd y órgano simulados para el scriptorium, arpa y flauta para el bosque, sintetizadores luminosos para el solarpunk).
+
+## 6. Avance
+
+- **Scriptorium (primer tema), en el preview de la CLI:** tokens de día y noche, marcos de madera, página de pergamino con esquineros e inicial iluminada, escena pixel (muros, estanterías, ventanal con sol o luna, vela, polvo en el haz de luz), el búho Sabio como compañero, efectos y música chiptune sintetizados con Web Audio (música apagada por defecto, se aparta cuando suena la narración).
+- **Portada y biblioteca:** `lectio library` genera `out/index.html` con la pantalla de título (elección de mundo) y la estantería de lomos pixel; cada preview deja su `book.json`.
+- Código: `apps/cli/assets/theme/` (theme.js, pixel.js, sound.js, scriptorium.css) y `apps/cli/assets/library/`.
+- Pendiente: Bosque élfico y Solarpunk; afinar la música tras escucharla.
