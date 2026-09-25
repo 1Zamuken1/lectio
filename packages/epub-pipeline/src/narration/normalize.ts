@@ -10,13 +10,38 @@ const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
 export function normalizeNarration(text: string, vocabulary: ReadonlySet<string>): string {
   const cleaned = text.normalize('NFC').replace(INVISIBLE, '').replace(CONTROL, '');
-  const joined = joinHyphenation(cleaned, vocabulary);
+  // Primero la división silábica ("conver- sión"): tiene la misma forma que un guion de inciso.
+  const joined = softenDashes(joinHyphenation(cleaned, vocabulary));
   const collapsed = joined
     .replace(/\s+/g, ' ')
     .replace(/\s+([,.;:!?…»”)])/g, '$1')
     .trim();
   // Una oración sin letras ni cifras ("* * *", "—") no tiene nada que narrar.
   return /[\p{L}\p{N}]/u.test(collapsed) ? collapsed : '';
+}
+
+/** Raya, semirraya y barra horizontal: las que se usan para diálogos e incisos. */
+const DASH = '[—–―]';
+
+/**
+ * Rayas de diálogo e inciso ("—Vamos —dijo el viajero—, humanidad tenemos"). Edge TTS
+ * hace en cada raya una pausa de coma (~200 ms, medido): en un diálogo con acotación
+ * se acumulan varias seguidas y la lectura suena entrecortada. Se quitan de la
+ * narración; las comas se conservan porque dan la entonación.
+ *
+ * - raya inicial del parlamento: se elimina;
+ * - raya pegada a un signo de cierre ("gozo—,"): se elimina, el signo se conserva;
+ * - raya entre palabras: se convierte en espacio.
+ *
+ * El guion común solo se trata como raya cuando está separado por espacios
+ * ("dijo - con voz grave"): entre dos letras ("franco-alemán") es parte de la palabra.
+ */
+function softenDashes(text: string): string {
+  return text
+    .replace(new RegExp(`^\\s*${DASH}+\\s*`, 'u'), '')
+    .replace(new RegExp(`\\s*${DASH}+\\s*(?=[,.;:!?…»”’")])`, 'gu'), '')
+    .replace(new RegExp(`\\s*${DASH}+\\s*`, 'gu'), ' ')
+    .replace(/(?<=\p{L})\s+-\s+(?=\p{L})|(?<=\p{L})-\s+(?=[\p{L}«"“])|(?<=\s)-(?=\p{L})/gu, ' ');
 }
 
 /**

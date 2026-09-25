@@ -9,7 +9,7 @@ import {
   type ProcessedChapter,
   type TtsResult,
 } from '@lectio/epub-pipeline';
-import { DEFAULT_VOICES, EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
+import { DEFAULT_RATE, DEFAULT_VOICES, EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, formatNumber, style, userPath } from '../ui/terminal.js';
 
@@ -19,6 +19,7 @@ export interface NarrateOptions {
   out?: string;
   force?: boolean;
   concurrency?: string;
+  rate?: string;
 }
 
 /** Un capítulo narrado, tal como lo lee el preview (`audio/manifest.json`). */
@@ -30,6 +31,8 @@ export interface ManifestEntry {
   durationMs: number;
   characters: number;
   voice: string;
+  /** Velocidad de síntesis (ej. "+12%"). */
+  rate: string;
   provider: string;
   pipelineVersion: number;
 }
@@ -54,10 +57,10 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
   const totalChars = selected.reduce((n, c) => n + c.characterCount, 0);
   console.log(
     `\n${style.bold(book.metadata.title ?? 'Libro')} · ${selected.length} capítulo(s) · ` +
-      `${formatNumber(totalChars)} caracteres · voz ${style.blue(voice)}\n`,
+      `${formatNumber(totalChars)} caracteres · voz ${style.blue(voice)} a ${options.rate ?? DEFAULT_RATE}\n`,
   );
 
-  const provider = new EdgeTtsProvider();
+  const provider = new EdgeTtsProvider({ rate: options.rate });
   const concurrency = Math.max(1, Math.min(4, Number(options.concurrency ?? 2)));
   let sent = 0;
   try {
@@ -68,6 +71,7 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
       const reusable =
         !options.force &&
         existing?.voice === voice &&
+        existing.rate === provider.rate &&
         existing.pipelineVersion === book.pipelineVersion &&
         existsSync(join(dir, existing.audio)) &&
         existsSync(join(dir, existing.alignment));
@@ -100,6 +104,7 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
         durationMs: alignment.durationMs,
         characters: chapter.characterCount,
         voice,
+        rate: provider.rate,
         provider: provider.name,
         pipelineVersion: book.pipelineVersion,
       });

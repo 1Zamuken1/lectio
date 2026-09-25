@@ -49,6 +49,10 @@ export function createProgram(): Command {
     )
     .option('-v, --voice <voz>', 'voz de Edge TTS (ver "lectio voices")')
     .option('-o, --out <carpeta>', 'carpeta de salida (por defecto out/<libro>/audio)')
+    .option(
+      '-r, --rate <velocidad>',
+      'velocidad de síntesis, ej. "+0%", "+12%" (por defecto), "+25%"',
+    )
     .option('--concurrency <n>', 'fragmentos en paralelo (1 a 4)', '2')
     .option('--force', 'regenerar aunque el capítulo ya exista')
     .action(withErrors((file: string, options: NarrateOptions) => narrate(file, options)));

@@ -4,22 +4,22 @@ idioma: en · índice: nav · pipeline v1
 ## Estructura
   0 front_matter      65  Titlepage  [semantic: epub:type=titlepage]
   1 front_matter    1184  Imprint  [semantic: epub:type=imprint]
-  2 narrative      18723  A Scandal in Bohemia › I  [semantic: epub:type=chapter]
-  3 narrative      21006  A Scandal in Bohemia › II  [semantic: epub:type=chapter]
-  4 narrative       5732  A Scandal in Bohemia › III  [semantic: epub:type=chapter]
-  5 narrative      48465  The Redheaded League  [semantic: epub:type=bodymatter]
-  6 narrative      37368  A Case of Identity  [semantic: epub:type=bodymatter]
-  7 narrative      50503  The Boscombe Valley Mystery  [semantic: epub:type=bodymatter]
-  8 narrative      38794  The Five Orange Pips  [semantic: epub:type=bodymatter]
-  9 narrative      48347  The Man with the Twisted Lip  [semantic: epub:type=bodymatter]
- 10 narrative      41338  The Adventure of the Blue Carbuncle  [semantic: epub:type=bodymatter]
- 11 narrative      52095  The Adventure of the Speckled Band  [semantic: epub:type=bodymatter]
- 12 narrative      43968  The Adventure of the Engineer’s Thumb  [semantic: epub:type=bodymatter]
- 13 narrative      43331  The Adventure of the Noble Bachelor  [semantic: epub:type=bodymatter]
- 14 narrative      50175  The Adventure of the Beryl Coronet  [semantic: epub:type=bodymatter]
- 15 narrative      52261  The Adventure of the Copper Beeches  [semantic: epub:type=bodymatter]
+  2 narrative      18706  A Scandal in Bohemia › I  [semantic: epub:type=chapter]
+  3 narrative      21001  A Scandal in Bohemia › II  [semantic: epub:type=chapter]
+  4 narrative       5726  A Scandal in Bohemia › III  [semantic: epub:type=chapter]
+  5 narrative      48453  The Redheaded League  [semantic: epub:type=bodymatter]
+  6 narrative      37349  A Case of Identity  [semantic: epub:type=bodymatter]
+  7 narrative      50488  The Boscombe Valley Mystery  [semantic: epub:type=bodymatter]
+  8 narrative      38772  The Five Orange Pips  [semantic: epub:type=bodymatter]
+  9 narrative      48329  The Man with the Twisted Lip  [semantic: epub:type=bodymatter]
+ 10 narrative      41317  The Adventure of the Blue Carbuncle  [semantic: epub:type=bodymatter]
+ 11 narrative      52083  The Adventure of the Speckled Band  [semantic: epub:type=bodymatter]
+ 12 narrative      43963  The Adventure of the Engineer’s Thumb  [semantic: epub:type=bodymatter]
+ 13 narrative      43308  The Adventure of the Noble Bachelor  [semantic: epub:type=bodymatter]
+ 14 narrative      50159  The Adventure of the Beryl Coronet  [semantic: epub:type=bodymatter]
+ 15 narrative      52238  The Adventure of the Copper Beeches  [semantic: epub:type=bodymatter]
  16 back_matter     1057  Colophon  [semantic: epub:type=colophon]
- 17 back_matter     2046  Uncopyright  [semantic: epub:type=copyright-page]
+ 17 back_matter     2044  Uncopyright  [semantic: epub:type=copyright-page]
 
 ## Reglas
 limpieza: S1_page_numbers=0+0 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+0
@@ -36,7 +36,7 @@ warnings: ninguno
 [6·b2] = All emotions, and that one particularly, were abhorrent to his cold, precise but admirably balanced mind.
 [7·b2] = He was, I take it, the most perfect reasoning and observing machine that the world has seen, but as a lover he would have placed himself in a false position.
 [8·b2] = He never spoke of the softer passions, save with a gibe and a sneer.
-[9·b2] = They were admirable things for the observer —excellent for drawing the veil from men’s motives and actions.
+[9·b2] ≠ They were admirable things for the observer excellent for drawing the veil from men’s motives and actions.
 [10·b2] = But for the trained reasoner to admit such intrusions into his own delicate and finely adjusted temperament was to introduce a distracting factor which might throw a doubt upon all his mental results.
 [11·b2] = Grit in a sensitive instrument, or a crack in one of his own high-power lenses, would not be more disturbing than a strong emotion in a nature such as his.
 [12·b2] = And yet there was but one woman to him, and that woman was the late Irene Adler, of dubious and questionable memory.
@@ -46,7 +46,7 @@ warnings: ninguno
 [16·b3] = He was still, as ever, deeply attracted by the study of crime, and occupied his immense faculties and extraordinary powers of observation in following out those clues, and clearing up those mysteries which had been abandoned as hopeless by the official police.
 [17·b3] = From time to time I heard some vague account of his doings: of his summons to Odessa in the case of the Trepoff murder, of his clearing up of the singular tragedy of the Atkinson brothers at Trincomalee, and finally of the mission which he had accomplished so delicately and successfully for the reigning family of Holland.
 [18·b3] = Beyond these signs of his activity, however, which I merely shared with all the readers of the daily press, I knew little of my former friend and companion.
-[19·b4] = One night —it was on the twentieth of March, 1888 —I was returning from a journey to a patient (for I had now returned to civil practice), when my way led me through Baker Street.
+[19·b4] ≠ One night it was on the twentieth of March, 1888 I was returning from a journey to a patient (for I had now returned to civil practice), when my way led me through Baker Street.
 [20·b4] = As I passed the well-remembered door, which must always be associated in my mind with my wooing, and with the dark incidents of the Study in Scarlet, I was seized with a keen desire to see Holmes again, and to know how he was employing his extraordinary powers.
 [21·b4] = His rooms were brilliantly lit, and, even as I looked up, I saw his tall, spare figure pass twice in a dark silhouette against the blind.
 [22·b4] = He was pacing the room swiftly, eagerly, with his head sunk upon his chest and his hands clasped behind him.
@@ -74,7 +74,7 @@ warnings: ninguno
 [2·b1] = The habit grew upon him, as I understand, from some foolish freak when he was at college; for having read De Quincey’s description of his dreams and sensations, he had drenched his tobacco with laudanum in an attempt to produce the same effects.
 [3·b1] = He found, as so many more have done, that the practice is easier to attain than to get rid of, and for many years he continued to be a slave to the drug, an object of mingled horror and pity to his friends and relatives.
 [4·b1] = I can see him now, with yellow, pasty face, drooping lids, and pinpoint pupils, all huddled in a chair, the wreck and ruin of a noble man.
-[5·b2] = One night —it was in June, ’89 —there came a ring to my bell, about the hour when a man gives his first yawn and glances at the clock.
+[5·b2] ≠ One night it was in June, ’89 there came a ring to my bell, about the hour when a man gives his first yawn and glances at the clock.
 [6·b2] = I sat up in my chair, and my wife laid her needlework down in her lap and made a little face of disappointment.
 [7·b3] = “A patient!” said she.
 [8·b3] = “You’ll have to go out.”
@@ -115,10 +115,10 @@ warnings: ninguno
 [1·b1] = “To the man who loves art for its own sake,” remarked Sherlock Holmes, tossing aside the advertisement sheet of the Daily Telegraph, “it is frequently in its least important and lowliest manifestations that the keenest pleasure is to be derived.
 [2·b1] = It is pleasant to me to observe, Watson, that you have so far grasped this truth that in these little records of our cases which you have been good enough to draw up, and, I am bound to say, occasionally to embellish, you have given prominence not so much to the many causes célèbres and sensational trials in which I have figured but rather to those incidents which may have been trivial in themselves, but which have given room for those faculties of deduction and of logical synthesis which I have made my special province.”
 [3·b2] = “And yet,” said I, smiling, “I cannot quite hold myself absolved from the charge of sensationalism which has been urged against my records.”
-[4·b3] = “You have erred, perhaps,” he observed, taking up a glowing cinder with the tongs and lighting with it the long cherrywood pipe which was wont to replace his clay when he was in a disputatious rather than a meditative mood —“you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.”
+[4·b3] ≠ “You have erred, perhaps,” he observed, taking up a glowing cinder with the tongs and lighting with it the long cherrywood pipe which was wont to replace his clay when he was in a disputatious rather than a meditative mood “you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.”
 [5·b4] = “It seems to me that I have done you full justice in the matter,” I remarked with some coldness, for I was repelled by the egotism which I had more than once observed to be a strong factor in my friend’s singular character.
 [6·b5] = “No, it is not selfishness or conceit,” said he, answering, as was his wont, my thoughts rather than my words.
-[7·b5] = “If I claim full justice for my art, it is because it is an impersonal thing —a thing beyond myself.
+[7·b5] ≠ “If I claim full justice for my art, it is because it is an impersonal thing a thing beyond myself.
 [8·b5] = Crime is common.
 [9·b5] = Logic is rare.
 [10·b5] = Therefore it is upon the logic rather than upon the crime that you should dwell.
@@ -140,7 +140,7 @@ warnings: ninguno
 [26·b9] = Read it!”
 [27·b9] = He tossed a crumpled letter across to me.
 [28·b10] = It was dated from Montague Place upon the preceding evening, and ran thus:
-[29·b11] = “Dear Mr. Holmes: —I am very anxious to consult you as to whether I should or should not accept a situation which has been offered to me as governess.
+[29·b11] ≠ “Dear Mr. Holmes: I am very anxious to consult you as to whether I should or should not accept a situation which has been offered to me as governess.
 [30·b11] = I shall call at half-past ten tomorrow if I do not inconvenience you.
 [31·b11] = Yours faithfully,
 [32·b12] = “Violet Hunter.”

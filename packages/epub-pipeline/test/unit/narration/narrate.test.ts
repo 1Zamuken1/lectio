@@ -88,7 +88,43 @@ describe('etapa 9: normalización', () => {
       await narrationOf(
         '<p>Tuvimos una conversación larga.</p><p>Otra conver- sación y un bien- estar.</p>',
       ),
-    ).toEqual(['Tuvimos una conversación larga.', 'Otra conversación y un bien- estar.']);
+    ).toEqual(['Tuvimos una conversación larga.', 'Otra conversación y un bien estar.']);
+  });
+
+  it.each([
+    [
+      'raya de inciso entre palabras',
+      '<p>Y el hombre dijo —con voz grave— «oye, chico, ¿qué llevas ahí?»</p>',
+      'Y el hombre dijo con voz grave «oye, chico, ¿qué llevas ahí?»',
+    ],
+    [
+      'raya inicial de parlamento y raya pegada a la coma',
+      '<p>—Vamos —dijo el viajero lleno de gozo—, humanidad tenemos.</p>',
+      'Vamos dijo el viajero lleno de gozo, humanidad tenemos.',
+    ],
+    [
+      'acotación que cierra con raya y punto',
+      '<p>—No puedo equivocarme —murmuró—.</p>',
+      'No puedo equivocarme murmuró.',
+    ],
+    [
+      'guion común usado como raya',
+      '<p>Y el hombre dijo - con voz grave - que no.</p>',
+      'Y el hombre dijo con voz grave que no.',
+    ],
+    [
+      'guion pegado al final de un inciso',
+      '<p>Dijo -con voz grave- que no.</p>',
+      'Dijo con voz grave que no.',
+    ],
+  ])('las rayas no generan pausas: %s', async (_, body, expected) => {
+    expect(await narrationOf(body)).toEqual([expected]);
+  });
+
+  it('el guion dentro de una palabra compuesta y los rangos numéricos no se tocan', async () => {
+    expect(await narrationOf('<p>El acuerdo franco-alemán de 1914-1918.</p>')).toEqual([
+      'El acuerdo franco-alemán de 1914-1918.',
+    ]);
   });
 
   it('una oración sin letras ni cifras no se narra', async () => {

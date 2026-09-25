@@ -3,11 +3,11 @@ idioma: en · índice: nav · pipeline v1
 
 ## Estructura
   0 front_matter     212  The Waste Land  [semantic: epub:type=titlepage]
-  1 narrative       3101  I. THE BURIAL OF THE DEAD  [semantic: epub:type=bodymatter]
-  2 narrative       3918  II. A GAME OF CHESS  [semantic: epub:type=bodymatter]
+  1 narrative       3100  I. THE BURIAL OF THE DEAD  [semantic: epub:type=bodymatter]
+  2 narrative       3914  II. A GAME OF CHESS  [semantic: epub:type=bodymatter]
   3 narrative       4675  III. THE FIRE SERMON  [semantic: epub:type=bodymatter]
   4 narrative        377  IV. DEATH BY WATER  [semantic: epub:type=bodymatter]
-  5 narrative       3848  V. WHAT THE THUNDER SAID  [semantic: epub:type=bodymatter]
+  5 narrative       3845  V. WHAT THE THUNDER SAID  [semantic: epub:type=bodymatter]
   6 notes           8806  NOTES ON "THE WASTE LAND"  [semantic: epub:type=rearnotes]
 
 ## Reglas

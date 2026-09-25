@@ -6,29 +6,29 @@ idioma: es · índice: nav · pipeline v1
   1 front_matter     712  The Project Gutenberg eBook of Marianela  [title: título "The Project Gutenberg eBook of Marianela"]
   2 front_matter      82  Marianela  [heuristic?: corta y antes del cuerpo del libro]
   3 front_matter      10  Capítulos:  [title: título "Capítulos:"]
-  4 narrative      10349  -I- Perdido  [default: sin señales de material auxiliar]
-  5 narrative      15218  -II- Guiado  [default: sin señales de material auxiliar]
-  6 narrative      11441  -III- Un diálogo que servirá de exposición  [default: sin señales de material auxiliar]
-  7 narrative      18535  -IV- La familia de piedra  [default: sin señales de material auxiliar]
-  8 narrative      12955  -V- Trabajo. Paisaje. Figura  [default: sin señales de material auxiliar]
-  9 narrative      10961  -VI- Tonterías  [default: sin señales de material auxiliar]
- 10 narrative      12264  -VII- Más tonterías  [default: sin señales de material auxiliar]
- 11 narrative      14481  -VIII- Prosiguen las tonterías  [default: sin señales de material auxiliar]
- 12 narrative      20906  -IX- Los Golfines  [default: sin señales de material auxiliar]
- 13 narrative       7554  -X- Historia de dos hijos del pueblo  [default: sin señales de material auxiliar]
- 14 narrative      14014  -XI- El patriarca de Aldeacorba  [default: sin señales de material auxiliar]
- 15 narrative       7605  -XII- El doctor Celipín  [default: sin señales de material auxiliar]
- 16 narrative       7719  -XIII- Entre dos cestas  [default: sin señales de material auxiliar]
- 17 narrative      15255  -XIV- De cómo la Virgen María se apareció a la Nela  [default: sin señales de material auxiliar]
- 18 narrative       9472  -XV- Los tres  [default: sin señales de material auxiliar]
- 19 narrative       7936  -XVI- La promesa  [default: sin señales de material auxiliar]
- 20 narrative      13979  -XVII- Fugitiva y meditabunda  [default: sin señales de material auxiliar]
- 21 narrative       9379  -XVIII- La Nela se decide a partir  [default: sin señales de material auxiliar]
- 22 narrative      20652  -XIX- Domesticación  [default: sin señales de material auxiliar]
- 23 narrative      14337  -XX- El nuevo mundo  [default: sin señales de material auxiliar]
- 24 narrative      27391  -XXI- Los ojos matan  [default: sin señales de material auxiliar]
+  4 narrative      10322  -I- Perdido  [default: sin señales de material auxiliar]
+  5 narrative      15153  -II- Guiado  [default: sin señales de material auxiliar]
+  6 narrative      11359  -III- Un diálogo que servirá de exposición  [default: sin señales de material auxiliar]
+  7 narrative      18506  -IV- La familia de piedra  [default: sin señales de material auxiliar]
+  8 narrative      12953  -V- Trabajo. Paisaje. Figura  [default: sin señales de material auxiliar]
+  9 narrative      10882  -VI- Tonterías  [default: sin señales de material auxiliar]
+ 10 narrative      12203  -VII- Más tonterías  [default: sin señales de material auxiliar]
+ 11 narrative      14408  -VIII- Prosiguen las tonterías  [default: sin señales de material auxiliar]
+ 12 narrative      20841  -IX- Los Golfines  [default: sin señales de material auxiliar]
+ 13 narrative       7537  -X- Historia de dos hijos del pueblo  [default: sin señales de material auxiliar]
+ 14 narrative      13968  -XI- El patriarca de Aldeacorba  [default: sin señales de material auxiliar]
+ 15 narrative       7575  -XII- El doctor Celipín  [default: sin señales de material auxiliar]
+ 16 narrative       7716  -XIII- Entre dos cestas  [default: sin señales de material auxiliar]
+ 17 narrative      15225  -XIV- De cómo la Virgen María se apareció a la Nela  [default: sin señales de material auxiliar]
+ 18 narrative       9441  -XV- Los tres  [default: sin señales de material auxiliar]
+ 19 narrative       7922  -XVI- La promesa  [default: sin señales de material auxiliar]
+ 20 narrative      13933  -XVII- Fugitiva y meditabunda  [default: sin señales de material auxiliar]
+ 21 narrative       9342  -XVIII- La Nela se decide a partir  [default: sin señales de material auxiliar]
+ 22 narrative      20560  -XIX- Domesticación  [default: sin señales de material auxiliar]
+ 23 narrative      14272  -XX- El nuevo mundo  [default: sin señales de material auxiliar]
+ 24 narrative      27266  -XXI- Los ojos matan  [default: sin señales de material auxiliar]
  25 narrative       6422  -XXII- Adiós  [default: sin señales de material auxiliar]
- 26 back_matter    16517  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
+ 26 back_matter    16511  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
 
 ## Reglas
 limpieza: S1_page_numbers=0+0 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+0
@@ -45,13 +45,13 @@ warnings: ninguno
 [6·b2] = Vestía el traje propio de los señores acomodados que viajan en verano, con el redondo sombrerete, que debe a su fealdad el nombre de hongo, gemelos de campo pendientes de una correa, y grueso bastón que, entre paso y paso, le servía para apalear las zarzas cuando extendían sus ramas llenas de afiladas uñas para atraparle la ropa.
 [7·b3] = Detúvose, y mirando a todo el círculo del horizonte, parecía impaciente y desasosegado.
 [8·b3] = Sin duda no tenía gran confianza en la exactitud de su itinerario y aguardaba el paso de algún aldeano que le diese buenos informes topográficos para llegar pronto y derechamente a su destino.
-[9·b4] = —No puedo equivocarme—murmuró—.
+[9·b4] ≠ No puedo equivocarme murmuró.
 [10·b4] = Me dijeron que atravesara el río por la pasadera... así lo hice.
 [11·b4] = Después que marchara adelante, siempre adelante.
 [12·b4] = En efecto, allá, detrás de mí queda esa apreciable villa, a quien yo llamaría Villafangosa por el buen surtido de lodos que hay en sus calles y caminos....
 [13·b4] = De modo que por aquí, adelante, siempre adelante (me gusta esta frase, y si yo tuviera escudo no le pondría otra divisa) he de llegar a las famosas minas de Socartes.
 [14·b5] = Después de andar largo trecho, añadió:
-[15·b6] = —Me he perdido, no hay duda de que me he perdido....
+[15·b6] ≠ Me he perdido, no hay duda de que me he perdido....
 [16·b6] = Aquí tienes, Teodoro Golfín, el resultado de tu adelante, siempre adelante.
 [17·b6] = Estos palurdos no conocen el valor de las palabras.
 [18·b6] = O han querido burlarse de ti, o ellos mismos ignoran dónde están las minas de Socartes.
@@ -70,7 +70,7 @@ warnings: ninguno
 [31·b7] = Y puesta denodadamente en ejecución aquella osada ley, recorrió un kilómetro, siguiendo a capricho las veredas que le salían al paso y se cruzaban y se quebraban en ángulos mil, cual si quisiesen engañarle y confundirle más.
 [32·b7] = Por grande que fuera su resolución e intrepidez, al fin tuvo que pararse.
 [33·b7] = Las veredas, que al principio subían, luego empezaron a bajar, enlazándose; y al fin bajaron tanto, que nuestro viajero hallose en un talud, por el cual sólo habría podido descender echándose a rodar.
-[34·b8] = —¡Bonita situación!—exclamó sonriendo y buscando en su buen humor lenitivo a la enojosa contrariedad—.
+[34·b8] ≠ ¡Bonita situación! exclamó sonriendo y buscando en su buen humor lenitivo a la enojosa contrariedad.
 [35·b8] = ¿En dónde estás, querido Golfín?
 [36·b8] = Esto parece un abismo.
 [37·b8] = ¿Ves algo allá abajo?
@@ -85,32 +85,32 @@ warnings: ninguno
 [4·b1] = La familia de piedra dormía.
 [5·b2] = Cuando la casa fue el mismo Limbo, oyose en la cocina rumorcillo como de alimañas que salen de sus agujeros para buscarse la vida.
 [6·b2] = Las cestas se abrieron y Celipín oyó estas palabras:
-[7·b3] = —Celipín, esta noche sí que te traigo un buen regalo; mira.
+[7·b3] ≠ Celipín, esta noche sí que te traigo un buen regalo; mira.
 [8·b4] = Celipín no podía distinguir nada; pero alargando su mano tomó de la de María dos duros como dos soles, de cuya autenticidad se cercioró por el tacto, ya que por la vista difícilmente podía hacerlo, quedándose pasmado y mudo.
-[9·b5] = —Me los dio D. Teodoro—añadió la Nela—para que me comprara unos zapatos.
+[9·b5] ≠ Me los dio D. Teodoro añadió la Nela para que me comprara unos zapatos.
 [10·b5] = Como yo para nada necesito zapatos, te los doy, y así pronto juntarás aquello.
-[11·b6] = —¡Córcholis!, ¡que eres más buena que María Santísima!...
+[11·b6] ≠ ¡Córcholis!, ¡que eres más buena que María Santísima!...
 [12·b6] = Ya poco me falta, Nela, y en cuanto apande media docena de reales... ya verán quién es Celipín.
-[13·b7] = —Mira, hijito, el que me ha dado ese dinero andaba por las calles pidiendo limosna cuando era niño, y después....
-[14·b8] = —¡Córcholis!
+[13·b7] ≠ Mira, hijito, el que me ha dado ese dinero andaba por las calles pidiendo limosna cuando era niño, y después....
+[14·b8] ≠ ¡Córcholis!
 [15·b8] = ¡Quién lo había de decir!...
 [16·b8] = D. Teodoro....
 [17·b8] = ¡Y ahora tiene más dinero!...
 [18·b8] = Dicen que lo que tiene no lo cargan seis mulas.
-[19·b9] = —Y dormía en las calles y servía de criado y no tenía calzones... en fin, que era más pobre que las ratas.
+[19·b9] ≠ Y dormía en las calles y servía de criado y no tenía calzones... en fin, que era más pobre que las ratas.
 [20·b9] = Su hermano D. Carlos vivía en una casa de trapo viejo.
-[21·b10] = —¡Jesús!
+[21·b10] ≠ ¡Jesús!
 [22·b10] = ¡Córcholis!
 [23·b10] = Y qué cosas se ven por esas tierras....
 [24·b10] = Yo también me buscaré una casa de trapo viejo.
-[25·b11] = —Y después tuvo que ser barbero para ganarse la vida y poder estudiar.
-[26·b12] = —Miá tú... yo tengo pensado irme derecho a una barbería....
+[25·b11] ≠ Y después tuvo que ser barbero para ganarse la vida y poder estudiar.
+[26·b12] ≠ Miá tú... yo tengo pensado irme derecho a una barbería....
 [27·b12] = Yo me pinto solo para rapar....
 [28·b12] = ¡Pues soy yo poco listo en gracia de Dios!
 [29·b12] = Desde que yo llegue a Madrid, por un lado rapando y por otro estudiando, he de aprender en dos meses toda la ciencia.
 [30·b12] = Miá tú, ahora se me ha ocurrido que debo tirar para médico....
 [31·b12] = Sí, médico, que echando una mano a este pulso, otra mano al otro, se llena de dinero el bolsillo.
-[32·b13] = —D. Teodoro—dijo la Nela—tenía menos que tú, porque tú vas a tener cinco duros, y con cinco duros parece que todo se ha de venir a la mano.
+[32·b13] ≠ D. Teodoro dijo la Nela tenía menos que tú, porque tú vas a tener cinco duros, y con cinco duros parece que todo se ha de venir a la mano.
 [33·b13] = Aquí de los hombres guapos.
 [34·b13] = Don Teodoro y D. Carlos eran como los pájaros que andan solos por el mundo.
 [35·b13] = Ellos con su buen gobierno se volvieron sabios.
@@ -157,6 +157,6 @@ warnings: ninguno
 [34·b12] = Pero no: este libro no le corresponde.
 [35·b12] = Acoged bien el de Marianela y a su debido tiempo se os dará el de Celipín.
 [36·b13] = FIN DE «MARIANELA»
-[37·b14] = Madrid.—Enero de 1878.
+[37·b14] ≠ Madrid. Enero de 1878.
 [38·b15] = *** END OF THE PROJECT GUTENBERG EBOOK MARIANELA ***
-[39·b16] = Updated editions will replace the previous one—the old editions will be renamed.
+[39·b16] ≠ Updated editions will replace the previous one the old editions will be renamed.

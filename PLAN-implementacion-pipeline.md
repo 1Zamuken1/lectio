@@ -258,6 +258,12 @@ Resultado: *Marianela* caps. 1–2 (26 min de audio) generados en ~45 s, alineac
 - [ ] Borrar este plan.
 
 
+**Primera escucha (25-09-2026), hallazgos y correcciones:**
+- *Diálogos con rayas entrecortados* ("dijo —con voz grave— «oye, chico…»"). Medido: Edge hace en cada raya una pausa de coma (~200 ms). → Las rayas de diálogo e inciso (y el guion usado como raya) salen de la narración; las comas se conservan. `<break>` de SSML no funciona en Edge, se descartó.
+- *La voz a 1× se siente lenta.* → Síntesis a **+12 %** (punto medio entre 1× y 1,25×), incorporada en el MP3 (`--rate` para cambiarla; el manifest la guarda y regenera si cambia). Acorta también las pausas de las comas: los capítulos quedan ~11 % más cortos.
+- *Velocidad solo por clic sucesivo.* → Menú como YouTube: valores predefinidos (0,5× a 3×) y control fino de 0,05.
+- *Cambio de capítulo accidental.* → Diálogo de confirmación si se está escuchando a mitad de capítulo, y cada capítulo recuerda su posición.
+
 **Pendiente: sesión de prueba de oído** (acordada para el 26-09-2026 o la semana siguiente). Guía para escuchar:
 
 1. `pnpm lectio narrate corpus/pg-marianela.epub --chapters 4-8` y escuchar en el preview (con modo revisión a mano para ver qué se narró).

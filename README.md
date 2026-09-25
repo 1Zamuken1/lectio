@@ -35,13 +35,13 @@ También sirve con **tus propios EPUB** (sin DRM): cambia la ruta por la de tu a
 
 ## Comandos
 
-| Comando | Qué hace |
-|---|---|
-| `pnpm lectio inspect <libro.epub> [--json]` | Estructura: secciones, tipo (narrativa, preliminar, final, notas), caracteres a narrar y reglas aplicadas. |
+| Comando                                                               | Qué hace                                                                                                                                                                                                                                 |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lectio inspect <libro.epub> [--json]`                           | Estructura: secciones, tipo (narrativa, preliminar, final, notas), caracteres a narrar y reglas aplicadas.                                                                                                                               |
 | `pnpm lectio narrate <libro.epub> [--chapters 4-6,9] [--voice <voz>]` | Genera un MP3 y su alineación por capítulo en `out/<libro>/audio/`, más `playlist.m3u`. Reanudable: lo ya generado se salta. Los números son los de la columna `#` de `inspect`; sin `--chapters`, narra todos los capítulos narrativos. |
-| `pnpm lectio preview <libro.epub> [--open]` | Genera `out/<libro>/preview.html`: una página autocontenida con el libro, el reproductor (si hay audio) y el reporte. |
-| `pnpm lectio voices [es\|es-CO\|en-GB…]` | Lista las voces disponibles. Por defecto: `es-CO-GonzaloNeural` en español y `en-US-AndrewNeural` en inglés. |
-| `pnpm serve` | Sirve `out/` en http://localhost:4173 (alternativa a `--open`, con soporte para adelantar el audio). |
+| `pnpm lectio preview <libro.epub> [--open]`                           | Genera `out/<libro>/preview.html`: una página autocontenida con el libro, el reproductor (si hay audio) y el reporte.                                                                                                                    |
+| `pnpm lectio voices [es\|es-CO\|en-GB…]`                              | Lista las voces disponibles. Por defecto: `es-CO-GonzaloNeural` en español y `en-US-AndrewNeural` en inglés.                                                                                                                             |
+| `pnpm serve`                                                          | Sirve `out/` en http://localhost:4173 (alternativa a `--open`, con soporte para adelantar el audio).                                                                                                                                     |
 
 El audio se genera con **Edge TTS**, un servicio gratuito pero no oficial de Microsoft (sin SLA). Está detrás de una interfaz para poder cambiarlo por otro proveedor; ver [`docs/lectio-decision-tts.md`](docs/lectio-decision-tts.md).
 
@@ -65,4 +65,4 @@ pnpm build
 pnpm --filter @lectio/epub-pipeline golden:update   # tras un cambio intencional en las reglas
 ```
 
-Los tests del corpus (`packages/epub-pipeline/test/corpus/`) se saltan solos si no se descargó el corpus. Los *golden files* (`test/golden/`) guardan la estructura y la narración de referencia de cada libro: un cambio en las reglas aparece como un diff legible.
+Los tests del corpus (`packages/epub-pipeline/test/corpus/`) se saltan solos si no se descargó el corpus. Los _golden files_ (`test/golden/`) guardan la estructura y la narración de referencia de cada libro: un cambio en las reglas aparece como un diff legible.

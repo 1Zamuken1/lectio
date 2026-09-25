@@ -19,6 +19,14 @@ const TICKS_PER_MS = 10_000;
 const REQUEST_TIMEOUT_MS = 90_000;
 const RETRIES = 3;
 
+/**
+ * Velocidad de síntesis. +12 %: punto medio entre la velocidad natural de la voz y 1,25×,
+ * elegido tras escuchar capítulos completos (la voz a 1× se sentía lenta). Va incorporada
+ * en el MP3, así que vale también en cualquier otro reproductor; además acorta en la
+ * misma proporción las pausas de las comas.
+ */
+export const DEFAULT_RATE = '+12%';
+
 export const DEFAULT_VOICES: Record<string, string> = {
   // Elegida escuchando muestras (docs/lectio-decision-tts.md §5).
   es: 'es-CO-GonzaloNeural',
@@ -35,6 +43,15 @@ export class EdgeTtsProvider implements TtsProvider {
 
   #client: MsEdgeTTS | null = null;
   #voice: string | null = null;
+  readonly #rate: string;
+
+  constructor(options: { rate?: string } = {}) {
+    this.#rate = options.rate ?? DEFAULT_RATE;
+  }
+
+  get rate(): string {
+    return this.#rate;
+  }
 
   async synthesize(input: { text: string; voiceId: string; language: string }): Promise<TtsResult> {
     let lastError: unknown;
@@ -61,7 +78,7 @@ export class EdgeTtsProvider implements TtsProvider {
   async #request(text: string, voice: string): Promise<TtsResult> {
     const client = await this.#connect(voice);
     // El texto se inserta tal cual dentro del SSML: hay que escapar lo que es XML.
-    const { audioStream, metadataStream } = client.toStream(escapeXml(text));
+    const { audioStream, metadataStream } = client.toStream(escapeXml(text), { rate: this.#rate });
     // Las marcas llegan antes que el fin del audio, pero el stream de metadatos no siempre
     // se cierra: se acumula lo recibido y se termina cuando termina el audio.
     const metadataChunks: Buffer[] = [];

@@ -5,48 +5,48 @@ idioma: en · índice: nav · pipeline v1
   0 front_matter      10  Moby-Dick  [landmark: landmark cover]
   1 front_matter     172  Moby-Dick  [semantic: epub:type=titlepage]
   2 front_matter     485  Original Transcriber’s Notes:  [semantic: epub:type=colophon]
-  3 front_matter    1107  ETYMOLOGY.  [semantic: epub:type=frontmatter]
-  4 narrative      19571  EXTRACTS (Supplied by a Sub-Sub-Librarian).  [semantic: epub:type=epigraph]
+  3 front_matter    1104  ETYMOLOGY.  [semantic: epub:type=frontmatter]
+  4 narrative      19486  EXTRACTS (Supplied by a Sub-Sub-Librarian).  [semantic: epub:type=epigraph]
   5 narrative      12093  Chapter 1. Loomings.  [semantic: epub:type=chapter]
-  6 narrative       7873  Chapter 2. The Carpet-Bag.  [semantic: epub:type=chapter]
-  7 narrative      31667  Chapter 3. The Spouter-Inn.  [semantic: epub:type=chapter]
-  8 narrative       9066  Chapter 4. The Counterpane.  [semantic: epub:type=chapter]
+  6 narrative       7871  Chapter 2. The Carpet-Bag.  [semantic: epub:type=chapter]
+  7 narrative      31665  Chapter 3. The Spouter-Inn.  [semantic: epub:type=chapter]
+  8 narrative       9065  Chapter 4. The Counterpane.  [semantic: epub:type=chapter]
   9 narrative       4157  Chapter 5. Breakfast.  [semantic: epub:type=chapter]
  10 narrative       4767  Chapter 6. The Street.  [semantic: epub:type=chapter]
- 11 narrative       5321  Chapter 7. The Chapel.  [semantic: epub:type=chapter]
+ 11 narrative       5320  Chapter 7. The Chapel.  [semantic: epub:type=chapter]
  12 narrative       5376  Chapter 8. The Pulpit.  [semantic: epub:type=chapter]
- 13 narrative      19515  Chapter 9. The Sermon.  [semantic: epub:type=chapter]
+ 13 narrative      19510  Chapter 9. The Sermon.  [semantic: epub:type=chapter]
  14 narrative       8631  Chapter 10. A Bosom Friend.  [semantic: epub:type=chapter]
  15 narrative       3923  Chapter 11. Nightgown.  [semantic: epub:type=chapter]
  16 narrative       4846  Chapter 12. Biographical.  [semantic: epub:type=chapter]
- 17 narrative       9616  Chapter 13. Wheelbarrow.  [semantic: epub:type=chapter]
+ 17 narrative       9615  Chapter 13. Wheelbarrow.  [semantic: epub:type=chapter]
  18 narrative       4309  Chapter 14. Nantucket.  [semantic: epub:type=chapter]
  19 narrative       6537  Chapter 15. Chowder.  [semantic: epub:type=chapter]
- 20 narrative      30186  Chapter 16. The Ship.  [semantic: epub:type=chapter]
+ 20 narrative      30180  Chapter 16. The Ship.  [semantic: epub:type=chapter]
  21 narrative      12518  Chapter 17. The Ramadan.  [semantic: epub:type=chapter]
- 22 narrative       7609  Chapter 18. His Mark.  [semantic: epub:type=chapter]
+ 22 narrative       7607  Chapter 18. His Mark.  [semantic: epub:type=chapter]
  23 narrative       6462  Chapter 19. The Prophet.  [semantic: epub:type=chapter]
  24 narrative       5123  Chapter 20. All Astir.  [semantic: epub:type=chapter]
  25 narrative       6048  Chapter 21. Going Aboard.  [semantic: epub:type=chapter]
- 26 narrative       9070  Chapter 22. Merry Christmas.  [semantic: epub:type=chapter]
+ 26 narrative       9068  Chapter 22. Merry Christmas.  [semantic: epub:type=chapter]
  27 narrative       2154  Chapter 23. The Lee Shore.  [semantic: epub:type=chapter]
  28 narrative       9613  Chapter 24. The Advocate.  [semantic: epub:type=chapter]
  29 narrative       1599  Chapter 25. Postscript.  [semantic: epub:type=chapter]
  30 narrative       6985  Chapter 26. Knights and Squires.  [semantic: epub:type=chapter]
  31 narrative       9455  Chapter 27. Knights and Squires.  [semantic: epub:type=chapter]
  32 narrative       8032  Chapter 28. Ahab.  [semantic: epub:type=chapter]
- 33 narrative       6499  Chapter 29. Enter Ahab; to Him, Stubb.  [semantic: epub:type=chapter]
- 34 narrative       1583  Chapter 30. The Pipe.  [semantic: epub:type=chapter]
+ 33 narrative       6498  Chapter 29. Enter Ahab; to Him, Stubb.  [semantic: epub:type=chapter]
+ 34 narrative       1582  Chapter 30. The Pipe.  [semantic: epub:type=chapter]
  35 narrative       4377  Chapter 31. Queen Mab.  [semantic: epub:type=chapter]
  36 narrative      29548  Chapter 32. Cetology.  [semantic: epub:type=chapter]
  37 narrative       5792  Chapter 33. The Specksnyder.  [semantic: epub:type=chapter]
  38 narrative      12607  Chapter 34. The Cabin-Table.  [semantic: epub:type=chapter]
- 39 narrative      14671  Chapter 35. The Mast-Head.  [semantic: epub:type=chapter]
- 40 narrative      15647  Chapter 36. The Quarter-Deck.  [semantic: epub:type=chapter]
+ 39 narrative      14670  Chapter 35. The Mast-Head.  [semantic: epub:type=chapter]
+ 40 narrative      15641  Chapter 36. The Quarter-Deck.  [semantic: epub:type=chapter]
  41 narrative       2725  Chapter 37. Sunset.  [semantic: epub:type=chapter]
  42 narrative       2056  Chapter 38. Dusk.  [semantic: epub:type=chapter]
- 43 narrative       1414  Chapter 39. First Night Watch.  [semantic: epub:type=chapter]
- 44 narrative       8588  Chapter 40. Midnight, Forecastle.  [semantic: epub:type=chapter]
+ 43 narrative       1413  Chapter 39. First Night Watch.  [semantic: epub:type=chapter]
+ 44 narrative       8587  Chapter 40. Midnight, Forecastle.  [semantic: epub:type=chapter]
  45 narrative      21852  Chapter 41. Moby Dick.  [semantic: epub:type=chapter]
  46 narrative      21022  Chapter 42. The Whiteness of The Whale.  [semantic: epub:type=chapter]
  47 narrative       1694  Chapter 43. Hark!  [semantic: epub:type=chapter]
@@ -54,50 +54,50 @@ idioma: en · índice: nav · pipeline v1
  49 narrative      19993  Chapter 45. The Affidavit.  [semantic: epub:type=chapter]
  50 narrative       5958  Chapter 46. Surmises.  [semantic: epub:type=chapter]
  51 narrative       5316  Chapter 47. The Mat-Maker.  [semantic: epub:type=chapter]
- 52 narrative      22231  Chapter 48. The First Lowering.  [semantic: epub:type=chapter]
+ 52 narrative      22229  Chapter 48. The First Lowering.  [semantic: epub:type=chapter]
  53 narrative       4648  Chapter 49. The Hyena.  [semantic: epub:type=chapter]
  54 narrative       5712  Chapter 50. Ahab’s Boat and Crew. Fedallah.  [semantic: epub:type=chapter]
  55 narrative       8628  Chapter 51. The Spirit-Spout.  [semantic: epub:type=chapter]
- 56 narrative       4015  Chapter 52. The Albatross.  [semantic: epub:type=chapter]
- 57 narrative       9306  Chapter 53. The Gam.  [semantic: epub:type=chapter]
- 58 narrative      44547  Chapter 54. The Town-Ho’s Story.  [semantic: epub:type=chapter]
+ 56 narrative       4012  Chapter 52. The Albatross.  [semantic: epub:type=chapter]
+ 57 narrative       9304  Chapter 53. The Gam.  [semantic: epub:type=chapter]
+ 58 narrative      44546  Chapter 54. The Town-Ho’s Story.  [semantic: epub:type=chapter]
  59 narrative      10853  Chapter 55. Of the Monstrous Pictures of Whales.  [semantic: epub:type=chapter]
  60 narrative       7535  Chapter 56. Of the Less Erroneous Pictures of Whales, and the True  [semantic: epub:type=chapter]
  61 narrative       5531  Chapter 57. Of Whales in Paint; in Teeth; in Wood; in Sheet-Iron; in  [semantic: epub:type=chapter]
  62 narrative       5724  Chapter 58. Brit.  [semantic: epub:type=chapter]
- 63 narrative       5307  Chapter 59. Squid.  [semantic: epub:type=chapter]
+ 63 narrative       5305  Chapter 59. Squid.  [semantic: epub:type=chapter]
  64 narrative       8175  Chapter 60. The Line.  [semantic: epub:type=chapter]
- 65 narrative      11008  Chapter 61. Stubb Kills a Whale.  [semantic: epub:type=chapter]
- 66 narrative       3129  Chapter 62. The Dart.  [semantic: epub:type=chapter]
+ 65 narrative      11007  Chapter 61. Stubb Kills a Whale.  [semantic: epub:type=chapter]
+ 66 narrative       3128  Chapter 62. The Dart.  [semantic: epub:type=chapter]
  67 narrative       2810  Chapter 63. The Crotch.  [semantic: epub:type=chapter]
- 68 narrative      16340  Chapter 64. Stubb’s Supper.  [semantic: epub:type=chapter]
+ 68 narrative      16336  Chapter 64. Stubb’s Supper.  [semantic: epub:type=chapter]
  69 narrative       5442  Chapter 65. The Whale as a Dish.  [semantic: epub:type=chapter]
  70 narrative       3601  Chapter 66. The Shark Massacre.  [semantic: epub:type=chapter]
  71 narrative       4179  Chapter 67. Cutting In.  [semantic: epub:type=chapter]
  72 narrative       6724  Chapter 68. The Blanket.  [semantic: epub:type=chapter]
  73 narrative       2484  Chapter 69. The Funeral.  [semantic: epub:type=chapter]
  74 narrative       5002  Chapter 70. The Sphynx.  [semantic: epub:type=chapter]
- 75 narrative      13067  Chapter 71. The Jeroboam’s Story.  [semantic: epub:type=chapter]
- 76 narrative       9218  Chapter 72. The Monkey-Rope.  [semantic: epub:type=chapter]
- 77 narrative      11489  Chapter 73. Stubb and Flask Kill a Right Whale; and Then Have a Talk  [semantic: epub:type=chapter]
+ 75 narrative      13061  Chapter 71. The Jeroboam’s Story.  [semantic: epub:type=chapter]
+ 76 narrative       9217  Chapter 72. The Monkey-Rope.  [semantic: epub:type=chapter]
+ 77 narrative      11488  Chapter 73. Stubb and Flask Kill a Right Whale; and Then Have a Talk  [semantic: epub:type=chapter]
  78 narrative       9025  Chapter 74. The Sperm Whale’s Head—Contrasted View.  [semantic: epub:type=chapter]
  79 narrative       6762  Chapter 75. The Right Whale’s Head—Contrasted View.  [semantic: epub:type=chapter]
  80 narrative       5028  Chapter 76. The Battering-Ram.  [semantic: epub:type=chapter]
  81 narrative       3776  Chapter 77. The Great Heidelburgh Tun.  [semantic: epub:type=chapter]
  82 narrative       9232  Chapter 78. Cistern and Buckets.  [semantic: epub:type=chapter]
- 83 narrative       5334  Chapter 79. The Prairie.  [semantic: epub:type=chapter]
+ 83 narrative       5333  Chapter 79. The Prairie.  [semantic: epub:type=chapter]
  84 narrative       5114  Chapter 80. The Nut.  [semantic: epub:type=chapter]
- 85 narrative      24215  Chapter 81. The Pequod Meets The Virgin.  [semantic: epub:type=chapter]
+ 85 narrative      24211  Chapter 81. The Pequod Meets The Virgin.  [semantic: epub:type=chapter]
  86 narrative       6471  Chapter 82. The Honour and Glory of Whaling.  [semantic: epub:type=chapter]
  87 narrative       4503  Chapter 83. Jonah Historically Regarded.  [semantic: epub:type=chapter]
  88 narrative       4648  Chapter 84. Pitchpoling.  [semantic: epub:type=chapter]
  89 narrative      11394  Chapter 85. The Fountain.  [semantic: epub:type=chapter]
  90 narrative      10353  Chapter 86. The Tail.  [semantic: epub:type=chapter]
- 91 narrative      27524  Chapter 87. The Grand Armada.  [semantic: epub:type=chapter]
+ 91 narrative      27522  Chapter 87. The Grand Armada.  [semantic: epub:type=chapter]
  92 narrative       7063  Chapter 88. Schools and Schoolmasters.  [semantic: epub:type=chapter]
  93 narrative       8112  Chapter 89. Fast-Fish and Loose-Fish.  [semantic: epub:type=chapter]
- 94 narrative       5834  Chapter 90. Heads or Tails.  [semantic: epub:type=chapter]
- 95 narrative      13946  Chapter 91. The Pequod Meets The Rose-Bud.  [semantic: epub:type=chapter]
+ 94 narrative       5833  Chapter 90. Heads or Tails.  [semantic: epub:type=chapter]
+ 95 narrative      13944  Chapter 91. The Pequod Meets The Rose-Bud.  [semantic: epub:type=chapter]
  96 narrative       5484  Chapter 92. Ambergris.  [semantic: epub:type=chapter]
  97 narrative       9184  Chapter 93. The Castaway.  [semantic: epub:type=chapter]
  98 narrative       7249  Chapter 94. A Squeeze of the Hand.  [semantic: epub:type=chapter]
@@ -106,7 +106,7 @@ idioma: en · índice: nav · pipeline v1
 101 narrative       1339  Chapter 97. The Lamp.  [semantic: epub:type=chapter]
 102 narrative       5787  Chapter 98. Stowing Down and Clearing Up.  [semantic: epub:type=chapter]
 103 narrative      13210  Chapter 99. The Doubloon.  [semantic: epub:type=chapter]
-104 narrative      14753  Chapter 100. Leg and Arm.  [semantic: epub:type=chapter]
+104 narrative      14743  Chapter 100. Leg and Arm.  [semantic: epub:type=chapter]
 105 narrative       9858  Chapter 101. The Decanter.  [semantic: epub:type=chapter]
 106 narrative       9014  Chapter 102. A Bower in the Arsacides.  [semantic: epub:type=chapter]
 107 narrative       5163  Chapter 103. Measurement of The Whale’s Skeleton.  [semantic: epub:type=chapter]
@@ -116,33 +116,33 @@ idioma: en · índice: nav · pipeline v1
 111 narrative       6194  Chapter 107. The Carpenter.  [semantic: epub:type=chapter]
 112 narrative       8403  Chapter 108. Ahab and the Carpenter.  [semantic: epub:type=chapter]
 113 narrative       5044  Chapter 109. Ahab and Starbuck in the Cabin.  [semantic: epub:type=chapter]
-114 narrative      12479  Chapter 110. Queequeg in His Coffin.  [semantic: epub:type=chapter]
+114 narrative      12478  Chapter 110. Queequeg in His Coffin.  [semantic: epub:type=chapter]
 115 narrative       2493  Chapter 111. The Pacific.  [semantic: epub:type=chapter]
-116 narrative       5519  Chapter 112. The Blacksmith.  [semantic: epub:type=chapter]
+116 narrative       5518  Chapter 112. The Blacksmith.  [semantic: epub:type=chapter]
 117 narrative       6776  Chapter 113. The Forge.  [semantic: epub:type=chapter]
-118 narrative       3740  Chapter 114. The Gilder.  [semantic: epub:type=chapter]
+118 narrative       3738  Chapter 114. The Gilder.  [semantic: epub:type=chapter]
 119 narrative       5119  Chapter 115. The Pequod Meets The Bachelor.  [semantic: epub:type=chapter]
 120 narrative       2972  Chapter 116. The Dying Whale.  [semantic: epub:type=chapter]
-121 narrative       2506  Chapter 117. The Whale Watch.  [semantic: epub:type=chapter]
-122 narrative       5011  Chapter 118. The Quadrant.  [semantic: epub:type=chapter]
-123 narrative      13862  Chapter 119. The Candles.  [semantic: epub:type=chapter]
+121 narrative       2504  Chapter 117. The Whale Watch.  [semantic: epub:type=chapter]
+122 narrative       5010  Chapter 118. The Quadrant.  [semantic: epub:type=chapter]
+123 narrative      13856  Chapter 119. The Candles.  [semantic: epub:type=chapter]
 124 narrative       1006  Chapter 120. The Deck Towards the End of the First Night Watch.  [semantic: epub:type=chapter]
 125 narrative       3394  Chapter 121. Midnight.—The Forecastle Bulwarks.  [semantic: epub:type=chapter]
 126 narrative        285  Chapter 122. Midnight Aloft.—Thunder and Lightning.  [semantic: epub:type=chapter]
 127 narrative       6736  Chapter 123. The Musket.  [semantic: epub:type=chapter]
-128 narrative       6900  Chapter 124. The Needle.  [semantic: epub:type=chapter]
+128 narrative       6899  Chapter 124. The Needle.  [semantic: epub:type=chapter]
 129 narrative       6042  Chapter 125. The Log and Line.  [semantic: epub:type=chapter]
 130 narrative       7437  Chapter 126. The Life-Buoy.  [semantic: epub:type=chapter]
-131 narrative       3837  Chapter 127. The Deck.  [semantic: epub:type=chapter]
-132 narrative       7788  Chapter 128. The Pequod Meets The Rachel.  [semantic: epub:type=chapter]
+131 narrative       3835  Chapter 127. The Deck.  [semantic: epub:type=chapter]
+132 narrative       7785  Chapter 128. The Pequod Meets The Rachel.  [semantic: epub:type=chapter]
 133 narrative       2986  Chapter 129. The Cabin.  [semantic: epub:type=chapter]
-134 narrative       9560  Chapter 130. The Hat.  [semantic: epub:type=chapter]
-135 narrative       2451  Chapter 131. The Pequod Meets The Delight.  [semantic: epub:type=chapter]
+134 narrative       9557  Chapter 130. The Hat.  [semantic: epub:type=chapter]
+135 narrative       2446  Chapter 131. The Pequod Meets The Delight.  [semantic: epub:type=chapter]
 136 narrative       8697  Chapter 132. The Symphony.  [semantic: epub:type=chapter]
-137 narrative      20183  Chapter 133. The Chase—First Day.  [semantic: epub:type=chapter]
-138 narrative      18428  Chapter 134. The Chase—Second Day.  [semantic: epub:type=chapter]
-139 narrative      24789  Chapter 135. The Chase.—Third Day.  [semantic: epub:type=chapter]
-140 narrative       1493  Epilogue  [semantic: epub:type=chapter]
+137 narrative      20177  Chapter 133. The Chase—First Day.  [semantic: epub:type=chapter]
+138 narrative      18423  Chapter 134. The Chase—Second Day.  [semantic: epub:type=chapter]
+139 narrative      24784  Chapter 135. The Chase.—Third Day.  [semantic: epub:type=chapter]
+140 narrative       1492  Epilogue  [semantic: epub:type=chapter]
 141 back_matter      523  Copyright Page  [semantic: epub:type=copyright-page]
 142 back_matter        9  Contents  [semantic: epub:type=toc]
 
@@ -158,40 +158,40 @@ warnings: ninguno
 [3·b1] = Far from it.
 [4·b1] = As touching the ancient authors generally, as well as the poets here appearing, these extracts are solely valuable or entertaining, as affording a glancing bird’s eye view of what has been promiscuously said, thought, fancied, and sung of Leviathan, by many nations and generations, including our own.
 [5·b2] = So fare thee well, poor devil of a Sub-Sub, whose commentator I am.
-[6·b2] = Thou belongest to that hopeless, sallow tribe which no wine of this world will ever warm; and for whom even Pale Sherry would be too rosy-strong; but with whom one sometimes loves to sit, and feel poor-devilish, too; and grow convivial upon tears; and say to them bluntly, with full eyes and empty glasses, and in not altogether unpleasant sadness—Give it up, Sub-Subs!
+[6·b2] ≠ Thou belongest to that hopeless, sallow tribe which no wine of this world will ever warm; and for whom even Pale Sherry would be too rosy-strong; but with whom one sometimes loves to sit, and feel poor-devilish, too; and grow convivial upon tears; and say to them bluntly, with full eyes and empty glasses, and in not altogether unpleasant sadness Give it up, Sub-Subs!
 [7·b2] = For by how much the more pains ye take to please the world, by so much the more shall ye for ever go thankless!
 [8·b2] = Would that I could clear out Hampton Court and the Tuileries for ye!
 [9·b2] = But gulp down your tears and hie aloft to the royal-mast with your hearts; for your friends who have gone before are clearing out the seven-storied heavens, and making refugees of long-pampered Gabriel, Michael, and Raphael, against your coming.
-[10·b2] = Here ye strike but splintered hearts together—there, ye shall strike unsplinterable glasses!
+[10·b2] ≠ Here ye strike but splintered hearts together there, ye shall strike unsplinterable glasses!
 [11·b3] = Extracts.
 [12·b4] = “And God created great whales.”
-[13·b5] = —GENESIS.
+[13·b5] ≠ GENESIS.
 [14·b6] = “Leviathan maketh a path to shine after him; One would think the deep to be hoary.”
-[15·b7] = —JOB.
+[15·b7] ≠ JOB.
 [16·b8] = “Now the Lord had prepared a great fish to swallow up Jonah.”
-[17·b9] = —JONAH.
+[17·b9] ≠ JONAH.
 [18·b10] = “There go the ships; there is that Leviathan whom thou hast made to play therein.”
-[19·b11] = —PSALMS.
+[19·b11] ≠ PSALMS.
 [20·b12] = “In that day, the Lord with his sore, and great, and strong sword, shall punish Leviathan the piercing serpent, even Leviathan that crooked serpent; and he shall slay the dragon that is in the sea.”
-[21·b13] = —ISAIAH
+[21·b13] ≠ ISAIAH
 [22·b14] = “And what thing soever besides cometh within the chaos of this monster’s mouth, be it beast, boat, or stone, down it goes all incontinently that foul great swallow of his, and perisheth in the bottomless gulf of his paunch.”
-[23·b15] = —HOLLAND’S PLUTARCH’S MORALS.
+[23·b15] ≠ HOLLAND’S PLUTARCH’S MORALS.
 [24·b16] = “The Indian Sea breedeth the most and the biggest fishes that are: among which the Whales and Whirlpooles called Balaene, take up as much in length as four acres or arpens of land.”
-[25·b17] = —HOLLAND’S PLINY.
+[25·b17] ≠ HOLLAND’S PLINY.
 [26·b18] = “Scarcely had we proceeded two days on the sea, when about sunrise a great many Whales and other monsters of the sea, appeared.
 [27·b18] = Among the former, one was of a most monstrous size....
 [28·b18] = This came towards us, open-mouthed, raising the waves on all sides, and beating the sea before him into a foam.”
-[29·b19] = —TOOKE’S LUCIAN.
+[29·b19] ≠ TOOKE’S LUCIAN.
 [30·b19] = “THE TRUE HISTORY.”
 [31·b20] = “He visited this country also with a view of catching horse-whales, which had bones of very great value for their teeth, of which he brought some to the king....
 [32·b20] = The best whales were catched in his own country, of which some were forty-eight, some fifty yards long.
 [33·b20] = He said that he was one of six who had killed sixty in two days.”
-[34·b21] = —OTHER OR OTHER’S VERBAL NARRATIVE TAKEN DOWN FROM HIS MOUTH BY KING ALFRED, A.D. 890.
+[34·b21] ≠ OTHER OR OTHER’S VERBAL NARRATIVE TAKEN DOWN FROM HIS MOUTH BY KING ALFRED, A.D. 890.
 [35·b22] = “And whereas all the other things, whether beast or vessel, that enter into the dreadful gulf of this monster’s (whale’s) mouth, are immediately lost and swallowed up, the sea-gudgeon retires into it in great security, and there sleeps.”
-[36·b23] = —MONTAIGNE. —APOLOGY FOR RAIMOND SEBOND.
+[36·b23] ≠ MONTAIGNE. APOLOGY FOR RAIMOND SEBOND.
 [37·b24] = “Let us fly, let us fly!
 [38·b24] = Old Nick take me if is not Leviathan described by the noble prophet Moses in the life of patient Job.”
-[39·b25] = —RABELAIS.
+[39·b25] ≠ RABELAIS.
 
 ## Narración: Chapter 68. The Blanket. (48 oraciones)
 [0·b0] ≠ Chapter 68. The Blanket.
@@ -222,7 +222,7 @@ warnings: ninguno
 [25·b5] = Like those mystic rocks, too, the mystic-marked whale remains undecipherable.
 [26·b5] = This allusion to the Indian rocks reminds me of another thing.
 [27·b5] = Besides all the other phenomena which the exterior of the Sperm Whale presents, he not seldom displays the back, and more especially his flanks, effaced in great part of the regular linear appearance, by reason of numerous rude scratches, altogether of an irregular, random aspect.
-[28·b5] = I should say that those New England rocks on the sea-coast, which Agassiz imagines to bear the marks of violent scraping contact with vast floating icebergs—I should say, that those rocks must not a little resemble the Sperm Whale in this particular.
+[28·b5] ≠ I should say that those New England rocks on the sea-coast, which Agassiz imagines to bear the marks of violent scraping contact with vast floating icebergs I should say, that those rocks must not a little resemble the Sperm Whale in this particular.
 [29·b5] = It also seems to me that such scratches in the whale are probably made by hostile contact with other whales; for I have most remarked them in the large, full-grown bulls of the species.
 [30·b6] = A word or two more concerning this matter of the skin or blubber of the whale.
 [31·b6] = It has already been said, that it is stript from him in long pieces, called blanket-pieces.
@@ -232,15 +232,15 @@ warnings: ninguno
 [35·b6] = What would become of a Greenland whale, say, in those shuddering, icy seas of the North, if unsupplied with his cosy surtout?
 [36·b6] = True, other fish are found exceedingly brisk in those Hyperborean waters; but these, be it observed, are your cold-blooded, lungless fish, whose very bellies are refrigerators; creatures, that warm themselves under the lee of an iceberg, as a traveller in winter would bask before an inn fire; whereas, like man, the whale has lungs and warm blood.
 [37·b6] = Freeze his blood, and he dies.
-[38·b6] = How wonderful is it then—except after explanation—that this great monster, to whom corporeal warmth is as indispensable as it is to man; how wonderful that he should be found at home, immersed to his lips for life in those Arctic waters! where, when seamen fall overboard, they are sometimes found, months afterwards, perpendicularly frozen into the hearts of fields of ice, as a fly is found glued in amber.
+[38·b6] ≠ How wonderful is it then except after explanation that this great monster, to whom corporeal warmth is as indispensable as it is to man; how wonderful that he should be found at home, immersed to his lips for life in those Arctic waters! where, when seamen fall overboard, they are sometimes found, months afterwards, perpendicularly frozen into the hearts of fields of ice, as a fly is found glued in amber.
 [39·b6] = But more surprising is it to know, as has been proved by experiment, that the blood of a Polar whale is warmer than that of a Borneo negro in summer.
 
 ## Narración: Epilogue (14 oraciones)
 [0·b0] ≠ Epilogue.
 [1·b1] = “AND I ONLY AM ESCAPED ALONE TO TELL THEE”
-[2·b2] = —Job.
+[2·b2] ≠ Job.
 [3·b3] = The drama’s done.
-[4·b3] = Why then here does any one step forth?—Because one did survive the wreck.
+[4·b3] ≠ Why then here does any one step forth? Because one did survive the wreck.
 [5·b4] = It so chanced, that after the Parsee’s disappearance, I was he whom the Fates ordained to take the place of Ahab’s bowsman, when that bowsman assumed the vacant post; the same, who, when on the last day the three men were tossed from out of the rocking boat, was dropped astern.
 [6·b4] = So, floating on the margin of the ensuing scene, and in full sight of it, when the halfspent suction of the sunk ship reached me, I was then, but slowly, drawn towards the closing vortex.
 [7·b4] = When I reached it, it had subsided to a creamy pool.

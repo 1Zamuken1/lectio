@@ -15,7 +15,7 @@ idioma: en · índice: nav · pipeline v1
  10 narrative       7100  2. Building a Better EPUB: Fundamental Accessibility › Getting Around: Navigating an EPUB  [default: sin señales de material auxiliar]
  11 narrative       6235  2. Building a Better EPUB: Fundamental Accessibility › The Untold Story: Metadata  [default: sin señales de material auxiliar]
  12 narrative        868  3. It’s Alive: Rich Content Accessibility  [semantic: epub:type=chapter]
- 13 narrative       9718  3. It’s Alive: Rich Content Accessibility › The Sound and the Fury: Audio and Video  [semantic: epub:type=chapter]
+ 13 narrative       9714  3. It’s Alive: Rich Content Accessibility › The Sound and the Fury: Audio and Video  [semantic: epub:type=chapter]
  14 narrative      19138  3. It’s Alive: Rich Content Accessibility › Talk to Me: Media Overlays  [default: sin señales de material auxiliar]
  15 narrative      29756  3. It’s Alive: Rich Content Accessibility › Tell It Like It Is: Text-to-Speech (TTS)  [default: sin señales de material auxiliar]
  16 narrative       5142  3. It’s Alive: Rich Content Accessibility › The Coded Word: Scripted Interactivity  [default: sin señales de material auxiliar]

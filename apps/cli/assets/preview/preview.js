@@ -91,6 +91,10 @@
   }
 
   const minutes = (chars) => Math.max(1, Math.round(chars / CHARS_PER_MINUTE));
+  const chapterMinutes = (chapter) =>
+    chapter.audio
+      ? Math.max(1, Math.round(chapter.audio.durationMs / 60000))
+      : minutes(chapter.characterCount);
   const duration = (mins) =>
     mins < 60
       ? `${mins} min`
@@ -233,7 +237,7 @@
               : h(
                   'span',
                   { class: 'toc-meta', title: chapter.audio ? 'Tiene audio' : null },
-                  `${chapter.audio ? '♪ ' : ''}${duration(minutes(chapter.characterCount))}`,
+                  `${chapter.audio ? '♪ ' : ''}${duration(chapterMinutes(chapter))}`,
                 ),
           ),
         ),
@@ -279,7 +283,7 @@
     const aux = chapter.kind !== 'narrative';
     const meta = aux
       ? `${KIND[chapter.kind]} · no se narra por defecto · ${chapter.classification.evidence}`
-      : `≈ ${duration(minutes(chapter.characterCount))} de audio · ${number(chapter.sentences.length)} oraciones`;
+      : `${chapter.audio ? '' : '≈ '}${duration(chapterMinutes(chapter))} de audio · ${number(chapter.sentences.length)} oraciones`;
 
     const previous = data.chapters[state.chapter - 1];
     const next = data.chapters[state.chapter + 1];
@@ -682,7 +686,14 @@
   // Sincronización (docs/lectio-frontend.md §6): tiempo del audio → oración por búsqueda
   // binaria en la alineación, y oración → tiempo para "Escuchar desde aquí".
 
-  const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+  const SPEED_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+  const MIN_SPEED = 0.5;
+  const MAX_SPEED = 3;
+  const clampSpeed = (value) =>
+    Number.isFinite(value)
+      ? Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(value * 100) / 100))
+      : 1;
+  const speedLabel = (value) => `${value.toLocaleString('es', { maximumFractionDigits: 2 })}×`;
   const hasAudio = data.chapters.some((c) => c.audio);
   const audio = new Audio();
   audio.preload = 'metadata';
@@ -691,7 +702,9 @@
     current: -1,
     follow: true,
     autoScrolling: false,
-    speed: SPEEDS.includes(store.get('speed', 1)) ? store.get('speed', 1) : 1,
+    speed: clampSpeed(Number(store.get('speed', 1))),
+    /** Última posición escuchada de cada capítulo: volver a uno retoma donde ibas. */
+    positions: new Map(),
   };
   const playerBar = h('section', {
     class: 'player',
@@ -762,19 +775,28 @@
       'aria-label': 'Posición en el capítulo',
       oninput: (event) => seekTo(Number(event.target.value)),
     });
-    ui.speed = button('Velocidad', `${player.speed}×`, cycleSpeed, { class: 'tool speed' });
+    ui.speed = button('Velocidad de reproducción', speedLabel(player.speed), toggleSpeedMenu, {
+      class: 'tool speed',
+      'aria-haspopup': 'dialog',
+      'aria-expanded': 'false',
+    });
 
     playerBar.replaceChildren(
       h(
         'div',
         { class: 'player-controls' },
-        button('Capítulo anterior', '⏮', () => previous !== null && playChapter(previous), {
-          disabled: previous === null,
-        }),
+        button(
+          'Capítulo anterior',
+          '⏮',
+          () => previous !== null && requestChapter(previous, true),
+          {
+            disabled: previous === null,
+          },
+        ),
         button('Retroceder 15 segundos', '−15', () => seekBy(-15000)),
         ui.play,
         button('Avanzar 15 segundos', '+15', () => seekBy(15000)),
-        button('Capítulo siguiente', '⏭', () => next !== null && playChapter(next), {
+        button('Capítulo siguiente', '⏭', () => next !== null && requestChapter(next, true), {
           disabled: next === null,
         }),
       ),
@@ -809,7 +831,13 @@
     const chapter = data.chapters[state.chapter];
     if (!chapter.audio) return false;
     if (player.chapter !== state.chapter) {
+      if (player.chapter !== null) player.positions.set(player.chapter, audio.currentTime);
       audio.src = chapter.audio.src;
+      const resume = player.positions.get(state.chapter);
+      if (resume)
+        audio.addEventListener('loadedmetadata', () => (audio.currentTime = resume), {
+          once: true,
+        });
       player.chapter = state.chapter;
       player.current = -1;
       setMediaSession(chapter);
@@ -849,11 +877,145 @@
     seekTo(audio.currentTime * 1000 + deltaMs);
   }
 
-  function cycleSpeed() {
-    player.speed = SPEEDS[(SPEEDS.indexOf(player.speed) + 1) % SPEEDS.length];
+  function setSpeed(value) {
+    player.speed = clampSpeed(value);
     store.set('speed', player.speed);
     audio.playbackRate = player.speed;
-    if (ui.speed) ui.speed.textContent = `${player.speed}×`;
+    if (ui.speed) ui.speed.textContent = speedLabel(player.speed);
+    if (speedMenu) {
+      speedMenu.querySelector('.speed-value').textContent = speedLabel(player.speed);
+      speedMenu.querySelector('input').value = String(player.speed);
+      for (const preset of speedMenu.querySelectorAll('[data-speed]')) {
+        preset.setAttribute('aria-pressed', String(Number(preset.dataset.speed) === player.speed));
+      }
+    }
+  }
+
+  let speedMenu = null;
+
+  /** Menú de velocidad: valores predefinidos y un control fino, sin tener que recorrer todos. */
+  function toggleSpeedMenu() {
+    if (speedMenu) return closeSpeedMenu();
+    const slider = h('input', {
+      type: 'range',
+      min: String(MIN_SPEED),
+      max: String(MAX_SPEED),
+      step: '0.05',
+      value: String(player.speed),
+      'aria-label': 'Velocidad personalizada',
+      oninput: (event) => setSpeed(Number(event.target.value)),
+    });
+    speedMenu = h(
+      'div',
+      { class: 'speed-menu', role: 'dialog', 'aria-label': 'Velocidad de reproducción' },
+      h(
+        'div',
+        { class: 'speed-head' },
+        h('span', {}, 'Velocidad'),
+        h('strong', { class: 'speed-value' }, speedLabel(player.speed)),
+      ),
+      slider,
+      h(
+        'div',
+        { class: 'speed-scale', 'aria-hidden': 'true' },
+        h('span', {}, '0,5×'),
+        h('span', {}, '3×'),
+      ),
+      h(
+        'div',
+        { class: 'speed-presets' },
+        SPEED_PRESETS.map((value) =>
+          h(
+            'button',
+            {
+              'data-speed': String(value),
+              'aria-pressed': String(value === player.speed),
+              onclick: () => setSpeed(value),
+            },
+            value === 1 ? 'Normal' : speedLabel(value),
+          ),
+        ),
+      ),
+    );
+    document.body.append(speedMenu);
+    const rect = ui.speed.getBoundingClientRect();
+    speedMenu.style.right = `${Math.max(12, document.documentElement.clientWidth - rect.right)}px`;
+    speedMenu.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+    ui.speed.setAttribute('aria-expanded', 'true');
+    slider.focus();
+  }
+
+  function closeSpeedMenu() {
+    speedMenu?.remove();
+    speedMenu = null;
+    ui.speed?.setAttribute('aria-expanded', 'false');
+  }
+
+  document.addEventListener('click', (event) => {
+    if (speedMenu && !speedMenu.contains(event.target) && !event.target.closest('.speed'))
+      closeSpeedMenu();
+  });
+
+  // ------------------------------------------------------------ confirmación de cambio de capítulo
+
+  /** ¿Se está escuchando este capítulo a mitad de camino? (al inicio o al final no se pregunta). */
+  function listeningMidChapter() {
+    const chapter = data.chapters[state.chapter];
+    if (!chapter.audio || player.chapter !== state.chapter) return false;
+    const elapsed = audio.currentTime * 1000;
+    return elapsed > 5000 && elapsed < chapter.audio.durationMs - 10000;
+  }
+
+  /**
+   * Evita cambiar de capítulo por accidente (un toque de más en ⏮/⏭ o en las flechas).
+   * La posición del capítulo actual queda guardada: aunque se confirme, al volver se retoma.
+   */
+  function confirmChapterChange(index) {
+    if (!listeningMidChapter()) return Promise.resolve(true);
+    const current = data.chapters[state.chapter];
+    const target = data.chapters[index];
+    return new Promise((resolve) => {
+      const dialog = h(
+        'dialog',
+        { class: 'confirm', 'aria-labelledby': 'confirm-title' },
+        h('h2', { id: 'confirm-title' }, `¿Pasar a «${target.title}»?`),
+        h(
+          'p',
+          {},
+          `Vas en ${formatTime(audio.currentTime * 1000)} de ${formatTime(current.audio.durationMs)} de «${current.title}». `,
+          'Tu posición queda guardada: si vuelves, sigues desde ahí.',
+        ),
+        h(
+          'div',
+          { class: 'confirm-actions' },
+          h('button', { class: 'tool', value: 'stay', autofocus: true }, 'Seguir aquí'),
+          h('button', { class: 'tool primary', value: 'go' }, 'Ir al capítulo'),
+        ),
+      );
+      const finish = (answer) => {
+        dialog.close();
+        dialog.remove();
+        resolve(answer);
+      };
+      dialog.addEventListener('click', (event) => {
+        const choice = event.target.closest('button')?.value;
+        if (choice) finish(choice === 'go');
+        else if (event.target === dialog) finish(false); // clic fuera del recuadro
+      });
+      dialog.addEventListener('cancel', (event) => {
+        event.preventDefault();
+        finish(false);
+      });
+      document.body.append(dialog);
+      dialog.showModal();
+    });
+  }
+
+  async function requestChapter(index, play) {
+    if (!data.chapters[index]) return;
+    if (!(await confirmChapterChange(index))) return;
+    if (play) playChapter(index);
+    else go(index);
   }
 
   /** Oración que suena en `ms`: la última cuyo inicio ya pasó (búsqueda binaria). */
@@ -1079,6 +1241,7 @@
     sidebar.classList.remove('open');
     closeListenChip();
     if (player.chapter !== index && !audio.paused) audio.pause();
+    closeSpeedMenu();
     followButton.hidden = true;
     player.follow = true;
     renderSidebar();
@@ -1124,12 +1287,14 @@
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      closeSpeedMenu();
       closeListenChip();
       closeNote();
       closeInspector();
       sidebar.classList.remove('open');
     }
     if (state.view !== 'book' || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (document.querySelector('dialog[open]') || speedMenu) return;
     const typing = event.target.closest('input, textarea, button, select');
     if (event.key === ' ' && !typing && data.chapters[state.chapter].audio) {
       event.preventDefault();
@@ -1138,8 +1303,8 @@
     }
     if (['PageUp', 'PageDown', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key))
       pauseFollow();
-    if (event.key === 'ArrowRight') go(state.chapter + 1);
-    if (event.key === 'ArrowLeft') go(state.chapter - 1);
+    if (event.key === 'ArrowRight') requestChapter(state.chapter + 1, false);
+    if (event.key === 'ArrowLeft') requestChapter(state.chapter - 1, false);
   });
 
   applyTheme();

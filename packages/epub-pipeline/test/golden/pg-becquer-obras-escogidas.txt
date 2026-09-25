@@ -7,30 +7,30 @@ idioma: es · índice: nav · pipeline v1
   2 front_matter     505  OBRAS ESCOGIDAS  [heuristic?: aviso legal fuera del cuerpo del libro]
   3 narrative      12662  Á MANERA DE PRÓLOGO  [default: sin señales de material auxiliar]
   4 narrative       5282  INTRODUCCIÓN  [default: sin señales de material auxiliar]
-  5 narrative      29488  LEYENDAS › MAESE PÉREZ EL ORGANISTA  [default: sin señales de material auxiliar]
-  6 narrative      14788  LEYENDAS › LOS OJOS VERDES  [default: sin señales de material auxiliar]
-  7 narrative      19946  LEYENDAS › EL RAYO DE LUNA  [default: sin señales de material auxiliar]
-  8 narrative      37370  LEYENDAS › TRES FECHAS  [default: sin señales de material auxiliar]
-  9 narrative      37181  LEYENDAS › LA CORZA BLANCA  [default: sin señales de material auxiliar]
- 10 narrative      17535  LEYENDAS › LA ROSA DE PASIÓN  [default: sin señales de material auxiliar]
- 11 narrative      19379  LEYENDAS › LA PROMESA  [default: sin señales de material auxiliar]
- 12 narrative      15522  LEYENDAS › EL MONTE DE LAS ÁNIMAS  [default: sin señales de material auxiliar]
- 13 narrative      29121  LEYENDAS › EL GNOMO  [default: sin señales de material auxiliar]
- 14 narrative      19108  LEYENDAS › EL MISERERE  [default: sin señales de material auxiliar]
- 15 narrative       7333  LEYENDAS › LAS HOJAS SECAS  [default: sin señales de material auxiliar]
- 16 narrative      23193  LEYENDAS › LA VENTA DE LOS GATOS  [default: sin señales de material auxiliar]
+  5 narrative      29458  LEYENDAS › MAESE PÉREZ EL ORGANISTA  [default: sin señales de material auxiliar]
+  6 narrative      14763  LEYENDAS › LOS OJOS VERDES  [default: sin señales de material auxiliar]
+  7 narrative      19928  LEYENDAS › EL RAYO DE LUNA  [default: sin señales de material auxiliar]
+  8 narrative      37357  LEYENDAS › TRES FECHAS  [default: sin señales de material auxiliar]
+  9 narrative      37149  LEYENDAS › LA CORZA BLANCA  [default: sin señales de material auxiliar]
+ 10 narrative      17516  LEYENDAS › LA ROSA DE PASIÓN  [default: sin señales de material auxiliar]
+ 11 narrative      19358  LEYENDAS › LA PROMESA  [default: sin señales de material auxiliar]
+ 12 narrative      15497  LEYENDAS › EL MONTE DE LAS ÁNIMAS  [default: sin señales de material auxiliar]
+ 13 narrative      29104  LEYENDAS › EL GNOMO  [default: sin señales de material auxiliar]
+ 14 narrative      19086  LEYENDAS › EL MISERERE  [default: sin señales de material auxiliar]
+ 15 narrative       7292  LEYENDAS › LAS HOJAS SECAS  [default: sin señales de material auxiliar]
+ 16 narrative      23182  LEYENDAS › LA VENTA DE LOS GATOS  [default: sin señales de material auxiliar]
  17 narrative      31496  DESDE MI CELDA › CARTA PRIMERA  [default: sin señales de material auxiliar]
  18 narrative      18847  DESDE MI CELDA › CARTA SEGUNDA  [default: sin señales de material auxiliar]
  19 narrative      22889  DESDE MI CELDA › CARTA TERCERA  [default: sin señales de material auxiliar]
  20 narrative      17894  DESDE MI CELDA › CARTA CUARTA  [default: sin señales de material auxiliar]
  21 narrative      18232  DESDE MI CELDA › CARTA QUINTA  [default: sin señales de material auxiliar]
- 22 narrative      25330  DESDE MI CELDA › CARTA SEXTA  [default: sin señales de material auxiliar]
- 23 narrative      25486  DESDE MI CELDA › CARTA SÉPTIMA  [default: sin señales de material auxiliar]
- 24 narrative      24427  DESDE MI CELDA › CARTA OCTAVA  [default: sin señales de material auxiliar]
+ 22 narrative      25299  DESDE MI CELDA › CARTA SEXTA  [default: sin señales de material auxiliar]
+ 23 narrative      25464  DESDE MI CELDA › CARTA SÉPTIMA  [default: sin señales de material auxiliar]
+ 24 narrative      24418  DESDE MI CELDA › CARTA OCTAVA  [default: sin señales de material auxiliar]
  25 narrative      18743  DESDE MI CELDA › CARTA NOVENA  [default: sin señales de material auxiliar]
- 26 narrative      37182  RIMAS  [default: sin señales de material auxiliar]
+ 26 narrative      37157  RIMAS  [default: sin señales de material auxiliar]
  27 back_matter     1826  ÍNDICE  [title: título "ÍNDICE"]
- 28 back_matter    16521  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
+ 28 back_matter    16515  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
 
 ## Reglas
 limpieza: S1_page_numbers=0+352 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+1
@@ -90,36 +90,36 @@ warnings: ninguno
 [7·b6] = Hay otros en que se desliga de la carne, pierde su personalidad y se confunde con los elementos de la naturaleza, se relaciona con su modo de ser, y traduce su incomprensible lenguaje.
 [8·b7] = Yo me hallaba en uno de estos últimos momentos, cuando solo y en medio de la escueta llanura oí hablar cerca de mí.
 [9·b8] = Eran dos hojas secas las que hablaban, y éste, poco más ó menos, su extraño diálogo:
-[10·b9] = —¿De dónde vienes, hermana?
-[11·b10] = —Vengo de rodar con el torbellino, envuelta en la nube del polvo y de las hojas secas nuestras compañeras, á lo largo de la interminable llanura.
+[10·b9] ≠ ¿De dónde vienes, hermana?
+[11·b10] ≠ Vengo de rodar con el torbellino, envuelta en la nube del polvo y de las hojas secas nuestras compañeras, á lo largo de la interminable llanura.
 [12·b10] = ¿Y tú?
-[13·b11] = —Yo he seguido algún tiempo la corriente del río, hasta que el vendaval me arrancó de entre el légamo y los juncos de la orilla.
-[14·b12] = —¿Y adónde vas?
-[15·b13] = —No lo sé: ¿lo sabe acaso el viento que me empuja?
-[16·b14] = —¡Ay!
+[13·b11] ≠ Yo he seguido algún tiempo la corriente del río, hasta que el vendaval me arrancó de entre el légamo y los juncos de la orilla.
+[14·b12] ≠ ¿Y adónde vas?
+[15·b13] ≠ No lo sé: ¿lo sabe acaso el viento que me empuja?
+[16·b14] ≠ ¡Ay!
 [17·b14] = ¿Quién diría que habíamos de acabar amarillas y secas arrastrándonos por la tierra, nosotras que vivimos vestidas de color y de luz meciéndonos en el aire?
-[18·b15] = —¿Te acuerdas de los hermosos días en que brotamos; de aquella apacible mañana en que, roto el hinchado botón que nos servía de cuna, nos desplegamos al templado beso del sol como un abanico de esmeraldas?
-[19·b16] = —¡Oh!
+[18·b15] ≠ ¿Te acuerdas de los hermosos días en que brotamos; de aquella apacible mañana en que, roto el hinchado botón que nos servía de cuna, nos desplegamos al templado beso del sol como un abanico de esmeraldas?
+[19·b16] ≠ ¡Oh!
 [20·b16] = ¡Qué dulce era sentirse balanceada por la brisa á aquella altura, bebiendo por todos los poros el aire y la luz!
-[21·b17] = —¡Oh!
+[21·b17] ≠ ¡Oh!
 [22·b17] = ¡Qué hermoso era ver correr el agua del río que lamía las retorcidas raíces del añoso tronco que nos sustentaba, aquel agua limpia y transparente que copiaba como un espejo el azul del cielo, de modo que creíamos vivir suspendidas entre dos abismos azules!
-[23·b18] = —¡Con qué placer nos asomábamos por cima de las verdes frondas para vernos retratadas en la temblorosa corriente!
-[24·b19] = —¡Cómo cantábamos juntas imitando el rumor de la brisa y siguiendo el ritmo de las ondas!
-[25·b20] = —Los insectos brillantes revoloteaban desplegando sus alas de gasa á nuestro alrededor.
-[26·b21] = —Y las mariposas blancas y las libélulas azules, que giran por el aire en extraños círculos, se paraban un momento en nuestros dentellados bordes á contarse los secretos de ese misterioso amor que dura un instante y les consume la vida.
-[27·b22] = —Cada cual de nosotras era una nota en el concierto de los bosques.
-[28·b23] = —Cada cual de nosotras era un tono en la armonía de su color.
-[29·b24] = —En las noches de luna, cuando su plateada luz resbalaba sobre la cima de los montes, ¿te acuerdas cómo charlábamos en voz baja entre las diáfanas sombras?
-[30·b25] = —Y referíamos con un blando susurro las historias de los silfos que se columpian en los hilos de oro que cuelgan las arañas entre los árboles.
-[31·b26] = —Hasta que suspendíamos nuestra monótona charla para oir embebecidas las quejas del ruiseñor, que había escogido nuestro tronco por escabel.
-[32·b27] = —Y eran tan tristes y tan suaves sus lamentos que, aunque llenas de gozo al oirle, nos amanecía llorando.
-[33·b28] = —¡Oh!
+[23·b18] ≠ ¡Con qué placer nos asomábamos por cima de las verdes frondas para vernos retratadas en la temblorosa corriente!
+[24·b19] ≠ ¡Cómo cantábamos juntas imitando el rumor de la brisa y siguiendo el ritmo de las ondas!
+[25·b20] ≠ Los insectos brillantes revoloteaban desplegando sus alas de gasa á nuestro alrededor.
+[26·b21] ≠ Y las mariposas blancas y las libélulas azules, que giran por el aire en extraños círculos, se paraban un momento en nuestros dentellados bordes á contarse los secretos de ese misterioso amor que dura un instante y les consume la vida.
+[27·b22] ≠ Cada cual de nosotras era una nota en el concierto de los bosques.
+[28·b23] ≠ Cada cual de nosotras era un tono en la armonía de su color.
+[29·b24] ≠ En las noches de luna, cuando su plateada luz resbalaba sobre la cima de los montes, ¿te acuerdas cómo charlábamos en voz baja entre las diáfanas sombras?
+[30·b25] ≠ Y referíamos con un blando susurro las historias de los silfos que se columpian en los hilos de oro que cuelgan las arañas entre los árboles.
+[31·b26] ≠ Hasta que suspendíamos nuestra monótona charla para oir embebecidas las quejas del ruiseñor, que había escogido nuestro tronco por escabel.
+[32·b27] ≠ Y eran tan tristes y tan suaves sus lamentos que, aunque llenas de gozo al oirle, nos amanecía llorando.
+[33·b28] ≠ ¡Oh!
 [34·b28] = ¡Qué dulces eran aquellas lágrimas que nos prestaba el rocío de la noche y que resplandecían con todos los colores del iris á la primera luz de la aurora!
-[35·b29] = —Después vino la alegre banda de jilgueros á llenar de vida y de ruidos el bosque con la alborozada y confusa algarabía de sus cantos.
-[36·b30] = —Y una enamorada pareja colgó junto á nosotras su redondo nido de aristas y de plumas.
-[37·b31] = —Nosotras servíamos de abrigo á los pequeñuelos contra las molestas gotas de la lluvia en las tempestades de verano.
-[38·b32] = —Nosotras les servíamos de dosel y los defendíamos de los importunos rayos del sol.
-[39·b33] = —Nuestra vida pasaba como un sueño de oro, del que no sospechábamos que se podría despertar.
+[35·b29] ≠ Después vino la alegre banda de jilgueros á llenar de vida y de ruidos el bosque con la alborozada y confusa algarabía de sus cantos.
+[36·b30] ≠ Y una enamorada pareja colgó junto á nosotras su redondo nido de aristas y de plumas.
+[37·b31] ≠ Nosotras servíamos de abrigo á los pequeñuelos contra las molestas gotas de la lluvia en las tempestades de verano.
+[38·b32] ≠ Nosotras les servíamos de dosel y los defendíamos de los importunos rayos del sol.
+[39·b33] ≠ Nuestra vida pasaba como un sueño de oro, del que no sospechábamos que se podría despertar.
 
 ## Narración: RIMAS (1491 oraciones)
 [0·b0] ≠ Rimas.
