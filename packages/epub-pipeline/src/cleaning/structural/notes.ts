@@ -175,7 +175,7 @@ function withoutBacklinks(body: Element, anchor: Element | null): Element {
     const isBacklink =
       semanticTypes(link).some((t) => BACKLINK_TYPES.has(t)) ||
       (anchorId !== null && anchorId !== undefined && href.endsWith(`#${anchorId}`)) ||
-      /^\s*(↩|↑|\^)︎?️?\s*$/.test(collapsedText(link));
+      /^\s*(↩|↑|\^)\uFE0E?\uFE0F?\s*$/.test(collapsedText(link));
     if (isBacklink) link.remove();
   }
   return copy;

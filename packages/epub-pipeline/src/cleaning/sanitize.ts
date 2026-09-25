@@ -314,6 +314,16 @@ function collapseWhitespace(root: Element): void {
   };
   walk(root, false);
 
+  // Un salto de línea (<br>) separa palabras aunque no haya espacio en el texto
+  // ("golondrinas<br>en tu balcón"). Se agrega un espacio antes del <br>: no se ve,
+  // y hace que el texto del bloque (y la narración) no pegue las líneas.
+  for (const br of [...descendants(root)].filter((el) => tagName(el) === 'br')) {
+    const before = br.previousSibling;
+    if (!before || !isText(before) || !/\s$/.test(before.textContent ?? '')) {
+      br.parentNode?.insertBefore(root.ownerDocument.createTextNode(' '), br);
+    }
+  }
+
   for (const block of [root, ...descendants(root)]) {
     const tag = tagName(block);
     if (!TEXT_BLOCKS.has(tag) || tag === 'pre') continue;

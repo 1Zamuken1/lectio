@@ -39,3 +39,14 @@ export {
 export { cleanSections, type CleanedSection, type ReadingNote } from './cleaning/clean.js';
 export type { RuleStat, RuleStats, StructuralRule } from './cleaning/stats.js';
 export type { SpineDocument } from './segmentation/documents.js';
+export {
+  narrateSections,
+  type NarratedSection,
+  type NarrationStats,
+  type Sentence,
+} from './narration/narrate.js';
+export {
+  DEFAULT_NARRATION_OPTIONS,
+  type NarrationOptions,
+  type NarrationRule,
+} from './narration/rules.js';

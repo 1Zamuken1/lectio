@@ -184,12 +184,22 @@ Corpus: 352 marcadores de página en Bécquer, 43 números de verso y 50 notas e
 
 ### Fase 5 — Oraciones, narración y normalización (etapas 7–9)
 
-- [ ] Recorrido por bloques, `Intl.Segmenter` por idioma + lista de abreviaturas (es/en).
-- [ ] `start`/`end` sobre el `textContent` del bloque; bloques no narrables (tablas, código).
-- [ ] Reglas N1–N5, cada una desactivable desde `PipelineOptions`.
-- [ ] Normalización: NFC, guiones blandos, capitulares, guiones de división silábica, anuncio de capítulo, romanos en títulos, escape SSML.
+- [x] Recorrido por bloques, `Intl.Segmenter` por idioma + lista de abreviaturas (es/en).
+- [x] `start`/`end` sobre el `textContent` del bloque; bloques no narrables (tablas, código).
+- [x] Reglas N1–N5, cada una desactivable desde `PipelineOptions`.
+- [x] Normalización: NFC, guiones blandos, capitulares, guiones de división silábica, anuncio de capítulo, romanos en títulos, escape SSML.
 
 **Tests:** los casos negativos del documento de pipeline ("(Madrid, 1605)", "(1984)", "Luis XIV"), abreviaturas ("El Sr. García llegó."), e **invariantes**: `text === blockText.slice(start, end)`, índices contiguos, `narration.length <= text.length` salvo el anuncio.
+
+**Hecho.** Sobre `Intl.Segmenter` hubo que corregir, según lo que mostró una prueba con español real: abreviaturas e iniciales ("Sr.", "pág.", "J. R."), "?"/"!" seguido de minúscula ("¡Qué horror! dijo…") y llamadas a nota pegadas al punto ("truth.3 To"), que se enmascaran con espacios del mismo largo para no mover los offsets. Los diálogos con raya quedan bien sin reglas extra.
+
+Otras decisiones:
+- Un espacio antes de cada `<br>` en el HTML de lectura: si no, los versos pegaban palabras ("golondrinasen").
+- Anuncio del capítulo: los encabezados iniciales que repiten título o parte se silencian y el primero lleva el anuncio; la parte se anuncia solo en su primer capítulo **narrativo**. Romanos a arábigos solo en contextos seguros; títulos en mayúsculas a minúsculas (algunos motores deletrean).
+- N4 (citas) exige forma completa **y** un indicio fuerte (et al., dos autores, varias citas, páginas): "(García, 2021)" a secas se conserva, igual que "(Madrid, 1605)".
+- El escape SSML queda para el adaptador de TTS, no en el texto de narración.
+
+Corpus: invariantes verificadas en todas las oraciones de los 8 libros. *Don Quijote*: 10.426 oraciones y 2,08 M caracteres de narración (≈ 37 h de audio).
 
 ### Fase 6 — Reporte y comandos `inspect` / `preview`
 

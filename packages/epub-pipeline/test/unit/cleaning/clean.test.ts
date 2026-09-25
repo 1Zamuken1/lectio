@@ -242,7 +242,7 @@ describe('sanitización y HTML de lectura', () => {
     );
 
     expect(html).toBe(
-      '<p data-b="0"><span>Volverán las oscuras golondrinas</span><br><span>en tu balcón sus nidos a colgar</span></p>',
+      '<p data-b="0"><span>Volverán las oscuras golondrinas</span> <br><span>en tu balcón sus nidos a colgar</span></p>',
     );
   });
 
