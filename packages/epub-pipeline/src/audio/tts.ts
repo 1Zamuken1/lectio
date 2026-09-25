@@ -1,3 +1,5 @@
+import type { VoiceKind } from '../narration/dialogue.js';
+
 /**
  * Puerto de TTS (docs/lectio-arquitectura-api.md §1.4). El pipeline no llama a ningún
  * servicio: define el contrato y calcula fragmentos y alineación. Cada proveedor
@@ -10,6 +12,8 @@ export interface TtsBoundary {
   textLength: number;
   /** Momento en que empieza a sonar, desde el inicio del audio de ese fragmento. */
   audioOffsetMs: number;
+  /** Cuánto dura la palabra, si el proveedor lo informa. */
+  durationMs?: number;
 }
 
 export interface TtsResult {
@@ -24,7 +28,13 @@ export interface TtsProvider {
   readonly name: string;
   /** Tamaño máximo de texto por solicitud. */
   readonly maxChunkChars: number;
-  synthesize(input: { text: string; voiceId: string; language: string }): Promise<TtsResult>;
+  synthesize(input: {
+    text: string;
+    voiceId: string;
+    language: string;
+    /** Tramo de narración o de diálogo: el proveedor puede leerlos con prosodias distintas. */
+    kind?: VoiceKind;
+  }): Promise<TtsResult>;
 }
 
 /** Tiempos de cada oración narrada dentro del audio del capítulo (`alignment.json`). */

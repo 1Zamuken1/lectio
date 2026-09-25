@@ -48,13 +48,16 @@ export function createProgram(): Command {
       '-c, --chapters <lista>',
       'capítulos por su número en "inspect": 4, 4-6, 4-6,9 (por defecto, todos los narrativos)',
     )
-    .option('-v, --voice <voz>', 'voz de Edge TTS (ver "lectio voices")')
+    .option(
+      '-v, --voice <voz>',
+      'gonzalo (por defecto), jorge, salome, salome-grave o una voz de Edge (ver "lectio voices")',
+    )
     .option('-o, --out <carpeta>', 'carpeta de salida (por defecto out/<libro>/audio)')
     .option(
       '-r, --rate <velocidad>',
-      'velocidad de síntesis, ej. "+0%", "+12%" (por defecto), "+25%"',
+      'velocidad con una voz de Edge, ej. "+0%", "+12%" (por defecto), "+25%"; los perfiles traen la suya',
     )
-    .option('--concurrency <n>', 'fragmentos en paralelo (1 a 4)', '2')
+    .option('--concurrency <n>', 'solicitudes en paralelo (1 a 4)', '2')
     .option('--force', 'regenerar aunque el capítulo ya exista')
     .action(withErrors((file: string, options: NarrateOptions) => narrate(file, options)));
 

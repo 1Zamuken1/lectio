@@ -91,35 +91,65 @@ warnings: ninguno
 [8·b7] = Yo me hallaba en uno de estos últimos momentos, cuando solo y en medio de la escueta llanura oí hablar cerca de mí.
 [9·b8] = Eran dos hojas secas las que hablaban, y éste, poco más ó menos, su extraño diálogo:
 [10·b9] ≠ ¿De dónde vienes, hermana?
+    D: ¿De dónde vienes, hermana?
 [11·b10] ≠ Vengo de rodar con el torbellino, envuelta en la nube del polvo y de las hojas secas nuestras compañeras, á lo largo de la interminable llanura.
+    D: Vengo de rodar con el torbellino, envuelta en la nube del polvo y de las hojas secas nuestras compañeras, á lo largo de la interminable llanura.
 [12·b10] = ¿Y tú?
+    D: ¿Y tú?
 [13·b11] ≠ Yo he seguido algún tiempo la corriente del río, hasta que el vendaval me arrancó de entre el légamo y los juncos de la orilla.
+    D: Yo he seguido algún tiempo la corriente del río, hasta que el vendaval me arrancó de entre el légamo y los juncos de la orilla.
 [14·b12] ≠ ¿Y adónde vas?
+    D: ¿Y adónde vas?
 [15·b13] ≠ No lo sé: ¿lo sabe acaso el viento que me empuja?
+    D: No lo sé: ¿lo sabe acaso el viento que me empuja?
 [16·b14] ≠ ¡Ay!
+    D: ¡Ay!
 [17·b14] = ¿Quién diría que habíamos de acabar amarillas y secas arrastrándonos por la tierra, nosotras que vivimos vestidas de color y de luz meciéndonos en el aire?
+    D: ¿Quién diría que habíamos de acabar amarillas y secas arrastrándonos por la tierra, nosotras que vivimos vestidas de color y de luz meciéndonos en el aire?
 [18·b15] ≠ ¿Te acuerdas de los hermosos días en que brotamos; de aquella apacible mañana en que, roto el hinchado botón que nos servía de cuna, nos desplegamos al templado beso del sol como un abanico de esmeraldas?
+    D: ¿Te acuerdas de los hermosos días en que brotamos; de aquella apacible mañana en que, roto el hinchado botón que nos servía de cuna, nos desplegamos al templado beso del sol como un abanico de esmeraldas?
 [19·b16] ≠ ¡Oh!
+    D: ¡Oh!
 [20·b16] = ¡Qué dulce era sentirse balanceada por la brisa á aquella altura, bebiendo por todos los poros el aire y la luz!
+    D: ¡Qué dulce era sentirse balanceada por la brisa á aquella altura, bebiendo por todos los poros el aire y la luz!
 [21·b17] ≠ ¡Oh!
+    D: ¡Oh!
 [22·b17] = ¡Qué hermoso era ver correr el agua del río que lamía las retorcidas raíces del añoso tronco que nos sustentaba, aquel agua limpia y transparente que copiaba como un espejo el azul del cielo, de modo que creíamos vivir suspendidas entre dos abismos azules!
+    D: ¡Qué hermoso era ver correr el agua del río que lamía las retorcidas raíces del añoso tronco que nos sustentaba, aquel agua limpia y transparente que copiaba como un espejo el azul del cielo, de modo que creíamos vivir suspendidas entre dos abismos azules!
 [23·b18] ≠ ¡Con qué placer nos asomábamos por cima de las verdes frondas para vernos retratadas en la temblorosa corriente!
+    D: ¡Con qué placer nos asomábamos por cima de las verdes frondas para vernos retratadas en la temblorosa corriente!
 [24·b19] ≠ ¡Cómo cantábamos juntas imitando el rumor de la brisa y siguiendo el ritmo de las ondas!
+    D: ¡Cómo cantábamos juntas imitando el rumor de la brisa y siguiendo el ritmo de las ondas!
 [25·b20] ≠ Los insectos brillantes revoloteaban desplegando sus alas de gasa á nuestro alrededor.
+    D: Los insectos brillantes revoloteaban desplegando sus alas de gasa á nuestro alrededor.
 [26·b21] ≠ Y las mariposas blancas y las libélulas azules, que giran por el aire en extraños círculos, se paraban un momento en nuestros dentellados bordes á contarse los secretos de ese misterioso amor que dura un instante y les consume la vida.
+    D: Y las mariposas blancas y las libélulas azules, que giran por el aire en extraños círculos, se paraban un momento en nuestros dentellados bordes á contarse los secretos de ese misterioso amor que dura un instante y les consume la vida.
 [27·b22] ≠ Cada cual de nosotras era una nota en el concierto de los bosques.
+    D: Cada cual de nosotras era una nota en el concierto de los bosques.
 [28·b23] ≠ Cada cual de nosotras era un tono en la armonía de su color.
+    D: Cada cual de nosotras era un tono en la armonía de su color.
 [29·b24] ≠ En las noches de luna, cuando su plateada luz resbalaba sobre la cima de los montes, ¿te acuerdas cómo charlábamos en voz baja entre las diáfanas sombras?
+    D: En las noches de luna, cuando su plateada luz resbalaba sobre la cima de los montes, ¿te acuerdas cómo charlábamos en voz baja entre las diáfanas sombras?
 [30·b25] ≠ Y referíamos con un blando susurro las historias de los silfos que se columpian en los hilos de oro que cuelgan las arañas entre los árboles.
+    D: Y referíamos con un blando susurro las historias de los silfos que se columpian en los hilos de oro que cuelgan las arañas entre los árboles.
 [31·b26] ≠ Hasta que suspendíamos nuestra monótona charla para oir embebecidas las quejas del ruiseñor, que había escogido nuestro tronco por escabel.
+    D: Hasta que suspendíamos nuestra monótona charla para oir embebecidas las quejas del ruiseñor, que había escogido nuestro tronco por escabel.
 [32·b27] ≠ Y eran tan tristes y tan suaves sus lamentos que, aunque llenas de gozo al oirle, nos amanecía llorando.
+    D: Y eran tan tristes y tan suaves sus lamentos que, aunque llenas de gozo al oirle, nos amanecía llorando.
 [33·b28] ≠ ¡Oh!
+    D: ¡Oh!
 [34·b28] = ¡Qué dulces eran aquellas lágrimas que nos prestaba el rocío de la noche y que resplandecían con todos los colores del iris á la primera luz de la aurora!
+    D: ¡Qué dulces eran aquellas lágrimas que nos prestaba el rocío de la noche y que resplandecían con todos los colores del iris á la primera luz de la aurora!
 [35·b29] ≠ Después vino la alegre banda de jilgueros á llenar de vida y de ruidos el bosque con la alborozada y confusa algarabía de sus cantos.
+    D: Después vino la alegre banda de jilgueros á llenar de vida y de ruidos el bosque con la alborozada y confusa algarabía de sus cantos.
 [36·b30] ≠ Y una enamorada pareja colgó junto á nosotras su redondo nido de aristas y de plumas.
+    D: Y una enamorada pareja colgó junto á nosotras su redondo nido de aristas y de plumas.
 [37·b31] ≠ Nosotras servíamos de abrigo á los pequeñuelos contra las molestas gotas de la lluvia en las tempestades de verano.
+    D: Nosotras servíamos de abrigo á los pequeñuelos contra las molestas gotas de la lluvia en las tempestades de verano.
 [38·b32] ≠ Nosotras les servíamos de dosel y los defendíamos de los importunos rayos del sol.
+    D: Nosotras les servíamos de dosel y los defendíamos de los importunos rayos del sol.
 [39·b33] ≠ Nuestra vida pasaba como un sueño de oro, del que no sospechábamos que se podría despertar.
+    D: Nuestra vida pasaba como un sueño de oro, del que no sospechábamos que se podría despertar.
 
 ## Narración: RIMAS (1491 oraciones)
 [0·b0] ≠ Rimas.

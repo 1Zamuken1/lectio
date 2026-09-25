@@ -59,14 +59,22 @@ warnings: ninguno
 [29·b5] = With hardly a word spoken, but with a kindly eye, he waved me to an armchair, threw across his case of cigars, and indicated a spirit case and a gasogene in the corner.
 [30·b5] = Then he stood before the fire and looked me over in his singular introspective fashion.
 [31·b6] = “Wedlock suits you,” he remarked.
+    D: “Wedlock suits you,” | N: he remarked.
 [32·b6] = “I think, Watson, that you have put on seven and a half pounds since I saw you.”
+    D: “I think, Watson, that you have put on seven and a half pounds since I saw you.”
 [33·b7] = “Seven!”
+    D: “Seven!”
 [34·b7] = I answered.
 [35·b8] = “Indeed, I should have thought a little more.
+    D: “Indeed, I should have thought a little more.
 [36·b8] = Just a trifle more, I fancy, Watson.
+    D: Just a trifle more, I fancy, Watson.
 [37·b8] = And in practice again, I observe.
+    D: And in practice again, I observe.
 [38·b8] = You did not tell me that you intended to go into harness.”
+    D: You did not tell me that you intended to go into harness.”
 [39·b9] = “Then, how do you know?”
+    D: “Then, how do you know?”
 
 ## Narración: The Man with the Twisted Lip (571 oraciones)
 [0·b0] ≠ The Man with the Twisted Lip.
@@ -77,26 +85,42 @@ warnings: ninguno
 [5·b2] ≠ One night it was in June, ’89 there came a ring to my bell, about the hour when a man gives his first yawn and glances at the clock.
 [6·b2] = I sat up in my chair, and my wife laid her needlework down in her lap and made a little face of disappointment.
 [7·b3] = “A patient!” said she.
+    D: “A patient!” | N: said she.
 [8·b3] = “You’ll have to go out.”
+    D: “You’ll have to go out.”
 [9·b4] = I groaned, for I was newly come back from a weary day.
 [10·b5] = We heard the door open, a few hurried words, and then quick steps upon the linoleum.
 [11·b5] = Our own door flew open, and a lady, clad in some dark-coloured stuff, with a black veil, entered the room.
 [12·b6] = “You will excuse my calling so late,” she began, and then, suddenly losing her self-control, she ran forward, threw her arms about my wife’s neck, and sobbed upon her shoulder.
+    D: “You will excuse my calling so late,” | N: she began, and then, suddenly losing her self-control, she ran forward, threw her arms about my wife’s neck, and sobbed upon her shoulder.
 [13·b6] = “Oh, I’m in such trouble!” she cried; “I do so want a little help.”
+    D: “Oh, I’m in such trouble!” | N: she cried; | D: “I do so want a little help.”
 [14·b7] = “Why,” said my wife, pulling up her veil, “it is Kate Whitney.
+    D: “Why,” | N: said my wife, pulling up her veil, | D: “it is Kate Whitney.
 [15·b7] = How you startled me, Kate!
+    D: How you startled me, Kate!
 [16·b7] = I had not an idea who you were when you came in.”
+    D: I had not an idea who you were when you came in.”
 [17·b8] = “I didn’t know what to do, so I came straight to you.”
+    D: “I didn’t know what to do, so I came straight to you.”
 [18·b8] = That was always the way.
 [19·b8] = Folk who were in grief came to my wife like birds to a lighthouse.
 [20·b9] = “It was very sweet of you to come.
+    D: “It was very sweet of you to come.
 [21·b9] = Now, you must have some wine and water, and sit here comfortably and tell us all about it.
+    D: Now, you must have some wine and water, and sit here comfortably and tell us all about it.
 [22·b9] = Or should you rather that I sent James off to bed?”
+    D: Or should you rather that I sent James off to bed?”
 [23·b10] = “Oh, no, no!
+    D: “Oh, no, no!
 [24·b10] = I want the doctor’s advice and help, too.
+    D: I want the doctor’s advice and help, too.
 [25·b10] = It’s about Isa.
+    D: It’s about Isa.
 [26·b10] = He has not been home for two days.
+    D: He has not been home for two days.
 [27·b10] = I am so frightened about him!”
+    D: I am so frightened about him!”
 [28·b11] = It was not the first time that she had spoken to us of her husband’s trouble, to me as a doctor, to my wife as an old friend and school companion.
 [29·b11] = We soothed and comforted her by such words as we could find.
 [30·b11] = Did she know where her husband was?
@@ -113,41 +137,70 @@ warnings: ninguno
 ## Narración: The Adventure of the Copper Beeches (595 oraciones)
 [0·b0] ≠ The Adventure of the Copper Beeches.
 [1·b1] = “To the man who loves art for its own sake,” remarked Sherlock Holmes, tossing aside the advertisement sheet of the Daily Telegraph, “it is frequently in its least important and lowliest manifestations that the keenest pleasure is to be derived.
+    D: “To the man who loves art for its own sake,” | N: remarked Sherlock Holmes, tossing aside the advertisement sheet of the Daily Telegraph, | D: “it is frequently in its least important and lowliest manifestations that the keenest pleasure is to be derived.
 [2·b1] = It is pleasant to me to observe, Watson, that you have so far grasped this truth that in these little records of our cases which you have been good enough to draw up, and, I am bound to say, occasionally to embellish, you have given prominence not so much to the many causes célèbres and sensational trials in which I have figured but rather to those incidents which may have been trivial in themselves, but which have given room for those faculties of deduction and of logical synthesis which I have made my special province.”
+    D: It is pleasant to me to observe, Watson, that you have so far grasped this truth that in these little records of our cases which you have been good enough to draw up, and, I am bound to say, occasionally to embellish, you have given prominence not so much to the many causes célèbres and sensational trials in which I have figured but rather to those incidents which may have been trivial in themselves, but which have given room for those faculties of deduction and of logical synthesis which I have made my special province.”
 [3·b2] = “And yet,” said I, smiling, “I cannot quite hold myself absolved from the charge of sensationalism which has been urged against my records.”
+    D: “And yet,” | N: said I, smiling, | D: “I cannot quite hold myself absolved from the charge of sensationalism which has been urged against my records.”
 [4·b3] ≠ “You have erred, perhaps,” he observed, taking up a glowing cinder with the tongs and lighting with it the long cherrywood pipe which was wont to replace his clay when he was in a disputatious rather than a meditative mood “you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.”
+    D: “You have erred, perhaps,” | N: he observed, taking up a glowing cinder with the tongs and lighting with it the long cherrywood pipe which was wont to replace his clay when he was in a disputatious rather than a meditative mood | D: “you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.”
 [5·b4] = “It seems to me that I have done you full justice in the matter,” I remarked with some coldness, for I was repelled by the egotism which I had more than once observed to be a strong factor in my friend’s singular character.
+    D: “It seems to me that I have done you full justice in the matter,” | N: I remarked with some coldness, for I was repelled by the egotism which I had more than once observed to be a strong factor in my friend’s singular character.
 [6·b5] = “No, it is not selfishness or conceit,” said he, answering, as was his wont, my thoughts rather than my words.
+    D: “No, it is not selfishness or conceit,” | N: said he, answering, as was his wont, my thoughts rather than my words.
 [7·b5] ≠ “If I claim full justice for my art, it is because it is an impersonal thing a thing beyond myself.
+    D: “If I claim full justice for my art, it is because it is an impersonal thing a thing beyond myself.
 [8·b5] = Crime is common.
+    D: Crime is common.
 [9·b5] = Logic is rare.
+    D: Logic is rare.
 [10·b5] = Therefore it is upon the logic rather than upon the crime that you should dwell.
+    D: Therefore it is upon the logic rather than upon the crime that you should dwell.
 [11·b5] = You have degraded what should have been a course of lectures into a series of tales.”
+    D: You have degraded what should have been a course of lectures into a series of tales.”
 [12·b6] = It was a cold morning of the early spring, and we sat after breakfast on either side of a cheery fire in the old room at Baker Street.
 [13·b6] = A thick fog rolled down between the lines of dun-coloured houses, and the opposing windows loomed like dark, shapeless blurs through the heavy yellow wreaths.
 [14·b6] = Our gas was lit and shone on the white cloth and glimmer of china and metal, for the table had not been cleared yet.
 [15·b6] = Sherlock Holmes had been silent all the morning, dipping continuously into the advertisement columns of a succession of papers until at last, having apparently given up his search, he had emerged in no very sweet temper to lecture me upon my literary shortcomings.
 [16·b7] = “At the same time,” he remarked after a pause, during which he had sat puffing at his long pipe and gazing down into the fire, “you can hardly be open to a charge of sensationalism, for out of these cases which you have been so kind as to interest yourself in, a fair proportion do not treat of crime, in its legal sense, at all.
+    D: “At the same time,” | N: he remarked after a pause, during which he had sat puffing at his long pipe and gazing down into the fire, | D: “you can hardly be open to a charge of sensationalism, for out of these cases which you have been so kind as to interest yourself in, a fair proportion do not treat of crime, in its legal sense, at all.
 [17·b7] = The small matter in which I endeavoured to help the King of Bohemia, the singular experience of Miss Mary Sutherland, the problem connected with the man with the twisted lip, and the incident of the noble bachelor, were all matters which are outside the pale of the law.
+    D: The small matter in which I endeavoured to help the King of Bohemia, the singular experience of Miss Mary Sutherland, the problem connected with the man with the twisted lip, and the incident of the noble bachelor, were all matters which are outside the pale of the law.
 [18·b7] = But in avoiding the sensational, I fear that you may have bordered on the trivial.”
+    D: But in avoiding the sensational, I fear that you may have bordered on the trivial.”
 [19·b8] = “The end may have been so,” I answered, “but the methods I hold to have been novel and of interest.”
+    D: “The end may have been so,” | N: I answered, | D: “but the methods I hold to have been novel and of interest.”
 [20·b9] = “Pshaw, my dear fellow, what do the public, the great unobservant public, who could hardly tell a weaver by his tooth or a compositor by his left thumb, care about the finer shades of analysis and deduction!
+    D: “Pshaw, my dear fellow, what do the public, the great unobservant public, who could hardly tell a weaver by his tooth or a compositor by his left thumb, care about the finer shades of analysis and deduction!
 [21·b9] = But, indeed, if you are trivial, I cannot blame you, for the days of the great cases are past.
+    D: But, indeed, if you are trivial, I cannot blame you, for the days of the great cases are past.
 [22·b9] = Man, or at least criminal man, has lost all enterprise and originality.
+    D: Man, or at least criminal man, has lost all enterprise and originality.
 [23·b9] = As to my own little practice, it seems to be degenerating into an agency for recovering lost lead pencils and giving advice to young ladies from boarding-schools.
+    D: As to my own little practice, it seems to be degenerating into an agency for recovering lost lead pencils and giving advice to young ladies from boarding-schools.
 [24·b9] = I think that I have touched bottom at last, however.
+    D: I think that I have touched bottom at last, however.
 [25·b9] = This note I had this morning marks my zero-point, I fancy.
+    D: This note I had this morning marks my zero-point, I fancy.
 [26·b9] = Read it!”
+    D: Read it!”
 [27·b9] = He tossed a crumpled letter across to me.
 [28·b10] = It was dated from Montague Place upon the preceding evening, and ran thus:
 [29·b11] ≠ “Dear Mr. Holmes: I am very anxious to consult you as to whether I should or should not accept a situation which has been offered to me as governess.
 [30·b11] = I shall call at half-past ten tomorrow if I do not inconvenience you.
 [31·b11] = Yours faithfully,
 [32·b12] = “Violet Hunter.”
+    D: “Violet Hunter.”
 [33·b13] = “Do you know the young lady?”
+    D: “Do you know the young lady?”
 [34·b13] = I asked.
 [35·b14] = “Not I.”
+    D: “Not I.”
 [36·b15] = “It is half-past ten now.”
+    D: “It is half-past ten now.”
 [37·b16] = “Yes, and I have no doubt that is her ring.”
+    D: “Yes, and I have no doubt that is her ring.”
 [38·b17] = “It may turn out to be of more interest than you think.
+    D: “It may turn out to be of more interest than you think.
 [39·b17] = You remember that the affair of the blue carbuncle, which appeared to be a mere whim at first, developed into a serious investigation.
+    D: You remember that the affair of the blue carbuncle, which appeared to be a mere whim at first, developed into a serious investigation.

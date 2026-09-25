@@ -105,6 +105,8 @@ function render(book: ProcessedBook): string {
     for (const sentence of chapter.sentences.slice(0, SAMPLE_SENTENCES)) {
       const marker = sentence.narration === '' ? '∅' : sentence.narration === sentence.text ? '=' : '≠';
       lines.push(`[${sentence.index}·b${sentence.blockIndex}] ${marker} ${sentence.narration || sentence.text}`);
+      // Tramos de voz: D = diálogo, N = narración.
+      if (sentence.voices) lines.push(`    ${sentence.voices.map((v) => `${v.kind === 'dialogue' ? 'D' : 'N'}: ${v.text}`).join(' | ')}`);
     }
   }
   return `${lines.join('\n')}\n`;

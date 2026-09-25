@@ -1,6 +1,7 @@
 import type { CleanedSection } from '../cleaning/clean.js';
 import { collapsedText, tagName } from '../dom/xhtml.js';
 import { blockText, segmentSentences, type BlockText } from '../sentences/segment.js';
+import { dialogueRanges, splitByVoice, type VoiceKind } from './dialogue.js';
 import {
   announcementFor,
   buildVocabulary,
@@ -29,6 +30,16 @@ export interface Sentence {
   text: string;
   /** Texto a narrar. `""` = esta oración no se narra (y no tendrá audio). */
   narration: string;
+  /**
+   * Tramos de narración y diálogo, solo si la oración tiene diálogo: el narrador los lee
+   * con prosodias distintas. Sin este campo, toda la oración es narración.
+   */
+  voices?: VoicePart[];
+}
+
+export interface VoicePart {
+  kind: VoiceKind;
+  text: string;
 }
 
 export type NarrationStats = Record<NarrationRule, number>;
@@ -70,10 +81,14 @@ export function narrateSections(
       // N1: toda llamada a nota de un bloque narrado queda fuera de la narración (dentro de
       // una oración se recorta; al final de una oración ya queda fuera de su rango).
       if (!silent) stats.N1_noterefs += analyzed.noteRanges.length;
+      const dialogue = silent ? [] : dialogueRanges(analyzed.text, language);
       for (const [start, end] of segmentSentences(analyzed, language)) {
         const narration = silent
           ? ''
           : narrationFor(analyzed, start, end, rules, stats, vocabulary);
+        const voices = narration
+          ? voicesFor(analyzed, start, end, dialogue, rules, vocabulary)
+          : undefined;
         sentences.push({
           index: sentences.length,
           blockIndex,
@@ -81,6 +96,7 @@ export function narrateSections(
           end,
           text: analyzed.text.slice(start, end),
           narration,
+          ...(voices ? { voices } : {}),
         });
       }
     });
@@ -138,6 +154,40 @@ function narrationFor(
 }
 
 /**
+ * Tramos de voz de una oración con diálogo. Cada tramo pasa por las mismas reglas que la
+ * oración entera (sus estadísticas no se cuentan dos veces); los tramos contiguos del
+ * mismo tipo se unen. undefined si la oración es toda narración.
+ */
+function voicesFor(
+  block: BlockText,
+  start: number,
+  end: number,
+  dialogue: Array<[number, number]>,
+  rules: NarrationOptions,
+  vocabulary: ReadonlySet<string>,
+): VoicePart[] | undefined {
+  if (!dialogue.some(([a, b]) => b > start && a < end)) return undefined;
+  // "(Al decir esto, hizo un gesto…)": una oración entre paréntesis es del narrador.
+  if (/^\s*\(.*\)[.…]?\s*$/su.test(block.text.slice(start, end))) return undefined;
+  const parts: VoicePart[] = [];
+  for (const part of splitByVoice(block.text, start, end, dialogue)) {
+    const text = narrationFor(
+      block,
+      part.start,
+      part.end,
+      rules,
+      emptyNarrationStats(),
+      vocabulary,
+    );
+    if (!text) continue;
+    const last = parts.at(-1);
+    if (last?.kind === part.kind) last.text += ` ${text}`;
+    else parts.push({ kind: part.kind, text });
+  }
+  return parts.some((p) => p.kind === 'dialogue') ? parts : undefined;
+}
+
+/**
  * La primera oración narrada anuncia el capítulo ("Segunda parte. Capítulo 74. De cómo…").
  *
  * Los encabezados del inicio que repiten el título o la parte ("A Scandal in Bohemia" +
@@ -162,12 +212,15 @@ function announce(section: CleanedSection, sentences: Sentence[], parent: string
     if (references.some((ref) => matchesTitle(text, ref))) repeated.add(index);
   }
   for (const sentence of sentences) {
-    if (repeated.has(sentence.blockIndex)) sentence.narration = '';
+    if (!repeated.has(sentence.blockIndex)) continue;
+    sentence.narration = '';
+    delete sentence.voices;
   }
 
   const first = sentences[0];
   if (first && repeated.has(0) && first.blockIndex === 0) {
     first.narration = announcement;
+    delete first.voices;
     return;
   }
   sentences.unshift({

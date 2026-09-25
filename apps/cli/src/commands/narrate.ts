@@ -2,14 +2,16 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import {
-  buildAlignment,
-  buildChunks,
+  alignVoiceUnits,
+  buildVoiceUnits,
   processEpub,
+  type PauseKind,
   type ProcessedBook,
   type ProcessedChapter,
-  type TtsResult,
 } from '@lectio/epub-pipeline';
-import { DEFAULT_RATE, DEFAULT_VOICES, EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
+import { EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
+import { mp3Silence } from '../tts/mp3.js';
+import { resolveVoice } from '../tts/voices.js';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, formatNumber, style, userPath } from '../ui/terminal.js';
 
@@ -30,17 +32,33 @@ export interface ManifestEntry {
   alignment: string;
   durationMs: number;
   characters: number;
+  /** Perfil de voz ("gonzalo") o voz de Edge usada directamente. */
   voice: string;
-  /** Velocidad de síntesis (ej. "+12%"). */
+  /** Nombre para mostrar: "Gonzalo · hombre · Colombia". */
+  voiceLabel?: string;
+  /** Prosodia usada, para saber si hay que regenerar: "narración +6%/-7% · diálogo +0%/+10%". */
   rate: string;
   provider: string;
   pipelineVersion: number;
 }
 
+/**
+ * Pausas del montaje (docs/lectio-decision-tts.md §7): las decide Lectio, no el motor.
+ * Afinadas escuchando: las de Edge tras un punto y aparte, "?" o "!" se sentían largas.
+ */
+export const PAUSES_MS: Record<PauseKind, number> = {
+  phrase: 140,
+  sentence: 300,
+  paragraph: 480,
+  none: 0,
+};
+
 export async function narrate(file: string, options: NarrateOptions): Promise<void> {
   const input = userPath(file);
   const book = await processEpub(await readFile(input));
-  const voice = options.voice ?? DEFAULT_VOICES[book.metadata.language] ?? DEFAULT_VOICES.en!;
+  const voice = resolveVoice(options.voice, book.metadata.language, options.rate);
+  const { narration, dialogue } = voice.prosody;
+  const prosodyKey = `narración ${narration.rate}/${narration.pitch} · diálogo ${dialogue.rate}/${dialogue.pitch}`;
   const selected = selectChapters(book, options.chapters);
   if (selected.length === 0) {
     console.error(style.red('No hay capítulos que narrar con esa selección.'));
@@ -57,10 +75,10 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
   const totalChars = selected.reduce((n, c) => n + c.characterCount, 0);
   console.log(
     `\n${style.bold(book.metadata.title ?? 'Libro')} · ${selected.length} capítulo(s) · ` +
-      `${formatNumber(totalChars)} caracteres · voz ${style.blue(voice)} a ${options.rate ?? DEFAULT_RATE}\n`,
+      `${formatNumber(totalChars)} caracteres · voz ${style.blue(voice.label)}\n`,
   );
 
-  const provider = new EdgeTtsProvider({ rate: options.rate });
+  const provider = new EdgeTtsProvider({ prosody: voice.prosody, trimSilence: true });
   const concurrency = Math.max(1, Math.min(4, Number(options.concurrency ?? 2)));
   let sent = 0;
   try {
@@ -70,8 +88,8 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
       const existing = manifest.get(chapter.orderIndex);
       const reusable =
         !options.force &&
-        existing?.voice === voice &&
-        existing.rate === provider.rate &&
+        existing?.voice === voice.id &&
+        existing.rate === prosodyKey &&
         existing.pipelineVersion === book.pipelineVersion &&
         existsSync(join(dir, existing.audio)) &&
         existsSync(join(dir, existing.alignment));
@@ -81,20 +99,30 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
       }
 
       const started = performance.now();
-      const chunks = buildChunks(chapter.sentences, provider.maxChunkChars);
+      // Una solicitud por oración o tramo de diálogo; el montaje pone las pausas.
+      const units = buildVoiceUnits(chapter.sentences, provider.maxChunkChars);
       process.stdout.write(
-        `${prefix} ${chapter.title} ${style.gray(`· ${chunks.length} fragmento(s)…`)}`,
+        `${prefix} ${chapter.title} ${style.gray(`· ${formatNumber(units.length)} unidades…`)}`,
       );
-      const results = await mapLimit(chunks, concurrency, (chunk) =>
-        provider.synthesize({ text: chunk.text, voiceId: voice, language: book.metadata.language }),
+      const results = await mapLimit(units, concurrency, (unit) =>
+        provider.synthesize({
+          text: unit.text,
+          voiceId: voice.voice,
+          language: book.metadata.language,
+          kind: unit.kind,
+        }),
       );
-      const alignment = buildAlignment(chunks, results);
+      const pieces: Buffer[] = [];
+      const durations: number[] = [];
+      results.forEach((result, i) => {
+        const pause = mp3Silence(result.audio, PAUSES_MS[units[i]!.pauseAfter]);
+        pieces.push(result.audio, pause.audio);
+        durations.push(result.durationMs + pause.durationMs);
+      });
+      const alignment = alignVoiceUnits(units, durations);
 
       // Escritura atómica: un corte a mitad de camino no deja un MP3 incompleto que parezca válido.
-      await writeAtomic(
-        join(dir, `${name}.mp3`),
-        Buffer.concat(results.map((r: TtsResult) => r.audio)),
-      );
+      await writeAtomic(join(dir, `${name}.mp3`), Buffer.concat(pieces));
       await writeAtomic(join(dir, `${name}.alignment.json`), `${JSON.stringify(alignment)}\n`);
       manifest.set(chapter.orderIndex, {
         orderIndex: chapter.orderIndex,
@@ -103,18 +131,19 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
         alignment: `${name}.alignment.json`,
         durationMs: alignment.durationMs,
         characters: chapter.characterCount,
-        voice,
-        rate: provider.rate,
+        voice: voice.id,
+        voiceLabel: voice.label,
+        rate: prosodyKey,
         provider: provider.name,
         pipelineVersion: book.pipelineVersion,
       });
       await writeManifest(manifestPath, manifest, dir);
-      sent += chunks.reduce((n, c) => n + c.text.length, 0);
+      sent += units.reduce((n, u) => n + u.text.length, 0);
 
       const seconds = ((performance.now() - started) / 1000).toFixed(1);
       console.log(
         ` ${style.green('✓')} ${formatDuration(Math.round(alignment.durationMs / 60000))}` +
-          style.gray(` en ${seconds} s${alignment.approximate ? ' · alineación aproximada' : ''}`),
+          style.gray(` en ${seconds} s`),
       );
     }
   } finally {

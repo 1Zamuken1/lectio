@@ -111,7 +111,7 @@ Consecuencia directa: **Azure y OpenAI quedan descartados como proveedores de pr
 - El puerto `TtsProvider` queda como lo define el pipeline (§4, etapa 10): recibe fragmentos, expone `maxChunkChars` y devuelve `boundaries` opcionales.
 - Valores iniciales de `maxChunkChars`: Edge ~3.000 caracteres (margen bajo los 4.096 bytes, considerando acentos en UTF-8 y el envoltorio SSML); Kokoro ~1.500 caracteres (por el límite de ~510 tokens).
 - Adaptador Edge: solicitar `WordBoundary` explícitamente.
-- **Voz por defecto en español: `es-CO-GonzaloNeural`** (Colombia), elegida escuchando muestras de 11 voces (Chile, México, España, Colombia y el español neutro de EE. UU.). En inglés, `en-US-AndrewNeural`. Se cambia con `--voice`; `lectio voices es` lista las disponibles.
+- **Voces: cuatro perfiles de Lectio (§7), por defecto `gonzalo`** (`es-CO-GonzaloNeural` con prosodia propia para narración y diálogo). En inglés, `en-US-AndrewNeural` sin perfil. Se cambia con `--voice`; `lectio voices es` lista perfiles y voces.
 - **Librería: `msedge-tts` (MIT).** Se descartó `edge-tts-universal` por su licencia AGPL-3.0, que obligaría a publicar el código de un worker comercial. El token `Sec-MS-GEC` va con una versión fija en la librería: si Edge empieza a responder 403, lo primero es actualizarla.
 - El stream de metadatos de Edge no siempre emite su fin: el adaptador termina con el audio y usa las marcas recibidas hasta ese momento.
 - Documentar en el README el riesgo de términos de uso de Edge TTS: es una decisión consciente, no un descuido.
@@ -192,3 +192,40 @@ Generar por capítulo no debe significar esperar entre capítulos. Cuando la rep
 | Modelo de datos | `AudioSegment` + `requested_by` (FK → User, nullable para libros públicos). |
 | API | `POST /chapters/:id/audio` puede responder `429` con `code: AUDIO_CONCURRENCY_LIMIT` o `TTS_QUOTA_EXCEEDED`; `403` sobre libros públicos. `GET /users/me/usage` devuelve `{ periodStart, quota, consumed, reserved, remaining, totalCharactersProcessed }`. |
 | Requisitos | RF-22, RF-23, RF-24 y RNF-07 en `lectio-documentacion.md`. |
+
+---
+
+## 7. Voces, prosodia y pausas
+
+### 7.1 El problema
+
+Escuchando capítulos completos, la voz sonaba "a máquina": las preguntas no sonaban a pregunta, narración y diálogos sonaban iguales, y las pausas tras un punto y aparte, "?" o "!" se sentían largas.
+
+### 7.2 Qué permite Edge (probado)
+
+- Un solo `<prosody>` por solicitud. Varios `<prosody>`, el atributo `contour` (curva de entonación) o `mstts:express-as` (estilos) hacen que Edge cierre la conexión sin audio. Los estilos existen en Azure, que es de pago.
+- Las voces *Multilingual* (Andrew, Emma, Brian) aceptan acento de México o Colombia, pero leen el español con un dejo inglés muy notorio en las preguntas ("¿Piedras? ¿Y para qué…?"). Se descartaron.
+- Las voces regionales sí entonan bien las preguntas; su debilidad era la falta de contraste y el ritmo.
+
+### 7.3 Solución: una solicitud por unidad de voz
+
+1. **Diálogo y narración** (pipeline, `narration/dialogue.ts`): se detectan la raya de diálogo (español, portugués, catalán, gallego) y el texto entre comillas que termina en puntuación o es largo. Cada oración con diálogo lleva sus tramos (`Sentence.voices`); los golden files los muestran como `D:` y `N:`.
+2. **Unidades** (pipeline, `audio/units.ts`): una solicitud por oración, o por tramo dentro de ella, con el tipo de pausa que la sigue.
+3. **Prosodia por tramo** (adaptador): cada perfil define velocidad y tono de narración y de diálogo.
+4. **Pausas propias** (CLI, `tts/mp3.ts`): se recorta el silencio que Edge pone al inicio y al final de cada unidad (con las marcas de palabra, en tramas MP3 de 24 ms) y se inserta silencio digital: 140 ms dentro de la oración, 300 ms entre oraciones, 480 ms entre párrafos. Un pasaje de prueba pasó de 22,1 s a 18,2 s con la misma habla.
+5. **Alineación exacta:** cada unidad es una solicitud, así que los tiempos de cada oración se conocen sin estimar.
+
+Costo: los mismos caracteres, muchas más solicitudes (un capítulo de Marianela: 5 → 131). Con la conexión reutilizada y dos en paralelo, un capítulo de 10 min se genera en ~40 s. La cuota (§6) se mide en caracteres, así que no cambia.
+
+### 7.4 Perfiles elegidos (a oído, 2026-09-25)
+
+| Perfil | Voz | Narración (velocidad / tono) | Diálogo (velocidad / tono) |
+|---|---|---|---|
+| `gonzalo` (por defecto) | es-CO-GonzaloNeural | +6 % / −7 % | +0 % / +10 % |
+| `jorge` | es-MX-JorgeNeural | +26 % / −7 % | +20 % / +10 % |
+| `salome` | es-CO-SalomeNeural | +18 % / −4 % | +22 % / +0 % |
+| `salome-grave` | es-CO-SalomeNeural | +16 % / −8 % | +16 % / +0 % |
+
+Las velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades muy distintas. En Salomé, subir el tono del diálogo sonaba artificial (su voz ya es aguda): el contraste se logra con velocidad y bajando la narración.
+
+Se evaluaron 12 voces regionales (México, EE. UU., Colombia, Perú, Venezuela, Costa Rica, Ecuador, Guatemala, Bolivia). Si hace falta más expresividad que esta, el siguiente paso es un TTS basado en modelos de lenguaje (de pago), con una prueba a ciegas contra estos perfiles.

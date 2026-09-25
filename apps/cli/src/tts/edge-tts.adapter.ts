@@ -1,6 +1,8 @@
-import type { TtsBoundary, TtsProvider, TtsResult } from '@lectio/epub-pipeline';
+import type { TtsBoundary, TtsProvider, TtsResult, VoiceKind } from '@lectio/epub-pipeline';
 import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
 import type { Readable } from 'node:stream';
+import { mp3DurationMs, trimMp3 } from './mp3.js';
+import type { Prosody } from './voices.js';
 
 /**
  * Adaptador de Microsoft Edge TTS (docs/lectio-decision-tts.md). Servicio no oficial:
@@ -9,29 +11,20 @@ import type { Readable } from 'node:stream';
  *
  * Librería: `msedge-tts` (MIT). Se descartó `edge-tts-universal` por su licencia AGPL-3.0,
  * incompatible con un posible uso comercial del worker.
+ *
+ * Edge acepta un solo `<prosody>` por solicitud: varios, `contour` o `mstts:express-as`
+ * cierran la conexión sin audio (probado). Por eso narración y diálogo van en solicitudes
+ * separadas, cada una con su prosodia.
  */
 
-/** Salida constante de 48 kbps: la duración se calcula a partir del tamaño del MP3. */
 const OUTPUT = OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3;
-const BITS_PER_SECOND = 48_000;
 /** Los offsets de Edge vienen en unidades de 100 ns. */
 const TICKS_PER_MS = 10_000;
 const REQUEST_TIMEOUT_MS = 90_000;
-const RETRIES = 3;
-
-/**
- * Velocidad de síntesis. +12 %: punto medio entre la velocidad natural de la voz y 1,25×,
- * elegido tras escuchar capítulos completos (la voz a 1× se sentía lenta). Va incorporada
- * en el MP3, así que vale también en cualquier otro reproductor; además acorta en la
- * misma proporción las pausas de las comas.
- */
-export const DEFAULT_RATE = '+12%';
-
-export const DEFAULT_VOICES: Record<string, string> = {
-  // Elegida escuchando muestras (docs/lectio-decision-tts.md §5).
-  es: 'es-CO-GonzaloNeural',
-  en: 'en-US-AndrewNeural',
-};
+const RETRIES = 4;
+/** Recorte del silencio de Edge: margen antes de la primera palabra y tras la última. */
+const LEAD_MS = 30;
+const TAIL_MS = 90;
 
 export class EdgeTtsProvider implements TtsProvider {
   readonly name = 'edge';
@@ -43,21 +36,30 @@ export class EdgeTtsProvider implements TtsProvider {
 
   #client: MsEdgeTTS | null = null;
   #voice: string | null = null;
-  readonly #rate: string;
+  readonly #prosody: Record<VoiceKind, Prosody>;
+  readonly #trimSilence: boolean;
 
-  constructor(options: { rate?: string } = {}) {
-    this.#rate = options.rate ?? DEFAULT_RATE;
+  /**
+   * `prosody`: velocidad y tono de la narración y del diálogo (un perfil de voz).
+   * `trimSilence`: quitar el silencio que Edge pone al inicio y al final de cada
+   * solicitud, para que las pausas las decida el montaje.
+   */
+  constructor(options: { prosody: Record<VoiceKind, Prosody>; trimSilence?: boolean }) {
+    this.#prosody = options.prosody;
+    this.#trimSilence = options.trimSilence ?? false;
   }
 
-  get rate(): string {
-    return this.#rate;
-  }
-
-  async synthesize(input: { text: string; voiceId: string; language: string }): Promise<TtsResult> {
+  async synthesize(input: {
+    text: string;
+    voiceId: string;
+    language: string;
+    kind?: VoiceKind;
+  }): Promise<TtsResult> {
+    const prosody = this.#prosody[input.kind ?? 'narration'];
     let lastError: unknown;
     for (let attempt = 1; attempt <= RETRIES; attempt++) {
       try {
-        return await this.#request(input.text, input.voiceId);
+        return await this.#request(input.text, input.voiceId, prosody);
       } catch (error) {
         lastError = error;
         this.close(); // la conexión puede haber quedado inservible: se abre otra
@@ -75,24 +77,30 @@ export class EdgeTtsProvider implements TtsProvider {
     this.#voice = null;
   }
 
-  async #request(text: string, voice: string): Promise<TtsResult> {
+  async #request(text: string, voice: string, prosody: Prosody): Promise<TtsResult> {
     const client = await this.#connect(voice);
     // El texto se inserta tal cual dentro del SSML: hay que escapar lo que es XML.
-    const { audioStream, metadataStream } = client.toStream(escapeXml(text), { rate: this.#rate });
+    const { audioStream, metadataStream } = client.toStream(escapeXml(text), prosody);
     // Las marcas llegan antes que el fin del audio, pero el stream de metadatos no siempre
     // se cierra: se acumula lo recibido y se termina cuando termina el audio.
     const metadataChunks: Buffer[] = [];
     metadataStream?.on('data', (chunk: Buffer) => metadataChunks.push(Buffer.from(chunk)));
-    const audio = await withTimeout(collect(audioStream), REQUEST_TIMEOUT_MS);
+    let audio = await withTimeout(collect(audioStream), REQUEST_TIMEOUT_MS);
     // Cada evento es un mensaje: se parsean por separado para que uno corrupto no arrastre al resto.
     const metadata = metadataChunks.map((chunk) => chunk.toString('utf8'));
     if (audio.length === 0) throw new Error('Edge TTS devolvió un audio vacío');
 
-    return {
-      audio,
-      durationMs: Math.round((audio.length * 8 * 1000) / BITS_PER_SECOND),
-      boundaries: wordBoundaries(metadata, text),
-    };
+    let boundaries = wordBoundaries(metadata, text);
+    const span = speechSpan(metadata);
+    if (this.#trimSilence && span) {
+      const trimmed = trimMp3(audio, span.startMs - LEAD_MS, span.endMs + TAIL_MS);
+      audio = trimmed.audio;
+      boundaries = boundaries.map((b) => ({
+        ...b,
+        audioOffsetMs: Math.max(0, b.audioOffsetMs - trimmed.startMs),
+      }));
+    }
+    return { audio, durationMs: Math.round(mp3DurationMs(audio)), boundaries };
   }
 
   async #connect(voice: string): Promise<MsEdgeTTS> {
@@ -106,6 +114,18 @@ export class EdgeTtsProvider implements TtsProvider {
   }
 }
 
+interface WordEntry {
+  Type?: string;
+  Data?: { Offset?: number; Duration?: number; text?: { Text?: string } };
+}
+
+function wordEntries(messages: string[]): WordEntry[] {
+  return messages
+    .flatMap(parseMessage)
+    .flatMap((message) => ((message as { Metadata?: unknown[] }).Metadata ?? []) as WordEntry[])
+    .filter((e) => e.Type === 'WordBoundary' && typeof e.Data?.Offset === 'number');
+}
+
 /**
  * Edge informa cada palabra con su texto y su momento, pero no su posición en el texto
  * enviado. Se ubica buscando cada palabra en orden a partir de la anterior; una palabra
@@ -114,23 +134,35 @@ export class EdgeTtsProvider implements TtsProvider {
 export function wordBoundaries(messages: string[], text: string): TtsBoundary[] {
   const boundaries: TtsBoundary[] = [];
   let cursor = 0;
-  for (const message of messages.flatMap(parseMessage)) {
-    for (const item of (message as { Metadata?: unknown[] }).Metadata ?? []) {
-      const entry = item as { Type?: string; Data?: { Offset?: number; text?: { Text?: string } } };
-      const word = entry.Data?.text?.Text;
-      if (entry.Type !== 'WordBoundary' || !word || typeof entry.Data?.Offset !== 'number')
-        continue;
-      const at = text.indexOf(word, cursor);
-      if (at === -1) continue;
-      boundaries.push({
-        textOffset: at,
-        textLength: word.length,
-        audioOffsetMs: entry.Data.Offset / TICKS_PER_MS,
-      });
-      cursor = at + word.length;
-    }
+  for (const entry of wordEntries(messages)) {
+    const word = entry.Data!.text?.Text;
+    if (!word) continue;
+    const at = text.indexOf(word, cursor);
+    if (at === -1) continue;
+    const duration = entry.Data!.Duration;
+    boundaries.push({
+      textOffset: at,
+      textLength: word.length,
+      audioOffsetMs: entry.Data!.Offset! / TICKS_PER_MS,
+      ...(typeof duration === 'number' ? { durationMs: duration / TICKS_PER_MS } : {}),
+    });
+    cursor = at + word.length;
   }
   return boundaries;
+}
+
+/**
+ * Desde el inicio de la primera palabra hasta el fin de la última, con todas las marcas
+ * (aunque su texto no se haya ubicado): recortar según `wordBoundaries` podría cortar
+ * una palabra final que el motor normalizó ("1914" → "mil novecientos catorce").
+ */
+export function speechSpan(messages: string[]): { startMs: number; endMs: number } | null {
+  const entries = wordEntries(messages);
+  if (entries.length === 0) return null;
+  const startMs = Math.min(...entries.map((e) => e.Data!.Offset!)) / TICKS_PER_MS;
+  const endMs =
+    Math.max(...entries.map((e) => e.Data!.Offset! + (e.Data!.Duration ?? 0))) / TICKS_PER_MS;
+  return { startMs, endMs };
 }
 
 /**

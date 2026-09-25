@@ -49,7 +49,7 @@ export function buildChunks(sentences: Sentence[], maxChunkChars: number): Audio
   return chunks;
 }
 
-function splitLong(text: string, max: number): string[] {
+export function splitLong(text: string, max: number): string[] {
   if (text.length <= max) return [text];
   const pieces: string[] = [];
   let rest = text;

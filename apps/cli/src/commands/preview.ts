@@ -80,7 +80,7 @@ async function loadAudio(
     result.set(entry.orderIndex, {
       src: relativePath.map(encodeURIComponent).join('/'),
       durationMs: alignment.durationMs,
-      voice: entry.voice,
+      voice: entry.voiceLabel ?? entry.voice,
       approximate: alignment.approximate,
       sentences: alignment.sentences.map((s) => [s.index, s.startMs, s.endMs]),
     });

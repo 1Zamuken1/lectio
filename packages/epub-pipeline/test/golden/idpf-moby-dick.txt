@@ -165,32 +165,49 @@ warnings: ninguno
 [10·b2] ≠ Here ye strike but splintered hearts together there, ye shall strike unsplinterable glasses!
 [11·b3] = Extracts.
 [12·b4] = “And God created great whales.”
+    D: “And God created great whales.”
 [13·b5] ≠ GENESIS.
 [14·b6] = “Leviathan maketh a path to shine after him; One would think the deep to be hoary.”
+    D: “Leviathan maketh a path to shine after him; One would think the deep to be hoary.”
 [15·b7] ≠ JOB.
 [16·b8] = “Now the Lord had prepared a great fish to swallow up Jonah.”
+    D: “Now the Lord had prepared a great fish to swallow up Jonah.”
 [17·b9] ≠ JONAH.
 [18·b10] = “There go the ships; there is that Leviathan whom thou hast made to play therein.”
+    D: “There go the ships; there is that Leviathan whom thou hast made to play therein.”
 [19·b11] ≠ PSALMS.
 [20·b12] = “In that day, the Lord with his sore, and great, and strong sword, shall punish Leviathan the piercing serpent, even Leviathan that crooked serpent; and he shall slay the dragon that is in the sea.”
+    D: “In that day, the Lord with his sore, and great, and strong sword, shall punish Leviathan the piercing serpent, even Leviathan that crooked serpent; and he shall slay the dragon that is in the sea.”
 [21·b13] ≠ ISAIAH
 [22·b14] = “And what thing soever besides cometh within the chaos of this monster’s mouth, be it beast, boat, or stone, down it goes all incontinently that foul great swallow of his, and perisheth in the bottomless gulf of his paunch.”
+    D: “And what thing soever besides cometh within the chaos of this monster’s mouth, be it beast, boat, or stone, down it goes all incontinently that foul great swallow of his, and perisheth in the bottomless gulf of his paunch.”
 [23·b15] ≠ HOLLAND’S PLUTARCH’S MORALS.
 [24·b16] = “The Indian Sea breedeth the most and the biggest fishes that are: among which the Whales and Whirlpooles called Balaene, take up as much in length as four acres or arpens of land.”
+    D: “The Indian Sea breedeth the most and the biggest fishes that are: among which the Whales and Whirlpooles called Balaene, take up as much in length as four acres or arpens of land.”
 [25·b17] ≠ HOLLAND’S PLINY.
 [26·b18] = “Scarcely had we proceeded two days on the sea, when about sunrise a great many Whales and other monsters of the sea, appeared.
+    D: “Scarcely had we proceeded two days on the sea, when about sunrise a great many Whales and other monsters of the sea, appeared.
 [27·b18] = Among the former, one was of a most monstrous size....
+    D: Among the former, one was of a most monstrous size....
 [28·b18] = This came towards us, open-mouthed, raising the waves on all sides, and beating the sea before him into a foam.”
+    D: This came towards us, open-mouthed, raising the waves on all sides, and beating the sea before him into a foam.”
 [29·b19] ≠ TOOKE’S LUCIAN.
 [30·b19] = “THE TRUE HISTORY.”
+    D: “THE TRUE HISTORY.”
 [31·b20] = “He visited this country also with a view of catching horse-whales, which had bones of very great value for their teeth, of which he brought some to the king....
+    D: “He visited this country also with a view of catching horse-whales, which had bones of very great value for their teeth, of which he brought some to the king....
 [32·b20] = The best whales were catched in his own country, of which some were forty-eight, some fifty yards long.
+    D: The best whales were catched in his own country, of which some were forty-eight, some fifty yards long.
 [33·b20] = He said that he was one of six who had killed sixty in two days.”
+    D: He said that he was one of six who had killed sixty in two days.”
 [34·b21] ≠ OTHER OR OTHER’S VERBAL NARRATIVE TAKEN DOWN FROM HIS MOUTH BY KING ALFRED, A.D. 890.
 [35·b22] = “And whereas all the other things, whether beast or vessel, that enter into the dreadful gulf of this monster’s (whale’s) mouth, are immediately lost and swallowed up, the sea-gudgeon retires into it in great security, and there sleeps.”
+    D: “And whereas all the other things, whether beast or vessel, that enter into the dreadful gulf of this monster’s (whale’s) mouth, are immediately lost and swallowed up, the sea-gudgeon retires into it in great security, and there sleeps.”
 [36·b23] ≠ MONTAIGNE. APOLOGY FOR RAIMOND SEBOND.
 [37·b24] = “Let us fly, let us fly!
+    D: “Let us fly, let us fly!
 [38·b24] = Old Nick take me if is not Leviathan described by the noble prophet Moses in the life of patient Job.”
+    D: Old Nick take me if is not Leviathan described by the noble prophet Moses in the life of patient Job.”
 [39·b25] ≠ RABELAIS.
 
 ## Narración: Chapter 68. The Blanket. (48 oraciones)
@@ -238,6 +255,7 @@ warnings: ninguno
 ## Narración: Epilogue (14 oraciones)
 [0·b0] ≠ Epilogue.
 [1·b1] = “AND I ONLY AM ESCAPED ALONE TO TELL THEE”
+    D: “AND I ONLY AM ESCAPED ALONE TO TELL THEE”
 [2·b2] ≠ Job.
 [3·b3] = The drama’s done.
 [4·b3] ≠ Why then here does any one step forth? Because one did survive the wreck.

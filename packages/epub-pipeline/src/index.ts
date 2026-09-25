@@ -50,7 +50,9 @@ export {
   type NarratedSection,
   type NarrationStats,
   type Sentence,
+  type VoicePart,
 } from './narration/narrate.js';
+export { dialogueRanges, type VoiceKind } from './narration/dialogue.js';
 export {
   DEFAULT_NARRATION_OPTIONS,
   type NarrationOptions,
@@ -59,4 +61,5 @@ export {
 
 // Audio (etapas 10 y 11): troceado para el TTS y alineación. Sin red: el proveedor es un puerto.
 export { buildAlignment, buildChunks, type AudioChunk } from './audio/chunks.js';
+export { alignVoiceUnits, buildVoiceUnits, type PauseKind, type VoiceUnit } from './audio/units.js';
 export type { Alignment, TtsBoundary, TtsProvider, TtsResult } from './audio/tts.js';

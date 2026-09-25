@@ -2,7 +2,7 @@ import { processEpub } from '@lectio/epub-pipeline';
 import { describe, expect, it } from 'vitest';
 import { buildEpub } from '../../../packages/epub-pipeline/test/helpers/build-epub.js';
 import { selectChapters } from '../src/commands/narrate.js';
-import { wordBoundaries } from '../src/tts/edge-tts.adapter.js';
+import { speechSpan, wordBoundaries } from '../src/tts/edge-tts.adapter.js';
 
 /** Mensaje de metadatos como los envía Edge (Offset en unidades de 100 ns). */
 const message = (word: string, offsetMs: number) =>
@@ -29,11 +29,19 @@ describe('wordBoundaries (metadatos de Edge TTS)', () => {
     const metadata = ['Se', 'puso', 'el', 'sol'].map((w, i) => message(w, 100 + i * 300));
 
     expect(wordBoundaries(metadata, text)).toEqual([
-      { textOffset: 0, textLength: 2, audioOffsetMs: 100 },
-      { textOffset: 3, textLength: 4, audioOffsetMs: 400 },
-      { textOffset: 8, textLength: 2, audioOffsetMs: 700 },
-      { textOffset: 11, textLength: 3, audioOffsetMs: 1000 },
+      { textOffset: 0, textLength: 2, audioOffsetMs: 100, durationMs: 300 },
+      { textOffset: 3, textLength: 4, audioOffsetMs: 400, durationMs: 300 },
+      { textOffset: 8, textLength: 2, audioOffsetMs: 700, durationMs: 300 },
+      { textOffset: 11, textLength: 3, audioOffsetMs: 1000, durationMs: 300 },
     ]);
+  });
+
+  it('el habla va del inicio de la primera palabra al fin de la última, aunque no se ubique', () => {
+    // "1914" llega como otra palabra: no se ubica en el texto, pero cuenta para el recorte.
+    const metadata = [message('Fue', 95), message('mil', 400)];
+    expect(wordBoundaries(metadata, 'Fue 1914.')).toHaveLength(1);
+    expect(speechSpan(metadata)).toEqual({ startMs: 95, endMs: 700 });
+    expect(speechSpan([])).toBeNull();
   });
 
   it('las palabras repetidas se ubican en orden, no siempre en la primera aparición', () => {
