@@ -203,11 +203,15 @@ Corpus: invariantes verificadas en todas las oraciones de los 8 libros. *Don Qui
 
 ### Fase 6 — Reporte y comandos `inspect` / `preview`
 
-- [ ] `ProcessingReport` completo (versión, duración, fuente de navegación, conteos por tipo, reglas, warnings, muestras).
-- [ ] `lectio inspect libro.epub [--json]`: tabla de capítulos (orden, tipo, título, caracteres de narración) + resumen del reporte.
-- [ ] `lectio preview libro.epub`: genera `out/<libro>/preview.html`, un único archivo con el HTML de lectura donde **lo que se narra, lo que se omite y las notas se ven con colores distintos**, más un panel con el reporte. Es la herramienta para calibrar reglas a ojo.
+- [x] `ProcessingReport` completo (versión, duración, fuente de navegación, conteos por tipo, reglas, warnings, muestras).
+- [x] `lectio inspect libro.epub [--json]`: tabla de capítulos (orden, tipo, título, caracteres de narración) + resumen del reporte.
+- [x] `lectio preview libro.epub`: genera `out/<libro>/preview.html`, un único archivo con el HTML de lectura donde **lo que se narra, lo que se omite y las notas se ven con colores distintos**, más un panel con el reporte. Es la herramienta para calibrar reglas a ojo.
 
 **Listo cuando:** puedes abrir el preview de un libro del corpus y revisar la limpieza sin leer JSON.
+
+**Hecho.** `processEpub()` (contrato final del paquete: etapas 1–9 + reporte) y los comandos `pnpm lectio inspect|preview`. El preview es además el **primer ensayo de la dirección visual** (docs/lectio-frontend.md §2.2): Literata + Atkinson Hyperlegible, papel crema y azul tinta, tema oscuro cálido, letra ajustable, índice lateral, notas en popover y modo revisión con la CSS Custom Highlight API (misma técnica prevista para la app). Revisado en el navegador en escritorio, celular y tema oscuro.
+
+Ajustes que salieron de mirarlo: título del capítulo duplicado con el encabezado del libro; encabezado repetido no silenciado cuando hay un subtítulo corto entre medio (*Vindication*); comparación de títulos por palabras completas ("i" coincidía dentro de "vindication"); desborde horizontal en celular.
 
 ### Fase 7 — Golden tests sobre el corpus
 

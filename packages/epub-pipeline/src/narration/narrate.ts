@@ -43,6 +43,9 @@ export interface NarratedSection extends CleanedSection {
 /** Bloques que no se narran: sus oraciones existen (para mantener los índices) sin narración. */
 const SILENT_BLOCKS = new Set(['td', 'th', 'caption', 'pre']);
 const HEADING = /^h[1-6]$/;
+/** Hasta dónde se buscan encabezados repetidos al inicio de un capítulo. */
+const MAX_LEADING_BLOCKS = 6;
+const SHORT_BLOCK_CHARS = 100;
 
 /** Etapas 7 (oraciones), 8 (limpieza de narración) y 9 (normalización). */
 export function narrateSections(
@@ -137,20 +140,26 @@ function narrationFor(
 /**
  * La primera oración narrada anuncia el capítulo ("Segunda parte. Capítulo 74. De cómo…").
  *
- * Los encabezados consecutivos del inicio que repiten el título o la parte ("A Scandal
- * in Bohemia" + "I") se silencian: el anuncio ya los dice. Si el primero de ellos es uno
- * de esos, el anuncio ocupa su lugar (y el lector lo resalta); si no, se agrega una
- * oración sintética al principio, sin bloque (`blockIndex = -1`). Los encabezados que
- * no coinciden (un subtítulo propio) se siguen narrando.
+ * Los encabezados del inicio que repiten el título o la parte ("A Scandal in Bohemia" +
+ * "I") se silencian: el anuncio ya los dice. La búsqueda atraviesa bloques cortos, como
+ * el subtítulo de una portadilla ("With Strictures on…"), y se detiene en el primer
+ * párrafo de texto corrido. Si el primer bloque es uno de esos encabezados, el anuncio
+ * ocupa su lugar (y el lector lo resalta); si no, se agrega una oración sintética al
+ * principio, sin bloque (`blockIndex = -1`). Los encabezados que no coinciden (un
+ * subtítulo propio) y los bloques cortos se siguen narrando.
  */
 function announce(section: CleanedSection, sentences: Sentence[], parent: string | null): void {
   const announcement = announcementFor(section.title, parent);
   const references = [section.title, ...section.ancestors];
 
   const repeated = new Set<number>();
-  for (const [index, block] of section.blocks.entries()) {
-    if (!HEADING.test(tagName(block))) break;
-    if (references.some((ref) => matchesTitle(collapsedText(block), ref))) repeated.add(index);
+  for (const [index, block] of section.blocks.slice(0, MAX_LEADING_BLOCKS).entries()) {
+    const text = collapsedText(block);
+    if (!HEADING.test(tagName(block))) {
+      if (text.length > SHORT_BLOCK_CHARS) break;
+      continue;
+    }
+    if (references.some((ref) => matchesTitle(text, ref))) repeated.add(index);
   }
   for (const sentence of sentences) {
     if (repeated.has(sentence.blockIndex)) sentence.narration = '';
@@ -180,7 +189,9 @@ function matchesTitle(heading: string, title: string): boolean {
       .replace(/[^\p{L}\p{N}]+/gu, ' ')
       .trim();
   const [a, b] = [simplify(heading), simplify(title)];
-  return a !== '' && (a === b || a.includes(b) || b.includes(a));
+  // Por palabras completas: "i" no debe coincidir dentro de "a vindication".
+  const contains = (outer: string, inner: string) => ` ${outer} `.includes(` ${inner} `);
+  return a !== '' && b !== '' && (contains(a, b) || contains(b, a));
 }
 
 function isSilent(block: Element): boolean {

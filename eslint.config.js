@@ -18,5 +18,10 @@ export default defineConfig(
   js.configs.recommended,
   tseslint.configs.recommended,
   { languageOptions: { globals: globals.node } },
+  // Cliente del preview: corre en el navegador, no en Node.
+  {
+    files: ['apps/cli/assets/**/*.js'],
+    languageOptions: { globals: globals.browser, sourceType: 'script' },
+  },
   prettier,
 );

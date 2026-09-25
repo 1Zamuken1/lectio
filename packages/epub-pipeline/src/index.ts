@@ -1,9 +1,15 @@
-/**
- * Versión del pipeline. Se persiste en `Book.pipeline_version` para poder
- * reprocesar los libros cuando cambian las reglas de limpieza.
- */
-export const PIPELINE_VERSION = 1;
+// Punto de entrada principal: el libro completo procesado (etapas 1 a 9).
+export {
+  detectLanguage,
+  PIPELINE_VERSION,
+  processEpub,
+  type PipelineOptions,
+  type ProcessedBook,
+  type ProcessedChapter,
+} from './process.js';
+export { CHARS_PER_MINUTE, type ProcessingReport } from './report/report.js';
 
+// Etapas individuales, para depurar o probar por separado.
 export { openEpub, type OpenEpubOptions, type OpenedEpub } from './open-epub.js';
 export {
   PipelineError,

@@ -157,6 +157,29 @@ describe('anuncio del capítulo', () => {
     expect(section!.sentences[1]).toMatchObject({ index: 1, blockIndex: 0 });
   });
 
+  it('atraviesa el subtítulo corto de una portadilla para silenciar el encabezado repetido', async () => {
+    const [section] = await narrate({
+      chapters: [
+        {
+          id: 'c',
+          title: 'I',
+          body: `<h2 id="t">Mi libro</h2><p>Con apuntes sobre otros temas</p><h2 id="i">I</h2><p>${'Texto del capítulo. '.repeat(120)}</p>`,
+        },
+      ],
+      toc: [
+        { title: 'Mi libro', href: 'c.xhtml#t', children: [{ title: 'I', href: 'c.xhtml#i' }] },
+      ],
+    });
+
+    expect(section!.title).toBe('I');
+    expect(section!.sentences.slice(0, 4).map((s) => s.narration)).toEqual([
+      'Mi libro. 1.',
+      'Con apuntes sobre otros temas',
+      '',
+      'Texto del capítulo.',
+    ]);
+  });
+
   it('silencia los encabezados que repiten título o parte, y narra los demás', async () => {
     const long = `<p>${'Texto. '.repeat(400)}</p>`;
     const sections = await narrate({

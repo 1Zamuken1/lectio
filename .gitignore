@@ -26,3 +26,6 @@ Thumbs.db
 
 # Pruebas exploratorias locales
 .scratch/
+
+# Configuración local de herramientas (Claude Code)
+.claude/

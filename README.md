@@ -26,5 +26,13 @@ pnpm install
 pnpm check              # lint + formato + typecheck + tests
 pnpm build
 pnpm corpus:download    # descarga el corpus de referencia (opcional)
-pnpm --filter @lectio/cli dev --help
 ```
+
+## Probar el pipeline con un libro
+
+```bash
+pnpm lectio inspect corpus/pg-marianela.epub          # estructura y reporte en la terminal
+pnpm lectio preview corpus/pg-marianela.epub --open   # HTML para revisar en el navegador
+```
+
+`preview` genera `out/<libro>/preview.html`: el libro como lo verá el lector (índice, capítulos, notas), un **modo revisión** que marca qué se narra y qué se omite (clic en una oración para ver exactamente qué dirá la voz) y un **reporte** con la clasificación de secciones, las reglas aplicadas y el costo estimado del audio.

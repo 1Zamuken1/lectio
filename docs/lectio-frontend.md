@@ -61,6 +61,23 @@ Resultado: el frontend completo se despliega como **sitio estático** (Cloudflar
 
 ---
 
+## 2.2 Dirección visual
+
+*Decidida el 25-09-2026; se ensaya primero en `lectio preview` (CLI) y luego se aplica a la app.*
+
+**Idea:** el equilibrio entre un libro bien impreso (editorial cálido) y la legibilidad de una herramienta de accesibilidad (alto contraste). Más adelante, la app podrá permitir que cada usuario incline la balanza hacia uno u otro lado.
+
+| Elemento | Decisión |
+|---|---|
+| Tipografía del texto | **Literata**: serif diseñada para leer en pantalla. |
+| Tipografía de la interfaz | **Atkinson Hyperlegible**: creada para personas con baja visión. |
+| Fondo (tema claro) | Crema / papel, sin llegar a amarillo. |
+| Acento | **Azul tinta**: enlaces, oración que suena, botones. Contraste AA como mínimo y AAA en el texto. |
+| Tema | Sigue la preferencia del sistema, con un botón para cambiarlo. El oscuro es **cálido** (café muy oscuro, texto marfil), no negro puro. |
+| Lectura | Letra base grande (~20 px), interlineado ~1,6, línea de ~65 caracteres, controles A− / A+. |
+| Navegación | Índice lateral de capítulos (las secciones ocultas en gris) y el capítulo al lado. |
+| Marcas de revisión (preview) | Sutiles y activables: por defecto se lee como un libro; en "modo revisión" se ve qué se omite, las notas y el anuncio de cada capítulo. |
+
 ## 3. Pantallas
 
 ```mermaid

@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "pnpm lint && pnpm format:check && turbo run typecheck test",
-    "corpus:download": "node scripts/download-corpus.mjs"
+    "corpus:download": "node scripts/download-corpus.mjs",
+    "lectio": "pnpm --silent --filter @lectio/cli dev"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
