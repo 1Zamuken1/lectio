@@ -226,18 +226,28 @@ Ajustes que salieron de mirarlo: título del capítulo duplicado con el encabeza
 
 ### Fase 8 — Chunking, alineación y `narrate`
 
-- [ ] `buildChunks(sentences, maxChunkChars)` en el paquete: no corta oraciones, prefiere fin de párrafo, divide oraciones gigantes por comas.
-- [ ] `buildAlignment(chunks, results)` en el paquete: offsets acumulados → `{ index, startMs, endMs }` por oración, omitiendo las no narradas.
-- [ ] Puerto `TtsProvider` en `types.ts` (tal como está en `docs/lectio-arquitectura-api.md` §1.4).
-- [ ] `apps/cli/src/tts/edge-tts.adapter.ts`: implementa el puerto, pide `WordBoundary`, `maxChunkChars = 3000`, reintento con backoff por fragmento, concurrencia 2.
-- [ ] `lectio narrate libro.epub [--chapters 1-3] [--voice ...] [--out dir]`:
+- [x] `buildChunks(sentences, maxChunkChars)` en el paquete: no corta oraciones, prefiere fin de párrafo, divide oraciones gigantes por comas.
+- [x] `buildAlignment(chunks, results)` en el paquete: offsets acumulados → `{ index, startMs, endMs }` por oración, omitiendo las no narradas.
+- [x] Puerto `TtsProvider` en `types.ts` (tal como está en `docs/lectio-arquitectura-api.md` §1.4).
+- [x] `apps/cli/src/tts/edge-tts.adapter.ts`: implementa el puerto, pide `WordBoundary`, `maxChunkChars = 3000`, reintento con backoff por fragmento, concurrencia 2.
+- [x] `lectio narrate libro.epub [--chapters 1-3] [--voice ...] [--out dir]`:
   - por defecto solo capítulos `narrative`;
   - escribe `NN - Título.mp3` + `NN.alignment.json` por capítulo y un `playlist.m3u`;
   - muestra el progreso y los caracteres enviados;
   - reanudable: si el MP3 de un capítulo ya existe, lo salta.
-- [ ] Añadir la alineación al `preview`: botón para reproducir el MP3 junto al texto con la oración actual resaltada. Es la primera prueba real de la sincronización.
+- [x] Añadir la alineación al `preview`: botón para reproducir el MP3 junto al texto con la oración actual resaltada. Es la primera prueba real de la sincronización.
 
 **Tests:** `buildChunks` y `buildAlignment` con resultados de TTS simulados (incluyendo oraciones con narración vacía y un proveedor sin `boundaries`). El adaptador de Edge se prueba manualmente, no en CI (depende de la red y de un servicio no oficial).
+
+**Hecho.** Diferencias con lo previsto:
+- Librería **`msedge-tts` (MIT)** en vez de `edge-tts-universal` (AGPL-3.0). Edge da marcas por palabra con el texto pero sin posición: se ubican buscando cada palabra en orden. El stream de metadatos no siempre se cierra (colgaba 90 s): se termina con el audio. Cada mensaje de metadatos se parsea por separado para que uno cortado no arrastre al resto.
+- `maxChunkChars = 2500`; concurrencia 2 por capítulo (probado: Edge acepta pedidos en paralelo por la misma conexión).
+- Voz por defecto elegida escuchando muestras: **es-CO-GonzaloNeural**. Nuevo comando `lectio voices`.
+- Salida: `NNN - Título.mp3`, `NNN - Título.alignment.json`, `playlist.m3u` y `manifest.json` (lo lee el preview). Escritura atómica; en Windows, si el MP3 está abierto por un reproductor, reintento y mensaje claro.
+- Reproductor en el preview según las respuestas de diseño: barra inferior fija, seguimiento con pausa al hacer scroll, fondo azul tinta en la oración que suena, "Escuchar desde aquí", Media Session (controles del sistema).
+- `pnpm serve`: servidor estático con soporte de `Range` (con el de Python no se podía adelantar el audio) que cierra los archivos si el navegador corta la descarga.
+
+Resultado: *Marianela* caps. 1–2 (26 min de audio) generados en ~45 s, alineación exacta (no aproximada) en las 119 oraciones del cap. 1.
 
 ### Fase 9 — Validación de uso real
 

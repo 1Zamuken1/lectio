@@ -35,4 +35,13 @@ pnpm lectio inspect corpus/pg-marianela.epub          # estructura y reporte en 
 pnpm lectio preview corpus/pg-marianela.epub --open   # HTML para revisar en el navegador
 ```
 
-`preview` genera `out/<libro>/preview.html`: el libro como lo verá el lector (índice, capítulos, notas), un **modo revisión** que marca qué se narra y qué se omite (clic en una oración para ver exactamente qué dirá la voz) y un **reporte** con la clasificación de secciones, las reglas aplicadas y el costo estimado del audio.
+```bash
+pnpm lectio voices es                                        # voces disponibles
+pnpm lectio narrate corpus/pg-marianela.epub --chapters 4-5  # MP3 + alineación por capítulo
+pnpm lectio preview corpus/pg-marianela.epub --open          # ahora con reproductor
+pnpm serve                                                   # sirve out/ en http://localhost:4173
+```
+
+`narrate` usa Edge TTS (voz por defecto en español: `es-CO-GonzaloNeural`) y deja en `out/<libro>/audio/` un MP3 por capítulo, su `alignment.json` (inicio y fin de cada oración), un `playlist.m3u` para cualquier reproductor y un `manifest.json`. Es reanudable: lo ya generado se salta. Los números de `--chapters` son los de la columna `#` de `inspect`.
+
+`preview` genera `out/<libro>/preview.html`: el libro como lo verá el lector (índice, capítulos, notas), un **modo revisión** que marca qué se narra y qué se omite (clic en una oración para ver exactamente qué dirá la voz) y un **reporte** con la clasificación de secciones, las reglas aplicadas y el costo estimado del audio. Si el libro ya tiene audio, aparece un **reproductor** que resalta la oración que suena y permite "escuchar desde aquí" haciendo clic en el texto.

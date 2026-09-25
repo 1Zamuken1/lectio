@@ -824,3 +824,176 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------------------------------------------------------------- Reproductor */
+
+/* Oración que suena: fondo azul tinta suave (en oscuro, azul oscuro). */
+::highlight(lectio-current) {
+  background-color: var(--accent-soft);
+  color: var(--ink);
+}
+
+.layout.has-player .main {
+  padding-bottom: 11rem;
+}
+
+.player {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper-raised) 94%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -6px 24px rgb(40 30 15 / 8%);
+}
+
+.player[hidden] {
+  display: none;
+}
+
+.player-controls,
+.player-extra {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.player .tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.player .play {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 1.05rem;
+}
+
+.player .speed {
+  min-width: 3.4rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-track {
+  min-width: 0;
+}
+
+.player-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.player-title {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-time {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.player-progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.player-voice {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.player-empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.player-empty code {
+  font-size: 0.85em;
+}
+
+.follow-return {
+  position: fixed;
+  bottom: 6.5rem;
+  left: 50%;
+  z-index: 31;
+  transform: translateX(-50%);
+  padding: 0.55rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+
+.follow-return[hidden] {
+  display: none;
+}
+
+.listen-chip {
+  position: absolute;
+  z-index: 40;
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.listen-inline {
+  margin-top: 0.8rem;
+}
+
+@media (max-width: 700px) {
+  .player {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.6rem 0.9rem calc(0.6rem + env(safe-area-inset-bottom));
+  }
+
+  .player-controls {
+    justify-content: center;
+  }
+
+  .player-extra {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.9rem;
+  }
+
+  .player-voice {
+    display: none;
+  }
+
+  .follow-return {
+    bottom: 9.5rem;
+  }
+
+  .layout.has-player .main {
+    padding-bottom: 13rem;
+  }
+}

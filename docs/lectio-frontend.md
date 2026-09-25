@@ -76,6 +76,9 @@ Resultado: el frontend completo se despliega como **sitio estático** (Cloudflar
 | Tema | Sigue la preferencia del sistema, con un botón para cambiarlo. El oscuro es **cálido** (café muy oscuro, texto marfil), no negro puro. |
 | Lectura | Letra base grande (~20 px), interlineado ~1,6, línea de ~65 caracteres, controles A− / A+. |
 | Navegación | Índice lateral de capítulos (las secciones ocultas en gris) y el capítulo al lado. |
+| Reproductor | **Barra inferior fija**: capítulo anterior/siguiente, ±15 s, play/pausa, velocidad y progreso. No tapa el texto. |
+| Seguimiento del audio | Resalta la oración que suena y hace scroll solo; si el usuario hace scroll, el seguimiento se pausa y aparece "Volver a la oración actual". |
+| Oración que suena | **Fondo azul tinta suave** (en el tema oscuro, azul oscuro). |
 | Marcas de revisión (preview) | Sutiles y activables: por defecto se lee como un libro; en "modo revisión" se ve qué se omite, las notas y el anuncio de cada capítulo. |
 
 ## 3. Pantallas

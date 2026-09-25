@@ -230,7 +230,11 @@
                   { class: 'kind', title: chapter.classification.evidence },
                   KIND[chapter.kind],
                 )
-              : h('span', { class: 'toc-meta' }, duration(minutes(chapter.characterCount))),
+              : h(
+                  'span',
+                  { class: 'toc-meta', title: chapter.audio ? 'Tiene audio' : null },
+                  `${chapter.audio ? '♪ ' : ''}${duration(minutes(chapter.characterCount))}`,
+                ),
           ),
         ),
       );
@@ -330,6 +334,8 @@
 
     prose.addEventListener('click', onProseClick);
     applyHighlights(prose, chapter);
+    player.current = -1;
+    if (player.chapter === state.chapter) requestAnimationFrame(syncToTime);
   }
 
   function opensWithTitle(prose, chapter) {
@@ -405,7 +411,12 @@
       return;
     }
     if (event.target.closest('a[href]')) return;
-    if (state.review) inspectAt(event);
+    if (state.review) {
+      inspectAt(event);
+      return;
+    }
+    const hit = window.getSelection()?.isCollapsed === false ? null : sentenceAtClick(event);
+    if (hit) offerListenHere(event, hit.index);
   }
 
   // ------------------------------------------------------------ inspector (modo revisión)
@@ -464,6 +475,19 @@
         h('dt', {}, 'Se narra'),
         said ? h('dd', {}, said) : h('dd', { class: 'silent' }, 'No se narra'),
       ),
+      chapter.audio && timeOfSentence(chapter, hit.index) !== null
+        ? h(
+            'button',
+            {
+              class: 'tool listen-inline',
+              onclick: () => {
+                seekTo(timeOfSentence(chapter, hit.index));
+                ensureLoaded(true);
+              },
+            },
+            '▶ Escuchar desde aquí',
+          )
+        : null,
     );
     inspector.hidden = false;
   }
@@ -506,6 +530,8 @@
   }
 
   document.addEventListener('click', (event) => {
+    if (listenChip && !listenChip.contains(event.target) && !event.target.closest('.prose'))
+      closeListenChip();
     if (popover && !popover.contains(event.target) && !event.target.closest('a[data-lectio-note]'))
       closeNote();
   });
@@ -649,6 +675,378 @@
     );
   }
 
+  // ------------------------------------------------------------ reproductor
+  //
+  // Una sola etiqueta <audio> para todo el preview. El reproductor sigue al capítulo que
+  // se está leyendo; al terminar un capítulo pasa solo al siguiente que tenga audio.
+  // Sincronización (docs/lectio-frontend.md §6): tiempo del audio → oración por búsqueda
+  // binaria en la alineación, y oración → tiempo para "Escuchar desde aquí".
+
+  const SPEEDS = [0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+  const hasAudio = data.chapters.some((c) => c.audio);
+  const audio = new Audio();
+  audio.preload = 'metadata';
+  const player = {
+    chapter: null,
+    current: -1,
+    follow: true,
+    autoScrolling: false,
+    speed: SPEEDS.includes(store.get('speed', 1)) ? store.get('speed', 1) : 1,
+  };
+  const playerBar = h('section', {
+    class: 'player',
+    'aria-label': 'Reproductor',
+    hidden: !hasAudio,
+  });
+  const followButton = h(
+    'button',
+    { class: 'follow-return', hidden: true, onclick: resumeFollow },
+    '↓ Volver a la oración actual',
+  );
+  let listenChip = null;
+  const ui = {};
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function formatTime(ms) {
+    const total = Math.max(0, Math.floor(ms / 1000));
+    const hours = Math.floor(total / 3600);
+    const mins = Math.floor((total % 3600) / 60);
+    const secs = String(total % 60).padStart(2, '0');
+    return hours ? `${hours}:${String(mins).padStart(2, '0')}:${secs}` : `${mins}:${secs}`;
+  }
+
+  /** Capítulo con audio más cercano en la dirección indicada, o null. */
+  function audioChapter(from, step) {
+    for (let i = from + step; i >= 0 && i < data.chapters.length; i += step) {
+      if (data.chapters[i].audio) return i;
+    }
+    return null;
+  }
+
+  function renderPlayer() {
+    if (!hasAudio) return;
+    const chapter = data.chapters[state.chapter];
+    const button = (label, text, onclick, extra = {}) =>
+      h('button', { class: 'tool', 'aria-label': label, title: label, onclick, ...extra }, text);
+
+    if (!chapter.audio) {
+      playerBar.replaceChildren(
+        h(
+          'p',
+          { class: 'player-empty' },
+          'Este capítulo aún no tiene audio. ',
+          h('code', {}, `pnpm lectio narrate <libro>.epub --chapters ${state.chapter}`),
+        ),
+      );
+      return;
+    }
+
+    const previous = audioChapter(state.chapter, -1);
+    const next = audioChapter(state.chapter, 1);
+    ui.play = button(
+      audio.paused ? 'Reproducir' : 'Pausar',
+      audio.paused ? '▶' : '❚❚',
+      togglePlay,
+      {
+        class: 'tool play',
+      },
+    );
+    ui.time = h('span', { class: 'player-time' }, '0:00');
+    ui.progress = h('input', {
+      type: 'range',
+      class: 'player-progress',
+      min: '0',
+      max: String(chapter.audio.durationMs),
+      step: '1000',
+      value: '0',
+      'aria-label': 'Posición en el capítulo',
+      oninput: (event) => seekTo(Number(event.target.value)),
+    });
+    ui.speed = button('Velocidad', `${player.speed}×`, cycleSpeed, { class: 'tool speed' });
+
+    playerBar.replaceChildren(
+      h(
+        'div',
+        { class: 'player-controls' },
+        button('Capítulo anterior', '⏮', () => previous !== null && playChapter(previous), {
+          disabled: previous === null,
+        }),
+        button('Retroceder 15 segundos', '−15', () => seekBy(-15000)),
+        ui.play,
+        button('Avanzar 15 segundos', '+15', () => seekBy(15000)),
+        button('Capítulo siguiente', '⏭', () => next !== null && playChapter(next), {
+          disabled: next === null,
+        }),
+      ),
+      h(
+        'div',
+        { class: 'player-track' },
+        h(
+          'div',
+          { class: 'player-meta' },
+          h('span', { class: 'player-title' }, chapter.title),
+          ui.time,
+        ),
+        ui.progress,
+      ),
+      h(
+        'div',
+        { class: 'player-extra' },
+        ui.speed,
+        h(
+          'span',
+          { class: 'player-voice', title: 'Voz' },
+          chapter.audio.voice.replace(/Neural$/, ''),
+        ),
+      ),
+    );
+    ensureLoaded(false);
+    syncToTime();
+  }
+
+  /** Carga en el <audio> el capítulo que se está leyendo (sin reproducir). */
+  function ensureLoaded(play) {
+    const chapter = data.chapters[state.chapter];
+    if (!chapter.audio) return false;
+    if (player.chapter !== state.chapter) {
+      audio.src = chapter.audio.src;
+      player.chapter = state.chapter;
+      player.current = -1;
+      setMediaSession(chapter);
+    }
+    audio.playbackRate = player.speed;
+    if (play) audio.play().catch(() => {});
+    return true;
+  }
+
+  function togglePlay() {
+    if (!ensureLoaded(false)) return;
+    if (audio.paused) {
+      player.follow = true;
+      followButton.hidden = true;
+      audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }
+
+  function playChapter(index) {
+    go(index);
+    ensureLoaded(true);
+  }
+
+  function seekTo(ms) {
+    if (!ensureLoaded(false)) return;
+    const apply = () => {
+      audio.currentTime = Math.max(0, ms) / 1000;
+      syncToTime();
+    };
+    if (audio.readyState >= 1) apply();
+    else audio.addEventListener('loadedmetadata', apply, { once: true });
+  }
+
+  function seekBy(deltaMs) {
+    seekTo(audio.currentTime * 1000 + deltaMs);
+  }
+
+  function cycleSpeed() {
+    player.speed = SPEEDS[(SPEEDS.indexOf(player.speed) + 1) % SPEEDS.length];
+    store.set('speed', player.speed);
+    audio.playbackRate = player.speed;
+    if (ui.speed) ui.speed.textContent = `${player.speed}×`;
+  }
+
+  /** Oración que suena en `ms`: la última cuyo inicio ya pasó (búsqueda binaria). */
+  function sentenceAt(timeline, ms) {
+    let low = 0;
+    let high = timeline.length - 1;
+    let found = -1;
+    while (low <= high) {
+      const mid = (low + high) >> 1;
+      if (timeline[mid][1] <= ms) {
+        found = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return found === -1 ? -1 : timeline[found][0];
+  }
+
+  /** Inicio en el audio de la primera oración narrada a partir de `index`. */
+  function timeOfSentence(chapter, index) {
+    const entry = chapter.audio.sentences.find(([i]) => i >= index);
+    return entry ? entry[1] : null;
+  }
+
+  function syncToTime() {
+    const chapter = data.chapters[state.chapter];
+    if (!chapter.audio || player.chapter !== state.chapter) return;
+    const ms = audio.currentTime * 1000;
+    if (ui.time)
+      ui.time.textContent = `${formatTime(ms)} / ${formatTime(chapter.audio.durationMs)}`;
+    if (ui.progress && document.activeElement !== ui.progress)
+      ui.progress.value = String(Math.round(ms));
+    if (ui.play) {
+      ui.play.textContent = audio.paused ? '▶' : '❚❚';
+      ui.play.setAttribute('aria-label', audio.paused ? 'Reproducir' : 'Pausar');
+    }
+
+    const index = sentenceAt(chapter.audio.sentences, ms);
+    if (index === player.current) return;
+    player.current = index;
+    highlightCurrent(chapter, index);
+    if (player.follow && !audio.paused) scrollToCurrent(false);
+  }
+
+  function currentRange(chapter, index) {
+    const sentence = chapter.sentences[index];
+    if (!sentence || sentence[0] < 0) return null;
+    const block = main.querySelectorAll('.prose [data-b]')[sentence[0]];
+    return block ? rangeFor(block, sentence[1], sentence[2]) : null;
+  }
+
+  function highlightCurrent(chapter, index) {
+    if (!('highlights' in CSS)) return;
+    const range = index >= 0 ? currentRange(chapter, index) : null;
+    if (range) CSS.highlights.set('lectio-current', new Highlight(range));
+    else CSS.highlights.delete('lectio-current');
+  }
+
+  /** Mantiene la oración que suena a un tercio de la pantalla, solo si se salió de la zona visible. */
+  function scrollToCurrent(force) {
+    const range = currentRange(data.chapters[state.chapter], player.current);
+    if (!range) return;
+    const rect = range.getBoundingClientRect();
+    const top =
+      parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height')) ||
+      60;
+    const bottom = window.innerHeight - (playerBar.offsetHeight || 0);
+    if (!force && rect.top > top + 24 && rect.bottom < bottom - 24) return;
+    player.autoScrolling = true;
+    window.scrollTo({
+      top: window.scrollY + rect.top - window.innerHeight * 0.33,
+      behavior: reducedMotion.matches ? 'auto' : 'smooth',
+    });
+    clearTimeout(player.scrollTimer);
+    player.scrollTimer = setTimeout(() => (player.autoScrolling = false), 700);
+  }
+
+  /** Si el lector hace scroll mientras suena el audio, el seguimiento se pausa. */
+  function pauseFollow() {
+    if (audio.paused || player.autoScrolling || !player.follow) return;
+    if (data.chapters[state.chapter].audio && player.chapter === state.chapter) {
+      player.follow = false;
+      followButton.hidden = false;
+    }
+  }
+
+  function resumeFollow() {
+    player.follow = true;
+    followButton.hidden = true;
+    scrollToCurrent(true);
+  }
+
+  window.addEventListener('wheel', pauseFollow, { passive: true });
+  window.addEventListener('touchmove', pauseFollow, { passive: true });
+
+  /** Botón flotante "Escuchar desde aquí" junto a la oración en la que se hizo clic. */
+  function offerListenHere(event, sentenceIndex) {
+    closeListenChip();
+    const chapter = data.chapters[state.chapter];
+    const startMs = chapter.audio ? timeOfSentence(chapter, sentenceIndex) : null;
+    if (startMs === null) return;
+    listenChip = h(
+      'button',
+      {
+        class: 'listen-chip',
+        onclick: (click) => {
+          click.stopPropagation();
+          closeListenChip();
+          player.follow = true;
+          followButton.hidden = true;
+          seekTo(startMs);
+          ensureLoaded(true);
+        },
+      },
+      '▶ Escuchar desde aquí',
+    );
+    document.body.append(listenChip);
+    listenChip.style.left = `${Math.max(12, event.pageX - listenChip.offsetWidth / 2)}px`;
+    listenChip.style.top = `${event.pageY + 14}px`;
+  }
+
+  function closeListenChip() {
+    listenChip?.remove();
+    listenChip = null;
+  }
+
+  /** Oración bajo el clic: bloque + offset del cursor dentro de su texto. */
+  function sentenceAtClick(event) {
+    const block = event.target.closest('[data-b]');
+    const caret = caretAt(event);
+    if (!block || !caret || !block.contains(caret.node)) return null;
+    const range = document.createRange();
+    range.selectNodeContents(block);
+    range.setEnd(caret.node, caret.offset);
+    const offset = range.toString().length;
+    const blockIndex = Number(block.dataset.b);
+    const candidates = data.chapters[state.chapter].sentences
+      .map((s, index) => ({ s, index }))
+      .filter(({ s }) => s[0] === blockIndex);
+    const hit = candidates.find(({ s }) => offset >= s[1] && offset <= s[2]) || candidates[0];
+    return hit ? { block, blockIndex, ...hit } : null;
+  }
+
+  function setMediaSession(chapter) {
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: chapter.title,
+      artist: data.book.authors.join(', '),
+      album: data.book.title || '',
+      artwork: data.cover ? [{ src: data.cover }] : [],
+    });
+    const handlers = {
+      play: () => audio.play().catch(() => {}),
+      pause: () => audio.pause(),
+      seekbackward: () => seekBy(-15000),
+      seekforward: () => seekBy(15000),
+      previoustrack: () => {
+        const previous = audioChapter(state.chapter, -1);
+        if (previous !== null) playChapter(previous);
+      },
+      nexttrack: () => {
+        const next = audioChapter(state.chapter, 1);
+        if (next !== null) playChapter(next);
+      },
+    };
+    for (const [action, handler] of Object.entries(handlers)) {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch {
+        /* acción no soportada por este navegador */
+      }
+    }
+  }
+
+  let frame = 0;
+  const tick = () => {
+    syncToTime();
+    if (!audio.paused) frame = requestAnimationFrame(tick);
+  };
+  audio.addEventListener('play', () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(tick);
+    syncToTime();
+  });
+  audio.addEventListener('pause', syncToTime);
+  audio.addEventListener('seeked', syncToTime);
+  audio.addEventListener('ended', () => {
+    const next = audioChapter(state.chapter, 1);
+    if (next !== null) playChapter(next);
+    else syncToTime();
+  });
+
   // ------------------------------------------------------------ acciones
 
   /** El índice lateral se ubica bajo la barra superior, cuya altura cambia en pantallas chicas. */
@@ -659,11 +1057,17 @@
   window.addEventListener('resize', measureTopbar);
 
   function render() {
-    app.replaceChildren(h('div', { class: 'layout' }, topbar(), sidebar, main), inspector);
+    app.replaceChildren(
+      h('div', { class: `layout${hasAudio ? ' has-player' : ''}` }, topbar(), sidebar, main),
+      inspector,
+      followButton,
+      playerBar,
+    );
     measureTopbar();
     renderSidebar();
     if (state.view === 'book') renderChapter();
     else renderReport();
+    renderPlayer();
   }
 
   function go(index) {
@@ -673,8 +1077,13 @@
     closeNote();
     closeInspector();
     sidebar.classList.remove('open');
+    closeListenChip();
+    if (player.chapter !== index && !audio.paused) audio.pause();
+    followButton.hidden = true;
+    player.follow = true;
     renderSidebar();
     renderChapter();
+    renderPlayer();
     window.scrollTo({ top: 0 });
     main.focus({ preventScroll: true });
   }
@@ -715,11 +1124,20 @@
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      closeListenChip();
       closeNote();
       closeInspector();
       sidebar.classList.remove('open');
     }
     if (state.view !== 'book' || event.altKey || event.ctrlKey || event.metaKey) return;
+    const typing = event.target.closest('input, textarea, button, select');
+    if (event.key === ' ' && !typing && data.chapters[state.chapter].audio) {
+      event.preventDefault();
+      togglePlay();
+      return;
+    }
+    if (['PageUp', 'PageDown', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key))
+      pauseFollow();
     if (event.key === 'ArrowRight') go(state.chapter + 1);
     if (event.key === 'ArrowLeft') go(state.chapter - 1);
   });

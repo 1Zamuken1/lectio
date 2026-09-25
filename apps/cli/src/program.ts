@@ -1,7 +1,9 @@
 import { PIPELINE_VERSION, PipelineError } from '@lectio/epub-pipeline';
 import { Command } from 'commander';
 import { inspect } from './commands/inspect.js';
+import { narrate, type NarrateOptions } from './commands/narrate.js';
 import { preview } from './commands/preview.js';
+import { voices } from './commands/voices.js';
 import { style } from './ui/terminal.js';
 
 export function createProgram(): Command {
@@ -24,12 +26,38 @@ export function createProgram(): Command {
     )
     .argument('<archivo>', 'ruta del .epub')
     .option('-o, --out <ruta>', 'archivo de salida (por defecto out/<libro>/preview.html)')
+    .option(
+      '--audio <carpeta>',
+      'audio generado con "narrate" (por defecto, audio/ junto al preview)',
+    )
     .option('--open', 'abrir el resultado en el navegador')
     .action(
-      withErrors((file: string, options: { out?: string; open?: boolean }) =>
+      withErrors((file: string, options: { out?: string; audio?: string; open?: boolean }) =>
         preview(file, options),
       ),
     );
+
+  program
+    .command('narrate')
+    .description(
+      'Genera el audio de los capítulos con Edge TTS: un MP3 y su alineación por capítulo.',
+    )
+    .argument('<archivo>', 'ruta del .epub')
+    .option(
+      '-c, --chapters <lista>',
+      'capítulos por su número en "inspect": 4, 4-6, 4-6,9 (por defecto, todos los narrativos)',
+    )
+    .option('-v, --voice <voz>', 'voz de Edge TTS (ver "lectio voices")')
+    .option('-o, --out <carpeta>', 'carpeta de salida (por defecto out/<libro>/audio)')
+    .option('--concurrency <n>', 'fragmentos en paralelo (1 a 4)', '2')
+    .option('--force', 'regenerar aunque el capítulo ya exista')
+    .action(withErrors((file: string, options: NarrateOptions) => narrate(file, options)));
+
+  program
+    .command('voices')
+    .description('Lista las voces disponibles de Edge TTS.')
+    .argument('[idioma]', 'filtro por idioma o región: es, es-CL, en-GB')
+    .action(withErrors((filter?: string) => voices(filter)));
 
   return program;
 }
@@ -44,6 +72,8 @@ function withErrors<A extends unknown[]>(action: (...args: A) => Promise<void>) 
         console.error(
           `${style.red('No se pudo procesar el libro:')} ${error.message} ${style.gray(`(${error.code})`)}`,
         );
+      } else if (error instanceof Error && error.message.includes('está en uso')) {
+        console.error(style.red(error.message));
       } else if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
         console.error(style.red(`No existe el archivo: ${(error as NodeJS.ErrnoException).path}`));
       } else {

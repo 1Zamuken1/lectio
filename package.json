@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "check": "pnpm lint && pnpm format:check && turbo run typecheck test",
     "corpus:download": "node scripts/download-corpus.mjs",
-    "lectio": "pnpm --silent --filter @lectio/cli dev"
+    "lectio": "pnpm --silent --filter @lectio/cli dev",
+    "serve": "node scripts/serve.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

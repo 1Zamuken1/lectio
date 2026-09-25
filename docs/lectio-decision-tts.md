@@ -111,6 +111,9 @@ Consecuencia directa: **Azure y OpenAI quedan descartados como proveedores de pr
 - El puerto `TtsProvider` queda como lo define el pipeline (§4, etapa 10): recibe fragmentos, expone `maxChunkChars` y devuelve `boundaries` opcionales.
 - Valores iniciales de `maxChunkChars`: Edge ~3.000 caracteres (margen bajo los 4.096 bytes, considerando acentos en UTF-8 y el envoltorio SSML); Kokoro ~1.500 caracteres (por el límite de ~510 tokens).
 - Adaptador Edge: solicitar `WordBoundary` explícitamente.
+- **Voz por defecto en español: `es-CO-GonzaloNeural`** (Colombia), elegida escuchando muestras de 11 voces (Chile, México, España, Colombia y el español neutro de EE. UU.). En inglés, `en-US-AndrewNeural`. Se cambia con `--voice`; `lectio voices es` lista las disponibles.
+- **Librería: `msedge-tts` (MIT).** Se descartó `edge-tts-universal` por su licencia AGPL-3.0, que obligaría a publicar el código de un worker comercial. El token `Sec-MS-GEC` va con una versión fija en la librería: si Edge empieza a responder 403, lo primero es actualizarla.
+- El stream de metadatos de Edge no siempre emite su fin: el adaptador termina con el audio y usa las marcas recibidas hasta ese momento.
 - Documentar en el README el riesgo de términos de uso de Edge TTS: es una decisión consciente, no un descuido.
 
 ---
