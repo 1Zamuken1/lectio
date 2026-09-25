@@ -75,6 +75,7 @@ export function voiceChoices(language: string, index: AudioIndex) {
     id: p.id,
     name: p.name,
     description: p.description,
+    defaultSpeed: p.defaultSpeed,
     profile: true,
   }));
   for (const voices of index.values()) {
@@ -84,6 +85,7 @@ export function voiceChoices(language: string, index: AudioIndex) {
         id: audio.voice,
         name: audio.label,
         description: 'voz de Edge',
+        defaultSpeed: 1,
         profile: false,
       });
     }

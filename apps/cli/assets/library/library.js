@@ -138,7 +138,15 @@
 
   // ------------------------------------------------------------ biblioteca
 
-  function spine(book) {
+  //
+  // Un escenario: la escena ocupa toda la pantalla y la estantería está dentro de ella.
+  // La ficha del libro flota sobre la escena (en el celular, sube desde abajo), así que
+  // abrirla no mueve nada. La estructura se arma una vez; elegir un libro solo actualiza
+  // los lomos, la ficha y lo que dice Sabio (las animaciones de entrada no se repiten).
+
+  const lib = {};
+
+  function spine(book, index) {
     const seed = hash(book.slug);
     const color = SPINE_COLORS[seed % SPINE_COLORS.length];
     // Grosor según la extensión del libro; alto con algo de azar para que la fila respire.
@@ -148,94 +156,145 @@
       'button',
       {
         class: book.narratedChapters ? 'spine has-audio' : 'spine',
-        style: `--spine: var(--px-${color}); --spine-w: ${width}px; --spine-h: ${height}px`,
-        'aria-pressed': String(state.selected === book.slug),
+        style: `--spine: var(--px-${color}); --spine-w: ${width}px; --spine-h: ${height}px; --i: ${index}`,
+        'data-slug': book.slug,
+        'aria-pressed': 'false',
         'aria-label': `${book.title}${book.author ? `, de ${book.author}` : ''}`,
-        onclick: () => {
-          sound('select');
-          state.selected = state.selected === book.slug ? null : book.slug;
-          renderLibrary();
-          document.querySelector('.book-detail h2')?.focus({ preventScroll: false });
-        },
+        onclick: () => selectBook(state.selected === book.slug ? null : book.slug),
       },
       h('span', { class: 'spine-title', 'aria-hidden': 'true' }, book.title),
       book.narratedChapters ? h('span', { class: 'spine-mark', 'aria-hidden': 'true' }, '♪') : null,
     );
   }
 
-  function shelf() {
+  function bookcase() {
     const owl = h('div', { class: 'shelf-owl companion-slot', 'aria-hidden': 'true' });
     owl.innerHTML = Pixel.owlBadge();
+    lib.owl = owl;
+    lib.hint = h('p', { class: 'shelf-hint', 'aria-live': 'polite' });
     return h(
       'section',
       { class: 'bookcase', 'aria-label': 'Estantería' },
       owl,
+      lib.hint,
       data.books.length
         ? h(
             'div',
             { class: 'shelf' },
-            data.books.map((book) => h('div', { class: 'slot' }, spine(book))),
+            data.books.map((book, i) => h('div', { class: 'slot' }, spine(book, i))),
           )
-        : h('div', { class: 'shelf empty' }, h('p', {}, 'La estantería está vacía.')),
+        : h(
+            'div',
+            { class: 'shelf empty' },
+            h('p', {}, 'La estantería está vacía. Para agregar un libro:'),
+            h('code', {}, 'pnpm lectio preview libro.epub'),
+          ),
     );
   }
 
-  function detail() {
-    const book = data.books.find((b) => b.slug === state.selected);
-    if (!book) {
-      return h(
-        'aside',
-        { class: 'book-detail placeholder' },
-        h(
-          'h2',
-          { tabindex: '-1' },
-          data.books.length ? 'Elige un libro' : 'Agrega tu primer libro',
-        ),
-        h(
-          'p',
-          {},
-          data.books.length
-            ? 'Toca un lomo de la estantería para ver su ficha.'
-            : 'Genera el preview de un EPUB y vuelve a crear la biblioteca:',
-        ),
-        data.books.length ? null : h('code', {}, 'pnpm lectio preview libro.epub'),
-      );
-    }
+  function detailCard(book) {
     const stats = [
       ['Capítulos', number.format(book.chapters)],
       ['Duración', `≈ ${duration(book.estimatedMinutes)}`],
       ['Con audio', book.narratedChapters ? `${book.narratedChapters} capítulo(s)` : 'Aún no'],
     ];
+    const open = h(
+      'a',
+      {
+        class: 'open-book',
+        href: book.preview,
+        onclick: (event) => {
+          if (event.ctrlKey || event.metaKey || event.shiftKey) return;
+          event.preventDefault();
+          openBook(book, open);
+        },
+      },
+      book.narratedChapters ? 'Leer y escuchar' : 'Leer',
+    );
     return h(
       'aside',
-      { class: 'book-detail', 'aria-live': 'polite' },
-      book.cover ? h('img', { class: 'cover', src: book.cover, alt: '' }) : null,
-      h('h2', { tabindex: '-1' }, book.title),
-      h('p', { class: 'author' }, book.author || 'Autor desconocido'),
+      { class: 'book-detail', 'aria-label': `Ficha de ${book.title}` },
       h(
-        'dl',
-        { class: 'book-stats' },
-        stats.map(([label, value]) => h('div', {}, h('dt', {}, label), h('dd', {}, value))),
-      ),
-      h(
-        'a',
+        'button',
         {
-          class: 'open-book',
-          href: book.preview,
-          onclick: (event) => {
-            // Deja sonar el efecto antes de salir de la página.
-            if (event.ctrlKey || event.metaKey || event.shiftKey) return;
-            event.preventDefault();
-            sound('open');
-            setTimeout(() => location.assign(book.preview), 220);
-          },
+          class: 'detail-close',
+          'aria-label': 'Cerrar la ficha',
+          title: 'Cerrar',
+          onclick: () => selectBook(null),
         },
-        book.narratedChapters ? 'Leer y escuchar' : 'Leer',
+        '×',
+      ),
+      book.cover
+        ? h('img', { class: 'cover', src: book.cover, alt: '' })
+        : h('div', { class: 'cover cover-blank', 'aria-hidden': 'true' }, book.title),
+      h(
+        'div',
+        { class: 'detail-body' },
+        h('h2', { tabindex: '-1' }, book.title),
+        h('p', { class: 'author' }, book.author || 'Autor desconocido'),
+        h(
+          'dl',
+          { class: 'book-stats' },
+          stats.map(([label, value]) => h('div', {}, h('dt', {}, label), h('dd', {}, value))),
+        ),
+        open,
       ),
     );
   }
 
+  function selectBook(slug) {
+    const changed = slug !== state.selected;
+    state.selected = slug;
+    const book = data.books.find((b) => b.slug === slug);
+    for (const button of lib.stage.querySelectorAll('.spine')) {
+      button.setAttribute('aria-pressed', String(button.dataset.slug === slug));
+    }
+    lib.stage.classList.toggle('has-selection', Boolean(book));
+    lib.detail.replaceChildren(book ? detailCard(book) : '');
+    lib.detail.hidden = !book;
+    lib.hint.textContent = book
+      ? `«${book.title}». ${book.narratedChapters ? 'Ya tiene voz: ¿lo escuchamos?' : 'Buena elección.'}`
+      : data.books.length
+        ? 'Elige un libro de la estantería.'
+        : 'Aquí no hay libros todavía.';
+    // Sabio reacciona: la animación se reinicia quitando y poniendo la clase.
+    lib.owl.classList.remove('hop');
+    lib.hint.classList.remove('pop');
+    void lib.owl.offsetWidth;
+    if (changed) {
+      lib.owl.classList.add('hop');
+      lib.hint.classList.add('pop');
+      sound(book ? 'select' : 'toggle');
+    }
+    if (book) lib.detail.querySelector('h2')?.focus({ preventScroll: true });
+  }
+
+  /** Transición al libro: un pergamino se abre desde el botón y la página cambia. */
+  function openBook(book, from) {
+    sound('open');
+    const rect = from.getBoundingClientRect();
+    const veil = h('div', {
+      class: 'book-transition',
+      style: `--x: ${rect.left + rect.width / 2}px; --y: ${rect.top + rect.height / 2}px`,
+      'aria-hidden': 'true',
+    });
+    document.body.append(veil);
+    const reduced = document.documentElement.dataset.motion !== 'full';
+    setTimeout(() => location.assign(book.preview), reduced ? 120 : 560);
+  }
+
   function renderLibrary() {
+    lib.detail = h('div', { class: 'detail-slot', hidden: true });
+    const scenery = scene({ desk: false });
+    // Arriba siempre visible: el ventanal y las estanterías; la estantería tapa el suelo.
+    scenery.querySelector('svg')?.setAttribute('preserveAspectRatio', 'xMidYMin slice');
+    lib.stage = h(
+      'main',
+      { class: 'library' },
+      h('div', { class: 'library-scene' }, scenery),
+      h('div', { class: 'library-floor' }, bookcase()),
+      lib.detail,
+    );
     app.replaceChildren(
       h(
         'header',
@@ -262,13 +321,11 @@
           Theme.settingsButton(),
         ),
       ),
-      h(
-        'main',
-        { class: 'library' },
-        h('div', { class: 'library-scene' }, scene({ desk: false })),
-        h('div', { class: 'library-body' }, shelf(), detail()),
-      ),
+      lib.stage,
     );
+    const selected = state.selected;
+    state.selected = null;
+    selectBook(selected);
   }
 
   function render() {
@@ -279,10 +336,7 @@
   }
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && state.screen === 'library' && state.selected) {
-      state.selected = null;
-      renderLibrary();
-    }
+    if (event.key === 'Escape' && state.screen === 'library' && state.selected) selectBook(null);
   });
 
   render();

@@ -726,7 +726,7 @@
   // Sincronización (docs/lectio-frontend.md §6): tiempo del audio → oración por búsqueda
   // binaria en la alineación, y oración → tiempo para "Escuchar desde aquí".
 
-  const SPEED_PRESETS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
+  const SPEED_PRESETS = [0.5, 0.75, 0.85, 1, 1.25, 1.5, 1.75, 2, 2.5, 3];
   const MIN_SPEED = 0.5;
   const MAX_SPEED = 3;
   const clampSpeed = (value) =>
@@ -734,6 +734,19 @@
       ? Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(value * 100) / 100))
       : 1;
   const speedLabel = (value) => `${value.toLocaleString('es', { maximumFractionDigits: 2 })}×`;
+  /**
+   * Velocidad de cada voz: la que eligió el usuario con ella o, si no, la de la voz
+   * (las femeninas empiezan en 0,85×, que a 1× se sentían apuradas).
+   */
+  const speedFor = (voiceId) =>
+    clampSpeed(
+      Number(
+        store.get(
+          `speed:${voiceId}`,
+          data.voices.find((v) => v.id === voiceId)?.defaultSpeed ?? store.get('speed', 1),
+        ),
+      ),
+    );
   /** Hay reproductor si algún capítulo tiene audio o si el servidor local puede generarlo. */
   let hasAudio = data.chapters.some((c) => c.audio);
   const audio = new Audio();
@@ -743,7 +756,7 @@
     current: -1,
     follow: true,
     autoScrolling: false,
-    speed: clampSpeed(Number(store.get('speed', 1))),
+    speed: speedFor(voices.selected),
     /**
      * Última oración escuchada de cada capítulo: volver a uno retoma donde ibas. Se guarda
      * la oración y no el segundo, porque cada voz tiene sus propios tiempos.
@@ -751,6 +764,10 @@
     positions: new Map(),
     /** Audio cargado en el <audio>: cambia al elegir otra voz. */
     src: null,
+    /** Audio cargado (con sus tiempos): durante un cambio de voz, el de la voz anterior. */
+    loaded: null,
+    /** Hay una voz nueva lista, esperando a que termine la oración que suena. */
+    pendingSwitch: false,
     /** Capítulo que debe empezar a sonar apenas termine de generarse. */
     pendingPlay: null,
   };
@@ -820,7 +837,10 @@
       type: 'range',
       class: 'player-progress',
       min: '0',
-      max: String(chapter.audio.durationMs),
+      max: String(
+        (player.chapter === state.chapter && player.loaded ? player.loaded : chapter.audio)
+          .durationMs,
+      ),
       step: '1000',
       value: '0',
       'aria-label': 'Posición en el capítulo',
@@ -916,6 +936,10 @@
       if (player.chapter !== null) player.positions.set(player.chapter, player.current);
       audio.src = chapter.audio.src;
       player.src = chapter.audio.src;
+      player.loaded = chapter.audio;
+      player.pendingSwitch = false;
+      player.speed = speedFor(chapter.audio.voice);
+      if (ui.speed) ui.speed.textContent = speedLabel(player.speed);
       const resume = player.positions.get(state.chapter);
       if (resume >= 0) {
         audio.addEventListener(
@@ -965,9 +989,10 @@
     seekTo(audio.currentTime * 1000 + deltaMs);
   }
 
-  function setSpeed(value) {
+  /** `remember`: guardar la elección para esta voz (no cuando solo se aplica la de la voz). */
+  function setSpeed(value, remember = true) {
     player.speed = clampSpeed(value);
-    store.set('speed', player.speed);
+    if (remember) store.set(`speed:${voices.selected}`, player.speed);
     audio.playbackRate = player.speed;
     if (ui.speed) ui.speed.textContent = speedLabel(player.speed);
     if (speedMenu) {
@@ -1113,13 +1138,28 @@
   }
 
   /** Cambia el audio del capítulo que suena por el de la voz elegida, en la misma oración. */
+  /**
+   * Cambia el audio del capítulo que suena por el de la voz elegida. Si está sonando, no
+   * corta a mitad de oración: espera a que empiece la siguiente y sigue desde ahí con la
+   * voz nueva. En pausa, cambia al momento en la misma oración.
+   */
   function switchSource() {
     const index = player.chapter;
     const chapter = index === null ? null : data.chapters[index];
     if (!chapter?.audio || chapter.audio.src === player.src) return;
-    const sentence = player.current;
-    const wasPlaying = !audio.paused;
+    if (!audio.paused && player.current >= 0) {
+      player.pendingSwitch = true;
+      return;
+    }
+    swapAudio(chapter, player.current, false);
+  }
+
+  function swapAudio(chapter, sentence, play) {
+    player.pendingSwitch = false;
     player.src = chapter.audio.src;
+    player.loaded = chapter.audio;
+    // La velocidad acompaña a la voz que suena, no a la elegida que aún se genera.
+    setSpeed(speedFor(chapter.audio.voice), false);
     audio.src = chapter.audio.src;
     audio.addEventListener(
       'loadedmetadata',
@@ -1127,7 +1167,7 @@
         const ms = sentence >= 0 ? timeOfSentence(chapter, sentence) : null;
         if (ms !== null) audio.currentTime = ms / 1000;
         audio.playbackRate = player.speed;
-        if (wasPlaying) audio.play().catch(() => {});
+        if (play) audio.play().catch(() => {});
         syncToTime();
       },
       { once: true },
@@ -1470,16 +1510,18 @@
 
   /** Inicio en el audio de la primera oración narrada a partir de `index`. */
   function timeOfSentence(chapter, index) {
-    const entry = chapter.audio.sentences.find(([i]) => i >= index);
+    const loaded = player.chapter === data.chapters.indexOf(chapter) ? player.loaded : null;
+    const entry = (loaded ?? chapter.audio).sentences.find(([i]) => i >= index);
     return entry ? entry[1] : null;
   }
 
   function syncToTime() {
     const chapter = data.chapters[state.chapter];
     if (!chapter.audio || player.chapter !== state.chapter) return;
+    // Los tiempos son los del audio que suena, que puede ser de la voz anterior.
+    const loaded = player.loaded ?? chapter.audio;
     const ms = audio.currentTime * 1000;
-    if (ui.time)
-      ui.time.textContent = `${formatTime(ms)} / ${formatTime(chapter.audio.durationMs)}`;
+    if (ui.time) ui.time.textContent = `${formatTime(ms)} / ${formatTime(loaded.durationMs)}`;
     if (ui.progress && document.activeElement !== ui.progress)
       ui.progress.value = String(Math.round(ms));
     if (ui.play) {
@@ -1487,8 +1529,14 @@
       ui.play.setAttribute('aria-label', audio.paused ? 'Reproducir' : 'Pausar');
     }
 
-    const index = sentenceAt(chapter.audio.sentences, ms);
+    const index = sentenceAt(loaded.sentences, ms);
     if (index === player.current) return;
+    // Empezó otra oración: buen momento para pasar a la voz recién generada.
+    if (player.pendingSwitch && index > player.current && !audio.paused) {
+      player.current = index;
+      highlightCurrent(chapter, index);
+      return swapAudio(chapter, index, true);
+    }
     player.current = index;
     highlightCurrent(chapter, index);
     if (player.follow && !audio.paused) scrollToCurrent(false);
@@ -1642,6 +1690,10 @@
   });
   audio.addEventListener('pause', () => {
     narrating(false);
+    // Una voz nueva esperaba el fin de la oración: en pausa ya no hay por qué esperar.
+    if (player.pendingSwitch && player.chapter !== null) {
+      return swapAudio(data.chapters[player.chapter], player.current, false);
+    }
     syncToTime();
   });
   audio.addEventListener('seeked', syncToTime);

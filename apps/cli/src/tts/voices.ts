@@ -19,6 +19,11 @@ export interface VoiceProfile {
   voice: string;
   language: string;
   prosody: Record<VoiceKind, Prosody>;
+  /**
+   * Velocidad de reproducción con la que empieza el reproductor (1 = normal). El usuario
+   * la cambia a gusto; se recuerda por voz.
+   */
+  defaultSpeed: number;
 }
 
 export const VOICE_PROFILES: VoiceProfile[] = [
@@ -32,6 +37,7 @@ export const VOICE_PROFILES: VoiceProfile[] = [
       narration: { rate: '+6%', pitch: '-7%' },
       dialogue: { rate: '+0%', pitch: '+10%' },
     },
+    defaultSpeed: 1,
   },
   {
     id: 'jorge',
@@ -43,6 +49,7 @@ export const VOICE_PROFILES: VoiceProfile[] = [
       narration: { rate: '+26%', pitch: '-7%' },
       dialogue: { rate: '+20%', pitch: '+10%' },
     },
+    defaultSpeed: 1,
   },
   {
     // Su voz ya es aguda: subirle el tono en los diálogos sonaba artificial. El contraste
@@ -56,6 +63,8 @@ export const VOICE_PROFILES: VoiceProfile[] = [
       narration: { rate: '+18%', pitch: '-4%' },
       dialogue: { rate: '+22%', pitch: '+0%' },
     },
+    // A 1× se sentía apurada: 0,85× suena más natural (probado a oído).
+    defaultSpeed: 0.85,
   },
   {
     id: 'salome-grave',
@@ -67,6 +76,7 @@ export const VOICE_PROFILES: VoiceProfile[] = [
       narration: { rate: '+16%', pitch: '-8%' },
       dialogue: { rate: '+16%', pitch: '+0%' },
     },
+    defaultSpeed: 0.85,
   },
 ];
 
