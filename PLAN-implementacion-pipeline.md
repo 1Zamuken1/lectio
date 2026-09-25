@@ -257,6 +257,20 @@ Resultado: *Marianela* caps. 1–2 (26 min de audio) generados en ~45 s, alineac
 - [ ] Actualizar `docs/lectio-pipeline-limpieza.md` con lo aprendido: umbrales calibrados y reglas que cambiaron.
 - [ ] Borrar este plan.
 
+
+**Pendiente: sesión de prueba de oído** (acordada para el 26-09-2026 o la semana siguiente). Guía para escuchar:
+
+1. `pnpm lectio narrate corpus/pg-marianela.epub --chapters 4-8` y escuchar en el preview (con modo revisión a mano para ver qué se narró).
+2. Anotar, con el capítulo y el minuto:
+   - números, fechas o abreviaturas mal leídos;
+   - cortes raros entre fragmentos (pausas a mitad de frase, saltos de volumen);
+   - algo que se leyó y no debía (encabezados, notas, marcas) o algo que faltó;
+   - diálogos con raya: ¿se entienden las acotaciones?;
+   - el anuncio del capítulo: ¿suena natural?;
+   - desfase entre la oración resaltada y lo que suena.
+3. Repetir con un libro propio (un EPUB comprado sin DRM o convertido con Calibre).
+4. Cada problema → un caso de test → corrección → `golden:update` revisando el diff.
+
 ---
 
 ## Corpus inicial

@@ -232,6 +232,46 @@ Esto te permite correr `api`, `worker` y `web` de forma independiente, compartir
 
 ---
 
+## 12.1 Ideas a evaluar
+
+*Propuestas del 25-09-2026. No están en el roadmap todavía: son alternativas a decidir.*
+
+### A. Temas de pixel art seleccionables
+
+**Idea:** varios temas visuales de pixel art (creados para Lectio) que el usuario elige y que cambian la UI/UX: marcos, botones, íconos, colores y pequeños detalles del reproductor.
+
+**Por qué encaja:** el preview ya está construido sobre *tokens* de diseño (variables CSS de color, tipografía y espaciado), así que un tema es, en su mayor parte, otro juego de tokens más sus recursos gráficos. Para el portafolio, además, muestra un sistema de temas real y no solo un modo oscuro.
+
+**Condiciones para que no choque con la dirección visual (§ frontend 2.2):**
+- **El texto del libro sigue siendo legible:** las fuentes pixel (tipo *Press Start 2P*) cansan en lectura larga. El pixel art viste la interfaz (marcos, botones, reproductor, íconos, portadillas); el cuerpo del libro sigue en Literata o Atkinson, o en una fuente pixel pensada para leer, si se encuentra una que pase la prueba.
+- **Mismas reglas de contraste** (AA en interfaz, AAA en texto) en cada tema, verificadas como ahora.
+- `prefers-reduced-motion` desactiva cualquier animación del tema.
+
+**Cómo se haría:** los gráficos se dibujan como SVG con píxeles cuadrados (o CSS), sin imágenes externas, y se escalan con `image-rendering: pixelated`. Cada tema es un archivo con sus tokens y sus recursos, un registro de temas elige el activo (`data-theme`) y la preferencia se guarda por usuario. Primer paso posible: dos temas de prueba en el preview antes de llevarlo a la app.
+
+**A decidir:** cuántos temas y con qué identidad (ej. biblioteca 8-bit, pergamino, noche), si cambian solo lo visual o también microinteracciones y sonidos, y si hay tema por defecto pixel o solo como opción. Requiere una ronda de preguntas de diseño.
+
+### B. Conversor de PDF a EPUB
+
+**Idea:** aceptar PDF convirtiéndolo antes a EPUB, para que entre al mismo pipeline.
+
+**Relación con la decisión actual:** en §3.2 el PDF quedó fuera del MVP porque no trae la estructura semántica que es el diferenciador de Lectio. Un conversor **no elimina ese problema, lo traslada**: el EPUB resultante se parece a un EPUB convertido con Calibre (encabezados y números de página repetidos, guiones de división silábica, capítulos adivinados). Lo bueno es que el pipeline ya tiene reglas pensadas justo para eso (S1, S2 y la unión de guiones de la etapa 9), así que la calidad sería razonable para PDF de texto, no para PDF escaneados.
+
+**Alternativas encontradas (precios y licencias por verificar antes de decidir):**
+
+| Opción | Tipo | Notas |
+|---|---|---|
+| Calibre (`ebook-convert`) | Gratis, GPL-3 | La más probada. Se ejecuta como proceso aparte en el worker (el GPL no contagia a Lectio por usarse como programa externo). Instalación pesada: encaja en una imagen Docker del worker. |
+| Marker | Código abierto, basado en modelos de ML | Convierte PDF a Markdown con buena detección de estructura; habría que pasar luego a EPUB (ej. con pandoc). La licencia de los modelos tiene condiciones para uso comercial: **verificar**. Necesita más recursos (idealmente GPU). |
+| APIs de pago (CloudConvert, ConvertAPI, Adobe PDF Services) | Por conversión | Sin infraestructura propia, pero con costo por archivo y dependencia de un tercero. Calidad variable: **probar antes**. |
+| pandoc | Gratis | **No lee PDF**: solo sirve como segundo paso (de Markdown a EPUB). |
+
+PDF escaneados (imágenes) necesitarían OCR (ej. OCRmyPDF/Tesseract), que es otro alcance.
+
+**Si se hace:** empezar con Calibre como paso opcional antes del pipeline, marcar esos libros en el reporte como "convertido desde PDF" (clasificación de baja confianza) y medir la calidad con un corpus pequeño de PDF reales antes de prometer nada al usuario.
+
+---
+
 ## 13. Documentos del proyecto
 
 | Documento | Estado |
