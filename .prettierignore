@@ -5,3 +5,4 @@ out/
 pnpm-lock.yaml
 docs/
 PLAN-implementacion-pipeline.md
+.scratch/

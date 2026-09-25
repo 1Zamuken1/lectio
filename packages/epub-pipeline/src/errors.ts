@@ -26,7 +26,14 @@ export type PipelineWarningCode =
   | 'MANIFEST_ITEM_MISSING'
   | 'SPINE_ITEM_UNRESOLVED'
   | 'TITLE_MISSING'
-  | 'LANGUAGE_MISSING';
+  | 'LANGUAGE_MISSING'
+  | 'TOC_NAV_UNUSABLE'
+  | 'TOC_FALLBACK_SPINE'
+  | 'TOC_ENTRY_UNRESOLVED'
+  | 'TOC_FRAGMENT_MISSING'
+  | 'TOC_DUPLICATE_TARGET'
+  | 'TOC_ORDER_MISMATCH'
+  | 'DOCUMENT_UNREADABLE';
 
 export interface PipelineWarning {
   code: PipelineWarningCode;

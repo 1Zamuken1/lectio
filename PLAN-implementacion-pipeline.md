@@ -136,12 +136,20 @@ Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
 
 ### Fase 2 — Navegación y segmentación (etapas 3–4)
 
-- [ ] Parser de `nav.xhtml` (`epub:type="toc"`), de NCX y respaldo por spine.
-- [ ] Aplanado del árbol (umbral de tamaño y profundidad máxima 2, configurables) con `parentTitle`.
-- [ ] Flujo lineal del spine y resolución de cada entrada a `(índice de spine, nodo)`.
-- [ ] Corte por fragmento (`#id`), anexado de archivos sin entrada propia, sección inicial previa al primer punto, warning `TOC_ORDER_MISMATCH`.
+- [x] Parser de `nav.xhtml` (`epub:type="toc"`), de NCX y respaldo por spine.
+- [x] Aplanado del árbol (umbral de tamaño y profundidad máxima 2, configurables) con `parentTitle`. **Cambio:** la decisión es **por rama**, no un umbral global: un nodo se divide en sus hijos si el tamaño promedio de estos supera el mínimo. La portadilla corta de un grupo se fusiona con su primer hijo.
+- [x] Flujo lineal del spine y resolución de cada entrada a `(índice de spine, nodo)`.
+- [x] Corte por fragmento (`#id`), anexado de archivos sin entrada propia, sección inicial previa al primer punto, warning `TOC_ORDER_MISMATCH`.
 
 **Tests:** varios capítulos en un archivo, un capítulo en 3 archivos (`_split_`), TOC vacío (respaldo por spine), TOC desordenado, entrada que apunta a un `id` inexistente.
+
+**Hecho.** DOM con `linkedom` en modo XML (en modo HTML, `<a id="x"/>` no se cierra y rompe los cortes), con las entidades HTML (`&nbsp;`) convertidas antes a numéricas. Los 8 libros del corpus se segmentan sin warnings en menos de 350 ms; hay tests de regresión sobre el corpus (126 capítulos en *Don Quijote*, 135 en *Moby-Dick*, rimas de Bécquer sin partir, etc.).
+
+**Observaciones para la fase 3 (clasificación):**
+- *Don Quijote* tiene una sección "por Miguel de Cervantes Saavedra" de 12,6k caracteres que en realidad es el **índice HTML** del libro (lista de enlaces). Solo la delata la densidad de enlaces: la heurística de `toc` es imprescindible.
+- Los libros de Gutenberg tienen una sección inicial (`leading`) con el encabezado del proyecto y una final "THE FULL PROJECT GUTENBERG LICENSE": hace falta una regla de título para la licencia.
+- *Marianela* tiene una entrada "Capítulos:" (134 caracteres) que es el índice; *Moby-Dick* un "Contents" no lineal.
+- Standard Ebooks: Titlepage, Imprint, Colophon, Uncopyright con `epub:type` explícito (caso semántico).
 
 ### Fase 3 — Clasificación (etapa 5)
 

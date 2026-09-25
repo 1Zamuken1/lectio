@@ -26,6 +26,7 @@ const ARRAY_TAGS = new Set([
   'identifier',
   'EncryptedData',
   'link',
+  'navPoint',
 ]);
 
 export function parseXml(xml: string): XmlNode {

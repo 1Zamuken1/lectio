@@ -22,7 +22,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "entities": "^8.1.0",
     "fast-xml-parser": "^5.11.1",
+    "linkedom": "^0.18.13",
     "yauzl": "^3.4.0"
   },
   "devDependencies": {
