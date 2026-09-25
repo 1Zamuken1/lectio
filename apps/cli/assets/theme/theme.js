@@ -110,9 +110,13 @@
         set('mode', isNight() ? 'day' : 'night');
       },
     });
+    const Icons = window.LectioIcons;
+    const glyph = Icons ? Icons.icon('sun') : null;
+    if (glyph) button.append(glyph);
     const refresh = () => {
       const night = isNight();
-      button.textContent = night ? '☾' : '☀';
+      if (glyph) Icons.set(glyph, night ? 'moon' : 'sun');
+      else button.textContent = night ? '☾' : '☀';
       button.setAttribute('aria-label', night ? 'Cambiar a día' : 'Cambiar a noche');
       button.title = night ? 'Noche · cambiar a día' : 'Día · cambiar a noche';
     };
@@ -132,7 +136,7 @@
         'aria-haspopup': 'dialog',
         onclick: toggleSettings,
       },
-      '✦',
+      window.LectioIcons ? window.LectioIcons.icon('settings') : '✦',
     );
   }
 

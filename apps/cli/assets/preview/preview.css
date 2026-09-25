@@ -837,9 +837,10 @@ button {
 }
 
 .layout.has-player .main {
-  padding-bottom: 11rem;
+  padding-bottom: 12rem;
 }
 
+/* Dos pisos: el progreso a todo el ancho y, abajo, capítulo · controles · velocidad y voz. */
 .player {
   position: fixed;
   right: 0;
@@ -847,10 +848,8 @@ button {
   left: 0;
   z-index: 30;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 1.25rem;
-  align-items: center;
-  padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
+  gap: 0.35rem;
+  padding: 0.7rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--line);
   background: color-mix(in srgb, var(--paper-raised) 94%, transparent);
   backdrop-filter: blur(8px);
@@ -861,43 +860,24 @@ button {
   display: none;
 }
 
-.player-controls,
-.player-extra {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.player .tool:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.player .play {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 999px;
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-contrast);
-  font-size: 1.05rem;
-}
-
-.player .speed {
-  min-width: 3.4rem;
-  font-variant-numeric: tabular-nums;
-}
-
 .player-track {
-  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.player-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
 }
 
 .player-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.3rem;
-  font-size: 0.9rem;
+  display: grid;
+  min-width: 0;
+  line-height: 1.25;
 }
 
 .player-title {
@@ -907,22 +887,171 @@ button {
   white-space: nowrap;
 }
 
+.player-book {
+  overflow: hidden;
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.player-extra {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
 .player-time {
+  min-width: 3.2rem;
+  font-size: 0.85rem;
   color: var(--ink-soft);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.player-progress {
-  width: 100%;
-  accent-color: var(--accent);
+.player-time.total {
+  text-align: right;
+}
+
+/* Íconos: 24 px (dos por píxel de la cuadrícula de 12), 36 px el ▶ grande. */
+.icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+:root:not([data-world='clasico']) .icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon.big svg {
+  width: 30px;
+  height: 30px;
+}
+
+:root:not([data-world='clasico']) .icon.big svg {
+  width: 36px;
+  height: 36px;
+}
+
+.player .tool {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.6rem;
+}
+
+.player .tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.player .play {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 999px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.skip small {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.player .speed {
+  min-width: 3.4rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .voice-button {
-  max-width: 9rem;
+  gap: 0.4rem;
+  max-width: 11rem;
+}
+
+.voice-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Barra de progreso: un <input> invisible encima de una pista y una perilla dibujadas. */
+.progress {
+  --progress: 0%;
+  position: relative;
+  height: 1.6rem;
+}
+
+.progress-track {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: 6px;
+  overflow: hidden;
+  background: var(--line);
+  border-radius: 999px;
+  transform: translateY(-50%);
+}
+
+.progress-fill {
+  display: block;
+  width: var(--progress);
+  height: 100%;
+  background: var(--accent);
+}
+
+.progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--progress);
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border: 2px solid var(--paper-raised);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 25%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.progress-thumb svg {
+  display: none;
+}
+
+.player-progress {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.player-progress:focus-visible + .progress-thumb,
+.progress:has(.player-progress:focus-visible) .progress-thumb {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .player-empty {
@@ -1031,31 +1160,51 @@ button {
 
 @media (max-width: 700px) {
   .player {
-    grid-template-columns: minmax(0, 1fr);
+    padding: 0.55rem 0.8rem calc(0.6rem + env(safe-area-inset-bottom));
+  }
+
+  .player-track {
     gap: 0.5rem;
-    padding: 0.6rem 0.9rem calc(0.6rem + env(safe-area-inset-bottom));
+  }
+
+  /* En el celular: controles centrados arriba del resto; el título pasa a una línea. */
+  .player-deck {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 0.6rem;
   }
 
   .player-controls {
+    grid-column: 1 / -1;
     justify-content: center;
   }
 
-  .player-extra {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.9rem;
+  .player-meta {
+    grid-row: 2;
   }
 
-  .player-voice {
+  .player-extra {
+    grid-row: 2;
+  }
+
+  .player-book {
     display: none;
   }
 
+  .player .tool {
+    min-width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .voice-button {
+    max-width: 7.5rem;
+  }
+
   .follow-return {
-    bottom: 9.5rem;
+    bottom: 11rem;
   }
 
   .layout.has-player .main {
-    padding-bottom: 13rem;
+    padding-bottom: 14rem;
   }
 }
 
@@ -1242,4 +1391,50 @@ dialog.confirm p {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--accent-contrast);
+}
+
+/* ---------------------------------------------------------------- Barras de desplazamiento */
+
+/* Finas y del tema; cada mundo redefine estas variables. */
+:root {
+  --scroll-size: 10px;
+  --scroll-track: transparent;
+  --scroll-thumb: color-mix(in srgb, var(--ink) 22%, transparent);
+  --scroll-thumb-hover: color-mix(in srgb, var(--ink) 40%, transparent);
+  --scroll-radius: 999px;
+  --scroll-bevel: none;
+  --scroll-gap: 3px;
+}
+
+::-webkit-scrollbar {
+  width: var(--scroll-size);
+  height: var(--scroll-size);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-thumb);
+  background-clip: padding-box;
+  border: var(--scroll-gap) solid transparent;
+  border-radius: var(--scroll-radius);
+  box-shadow: var(--scroll-bevel);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scroll-thumb-hover);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox no tiene ::-webkit-scrollbar: usa el estándar (solo color y grosor). */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  }
 }

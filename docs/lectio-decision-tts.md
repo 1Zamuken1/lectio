@@ -222,11 +222,11 @@ Costo: los mismos caracteres, muchas más solicitudes (un capítulo de Marianela
 | Perfil | Voz | Narración (velocidad / tono) | Diálogo (velocidad / tono) |
 |---|---|---|---|
 | `gonzalo` (por defecto) | es-CO-GonzaloNeural | +6 % / −7 % | +0 % / +10 % |
-| `jorge` | es-MX-JorgeNeural | +26 % / −7 % | +20 % / +10 % |
-| `salome` | es-CO-SalomeNeural | +18 % / −4 % | +22 % / +0 % |
-| `salome-grave` | es-CO-SalomeNeural | +16 % / −8 % | +16 % / +0 % |
+| `jorge` | es-MX-JorgeNeural | +7 % / −7 % | +2 % / +10 % |
+| `salome` | es-CO-SalomeNeural | +0 % / −4 % | +4 % / +0 % |
+| `salome-grave` | es-CO-SalomeNeural | −1 % / −8 % | −1 % / +0 % |
 
-Las velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades muy distintas. En Salomé, subir el tono del diálogo sonaba artificial (su voz ya es aguda): el contraste se logra con velocidad y bajando la narración.
+Las velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades muy distintas, y dejan cada una a su ritmo natural en 1×. Una segunda ronda a oído (2026-09-25) bajó Jorge y Salomé: su mejor versión era la anterior reproducida a 0,85×, así que esa velocidad pasó al MP3 (vale en cualquier reproductor y no estira las pausas). El audio generado con la prosodia anterior se descarta y se genera de nuevo. En Salomé, subir el tono del diálogo sonaba artificial (su voz ya es aguda): el contraste se logra con velocidad y bajando la narración.
 
 Se evaluaron 12 voces regionales (México, EE. UU., Colombia, Perú, Venezuela, Costa Rica, Ecuador, Guatemala, Bolivia). Si hace falta más expresividad que esta, el siguiente paso es un TTS basado en modelos de lenguaje (de pago), con una prueba a ciegas contra estos perfiles.
 

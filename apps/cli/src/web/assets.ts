@@ -5,7 +5,7 @@ const ASSETS = new URL('../../assets/', import.meta.url);
 
 /** Módulos compartidos: sistema de temas, motor de pixel art y sonido (docs/lectio-temas.md). */
 const SHARED_CSS = ['theme/scriptorium.css'];
-const SHARED_JS = ['theme/theme.js', 'theme/pixel.js', 'theme/sound.js'];
+const SHARED_JS = ['theme/icons.js', 'theme/theme.js', 'theme/pixel.js', 'theme/sound.js'];
 
 const PAGES = {
   preview: { css: ['preview/preview.css'], js: ['preview/preview.js'] },

@@ -8,22 +8,19 @@ export interface Prosody {
 
 /**
  * Perfil de voz: una voz de Edge con una prosodia para la narración y otra para el
- * diálogo (docs/lectio-decision-tts.md §7). Elegidos escuchando muestras:
- * las velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades
- * muy distintas (Jorge necesita +26 % para sonar como Gonzalo a +6 %).
+ * diálogo (docs/lectio-decision-tts.md §7). Elegidos escuchando muestras: las
+ * velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades muy
+ * distintas, y dejan cada voz a su ritmo natural en 1× (la velocidad va en el MP3, así
+ * que vale en cualquier reproductor y no estira las pausas).
  */
 export interface VoiceProfile {
   id: string;
   name: string;
+  /** Solo para la terminal (`lectio voices`); la interfaz muestra el nombre. */
   description: string;
   voice: string;
   language: string;
   prosody: Record<VoiceKind, Prosody>;
-  /**
-   * Velocidad de reproducción con la que empieza el reproductor (1 = normal). El usuario
-   * la cambia a gusto; se recuerda por voz.
-   */
-  defaultSpeed: number;
 }
 
 export const VOICE_PROFILES: VoiceProfile[] = [
@@ -37,34 +34,32 @@ export const VOICE_PROFILES: VoiceProfile[] = [
       narration: { rate: '+6%', pitch: '-7%' },
       dialogue: { rate: '+0%', pitch: '+10%' },
     },
-    defaultSpeed: 1,
   },
   {
+    // Antes +26 % / +20 %; a oído, su punto justo era esa versión a 0,85×.
     id: 'jorge',
     name: 'Jorge',
     description: 'hombre · México',
     voice: 'es-MX-JorgeNeural',
     language: 'es',
     prosody: {
-      narration: { rate: '+26%', pitch: '-7%' },
-      dialogue: { rate: '+20%', pitch: '+10%' },
+      narration: { rate: '+7%', pitch: '-7%' },
+      dialogue: { rate: '+2%', pitch: '+10%' },
     },
-    defaultSpeed: 1,
   },
   {
     // Su voz ya es aguda: subirle el tono en los diálogos sonaba artificial. El contraste
-    // se logra con velocidad (y, en la variante, bajando la narración).
+    // se logra con velocidad (y, en la variante, bajando la narración). Velocidades: las
+    // de antes a 0,85×, que era como mejor sonaba.
     id: 'salome',
     name: 'Salomé',
     description: 'mujer · Colombia',
     voice: 'es-CO-SalomeNeural',
     language: 'es',
     prosody: {
-      narration: { rate: '+18%', pitch: '-4%' },
-      dialogue: { rate: '+22%', pitch: '+0%' },
+      narration: { rate: '+0%', pitch: '-4%' },
+      dialogue: { rate: '+4%', pitch: '+0%' },
     },
-    // A 1× se sentía apurada: 0,85× suena más natural (probado a oído).
-    defaultSpeed: 0.85,
   },
   {
     id: 'salome-grave',
@@ -73,10 +68,9 @@ export const VOICE_PROFILES: VoiceProfile[] = [
     voice: 'es-CO-SalomeNeural',
     language: 'es',
     prosody: {
-      narration: { rate: '+16%', pitch: '-8%' },
-      dialogue: { rate: '+16%', pitch: '+0%' },
+      narration: { rate: '-1%', pitch: '-8%' },
+      dialogue: { rate: '-1%', pitch: '+0%' },
     },
-    defaultSpeed: 0.85,
   },
 ];
 
@@ -127,7 +121,7 @@ export function resolveVoice(
   if (profile) {
     return {
       id: profile.id,
-      label: `${profile.name} · ${profile.description}`,
+      label: profile.name,
       voice: profile.voice,
       prosody: profile.prosody,
       prosodyKey: key(profile.prosody),

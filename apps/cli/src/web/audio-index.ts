@@ -3,7 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import type { Alignment } from '@lectio/epub-pipeline';
 import type { ManifestEntry } from '../commands/narrate.js';
-import { profilesFor } from '../tts/voices.js';
+import { findProfile, profilesFor, resolveVoice } from '../tts/voices.js';
 
 /** Audio de un capítulo con una voz, tal como lo usa el reproductor. */
 export interface ChapterAudio {
@@ -23,8 +23,9 @@ export type AudioIndex = Map<number, Record<string, ChapterAudio>>;
 /**
  * Audio generado de un libro: `audio/<voz>/manifest.json` por cada voz (y
  * `audio/manifest.json`, la carpeta de antes, si existe). Se ignoran los capítulos
- * narrados con otra versión del pipeline: sus índices de oración podrían no coincidir
- * con el texto actual.
+ * narrados con otra versión del pipeline (sus índices de oración podrían no coincidir
+ * con el texto actual) y los de un perfil cuya prosodia cambió desde entonces: ese audio
+ * ya no suena como la voz elegida, y se genera de nuevo al pedirlo.
  */
 export async function loadAudioIndex(
   pipelineVersion: number,
@@ -47,6 +48,8 @@ export async function loadAudioIndex(
     };
     for (const entry of chapters) {
       if (entry.pipelineVersion !== pipelineVersion) continue;
+      const profile = findProfile(entry.voice);
+      if (profile && entry.rate !== resolveVoice(profile.id, profile.language).prosodyKey) continue;
       const alignmentPath = join(dir, entry.alignment);
       if (!existsSync(alignmentPath) || !existsSync(join(dir, entry.audio))) continue;
       const alignment = JSON.parse(await readFile(alignmentPath, 'utf8')) as Alignment;
@@ -56,7 +59,7 @@ export async function loadAudioIndex(
         src: path.map(encodeURIComponent).join('/'),
         durationMs: alignment.durationMs,
         voice: entry.voice,
-        label: entry.voiceLabel ?? entry.voice.replace(/Neural$/, ''),
+        label: profile?.name ?? entry.voice.replace(/Neural$/, ''),
         approximate: alignment.approximate,
         sentences: alignment.sentences.map((s) => [s.index, s.startMs, s.endMs]),
       };
@@ -74,8 +77,6 @@ export function voiceChoices(language: string, index: AudioIndex) {
   const choices = profilesFor(language).map((p) => ({
     id: p.id,
     name: p.name,
-    description: p.description,
-    defaultSpeed: p.defaultSpeed,
     profile: true,
   }));
   for (const voices of index.values()) {
@@ -84,8 +85,6 @@ export function voiceChoices(language: string, index: AudioIndex) {
       choices.push({
         id: audio.voice,
         name: audio.label,
-        description: 'voz de Edge',
-        defaultSpeed: 1,
         profile: false,
       });
     }

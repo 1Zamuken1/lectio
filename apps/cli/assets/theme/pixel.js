@@ -398,5 +398,12 @@
     return `<svg class="px-fleuron" viewBox="0 0 7 7" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
   }
 
-  window.LectioPixel = { scriptoriumScene, owlBadge, fleuron, canvas, random };
+  /** Pluma de ave: la perilla de la barra de progreso (escribe mientras avanza el audio). */
+  function quill() {
+    const c = canvas();
+    c.sprite(QUILL, { o: 'ink', w: 'parch', s: 'parch-d' }, 0, 0);
+    return `<svg class="px-quill" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
+  }
+
+  window.LectioPixel = { scriptoriumScene, owlBadge, fleuron, quill, canvas, random };
 })();

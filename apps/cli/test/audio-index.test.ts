@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { ManifestEntry } from '../src/commands/narrate.js';
+import { resolveVoice } from '../src/tts/voices.js';
 import { loadAudioIndex, voiceChoices } from '../src/web/audio-index.js';
 
 let root: string;
@@ -12,7 +13,13 @@ afterEach(async () => {
 });
 
 /** Carpeta de una voz con un capítulo narrado. */
-async function voiceFolder(dir: string, voice: string, orderIndex: number, pipelineVersion = 1) {
+async function voiceFolder(
+  dir: string,
+  voice: string,
+  orderIndex: number,
+  pipelineVersion = 1,
+  rate = resolveVoice(voice, 'es').prosodyKey,
+) {
   await mkdir(dir, { recursive: true });
   const entry: ManifestEntry = {
     orderIndex,
@@ -22,8 +29,8 @@ async function voiceFolder(dir: string, voice: string, orderIndex: number, pipel
     durationMs: 1000,
     characters: 10,
     voice,
-    voiceLabel: `${voice} · etiqueta`,
-    rate: 'x',
+    voiceLabel: voice,
+    rate,
     provider: 'edge',
     pipelineVersion,
   };
@@ -53,9 +60,21 @@ describe('loadAudioIndex', () => {
     expect(Object.keys(index.get(4)!).sort()).toEqual(['gonzalo', 'jorge']);
     expect(index.get(4)!.jorge).toMatchObject({
       src: 'audio/jorge/004%20-%20Cap.mp3',
-      label: 'jorge · etiqueta',
+      label: 'Jorge',
       sentences: [[0, 0, 1000]],
     });
+  });
+
+  it('descarta el audio de un perfil cuya prosodia cambió', async () => {
+    root = await mkdtemp(join(tmpdir(), 'lectio-'));
+    await voiceFolder(
+      join(root, 'audio', 'jorge'),
+      'jorge',
+      4,
+      1,
+      'narración +26%/-7% · diálogo +20%/+10%',
+    );
+    expect((await loadAudioIndex(1, root, join(root, 'audio'))).size).toBe(0);
   });
 
   it('lee también la carpeta de antes (audio/manifest.json) y ofrece sus voces', async () => {

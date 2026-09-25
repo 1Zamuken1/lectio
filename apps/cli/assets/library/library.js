@@ -222,7 +222,7 @@
           title: 'Cerrar',
           onclick: () => selectBook(null),
         },
-        '×',
+        window.LectioIcons ? window.LectioIcons.icon('close') : '×',
       ),
       book.cover
         ? h('img', { class: 'cover', src: book.cover, alt: '' })
@@ -314,7 +314,7 @@
                 render();
               },
             },
-            '⌂',
+            window.LectioIcons ? window.LectioIcons.icon('home') : '⌂',
             h('span', { class: 'label' }, 'Portada'),
           ),
           Theme.modeButton(),

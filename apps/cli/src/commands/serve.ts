@@ -47,7 +47,7 @@ export async function serve(folder = 'out', options: { port?: string } = {}): Pr
     if (request.method === 'GET' && parts[0] === 'voices' && parts.length === 1) {
       const voices = profilesFor(url.searchParams.get('lang') ?? 'es');
       return json(response, 200, {
-        voices: voices.map(({ id, name, description }) => ({ id, name, description })),
+        voices: voices.map(({ id, name }) => ({ id, name })),
       });
     }
     if (request.method === 'GET' && parts[0] === 'voices' && parts[2] === 'sample') {

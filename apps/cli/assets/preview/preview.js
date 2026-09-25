@@ -159,7 +159,7 @@
           'aria-label': 'Mostrar índice',
           onclick: () => sidebar.classList.toggle('open'),
         },
-        '☰',
+        window.LectioIcons ? window.LectioIcons.icon('menu') : '☰',
       ),
       data.library
         ? h(
@@ -208,7 +208,7 @@
             title: 'Marca qué se narra, qué se omite y qué cambia',
             onclick: toggleReview,
           },
-          '◉',
+          window.LectioIcons ? window.LectioIcons.icon('review') : '◉',
           h('span', { class: 'label' }, 'Modo revisión'),
         ),
       ),
@@ -735,18 +735,10 @@
       : 1;
   const speedLabel = (value) => `${value.toLocaleString('es', { maximumFractionDigits: 2 })}×`;
   /**
-   * Velocidad de cada voz: la que eligió el usuario con ella o, si no, la de la voz
-   * (las femeninas empiezan en 0,85×, que a 1× se sentían apuradas).
+   * Velocidad de cada voz: la que eligió el usuario con ella, o 1×. Cada perfil ya viene
+   * a su ritmo natural en 1× (la velocidad va en el MP3).
    */
-  const speedFor = (voiceId) =>
-    clampSpeed(
-      Number(
-        store.get(
-          `speed:${voiceId}`,
-          data.voices.find((v) => v.id === voiceId)?.defaultSpeed ?? store.get('speed', 1),
-        ),
-      ),
-    );
+  const speedFor = (voiceId) => clampSpeed(Number(store.get(`voice-speed:${voiceId}`, 1)));
   /** Hay reproductor si algún capítulo tiene audio o si el servidor local puede generarlo. */
   let hasAudio = data.chapters.some((c) => c.audio);
   const audio = new Audio();
@@ -808,7 +800,9 @@
       h('button', { class: 'tool', 'aria-label': label, title: label, onclick, ...extra }, text);
 
     ui.voiceStatus = h('div', { class: 'voice-status', 'aria-live': 'polite' });
-    ui.voice = button('Voz del narrador', currentVoiceName(), toggleVoiceMenu, {
+    ui.voiceName = h('span', { class: 'voice-name' }, currentVoiceName());
+    const voiceIcon = window.LectioIcons ? window.LectioIcons.icon('voice') : '';
+    ui.voice = button('Voz del narrador', [voiceIcon, ui.voiceName], toggleVoiceMenu, {
       class: 'tool voice-button',
       'aria-haspopup': 'dialog',
       'aria-expanded': 'false',
@@ -822,67 +816,87 @@
       return;
     }
 
+    // Dos pisos: arriba el progreso a todo el ancho; abajo el capítulo, los controles al
+    // centro (con ▶ grande) y la velocidad y la voz.
+    const Icons = window.LectioIcons;
+    const glyph = (name, className) => (Icons ? Icons.icon(name, className) : name);
     const previous = audioChapter(state.chapter, -1);
     const next = audioChapter(state.chapter, 1);
-    ui.play = button(
-      audio.paused ? 'Reproducir' : 'Pausar',
-      audio.paused ? '▶' : '❚❚',
-      togglePlay,
-      {
-        class: 'tool play',
-      },
-    );
-    ui.time = h('span', { class: 'player-time' }, '0:00');
+    ui.playIcon = glyph(audio.paused ? 'play' : 'pause', 'big');
+    ui.play = button(audio.paused ? 'Reproducir' : 'Pausar', ui.playIcon, togglePlay, {
+      class: 'tool play',
+    });
+    const loaded =
+      player.chapter === state.chapter && player.loaded ? player.loaded : chapter.audio;
+    ui.current = h('span', { class: 'player-time' }, '0:00');
+    ui.total = h('span', { class: 'player-time total' }, formatTime(loaded.durationMs));
     ui.progress = h('input', {
       type: 'range',
       class: 'player-progress',
       min: '0',
-      max: String(
-        (player.chapter === state.chapter && player.loaded ? player.loaded : chapter.audio)
-          .durationMs,
-      ),
+      max: String(loaded.durationMs),
       step: '1000',
       value: '0',
       'aria-label': 'Posición en el capítulo',
       oninput: (event) => seekTo(Number(event.target.value)),
     });
+    // La perilla es la pluma del tema (en el Clásico, un punto): se dibuja aparte y el
+    // <input> invisible encima sigue siendo el control accesible.
+    const thumb = h('span', { class: 'progress-thumb', 'aria-hidden': 'true' });
+    if (window.LectioPixel) thumb.innerHTML = window.LectioPixel.quill();
+    ui.progressWrap = h(
+      'div',
+      { class: 'progress' },
+      h(
+        'span',
+        { class: 'progress-track', 'aria-hidden': 'true' },
+        h('span', { class: 'progress-fill' }),
+      ),
+      thumb,
+      ui.progress,
+    );
     ui.speed = button('Velocidad de reproducción', speedLabel(player.speed), toggleSpeedMenu, {
       class: 'tool speed',
       'aria-haspopup': 'dialog',
       'aria-expanded': 'false',
     });
+    const skip = (label, name, text, onclick) =>
+      button(label, h('span', { class: 'skip' }, glyph(name), h('small', {}, text)), onclick, {
+        class: 'tool skip-button',
+      });
 
     playerBar.replaceChildren(
+      h('div', { class: 'player-track' }, ui.current, ui.progressWrap, ui.total),
       h(
         'div',
-        { class: 'player-controls' },
-        button(
-          'Capítulo anterior',
-          '⏮',
-          () => previous !== null && requestChapter(previous, true),
-          {
-            disabled: previous === null,
-          },
-        ),
-        button('Retroceder 15 segundos', '−15', () => seekBy(-15000)),
-        ui.play,
-        button('Avanzar 15 segundos', '+15', () => seekBy(15000)),
-        button('Capítulo siguiente', '⏭', () => next !== null && requestChapter(next, true), {
-          disabled: next === null,
-        }),
-      ),
-      h(
-        'div',
-        { class: 'player-track' },
+        { class: 'player-deck' },
         h(
           'div',
           { class: 'player-meta' },
           h('span', { class: 'player-title' }, chapter.title),
-          ui.time,
+          h('span', { class: 'player-book' }, data.book.title || ''),
         ),
-        ui.progress,
+        h(
+          'div',
+          { class: 'player-controls' },
+          button(
+            'Capítulo anterior',
+            glyph('prev'),
+            () => previous !== null && requestChapter(previous, true),
+            { disabled: previous === null },
+          ),
+          skip('Retroceder 15 segundos', 'rewind', '15', () => seekBy(-15000)),
+          ui.play,
+          skip('Avanzar 15 segundos', 'forward', '15', () => seekBy(15000)),
+          button(
+            'Capítulo siguiente',
+            glyph('next'),
+            () => next !== null && requestChapter(next, true),
+            { disabled: next === null },
+          ),
+        ),
+        h('div', { class: 'player-extra' }, ui.speed, ui.voice),
       ),
-      h('div', { class: 'player-extra' }, ui.speed, ui.voice),
       ui.voiceStatus,
     );
     ensureLoaded(false);
@@ -992,7 +1006,7 @@
   /** `remember`: guardar la elección para esta voz (no cuando solo se aplica la de la voz). */
   function setSpeed(value, remember = true) {
     player.speed = clampSpeed(value);
-    if (remember) store.set(`speed:${voices.selected}`, player.speed);
+    if (remember) store.set(`voice-speed:${voices.selected}`, player.speed);
     audio.playbackRate = player.speed;
     if (ui.speed) ui.speed.textContent = speedLabel(player.speed);
     if (speedMenu) {
@@ -1277,7 +1291,7 @@
     } else if (!hadAudio && chapter.audio) {
       renderPlayer();
     } else if (ui.voice) {
-      ui.voice.textContent = currentVoiceName();
+      ui.voiceName.textContent = currentVoiceName();
     }
   }
 
@@ -1391,7 +1405,6 @@
             onclick: () => selectVoice(voice.id),
           },
           h('strong', {}, voice.name),
-          h('small', {}, voice.description),
           h('span', { class: `voice-state${ready ? ' ready' : ''}` }, status),
         ),
         api.available && voice.profile
@@ -1521,12 +1534,26 @@
     // Los tiempos son los del audio que suena, que puede ser de la voz anterior.
     const loaded = player.loaded ?? chapter.audio;
     const ms = audio.currentTime * 1000;
-    if (ui.time) ui.time.textContent = `${formatTime(ms)} / ${formatTime(loaded.durationMs)}`;
-    if (ui.progress && document.activeElement !== ui.progress)
-      ui.progress.value = String(Math.round(ms));
+    if (ui.current) ui.current.textContent = formatTime(ms);
+    if (ui.total) ui.total.textContent = formatTime(loaded.durationMs);
+    if (ui.progress) {
+      if (ui.progress.max !== String(loaded.durationMs))
+        ui.progress.max = String(loaded.durationMs);
+      if (document.activeElement !== ui.progress) ui.progress.value = String(Math.round(ms));
+      const shown = document.activeElement === ui.progress ? Number(ui.progress.value) : ms;
+      ui.progressWrap.style.setProperty(
+        '--progress',
+        `${Math.min(100, (100 * shown) / Math.max(1, loaded.durationMs))}%`,
+      );
+    }
     if (ui.play) {
-      ui.play.textContent = audio.paused ? '▶' : '❚❚';
+      if (window.LectioIcons && ui.playIcon instanceof Element) {
+        window.LectioIcons.set(ui.playIcon, audio.paused ? 'play' : 'pause');
+      } else {
+        ui.play.textContent = audio.paused ? '▶' : '❚❚';
+      }
       ui.play.setAttribute('aria-label', audio.paused ? 'Reproducir' : 'Pausar');
+      ui.play.title = audio.paused ? 'Reproducir' : 'Pausar';
     }
 
     const index = sentenceAt(loaded.sentences, ms);
