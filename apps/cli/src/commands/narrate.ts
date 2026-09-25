@@ -2,16 +2,14 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import {
-  alignVoiceUnits,
   buildVoiceUnits,
   processEpub,
-  type PauseKind,
   type ProcessedBook,
   type ProcessedChapter,
 } from '@lectio/epub-pipeline';
 import { EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
-import { mp3Silence } from '../tts/mp3.js';
-import { resolveVoice } from '../tts/voices.js';
+import { renderUnits } from '../tts/montage.js';
+import { resolveVoice, type ResolvedVoice } from '../tts/voices.js';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, formatNumber, style, userPath } from '../ui/terminal.js';
 
@@ -24,7 +22,7 @@ export interface NarrateOptions {
   rate?: string;
 }
 
-/** Un capítulo narrado, tal como lo lee el preview (`audio/manifest.json`). */
+/** Un capítulo narrado, tal como lo lee el preview (`audio/<voz>/manifest.json`). */
 export interface ManifestEntry {
   orderIndex: number;
   title: string;
@@ -42,23 +40,82 @@ export interface ManifestEntry {
   pipelineVersion: number;
 }
 
+/** Carpeta del audio de un libro con una voz: `out/<libro>/audio/<voz>`. */
+export function audioDir(bookDir: string, voice: ResolvedVoice): string {
+  return join(bookDir, 'audio', voice.id);
+}
+
+/** ¿El capítulo ya está generado con esta voz y esta versión del pipeline? */
+export function isNarrated(
+  entry: ManifestEntry | undefined,
+  voice: ResolvedVoice,
+  pipelineVersion: number,
+  dir: string,
+): boolean {
+  return (
+    entry?.voice === voice.id &&
+    entry.rate === voice.prosodyKey &&
+    entry.pipelineVersion === pipelineVersion &&
+    existsSync(join(dir, entry.audio)) &&
+    existsSync(join(dir, entry.alignment))
+  );
+}
+
 /**
- * Pausas del montaje (docs/lectio-decision-tts.md §7): las decide Lectio, no el motor.
- * Afinadas escuchando: las de Edge tras un punto y aparte, "?" o "!" se sentían largas.
+ * Narra un capítulo: una solicitud por unidad de voz, montaje con pausas propias y
+ * escritura del MP3, su alineación y el manifiesto. Lo usan la CLI y el servidor local.
  */
-export const PAUSES_MS: Record<PauseKind, number> = {
-  phrase: 140,
-  sentence: 300,
-  paragraph: 480,
-  none: 0,
-};
+export async function narrateChapter(input: {
+  book: ProcessedBook;
+  chapter: ProcessedChapter;
+  voice: ResolvedVoice;
+  dir: string;
+  provider: EdgeTtsProvider;
+  concurrency: number;
+  onProgress?: (done: number, total: number) => void;
+}): Promise<ManifestEntry> {
+  const { book, chapter, voice, dir } = input;
+  await mkdir(dir, { recursive: true });
+  // Una solicitud por oración o tramo de diálogo; el montaje pone las pausas.
+  const units = buildVoiceUnits(chapter.sentences, input.provider.maxChunkChars);
+  input.onProgress?.(0, units.length);
+  const { audio, alignment } = await renderUnits(units, {
+    provider: input.provider,
+    voice: voice.voice,
+    language: book.metadata.language,
+    concurrency: input.concurrency,
+    onProgress: input.onProgress,
+  });
+
+  const name = fileName(chapter);
+  // Escritura atómica: un corte a mitad de camino no deja un MP3 incompleto que parezca válido.
+  await writeAtomic(join(dir, `${name}.mp3`), audio);
+  await writeAtomic(join(dir, `${name}.alignment.json`), `${JSON.stringify(alignment)}\n`);
+  const entry: ManifestEntry = {
+    orderIndex: chapter.orderIndex,
+    title: chapter.title,
+    audio: `${name}.mp3`,
+    alignment: `${name}.alignment.json`,
+    durationMs: alignment.durationMs,
+    characters: chapter.characterCount,
+    voice: voice.id,
+    voiceLabel: voice.label,
+    rate: voice.prosodyKey,
+    provider: input.provider.name,
+    pipelineVersion: book.pipelineVersion,
+  };
+  // Se relee justo antes de escribir: otro capítulo pudo terminar mientras tanto.
+  const manifestPath = join(dir, 'manifest.json');
+  const manifest = await readManifest(manifestPath);
+  manifest.set(chapter.orderIndex, entry);
+  await writeManifest(manifestPath, manifest, dir);
+  return entry;
+}
 
 export async function narrate(file: string, options: NarrateOptions): Promise<void> {
   const input = userPath(file);
   const book = await processEpub(await readFile(input));
   const voice = resolveVoice(options.voice, book.metadata.language, options.rate);
-  const { narration, dialogue } = voice.prosody;
-  const prosodyKey = `narración ${narration.rate}/${narration.pitch} · diálogo ${dialogue.rate}/${dialogue.pitch}`;
   const selected = selectChapters(book, options.chapters);
   if (selected.length === 0) {
     console.error(style.red('No hay capítulos que narrar con esa selección.'));
@@ -67,10 +124,8 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
   }
 
   const slug = slugify(book.metadata.title ?? basename(input, '.epub'));
-  const dir = userPath(options.out ?? `out/${slug}/audio`);
-  await mkdir(dir, { recursive: true });
-  const manifestPath = join(dir, 'manifest.json');
-  const manifest = await readManifest(manifestPath);
+  const dir = options.out ? userPath(options.out) : audioDir(userPath(`out/${slug}`), voice);
+  const manifest = await readManifest(join(dir, 'manifest.json'));
 
   const totalChars = selected.reduce((n, c) => n + c.characterCount, 0);
   console.log(
@@ -84,65 +139,31 @@ export async function narrate(file: string, options: NarrateOptions): Promise<vo
   try {
     for (const [position, chapter] of selected.entries()) {
       const prefix = style.gray(`[${position + 1}/${selected.length}]`);
-      const name = fileName(chapter);
-      const existing = manifest.get(chapter.orderIndex);
       const reusable =
         !options.force &&
-        existing?.voice === voice.id &&
-        existing.rate === prosodyKey &&
-        existing.pipelineVersion === book.pipelineVersion &&
-        existsSync(join(dir, existing.audio)) &&
-        existsSync(join(dir, existing.alignment));
+        isNarrated(manifest.get(chapter.orderIndex), voice, book.pipelineVersion, dir);
       if (reusable) {
         console.log(`${prefix} ${chapter.title} ${style.gray('· ya estaba generado')}`);
         continue;
       }
 
       const started = performance.now();
-      // Una solicitud por oración o tramo de diálogo; el montaje pone las pausas.
-      const units = buildVoiceUnits(chapter.sentences, provider.maxChunkChars);
-      process.stdout.write(
-        `${prefix} ${chapter.title} ${style.gray(`· ${formatNumber(units.length)} unidades…`)}`,
-      );
-      const results = await mapLimit(units, concurrency, (unit) =>
-        provider.synthesize({
-          text: unit.text,
-          voiceId: voice.voice,
-          language: book.metadata.language,
-          kind: unit.kind,
-        }),
-      );
-      const pieces: Buffer[] = [];
-      const durations: number[] = [];
-      results.forEach((result, i) => {
-        const pause = mp3Silence(result.audio, PAUSES_MS[units[i]!.pauseAfter]);
-        pieces.push(result.audio, pause.audio);
-        durations.push(result.durationMs + pause.durationMs);
+      process.stdout.write(`${prefix} ${chapter.title}`);
+      const entry = await narrateChapter({
+        book,
+        chapter,
+        voice,
+        dir,
+        provider,
+        concurrency,
+        onProgress: (done, total) => {
+          if (done === 0) process.stdout.write(style.gray(` · ${formatNumber(total)} unidades…`));
+        },
       });
-      const alignment = alignVoiceUnits(units, durations);
-
-      // Escritura atómica: un corte a mitad de camino no deja un MP3 incompleto que parezca válido.
-      await writeAtomic(join(dir, `${name}.mp3`), Buffer.concat(pieces));
-      await writeAtomic(join(dir, `${name}.alignment.json`), `${JSON.stringify(alignment)}\n`);
-      manifest.set(chapter.orderIndex, {
-        orderIndex: chapter.orderIndex,
-        title: chapter.title,
-        audio: `${name}.mp3`,
-        alignment: `${name}.alignment.json`,
-        durationMs: alignment.durationMs,
-        characters: chapter.characterCount,
-        voice: voice.id,
-        voiceLabel: voice.label,
-        rate: prosodyKey,
-        provider: provider.name,
-        pipelineVersion: book.pipelineVersion,
-      });
-      await writeManifest(manifestPath, manifest, dir);
-      sent += units.reduce((n, u) => n + u.text.length, 0);
-
+      sent += chapter.characterCount;
       const seconds = ((performance.now() - started) / 1000).toFixed(1);
       console.log(
-        ` ${style.green('✓')} ${formatDuration(Math.round(alignment.durationMs / 60000))}` +
+        ` ${style.green('✓')} ${formatDuration(Math.round(entry.durationMs / 60000))}` +
           style.gray(` en ${seconds} s`),
       );
     }
@@ -185,13 +206,13 @@ function fileName(chapter: ProcessedChapter): string {
   return `${String(chapter.orderIndex).padStart(3, '0')} - ${title || 'capitulo'}`;
 }
 
-async function readManifest(path: string): Promise<Map<number, ManifestEntry>> {
+export async function readManifest(path: string): Promise<Map<number, ManifestEntry>> {
   if (!existsSync(path)) return new Map();
   const entries = JSON.parse(await readFile(path, 'utf8')) as { chapters: ManifestEntry[] };
   return new Map(entries.chapters.map((e) => [e.orderIndex, e]));
 }
 
-async function writeManifest(
+export async function writeManifest(
   path: string,
   manifest: Map<number, ManifestEntry>,
   dir: string,
@@ -206,7 +227,7 @@ async function writeManifest(
   await writeAtomic(join(dir, 'playlist.m3u'), `${playlist.join('\n')}\n`);
 }
 
-async function writeAtomic(path: string, data: string | Buffer): Promise<void> {
+export async function writeAtomic(path: string, data: string | Buffer): Promise<void> {
   const temporary = `${path}.tmp`;
   await writeFile(temporary, data);
   // En Windows no se puede reemplazar un archivo que otro programa tiene abierto (un
@@ -230,22 +251,4 @@ async function writeAtomic(path: string, data: string | Buffer): Promise<void> {
       await new Promise((resolve) => setTimeout(resolve, 300 * attempt));
     }
   }
-}
-
-/** Ejecuta `task` sobre cada elemento con como máximo `limit` en paralelo, conservando el orden. */
-async function mapLimit<T, R>(
-  items: T[],
-  limit: number,
-  task: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const results = new Array<R>(items.length);
-  let next = 0;
-  const worker = async () => {
-    while (next < items.length) {
-      const index = next++;
-      results[index] = await task(items[index]!);
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-  return results;
 }

@@ -84,23 +84,46 @@ export function findProfile(id: string): VoiceProfile | undefined {
   return VOICE_PROFILES.find((p) => p.id === id.toLowerCase());
 }
 
+/** Perfiles para un idioma, por defecto primero. */
+export function profilesFor(language: string): VoiceProfile[] {
+  const preferred = DEFAULT_PROFILES[language];
+  return VOICE_PROFILES.filter((p) => p.language === language).sort(
+    (a, b) => Number(b.id === preferred) - Number(a.id === preferred),
+  );
+}
+
+export interface ResolvedVoice {
+  /** Perfil ("gonzalo") o voz de Edge ("en-US-AndrewNeural"): también nombra la carpeta. */
+  id: string;
+  label: string;
+  /** Voz de Edge que se usa. */
+  voice: string;
+  prosody: Record<VoiceKind, Prosody>;
+  /** Resumen de la prosodia: si cambia, el audio generado ya no sirve. */
+  prosodyKey: string;
+}
+
 /** Lo que pidió el usuario (perfil o voz de Edge), o lo de por defecto para el idioma. */
 export function resolveVoice(
   requested: string | undefined,
   language: string,
-  rate: string | undefined,
-): { id: string; label: string; voice: string; prosody: Record<VoiceKind, Prosody> } {
+  rate?: string,
+): ResolvedVoice {
   const id =
     requested ?? DEFAULT_PROFILES[language] ?? DEFAULT_VOICES[language] ?? DEFAULT_VOICES.en!;
   const profile = findProfile(id);
+  const key = ({ narration, dialogue }: Record<VoiceKind, Prosody>) =>
+    `narración ${narration.rate}/${narration.pitch} · diálogo ${dialogue.rate}/${dialogue.pitch}`;
   if (profile) {
     return {
       id: profile.id,
       label: `${profile.name} · ${profile.description}`,
       voice: profile.voice,
       prosody: profile.prosody,
+      prosodyKey: key(profile.prosody),
     };
   }
   const flat = { rate: rate ?? DEFAULT_RATE, pitch: '+0%' };
-  return { id, label: id, voice: id, prosody: { narration: flat, dialogue: flat } };
+  const prosody = { narration: flat, dialogue: flat };
+  return { id, label: id.replace(/Neural$/, ''), voice: id, prosody, prosodyKey: key(prosody) };
 }

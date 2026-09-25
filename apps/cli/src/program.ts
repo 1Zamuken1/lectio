@@ -4,6 +4,7 @@ import { inspect } from './commands/inspect.js';
 import { library } from './commands/library.js';
 import { narrate, type NarrateOptions } from './commands/narrate.js';
 import { preview } from './commands/preview.js';
+import { serve } from './commands/serve.js';
 import { voices } from './commands/voices.js';
 import { style } from './ui/terminal.js';
 
@@ -66,6 +67,15 @@ export function createProgram(): Command {
     .description('Genera la biblioteca (index.html) con los libros que tienen preview.')
     .argument('[carpeta]', 'carpeta con un preview por libro', 'out')
     .action(withErrors((folder: string) => library(folder)));
+
+  program
+    .command('serve')
+    .description(
+      'Sirve la biblioteca en el navegador; desde el reproductor se elige la voz y se genera el audio.',
+    )
+    .argument('[carpeta]', 'carpeta con los previews', 'out')
+    .option('-p, --port <puerto>', 'puerto local', '4173')
+    .action(withErrors((folder: string, options: { port?: string }) => serve(folder, options)));
 
   program
     .command('voices')

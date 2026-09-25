@@ -16,33 +16,35 @@ pnpm install
 pnpm corpus:download     # descarga 8 libros de dominio público (~10 MB) a corpus/
 ```
 
-Luego, con un libro del corpus:
+Luego, prepara un libro del corpus y abre Lectio:
 
 ```bash
-pnpm lectio inspect corpus/pg-marianela.epub                   # estructura del libro en la terminal
-pnpm lectio narrate corpus/pg-marianela.epub --chapters 4-5    # audio de los capítulos 1 y 2 (~1 min)
-pnpm lectio preview corpus/pg-marianela.epub --open            # abre el libro en el navegador
+pnpm lectio preview corpus/pg-marianela.epub   # prepara el libro para leerlo en el navegador
+pnpm serve                                      # abre Lectio en http://localhost:4173
 ```
 
-En el preview:
+En http://localhost:4173 está la biblioteca: elige un mundo, pulsa **Pulsa para comenzar** y abre el libro. El audio se genera desde el reproductor, sin comandos.
 
-- **▶ en la barra inferior** reproduce el capítulo y resalta la oración que suena.
+En el libro:
+
+- **Generar con Gonzalo** (barra inferior) crea el audio del capítulo en unos segundos; luego **▶** lo reproduce y resalta la oración que suena.
+- **Botón de voz** (junto a la velocidad): Gonzalo, Jorge, Salomé o Salomé grave, cada una con **▶** para escuchar una muestra. Si el capítulo no existe con esa voz, se genera en el momento (el siguiente, por adelantado) y sigue desde la misma oración.
 - **Clic en cualquier oración** → "Escuchar desde aquí".
 - **◉ Modo revisión** marca qué se narra, qué se omite (números de página, notas, citas…) y qué cambia; clic en una oración muestra exactamente qué dirá la voz.
 - **Reporte** (pestaña superior): clasificación de cada sección, reglas de limpieza aplicadas y costo estimado del audio por proveedor.
 
-También sirve con **tus propios EPUB** (sin DRM): cambia la ruta por la de tu archivo.
+También sirve con **tus propios EPUB** (sin DRM): cambia la ruta por la de tu archivo. Para inspeccionar o narrar desde la terminal, ver los comandos.
 
 ## Comandos
 
-| Comando                                                               | Qué hace                                                                                                                                                                                                                                 |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lectio inspect <libro.epub> [--json]`                           | Estructura: secciones, tipo (narrativa, preliminar, final, notas), caracteres a narrar y reglas aplicadas.                                                                                                                               |
-| `pnpm lectio narrate <libro.epub> [--chapters 4-6,9] [--voice <voz>]` | Genera un MP3 y su alineación por capítulo en `out/<libro>/audio/`, más `playlist.m3u`. Reanudable: lo ya generado se salta. Los números son los de la columna `#` de `inspect`; sin `--chapters`, narra todos los capítulos narrativos. |
-| `pnpm lectio preview <libro.epub> [--open]`                           | Genera `out/<libro>/preview.html`: una página autocontenida con el libro, el reproductor (si hay audio) y el reporte. Deja también `book.json` y la portada para la biblioteca.                                                          |
-| `pnpm lectio library [carpeta]`                                       | Genera `out/index.html`: la portada (elección de mundo) y la estantería con los libros que tienen preview. `preview` la actualiza sola.                                                                                                  |
-| `pnpm lectio voices [es                                               | es-CO                                                                                                                                                                                                                                    | en-GB…]` | Lista las voces: los perfiles de Lectio (`gonzalo` por defecto, `jorge`, `salome`, `salome-grave`), que leen narración y diálogo con tonos distintos, y las voces de Edge. En inglés, por defecto `en-US-AndrewNeural`. |
-| `pnpm serve`                                                          | Sirve `out/` en http://localhost:4173 (alternativa a `--open`, con soporte para adelantar el audio).                                                                                                                                     |
+| Comando                                                               | Qué hace                                                                                                                                                                                                                                                                                          |
+| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lectio inspect <libro.epub> [--json]`                           | Estructura: secciones, tipo (narrativa, preliminar, final, notas), caracteres a narrar y reglas aplicadas.                                                                                                                                                                                        |
+| `pnpm lectio narrate <libro.epub> [--chapters 4-6,9] [--voice <voz>]` | Lo mismo que el botón del reproductor, desde la terminal: un MP3 y su alineación por capítulo en `out/<libro>/audio/<voz>/`, más `playlist.m3u`. Reanudable: lo ya generado se salta. Los números son los de la columna `#` de `inspect`; sin `--chapters`, narra todos los capítulos narrativos. |
+| `pnpm lectio preview <libro.epub> [--open]`                           | Genera `out/<libro>/preview.html`: una página autocontenida con el libro, el reproductor (si hay audio) y el reporte. Deja también `book.json` y la portada para la biblioteca.                                                                                                                   |
+| `pnpm lectio library [carpeta]`                                       | Genera `out/index.html`: la portada (elección de mundo) y la estantería con los libros que tienen preview. `preview` la actualiza sola.                                                                                                                                                           |
+| `pnpm lectio voices [idioma]`                                         | Lista las voces: los perfiles de Lectio (`gonzalo` por defecto, `jorge`, `salome`, `salome-grave`), que leen narración y diálogo con tonos distintos, y las voces de Edge. Filtra por idioma o región (`es`, `es-CO`, `en-GB`). En inglés, por defecto `en-US-AndrewNeural`.                      |
+| `pnpm serve [--port 4173]`                                            | Abre Lectio en http://localhost:4173: biblioteca, libros y reproductor. Desde el reproductor se elige la voz y se genera el audio que falte. Solo escucha en tu equipo.                                                                                                                           |
 
 El audio se genera con **Edge TTS**, un servicio gratuito pero no oficial de Microsoft (sin SLA). Está detrás de una interfaz para poder cambiarlo por otro proveedor; ver [`docs/lectio-decision-tts.md`](docs/lectio-decision-tts.md).
 

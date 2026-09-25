@@ -72,6 +72,24 @@
     size: store.get('size', 20),
   };
 
+  // ------------------------------------------------------------ voz elegida
+  //
+  // Cada capítulo trae su audio en cada voz generada (`audios`). `chapter.audio` es el que
+  // suena: el de la voz elegida o, si todavía no existe, el de otra voz.
+
+  const voices = {
+    selected: data.voices.some((v) => v.id === store.get('voice', null))
+      ? store.get('voice', null)
+      : (data.defaultVoice ?? data.voices[0]?.id ?? null),
+  };
+
+  function applyVoice() {
+    for (const chapter of data.chapters) {
+      chapter.audio = chapter.audios[voices.selected] ?? Object.values(chapter.audios)[0] ?? null;
+    }
+  }
+  applyVoice();
+
   // ------------------------------------------------------------ utilidades DOM
 
   function h(tag, attributes, ...children) {
@@ -716,7 +734,8 @@
       ? Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(value * 100) / 100))
       : 1;
   const speedLabel = (value) => `${value.toLocaleString('es', { maximumFractionDigits: 2 })}×`;
-  const hasAudio = data.chapters.some((c) => c.audio);
+  /** Hay reproductor si algún capítulo tiene audio o si el servidor local puede generarlo. */
+  let hasAudio = data.chapters.some((c) => c.audio);
   const audio = new Audio();
   audio.preload = 'metadata';
   const player = {
@@ -725,8 +744,15 @@
     follow: true,
     autoScrolling: false,
     speed: clampSpeed(Number(store.get('speed', 1))),
-    /** Última posición escuchada de cada capítulo: volver a uno retoma donde ibas. */
+    /**
+     * Última oración escuchada de cada capítulo: volver a uno retoma donde ibas. Se guarda
+     * la oración y no el segundo, porque cada voz tiene sus propios tiempos.
+     */
     positions: new Map(),
+    /** Audio cargado en el <audio>: cambia al elegir otra voz. */
+    src: null,
+    /** Capítulo que debe empezar a sonar apenas termine de generarse. */
+    pendingPlay: null,
   };
   const playerBar = h('section', {
     class: 'player',
@@ -764,15 +790,18 @@
     const button = (label, text, onclick, extra = {}) =>
       h('button', { class: 'tool', 'aria-label': label, title: label, onclick, ...extra }, text);
 
+    ui.voiceStatus = h('div', { class: 'voice-status', 'aria-live': 'polite' });
+    ui.voice = button('Voz del narrador', currentVoiceName(), toggleVoiceMenu, {
+      class: 'tool voice-button',
+      'aria-haspopup': 'dialog',
+      'aria-expanded': 'false',
+    });
+
     if (!chapter.audio) {
       playerBar.replaceChildren(
-        h(
-          'p',
-          { class: 'player-empty' },
-          'Este capítulo aún no tiene audio. ',
-          h('code', {}, `pnpm lectio narrate <libro>.epub --chapters ${state.chapter}`),
-        ),
+        h('div', { class: 'player-empty' }, ...emptyPlayer(chapter), ui.voiceStatus),
       );
+      renderVoiceStatus();
       return;
     }
 
@@ -833,19 +862,50 @@
         ),
         ui.progress,
       ),
-      h(
-        'div',
-        { class: 'player-extra' },
-        ui.speed,
-        h(
-          'span',
-          { class: 'player-voice', title: 'Voz' },
-          chapter.audio.voice.replace(/Neural$/, ''),
-        ),
-      ),
+      h('div', { class: 'player-extra' }, ui.speed, ui.voice),
+      ui.voiceStatus,
     );
     ensureLoaded(false);
     syncToTime();
+    renderVoiceStatus();
+  }
+
+  /** Reproductor de un capítulo sin audio: cómo generarlo, con o sin servidor local. */
+  function emptyPlayer(chapter) {
+    if (!chapter.narratable) return [h('p', {}, 'Esta sección no tiene texto que narrar.')];
+    const voice = voiceById(voices.selected);
+    if (api.available && voice?.profile) {
+      const job = jobFor(state.chapter, voices.selected);
+      return [
+        h('p', {}, 'Este capítulo aún no tiene audio.'),
+        h(
+          'div',
+          { class: 'player-empty-actions' },
+          job && job.status !== 'error'
+            ? null
+            : h(
+                'button',
+                { class: 'generate', onclick: () => generateFromHere() },
+                `Generar con ${voice.name} (≈ ${eta(chapter)})`,
+              ),
+          ui.voice,
+        ),
+      ];
+    }
+    return [
+      h(
+        'p',
+        {},
+        'Este capítulo aún no tiene audio. Para generarlo desde aquí, abre la biblioteca con ',
+        h('code', {}, 'pnpm serve'),
+        ', o en una terminal:',
+      ),
+      h(
+        'code',
+        {},
+        `pnpm lectio narrate <libro>.epub --chapters ${chapter.orderIndex} --voice ${voices.selected ?? 'gonzalo'}`,
+      ),
+    ];
   }
 
   /** Carga en el <audio> el capítulo que se está leyendo (sin reproducir). */
@@ -853,16 +913,22 @@
     const chapter = data.chapters[state.chapter];
     if (!chapter.audio) return false;
     if (player.chapter !== state.chapter) {
-      if (player.chapter !== null) player.positions.set(player.chapter, audio.currentTime);
+      if (player.chapter !== null) player.positions.set(player.chapter, player.current);
       audio.src = chapter.audio.src;
+      player.src = chapter.audio.src;
       const resume = player.positions.get(state.chapter);
-      if (resume)
-        audio.addEventListener('loadedmetadata', () => (audio.currentTime = resume), {
-          once: true,
-        });
+      if (resume >= 0) {
+        audio.addEventListener(
+          'loadedmetadata',
+          () => (audio.currentTime = (timeOfSentence(chapter, resume) ?? 0) / 1000),
+          { once: true },
+        );
+      }
       player.chapter = state.chapter;
       player.current = -1;
       setMediaSession(chapter);
+    } else if (player.src !== chapter.audio.src) {
+      switchSource();
     }
     audio.playbackRate = player.speed;
     if (play) audio.play().catch(() => {});
@@ -976,6 +1042,351 @@
   document.addEventListener('click', (event) => {
     if (speedMenu && !speedMenu.contains(event.target) && !event.target.closest('.speed'))
       closeSpeedMenu();
+  });
+
+  // ------------------------------------------------------------ voces y generación
+  //
+  // Con el servidor local (`pnpm serve`), elegir una voz sin audio la genera: primero el
+  // capítulo actual y, por adelantado, el siguiente. Abierto como archivo, solo se puede
+  // elegir entre las voces ya generadas.
+
+  const api = { available: false, jobs: [], timer: null, error: null };
+  const orderToIndex = new Map(data.chapters.map((c, i) => [c.orderIndex, i]));
+  const voiceById = (id) => data.voices.find((v) => v.id === id);
+  const bookPath = `/api/books/${encodeURIComponent(data.slug)}`;
+  /** Capítulos ya pedidos por adelantado con cada voz, para no repetir la solicitud. */
+  const prefetched = new Set();
+  /** Caracteres por segundo al generar (medido: ~25.000 caracteres en ~110 s). */
+  const CHARS_PER_SECOND = 230;
+
+  function currentVoiceName() {
+    return voiceById(voices.selected)?.name ?? data.chapters[state.chapter].audio?.label ?? 'Voz';
+  }
+
+  function eta(chapter) {
+    const seconds = Math.max(5, Math.round(chapter.characterCount / CHARS_PER_SECOND / 5) * 5);
+    return seconds < 90 ? `${seconds} s` : `${Math.round(seconds / 60)} min`;
+  }
+
+  function nextNarratable(from) {
+    for (let i = from + 1; i < data.chapters.length; i++) {
+      const chapter = data.chapters[i];
+      if (chapter.kind === 'narrative' && chapter.narratable) return i;
+    }
+    return null;
+  }
+
+  /** Trabajo pendiente (o fallido) de un capítulo con una voz. */
+  function jobFor(index, voice) {
+    const order = data.chapters[index].orderIndex;
+    return api.jobs.find((j) => j.chapter === order && j.voice === voice && j.status !== 'done');
+  }
+
+  async function detectApi() {
+    if (!location.protocol.startsWith('http') || !data.slug) return;
+    try {
+      const response = await fetch(`${bookPath}/audio`);
+      if (!response.ok) return;
+      api.available = true;
+      mergeAudio(await response.json());
+      await pollJobs();
+    } catch {
+      return; // sin servidor: solo las voces ya generadas
+    }
+    refreshPlayerAvailability();
+    renderSidebar();
+    renderPlayer();
+  }
+
+  function mergeAudio({ chapters }) {
+    for (const [order, audios] of Object.entries(chapters)) {
+      const index = orderToIndex.get(Number(order));
+      if (index !== undefined) data.chapters[index].audios = audios;
+    }
+    applyVoice();
+  }
+
+  function refreshPlayerAvailability() {
+    hasAudio = api.available || data.chapters.some((c) => c.audio);
+    playerBar.hidden = !hasAudio;
+    app.querySelector('.layout')?.classList.toggle('has-player', hasAudio);
+  }
+
+  /** Cambia el audio del capítulo que suena por el de la voz elegida, en la misma oración. */
+  function switchSource() {
+    const index = player.chapter;
+    const chapter = index === null ? null : data.chapters[index];
+    if (!chapter?.audio || chapter.audio.src === player.src) return;
+    const sentence = player.current;
+    const wasPlaying = !audio.paused;
+    player.src = chapter.audio.src;
+    audio.src = chapter.audio.src;
+    audio.addEventListener(
+      'loadedmetadata',
+      () => {
+        const ms = sentence >= 0 ? timeOfSentence(chapter, sentence) : null;
+        if (ms !== null) audio.currentTime = ms / 1000;
+        audio.playbackRate = player.speed;
+        if (wasPlaying) audio.play().catch(() => {});
+        syncToTime();
+      },
+      { once: true },
+    );
+  }
+
+  function selectVoice(id) {
+    if (id === voices.selected) return closeVoiceMenu();
+    window.LectioSound?.play('select');
+    voices.selected = id;
+    store.set('voice', id);
+    applyVoice();
+    switchSource();
+    const chapter = data.chapters[state.chapter];
+    if (api.available && voiceById(id)?.profile && chapter.narratable && !chapter.audios[id]) {
+      generateFromHere();
+    }
+    closeVoiceMenu();
+    renderSidebar();
+    renderPlayer();
+  }
+
+  /** El capítulo actual y, por adelantado, el siguiente, con la voz elegida. */
+  function generateFromHere() {
+    requestAudio(state.chapter, false);
+    const next = nextNarratable(state.chapter);
+    if (next !== null) requestAudio(next, true);
+  }
+
+  async function requestAudio(index, prefetch) {
+    const chapter = data.chapters[index];
+    const voice = voices.selected;
+    if (!api.available || !chapter?.narratable || chapter.audios[voice]) return;
+    if (!voiceById(voice)?.profile) return;
+    api.error = null;
+    try {
+      const response = await fetch(`${bookPath}/chapters/${chapter.orderIndex}/audio`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voice, prefetch }),
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || 'No se pudo generar el audio.');
+      if (body.job.status === 'done') {
+        await refreshAudio();
+      } else {
+        api.jobs = [...api.jobs.filter((j) => j.id !== body.job.id), body.job];
+        schedulePoll();
+      }
+    } catch (error) {
+      api.error = error instanceof Error ? error.message : String(error);
+    }
+    renderVoiceStatus();
+    refreshVoiceMenu();
+    if (index === state.chapter && !chapter.audio) renderPlayer();
+  }
+
+  /** Mientras suena un capítulo, se pide el siguiente para no esperar al pasar. */
+  function prefetchNext() {
+    if (!api.available || player.chapter === null) return;
+    const next = nextNarratable(player.chapter);
+    const key = `${next}:${voices.selected}`;
+    if (next === null || prefetched.has(key)) return;
+    prefetched.add(key);
+    requestAudio(next, true);
+  }
+
+  async function pollJobs() {
+    try {
+      const response = await fetch(`/api/jobs?book=${encodeURIComponent(data.slug)}`);
+      if (!response.ok) return;
+      const { jobs } = await response.json();
+      const finished = jobs.some(
+        (j) => j.status === 'done' && api.jobs.some((p) => p.id === j.id && p.status !== 'done'),
+      );
+      api.jobs = jobs;
+      if (finished) await refreshAudio();
+    } catch {
+      /* el servidor se detuvo: se reintenta en el siguiente ciclo */
+    }
+    renderVoiceStatus();
+    refreshVoiceMenu();
+    schedulePoll();
+  }
+
+  function schedulePoll() {
+    clearTimeout(api.timer);
+    if (api.jobs.some((j) => j.status === 'queued' || j.status === 'running')) {
+      api.timer = setTimeout(pollJobs, 1000);
+    }
+  }
+
+  /** Trae el audio nuevo del servidor y, si es del capítulo que suena, cambia a él. */
+  async function refreshAudio() {
+    const response = await fetch(`${bookPath}/audio`);
+    if (!response.ok) return;
+    const hadAudio = Boolean(data.chapters[state.chapter].audio);
+    mergeAudio(await response.json());
+    refreshPlayerAvailability();
+    switchSource();
+    renderSidebar();
+    const chapter = data.chapters[state.chapter];
+    if (player.pendingPlay === state.chapter && chapter.audios[voices.selected]) {
+      player.pendingPlay = null;
+      renderPlayer();
+      ensureLoaded(true);
+    } else if (!hadAudio && chapter.audio) {
+      renderPlayer();
+    } else if (ui.voice) {
+      ui.voice.textContent = currentVoiceName();
+    }
+  }
+
+  /** Estado de la generación del capítulo actual con la voz elegida, bajo el reproductor. */
+  function renderVoiceStatus() {
+    if (!ui.voiceStatus) return;
+    const chapter = data.chapters[state.chapter];
+    const voice = voiceById(voices.selected);
+    const job = jobFor(state.chapter, voices.selected);
+    const playingOther = chapter.audio && chapter.audio.voice !== voices.selected;
+    const parts = [];
+    if (api.error) {
+      parts.push(h('span', { class: 'voice-error' }, api.error));
+    } else if (job?.status === 'error') {
+      parts.push(
+        h('span', { class: 'voice-error' }, `No se pudo generar con ${voice?.name}: ${job.error}`),
+        h(
+          'button',
+          { class: 'link', onclick: () => requestAudio(state.chapter, false) },
+          'Reintentar',
+        ),
+      );
+    } else if (job) {
+      const percent = job.total ? Math.round((100 * job.done) / job.total) : 0;
+      parts.push(
+        h(
+          'span',
+          {},
+          job.status === 'queued'
+            ? `En cola: ${voice?.name ?? job.voice}…`
+            : `Generando con ${voice?.name ?? job.voice} · ${percent} %`,
+          playingOther ? ` · mientras, suena ${chapter.audio.label.split(' · ')[0]}` : '',
+        ),
+        h('progress', { max: '100', value: String(percent), 'aria-hidden': 'true' }),
+      );
+    }
+    ui.voiceStatus.replaceChildren(...parts);
+    ui.voiceStatus.hidden = parts.length === 0;
+  }
+
+  // Muestra de cada voz: se genera una vez en el servidor y queda guardada.
+  const sample = new Audio();
+  let sampleVoice = null;
+  for (const event of ['playing', 'pause', 'ended', 'waiting', 'error']) {
+    sample.addEventListener(event, () => refreshVoiceMenu());
+  }
+
+  function toggleSample(voice) {
+    if (sampleVoice === voice.id && !sample.paused) {
+      sample.pause();
+      return;
+    }
+    if (!audio.paused) audio.pause();
+    sampleVoice = voice.id;
+    sample.src = `/api/voices/${encodeURIComponent(voice.id)}/sample`;
+    sample.play().catch(() => {});
+    refreshVoiceMenu();
+  }
+
+  let voiceMenu = null;
+
+  function toggleVoiceMenu() {
+    if (voiceMenu) return closeVoiceMenu();
+    closeSpeedMenu();
+    voiceMenu = h('div', { class: 'speed-menu voice-menu', role: 'dialog', 'aria-label': 'Voz' });
+    refreshVoiceMenu();
+    document.body.append(voiceMenu);
+    const rect = ui.voice.getBoundingClientRect();
+    voiceMenu.style.right = `${Math.max(12, document.documentElement.clientWidth - rect.right)}px`;
+    voiceMenu.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+    ui.voice.setAttribute('aria-expanded', 'true');
+    voiceMenu.querySelector('.voice-pick:not(:disabled)')?.focus();
+  }
+
+  function closeVoiceMenu() {
+    voiceMenu?.remove();
+    voiceMenu = null;
+    ui.voice?.setAttribute('aria-expanded', 'false');
+    if (!sample.paused) sample.pause();
+  }
+
+  function refreshVoiceMenu() {
+    if (!voiceMenu) return;
+    const chapter = data.chapters[state.chapter];
+    const focused = document.activeElement?.dataset?.voice;
+    const rows = data.voices.map((voice) => {
+      const ready = Boolean(chapter.audios[voice.id]);
+      const job = jobFor(state.chapter, voice.id);
+      const canGenerate = api.available && voice.profile && chapter.narratable;
+      const status = ready
+        ? 'Lista'
+        : job && job.status !== 'error'
+          ? job.status === 'queued'
+            ? 'En cola'
+            : `Generando · ${job.total ? Math.round((100 * job.done) / job.total) : 0} %`
+          : canGenerate
+            ? `Se genera en ≈ ${eta(chapter)}`
+            : 'Sin generar';
+      const sampleState =
+        sampleVoice === voice.id && !sample.paused ? (sample.readyState < 3 ? '…' : '❚❚') : '▶';
+      return h(
+        'div',
+        { class: 'voice-option' },
+        h(
+          'button',
+          {
+            class: 'voice-pick',
+            'data-voice': voice.id,
+            'aria-pressed': String(voice.id === voices.selected),
+            disabled: !ready && !canGenerate,
+            onclick: () => selectVoice(voice.id),
+          },
+          h('strong', {}, voice.name),
+          h('small', {}, voice.description),
+          h('span', { class: `voice-state${ready ? ' ready' : ''}` }, status),
+        ),
+        api.available && voice.profile
+          ? h(
+              'button',
+              {
+                class: 'voice-sample',
+                'data-voice': `${voice.id}:sample`,
+                'aria-label': `Escuchar una muestra de ${voice.name}`,
+                title: 'Escuchar una muestra',
+                onclick: () => toggleSample(voice),
+              },
+              sampleState,
+            )
+          : null,
+      );
+    });
+    const note = h(
+      'p',
+      { class: 'voice-note' },
+      'Para generar otras voces desde aquí, abre la biblioteca con ',
+      h('code', {}, 'pnpm serve'),
+      '.',
+    );
+    voiceMenu.replaceChildren(
+      h('div', { class: 'speed-head' }, h('span', {}, 'Voz del narrador')),
+      h('div', { class: 'voice-list' }, rows),
+      ...(api.available ? [] : [note]),
+    );
+    if (focused) voiceMenu.querySelector(`[data-voice="${focused}"]`)?.focus();
+  }
+
+  document.addEventListener('click', (event) => {
+    if (voiceMenu && !voiceMenu.contains(event.target) && !event.target.closest('.voice-button'))
+      closeVoiceMenu();
   });
 
   // ------------------------------------------------------------ confirmación de cambio de capítulo
@@ -1224,6 +1635,7 @@
   };
   audio.addEventListener('play', () => {
     narrating(true);
+    prefetchNext();
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(tick);
     syncToTime();
@@ -1234,6 +1646,20 @@
   });
   audio.addEventListener('seeked', syncToTime);
   audio.addEventListener('ended', () => {
+    // Si el siguiente capítulo se está generando con la voz elegida, se espera por él en
+    // vez de saltarlo o de oírlo con otra voz.
+    const upcoming = nextNarratable(state.chapter);
+    if (
+      api.available &&
+      upcoming !== null &&
+      !data.chapters[upcoming].audios[voices.selected] &&
+      voiceById(voices.selected)?.profile
+    ) {
+      go(upcoming);
+      player.pendingPlay = upcoming;
+      requestAudio(upcoming, false);
+      return;
+    }
     const next = audioChapter(state.chapter, 1);
     if (next !== null) playChapter(next);
     else {
@@ -1315,13 +1741,14 @@
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeSpeedMenu();
+      closeVoiceMenu();
       closeListenChip();
       closeNote();
       closeInspector();
       sidebar.classList.remove('open');
     }
     if (state.view !== 'book' || event.altKey || event.ctrlKey || event.metaKey) return;
-    if (document.querySelector('dialog[open]') || speedMenu) return;
+    if (document.querySelector('dialog[open]') || speedMenu || voiceMenu) return;
     const typing = event.target.closest('input, textarea, button, select');
     if (event.key === ' ' && !typing && data.chapters[state.chapter].audio) {
       event.preventDefault();
@@ -1336,4 +1763,5 @@
 
   applySize();
   render();
+  detectApi();
 })();

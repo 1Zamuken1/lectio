@@ -516,6 +516,61 @@
   display: none;
 }
 
+/* ---------------------------------------------------------------- Menús del reproductor */
+
+/* Velocidad y voz: pergamino con marco de madera, esquinas rectas como el resto del HUD. */
+[data-world='scriptorium'] .speed-menu {
+  border: 3px solid var(--chrome-dark);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--px-gold-d),
+    0 5px 0 rgb(0 0 0 / 30%);
+}
+
+[data-world='scriptorium'] .speed-head {
+  font-family: var(--font-display);
+}
+
+[data-world='scriptorium'] .speed-presets button,
+[data-world='scriptorium'] .voice-pick,
+[data-world='scriptorium'] .voice-sample,
+[data-world='scriptorium'] .generate {
+  border-radius: 0;
+}
+
+[data-world='scriptorium'] .voice-pick strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+[data-world='scriptorium'] .voice-pick[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px var(--accent),
+    2px 2px 0 var(--chrome-dark);
+}
+
+/* Textos sobre la madera del reproductor: los tokens del pergamino no contrastan ahí. */
+[data-world='scriptorium'] .voice-status,
+[data-world='scriptorium'] .player-empty {
+  color: var(--chrome-ink);
+}
+
+[data-world='scriptorium'] .voice-error,
+[data-world='scriptorium'] .player .link {
+  color: var(--px-flame-core);
+}
+
+[data-world='scriptorium'] .generate {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  box-shadow: 2px 2px 0 var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .voice-status progress {
+  accent-color: var(--px-gold);
+}
+
 /* ---------------------------------------------------------------- Ajustes */
 
 .settings-panel {

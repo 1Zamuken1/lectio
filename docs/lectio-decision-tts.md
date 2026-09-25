@@ -229,3 +229,13 @@ Costo: los mismos caracteres, muchas más solicitudes (un capítulo de Marianela
 Las velocidades igualan el ritmo entre voces, que de fábrica hablan a velocidades muy distintas. En Salomé, subir el tono del diálogo sonaba artificial (su voz ya es aguda): el contraste se logra con velocidad y bajando la narración.
 
 Se evaluaron 12 voces regionales (México, EE. UU., Colombia, Perú, Venezuela, Costa Rica, Ecuador, Guatemala, Bolivia). Si hace falta más expresividad que esta, el siguiente paso es un TTS basado en modelos de lenguaje (de pago), con una prueba a ciegas contra estos perfiles.
+
+### 7.5 Elegir la voz desde el reproductor
+
+El usuario elige la voz en el reproductor, sin comandos. El navegador no puede hablar con Edge (exige cabeceras que una página no puede enviar), así que la generación pasa por el servidor local (`pnpm serve`, `apps/cli/src/commands/serve.ts`), un anticipo de la API de la app (`POST /chapters/:id/audio`, ver `lectio-arquitectura-api.md`):
+
+- `GET /api/voices/:voz/sample`: muestra de ~5 s con narración, diálogo y una pregunta; se genera una vez y queda en `out/.lectio/samples/`.
+- `POST /api/books/:libro/chapters/:n/audio`: encola el capítulo con la voz (solo perfiles). Cola de un capítulo a la vez; lo que se escucha pasa delante de lo pedido por adelantado, y lo repetido no se duplica.
+- `GET /api/jobs` y `GET /api/books/:libro/audio`: progreso y audio disponible, que el reproductor consulta cada segundo mientras hay trabajos.
+
+Al elegir una voz sin audio se generan el capítulo actual y, por adelantado, el siguiente (el *prefetch* de §6.5); mientras tanto sigue sonando la voz anterior, y al terminar se cambia en la misma oración. El audio se guarda por voz (`audio/<voz>/`), así que volver a una voz ya generada es instantáneo. La API rechaza orígenes ajenos y exige JSON, para que otra página no pueda gastar la cuota de Edge. Abierto como archivo, sin servidor, el reproductor solo ofrece las voces ya generadas.

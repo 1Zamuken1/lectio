@@ -16,7 +16,7 @@
     "check": "pnpm lint && pnpm format:check && turbo run typecheck test",
     "corpus:download": "node scripts/download-corpus.mjs",
     "lectio": "pnpm --silent --filter @lectio/cli dev",
-    "serve": "node scripts/serve.mjs"
+    "serve": "pnpm --silent --filter @lectio/cli dev serve"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
