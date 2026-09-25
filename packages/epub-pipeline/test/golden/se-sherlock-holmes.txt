@@ -1,0 +1,153 @@
+# The Adventures of Sherlock Holmes — Arthur Conan Doyle
+idioma: en · índice: nav · pipeline v1
+
+## Estructura
+  0 front_matter      65  Titlepage  [semantic: epub:type=titlepage]
+  1 front_matter    1184  Imprint  [semantic: epub:type=imprint]
+  2 narrative      18723  A Scandal in Bohemia › I  [semantic: epub:type=chapter]
+  3 narrative      21006  A Scandal in Bohemia › II  [semantic: epub:type=chapter]
+  4 narrative       5732  A Scandal in Bohemia › III  [semantic: epub:type=chapter]
+  5 narrative      48465  The Redheaded League  [semantic: epub:type=bodymatter]
+  6 narrative      37368  A Case of Identity  [semantic: epub:type=bodymatter]
+  7 narrative      50503  The Boscombe Valley Mystery  [semantic: epub:type=bodymatter]
+  8 narrative      38794  The Five Orange Pips  [semantic: epub:type=bodymatter]
+  9 narrative      48347  The Man with the Twisted Lip  [semantic: epub:type=bodymatter]
+ 10 narrative      41338  The Adventure of the Blue Carbuncle  [semantic: epub:type=bodymatter]
+ 11 narrative      52095  The Adventure of the Speckled Band  [semantic: epub:type=bodymatter]
+ 12 narrative      43968  The Adventure of the Engineer’s Thumb  [semantic: epub:type=bodymatter]
+ 13 narrative      43331  The Adventure of the Noble Bachelor  [semantic: epub:type=bodymatter]
+ 14 narrative      50175  The Adventure of the Beryl Coronet  [semantic: epub:type=bodymatter]
+ 15 narrative      52261  The Adventure of the Copper Beeches  [semantic: epub:type=bodymatter]
+ 16 back_matter     1057  Colophon  [semantic: epub:type=colophon]
+ 17 back_matter     2046  Uncopyright  [semantic: epub:type=copyright-page]
+
+## Reglas
+limpieza: S1_page_numbers=0+0 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+0
+narración: N1_noterefs=0 N2_dois=0 N3_urls=0 N4_citations=0 N5_legal=0
+warnings: ninguno
+
+## Narración: I (281 oraciones)
+[0·b0] ≠ A Scandal in Bohemia. 1.
+[1·b1] ∅ I
+[2·b2] = To Sherlock Holmes she is always the woman.
+[3·b2] = I have seldom heard him mention her under any other name.
+[4·b2] = In his eyes she eclipses and predominates the whole of her sex.
+[5·b2] = It was not that he felt any emotion akin to love for Irene Adler.
+[6·b2] = All emotions, and that one particularly, were abhorrent to his cold, precise but admirably balanced mind.
+[7·b2] = He was, I take it, the most perfect reasoning and observing machine that the world has seen, but as a lover he would have placed himself in a false position.
+[8·b2] = He never spoke of the softer passions, save with a gibe and a sneer.
+[9·b2] = They were admirable things for the observer —excellent for drawing the veil from men’s motives and actions.
+[10·b2] = But for the trained reasoner to admit such intrusions into his own delicate and finely adjusted temperament was to introduce a distracting factor which might throw a doubt upon all his mental results.
+[11·b2] = Grit in a sensitive instrument, or a crack in one of his own high-power lenses, would not be more disturbing than a strong emotion in a nature such as his.
+[12·b2] = And yet there was but one woman to him, and that woman was the late Irene Adler, of dubious and questionable memory.
+[13·b3] = I had seen little of Holmes lately.
+[14·b3] = My marriage had drifted us away from each other.
+[15·b3] = My own complete happiness, and the home-centred interests which rise up around the man who first finds himself master of his own establishment, were sufficient to absorb all my attention, while Holmes, who loathed every form of society with his whole Bohemian soul, remained in our lodgings in Baker Street, buried among his old books, and alternating from week to week between cocaine and ambition, the drowsiness of the drug, and the fierce energy of his own keen nature.
+[16·b3] = He was still, as ever, deeply attracted by the study of crime, and occupied his immense faculties and extraordinary powers of observation in following out those clues, and clearing up those mysteries which had been abandoned as hopeless by the official police.
+[17·b3] = From time to time I heard some vague account of his doings: of his summons to Odessa in the case of the Trepoff murder, of his clearing up of the singular tragedy of the Atkinson brothers at Trincomalee, and finally of the mission which he had accomplished so delicately and successfully for the reigning family of Holland.
+[18·b3] = Beyond these signs of his activity, however, which I merely shared with all the readers of the daily press, I knew little of my former friend and companion.
+[19·b4] = One night —it was on the twentieth of March, 1888 —I was returning from a journey to a patient (for I had now returned to civil practice), when my way led me through Baker Street.
+[20·b4] = As I passed the well-remembered door, which must always be associated in my mind with my wooing, and with the dark incidents of the Study in Scarlet, I was seized with a keen desire to see Holmes again, and to know how he was employing his extraordinary powers.
+[21·b4] = His rooms were brilliantly lit, and, even as I looked up, I saw his tall, spare figure pass twice in a dark silhouette against the blind.
+[22·b4] = He was pacing the room swiftly, eagerly, with his head sunk upon his chest and his hands clasped behind him.
+[23·b4] = To me, who knew his every mood and habit, his attitude and manner told their own story.
+[24·b4] = He was at work again.
+[25·b4] = He had risen out of his drug-created dreams and was hot upon the scent of some new problem.
+[26·b4] = I rang the bell and was shown up to the chamber which had formerly been in part my own.
+[27·b5] = His manner was not effusive.
+[28·b5] = It seldom was; but he was glad, I think, to see me.
+[29·b5] = With hardly a word spoken, but with a kindly eye, he waved me to an armchair, threw across his case of cigars, and indicated a spirit case and a gasogene in the corner.
+[30·b5] = Then he stood before the fire and looked me over in his singular introspective fashion.
+[31·b6] = “Wedlock suits you,” he remarked.
+[32·b6] = “I think, Watson, that you have put on seven and a half pounds since I saw you.”
+[33·b7] = “Seven!”
+[34·b7] = I answered.
+[35·b8] = “Indeed, I should have thought a little more.
+[36·b8] = Just a trifle more, I fancy, Watson.
+[37·b8] = And in practice again, I observe.
+[38·b8] = You did not tell me that you intended to go into harness.”
+[39·b9] = “Then, how do you know?”
+
+## Narración: The Man with the Twisted Lip (571 oraciones)
+[0·b0] ≠ The Man with the Twisted Lip.
+[1·b1] = Isa Whitney, brother of the late Elias Whitney, D.D., Principal of the Theological College of St. George’s, was much addicted to opium.
+[2·b1] = The habit grew upon him, as I understand, from some foolish freak when he was at college; for having read De Quincey’s description of his dreams and sensations, he had drenched his tobacco with laudanum in an attempt to produce the same effects.
+[3·b1] = He found, as so many more have done, that the practice is easier to attain than to get rid of, and for many years he continued to be a slave to the drug, an object of mingled horror and pity to his friends and relatives.
+[4·b1] = I can see him now, with yellow, pasty face, drooping lids, and pinpoint pupils, all huddled in a chair, the wreck and ruin of a noble man.
+[5·b2] = One night —it was in June, ’89 —there came a ring to my bell, about the hour when a man gives his first yawn and glances at the clock.
+[6·b2] = I sat up in my chair, and my wife laid her needlework down in her lap and made a little face of disappointment.
+[7·b3] = “A patient!” said she.
+[8·b3] = “You’ll have to go out.”
+[9·b4] = I groaned, for I was newly come back from a weary day.
+[10·b5] = We heard the door open, a few hurried words, and then quick steps upon the linoleum.
+[11·b5] = Our own door flew open, and a lady, clad in some dark-coloured stuff, with a black veil, entered the room.
+[12·b6] = “You will excuse my calling so late,” she began, and then, suddenly losing her self-control, she ran forward, threw her arms about my wife’s neck, and sobbed upon her shoulder.
+[13·b6] = “Oh, I’m in such trouble!” she cried; “I do so want a little help.”
+[14·b7] = “Why,” said my wife, pulling up her veil, “it is Kate Whitney.
+[15·b7] = How you startled me, Kate!
+[16·b7] = I had not an idea who you were when you came in.”
+[17·b8] = “I didn’t know what to do, so I came straight to you.”
+[18·b8] = That was always the way.
+[19·b8] = Folk who were in grief came to my wife like birds to a lighthouse.
+[20·b9] = “It was very sweet of you to come.
+[21·b9] = Now, you must have some wine and water, and sit here comfortably and tell us all about it.
+[22·b9] = Or should you rather that I sent James off to bed?”
+[23·b10] = “Oh, no, no!
+[24·b10] = I want the doctor’s advice and help, too.
+[25·b10] = It’s about Isa.
+[26·b10] = He has not been home for two days.
+[27·b10] = I am so frightened about him!”
+[28·b11] = It was not the first time that she had spoken to us of her husband’s trouble, to me as a doctor, to my wife as an old friend and school companion.
+[29·b11] = We soothed and comforted her by such words as we could find.
+[30·b11] = Did she know where her husband was?
+[31·b11] = Was it possible that we could bring him back to her?
+[32·b12] = It seems that it was.
+[33·b12] = She had the surest information that of late he had, when the fit was on him, made use of an opium den in the farthest east of the City.
+[34·b12] = Hitherto his orgies had always been confined to one day, and he had come back, twitching and shattered, in the evening.
+[35·b12] = But now the spell had been upon him eight-and-forty hours, and he lay there, doubtless among the dregs of the docks, breathing in the poison or sleeping off the effects.
+[36·b12] = There he was to be found, she was sure of it, at the Bar of Gold, in Upper Swandam Lane.
+[37·b12] = But what was she to do?
+[38·b12] = How could she, a young and timid woman, make her way into such a place and pluck her husband out from among the ruffians who surrounded him?
+[39·b13] = There was the case, and of course there was but one way out of it.
+
+## Narración: The Adventure of the Copper Beeches (595 oraciones)
+[0·b0] ≠ The Adventure of the Copper Beeches.
+[1·b1] = “To the man who loves art for its own sake,” remarked Sherlock Holmes, tossing aside the advertisement sheet of the Daily Telegraph, “it is frequently in its least important and lowliest manifestations that the keenest pleasure is to be derived.
+[2·b1] = It is pleasant to me to observe, Watson, that you have so far grasped this truth that in these little records of our cases which you have been good enough to draw up, and, I am bound to say, occasionally to embellish, you have given prominence not so much to the many causes célèbres and sensational trials in which I have figured but rather to those incidents which may have been trivial in themselves, but which have given room for those faculties of deduction and of logical synthesis which I have made my special province.”
+[3·b2] = “And yet,” said I, smiling, “I cannot quite hold myself absolved from the charge of sensationalism which has been urged against my records.”
+[4·b3] = “You have erred, perhaps,” he observed, taking up a glowing cinder with the tongs and lighting with it the long cherrywood pipe which was wont to replace his clay when he was in a disputatious rather than a meditative mood —“you have erred perhaps in attempting to put colour and life into each of your statements instead of confining yourself to the task of placing upon record that severe reasoning from cause to effect which is really the only notable feature about the thing.”
+[5·b4] = “It seems to me that I have done you full justice in the matter,” I remarked with some coldness, for I was repelled by the egotism which I had more than once observed to be a strong factor in my friend’s singular character.
+[6·b5] = “No, it is not selfishness or conceit,” said he, answering, as was his wont, my thoughts rather than my words.
+[7·b5] = “If I claim full justice for my art, it is because it is an impersonal thing —a thing beyond myself.
+[8·b5] = Crime is common.
+[9·b5] = Logic is rare.
+[10·b5] = Therefore it is upon the logic rather than upon the crime that you should dwell.
+[11·b5] = You have degraded what should have been a course of lectures into a series of tales.”
+[12·b6] = It was a cold morning of the early spring, and we sat after breakfast on either side of a cheery fire in the old room at Baker Street.
+[13·b6] = A thick fog rolled down between the lines of dun-coloured houses, and the opposing windows loomed like dark, shapeless blurs through the heavy yellow wreaths.
+[14·b6] = Our gas was lit and shone on the white cloth and glimmer of china and metal, for the table had not been cleared yet.
+[15·b6] = Sherlock Holmes had been silent all the morning, dipping continuously into the advertisement columns of a succession of papers until at last, having apparently given up his search, he had emerged in no very sweet temper to lecture me upon my literary shortcomings.
+[16·b7] = “At the same time,” he remarked after a pause, during which he had sat puffing at his long pipe and gazing down into the fire, “you can hardly be open to a charge of sensationalism, for out of these cases which you have been so kind as to interest yourself in, a fair proportion do not treat of crime, in its legal sense, at all.
+[17·b7] = The small matter in which I endeavoured to help the King of Bohemia, the singular experience of Miss Mary Sutherland, the problem connected with the man with the twisted lip, and the incident of the noble bachelor, were all matters which are outside the pale of the law.
+[18·b7] = But in avoiding the sensational, I fear that you may have bordered on the trivial.”
+[19·b8] = “The end may have been so,” I answered, “but the methods I hold to have been novel and of interest.”
+[20·b9] = “Pshaw, my dear fellow, what do the public, the great unobservant public, who could hardly tell a weaver by his tooth or a compositor by his left thumb, care about the finer shades of analysis and deduction!
+[21·b9] = But, indeed, if you are trivial, I cannot blame you, for the days of the great cases are past.
+[22·b9] = Man, or at least criminal man, has lost all enterprise and originality.
+[23·b9] = As to my own little practice, it seems to be degenerating into an agency for recovering lost lead pencils and giving advice to young ladies from boarding-schools.
+[24·b9] = I think that I have touched bottom at last, however.
+[25·b9] = This note I had this morning marks my zero-point, I fancy.
+[26·b9] = Read it!”
+[27·b9] = He tossed a crumpled letter across to me.
+[28·b10] = It was dated from Montague Place upon the preceding evening, and ran thus:
+[29·b11] = “Dear Mr. Holmes: —I am very anxious to consult you as to whether I should or should not accept a situation which has been offered to me as governess.
+[30·b11] = I shall call at half-past ten tomorrow if I do not inconvenience you.
+[31·b11] = Yours faithfully,
+[32·b12] = “Violet Hunter.”
+[33·b13] = “Do you know the young lady?”
+[34·b13] = I asked.
+[35·b14] = “Not I.”
+[36·b15] = “It is half-past ten now.”
+[37·b16] = “Yes, and I have no doubt that is her ring.”
+[38·b17] = “It may turn out to be of more interest than you think.
+[39·b17] = You remember that the affair of the blue carbuncle, which appeared to be a mere whim at first, developed into a serious investigation.

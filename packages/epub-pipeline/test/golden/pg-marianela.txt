@@ -1,0 +1,162 @@
+# Marianela — Benito Pérez Galdós
+idioma: es · índice: nav · pipeline v1
+
+## Estructura
+  0 front_matter       8  "Cover"  [title: título ""Cover""]
+  1 front_matter     712  The Project Gutenberg eBook of Marianela  [title: título "The Project Gutenberg eBook of Marianela"]
+  2 front_matter      82  Marianela  [heuristic?: corta y antes del cuerpo del libro]
+  3 front_matter      10  Capítulos:  [title: título "Capítulos:"]
+  4 narrative      10349  -I- Perdido  [default: sin señales de material auxiliar]
+  5 narrative      15218  -II- Guiado  [default: sin señales de material auxiliar]
+  6 narrative      11441  -III- Un diálogo que servirá de exposición  [default: sin señales de material auxiliar]
+  7 narrative      18535  -IV- La familia de piedra  [default: sin señales de material auxiliar]
+  8 narrative      12955  -V- Trabajo. Paisaje. Figura  [default: sin señales de material auxiliar]
+  9 narrative      10961  -VI- Tonterías  [default: sin señales de material auxiliar]
+ 10 narrative      12264  -VII- Más tonterías  [default: sin señales de material auxiliar]
+ 11 narrative      14481  -VIII- Prosiguen las tonterías  [default: sin señales de material auxiliar]
+ 12 narrative      20906  -IX- Los Golfines  [default: sin señales de material auxiliar]
+ 13 narrative       7554  -X- Historia de dos hijos del pueblo  [default: sin señales de material auxiliar]
+ 14 narrative      14014  -XI- El patriarca de Aldeacorba  [default: sin señales de material auxiliar]
+ 15 narrative       7605  -XII- El doctor Celipín  [default: sin señales de material auxiliar]
+ 16 narrative       7719  -XIII- Entre dos cestas  [default: sin señales de material auxiliar]
+ 17 narrative      15255  -XIV- De cómo la Virgen María se apareció a la Nela  [default: sin señales de material auxiliar]
+ 18 narrative       9472  -XV- Los tres  [default: sin señales de material auxiliar]
+ 19 narrative       7936  -XVI- La promesa  [default: sin señales de material auxiliar]
+ 20 narrative      13979  -XVII- Fugitiva y meditabunda  [default: sin señales de material auxiliar]
+ 21 narrative       9379  -XVIII- La Nela se decide a partir  [default: sin señales de material auxiliar]
+ 22 narrative      20652  -XIX- Domesticación  [default: sin señales de material auxiliar]
+ 23 narrative      14337  -XX- El nuevo mundo  [default: sin señales de material auxiliar]
+ 24 narrative      27391  -XXI- Los ojos matan  [default: sin señales de material auxiliar]
+ 25 narrative       6422  -XXII- Adiós  [default: sin señales de material auxiliar]
+ 26 back_matter    16517  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
+
+## Reglas
+limpieza: S1_page_numbers=0+0 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+0
+narración: N1_noterefs=0 N2_dois=0 N3_urls=10 N4_citations=0 N5_legal=0
+warnings: ninguno
+
+## Narración: -I- Perdido (119 oraciones)
+[0·b0] ≠ 1. Perdido.
+[1·b1] = Se puso el sol.
+[2·b1] = Tras el breve crepúsculo vino tranquila y oscura la noche, en cuyo negro seno murieron poco a poco los últimos rumores de la tierra soñolienta, y el viajero siguió adelante en su camino, apresurando su paso a medida que avanzaba la noche.
+[3·b1] = Iba por angosta vereda, de esas que sobre el césped traza el constante pisar de hombres y brutos, y subía sin cansancio por un cerro en cuyas vertientes se alzaban pintorescos grupos de guinderos, hayas y robles.
+[4·b1] = (Ya se ve que estamos en el Norte de España.)
+[5·b2] = Era un hombre de mediana edad, de complexión recia, buena talla, ancho de espaldas, resuelto de ademanes, firme de andadura, basto de facciones, de mirar osado y vivo, ligero a pesar de su regular obesidad, y (dígase de una vez aunque sea prematuro) excelente persona por doquiera que se le mirara.
+[6·b2] = Vestía el traje propio de los señores acomodados que viajan en verano, con el redondo sombrerete, que debe a su fealdad el nombre de hongo, gemelos de campo pendientes de una correa, y grueso bastón que, entre paso y paso, le servía para apalear las zarzas cuando extendían sus ramas llenas de afiladas uñas para atraparle la ropa.
+[7·b3] = Detúvose, y mirando a todo el círculo del horizonte, parecía impaciente y desasosegado.
+[8·b3] = Sin duda no tenía gran confianza en la exactitud de su itinerario y aguardaba el paso de algún aldeano que le diese buenos informes topográficos para llegar pronto y derechamente a su destino.
+[9·b4] = —No puedo equivocarme—murmuró—.
+[10·b4] = Me dijeron que atravesara el río por la pasadera... así lo hice.
+[11·b4] = Después que marchara adelante, siempre adelante.
+[12·b4] = En efecto, allá, detrás de mí queda esa apreciable villa, a quien yo llamaría Villafangosa por el buen surtido de lodos que hay en sus calles y caminos....
+[13·b4] = De modo que por aquí, adelante, siempre adelante (me gusta esta frase, y si yo tuviera escudo no le pondría otra divisa) he de llegar a las famosas minas de Socartes.
+[14·b5] = Después de andar largo trecho, añadió:
+[15·b6] = —Me he perdido, no hay duda de que me he perdido....
+[16·b6] = Aquí tienes, Teodoro Golfín, el resultado de tu adelante, siempre adelante.
+[17·b6] = Estos palurdos no conocen el valor de las palabras.
+[18·b6] = O han querido burlarse de ti, o ellos mismos ignoran dónde están las minas de Socartes.
+[19·b6] = Un gran establecimiento minero ha de anunciarse con edificios, chimeneas, ruido de arrastres, resoplido de hornos, relincho de caballos, trepidación de máquinas, y yo no veo, ni huelo, ni oigo nada....
+[20·b6] = Parece que estoy en un desierto... ¡qué soledad!
+[21·b6] = Si yo creyera en brujas, pensaría que mi destino me proporcionaba esta noche el honor de ser presentado a ellas....
+[22·b6] = ¡Demonio!, ¿pero no hay gente en estos lugares?...
+[23·b6] = Aún falta media hora para la salida de la luna.
+[24·b6] = ¡Ah!, bribona, tú tienes la culpa de mi extravío....
+[25·b6] = Si al menos pudiera conocer el sitio donde me encuentro....
+[26·b6] = ¿Pero qué más da?
+[27·b6] = (Al decir esto, hizo un gesto propio del hombre esforzado que desprecia los peligros).
+[28·b6] = Golfín, tú que has dado la vuelta al mundo, ¿te acobardarás ahora?...
+[29·b6] = ¡Ah!, los aldeanos tenían razón: adelante, siempre adelante.
+[30·b6] = La ley universal de la locomoción no puede fallar en este momento.
+[31·b7] = Y puesta denodadamente en ejecución aquella osada ley, recorrió un kilómetro, siguiendo a capricho las veredas que le salían al paso y se cruzaban y se quebraban en ángulos mil, cual si quisiesen engañarle y confundirle más.
+[32·b7] = Por grande que fuera su resolución e intrepidez, al fin tuvo que pararse.
+[33·b7] = Las veredas, que al principio subían, luego empezaron a bajar, enlazándose; y al fin bajaron tanto, que nuestro viajero hallose en un talud, por el cual sólo habría podido descender echándose a rodar.
+[34·b8] = —¡Bonita situación!—exclamó sonriendo y buscando en su buen humor lenitivo a la enojosa contrariedad—.
+[35·b8] = ¿En dónde estás, querido Golfín?
+[36·b8] = Esto parece un abismo.
+[37·b8] = ¿Ves algo allá abajo?
+[38·b8] = Nada, absolutamente nada... pero el césped ha desaparecido, el terreno está removido.
+[39·b8] = Todo es aquí pedruscos y tierra sin vegetación, teñida por el óxido de hierro....
+
+## Narración: -XII- El doctor Celipín (98 oraciones)
+[0·b0] ≠ 12. El doctor Celipín.
+[1·b1] = El señor Centeno, después de recrear su espíritu en las borrosas columnas del Diario, y la Señana, después de gustar el más embriagador deleite sopesando lo contenido en el calcetín, se acostaron.
+[2·b1] = Habían marchado también los hijos a reposar sobre sus respectivos colchones.
+[3·b1] = Oyose en la sala una retahíla que parecía oración o romance de ciego; oyéronse bostezos, sobre los cuales trazaba cruces el perezoso dedo....
+[4·b1] = La familia de piedra dormía.
+[5·b2] = Cuando la casa fue el mismo Limbo, oyose en la cocina rumorcillo como de alimañas que salen de sus agujeros para buscarse la vida.
+[6·b2] = Las cestas se abrieron y Celipín oyó estas palabras:
+[7·b3] = —Celipín, esta noche sí que te traigo un buen regalo; mira.
+[8·b4] = Celipín no podía distinguir nada; pero alargando su mano tomó de la de María dos duros como dos soles, de cuya autenticidad se cercioró por el tacto, ya que por la vista difícilmente podía hacerlo, quedándose pasmado y mudo.
+[9·b5] = —Me los dio D. Teodoro—añadió la Nela—para que me comprara unos zapatos.
+[10·b5] = Como yo para nada necesito zapatos, te los doy, y así pronto juntarás aquello.
+[11·b6] = —¡Córcholis!, ¡que eres más buena que María Santísima!...
+[12·b6] = Ya poco me falta, Nela, y en cuanto apande media docena de reales... ya verán quién es Celipín.
+[13·b7] = —Mira, hijito, el que me ha dado ese dinero andaba por las calles pidiendo limosna cuando era niño, y después....
+[14·b8] = —¡Córcholis!
+[15·b8] = ¡Quién lo había de decir!...
+[16·b8] = D. Teodoro....
+[17·b8] = ¡Y ahora tiene más dinero!...
+[18·b8] = Dicen que lo que tiene no lo cargan seis mulas.
+[19·b9] = —Y dormía en las calles y servía de criado y no tenía calzones... en fin, que era más pobre que las ratas.
+[20·b9] = Su hermano D. Carlos vivía en una casa de trapo viejo.
+[21·b10] = —¡Jesús!
+[22·b10] = ¡Córcholis!
+[23·b10] = Y qué cosas se ven por esas tierras....
+[24·b10] = Yo también me buscaré una casa de trapo viejo.
+[25·b11] = —Y después tuvo que ser barbero para ganarse la vida y poder estudiar.
+[26·b12] = —Miá tú... yo tengo pensado irme derecho a una barbería....
+[27·b12] = Yo me pinto solo para rapar....
+[28·b12] = ¡Pues soy yo poco listo en gracia de Dios!
+[29·b12] = Desde que yo llegue a Madrid, por un lado rapando y por otro estudiando, he de aprender en dos meses toda la ciencia.
+[30·b12] = Miá tú, ahora se me ha ocurrido que debo tirar para médico....
+[31·b12] = Sí, médico, que echando una mano a este pulso, otra mano al otro, se llena de dinero el bolsillo.
+[32·b13] = —D. Teodoro—dijo la Nela—tenía menos que tú, porque tú vas a tener cinco duros, y con cinco duros parece que todo se ha de venir a la mano.
+[33·b13] = Aquí de los hombres guapos.
+[34·b13] = Don Teodoro y D. Carlos eran como los pájaros que andan solos por el mundo.
+[35·b13] = Ellos con su buen gobierno se volvieron sabios.
+[36·b13] = D. Teodoro leía en los muertos y D. Carlos leía en las piedras, y así los dos aprendieron el modo de hacerse personas cabales.
+[37·b13] = Por eso es D. Teodoro tan amigo de los pobres.
+[38·b13] = Celipín, si me hubieras visto esta tarde cuando me llevaba al hombro....
+[39·b13] = Después me dio un vaso de leche y me echaba unas miradas como las que se echan a las señoras.
+
+## Narración: -XXII- Adiós (48 oraciones)
+[0·b0] ≠ 22. Adiós.
+[1·b1] = ¡Cosa rara, inaudita!
+[2·b1] = La Nela que nunca había tenido cama, ni ropa, ni zapatos, ni sustento, ni consideración, ni familia, ni nada propio, ni siquiera nombre, tuvo un magnífico sepulcro que causó no pocas envidias entre los vivos de Socartes.
+[3·b1] = Esta magnificencia póstuma fue la más grande ironía que se ha visto en aquellas tierras calaminíferas.
+[4·b1] = La señorita Florentina, consecuente con sus sentimientos generosos, quiso atenuar la pena de no haber podido socorrer en vida a la Nela, con la satisfacción de honrar sus pobres despojos después de la muerte.
+[5·b1] = Algún positivista empedernido, criticona por esto; pero nosotros vemos en tan desusado hecho una prueba más de la delicadeza de su alma.
+[6·b2] = Cuando la enterraron, los curiosos que fueron a verla ¡esto sí que es inaudito y raro! la encontraron casi bonita; al menos así lo decían.
+[7·b2] = Fue la única vez que recibió adulaciones.
+[8·b3] = Los funerales se celebraron con pompa, y los clérigos de Villamojada abrieron tamaña boca al ver que se les daba dinero por echar responsos a la hija de la Canela.
+[9·b3] = Era estupendo, fenomenal que un ser cuya importancia social había sido casi semejante a la de los insectos, fuera causa de encender muchas luces, de tender muchos paños y de poner roncos a sochantres y sacristanes.
+[10·b3] = Esto, a fuerza de ser extraño, rayaba en lo chistoso.
+[11·b3] = No se habló de otra cosa en seis meses.
+[12·b4] = La sorpresa y... dígase de una vez, la indignación de aquellas buenas muchedumbres llegaron a su colmo cuando vieron que por el camino adelante venían dos carros cargados con enormes piezas de piedra blanca y fina.
+[13·b4] = ¡Ah!
+[14·b4] = En el entendimiento de la Señana se verificaba una espantosa confusión de ideas, un verdadero cataclismo intelectual, un caos, al considerar que aquellas piedras blancas y finas eran el sepulcro de la Nela.
+[15·b4] = Si ante la Señana volara un buey o discurriera su marido, ya no le llamaría la atención.
+[16·b5] = Revolvieron los libros parroquiales de Villamojada, porque era preciso que después de muerta tuviera un nombre fijo la que se había pasado sin él en vida, como lo prueba esta misma historia, donde se la nombra de distintos modos.
+[17·b5] = Hallado aquel requisito indispensable para figurar en los archivos de la muerte, la magnífica piedra sepulcral que se ostentaba orgullosa en medio de las rústicas cruces del cementerio de Aldeacorba tenía grabados estos renglones:
+[18·b6] ≠ R. I. P. MARÍA MANUELA TÉLLEZ RECLAMOLA EL CIELO EN 12 DE OCTUBRE DE 186...
+[19·b7] = Una guirnalda de flores primorosamente tallada en el mármol coronaba esta inscripción.
+[20·b7] = Algunos meses después, cuando ya Florentina y Pablo Penáguilas se habían casado y cuando (dígase la verdad, porque la verdad es antes que todo)... cuando nadie en Aldeacorba de Suso se acordaba ya de la Nela, fueron viajando por aquellos países unos extranjeros de esos que llaman turistas, y luego que vieron el soberbio túmulo de mármol alzado en el cementerio por la piedad religiosa y el afecto sublime de una ejemplar mujer, se quedaron embobados de admiración, y sin más averiguaciones escribieron en su cartera de apuntes estas observaciones, que con el título de Sketches from Cantabria publicó más tarde un periódico inglés.
+[21·b8] = «Lo que más sorprende en Aldeacorba es el espléndido sepulcro erigido en el cementerio, sobre la tumba de una ilustre joven, célebre en aquel país por su hermosura.
+[22·b8] = Doña Mariquita Manuela Téllez perteneció a una de las familias más nobles y acaudaladas de Cantabria, la familia de Téllez Girón y de Trastamara.
+[23·b8] = De un carácter espiritual, poético y algo caprichoso, tuvo el antojo (take a fancy) de andar por los caminos tocando la guitarra y cantando odas de Calderón, y se vestía de andrajos para confundirse con la turba de mendigos, buscones, trovadores, toreros, frailes, hidalgos, gitanos y muleteros, que en las kermesas forman esa abigarrada plebe española que subsiste y subsistirá siempre, independiente y pintoresca, a pesar de los rails y de los periódicos que han empezado a introducirse en la península occidental.
+[24·b8] = El abad de Villamojada lloraba hablándonos de los caprichos, de las virtudes y de la belleza de la aristocrática ricahembra, la cual sabía presentarse en los saraos, fiestas y cañas de Madrid con el porte (deportment) más aristocrático.
+[25·b8] = Es incalculable el número de bellos romanceros, sonetos y madrigales compuestos en honor de esta gentil doncella por todos los poetas españoles.»
+[26·b9] = Bastome leer esto para comprender que los dignos reporters habían visto visiones.
+[27·b9] = Traté de averiguar la verdad, y de la verdad que averigüé resultó este libro.
+[28·b10] = Despidámonos para siempre de esta tumba, de la cual se ha hablado en El Times.
+[29·b10] = Volvamos los ojos hacia otro lado, busquemos a otro ser, rebusquémosle, porque es tan chico que apenas se ve, es un insecto imperceptible, más pequeño sobre la faz del mundo que el philloxera en la breve extensión de la viña.
+[30·b10] = Al fin le vemos; allí está, pequeño, mezquino, atomístico.
+[31·b10] = Pero tiene alientos y logrará ser grande.
+[32·b10] = Oíd su historia, que es de las más interesantes....
+[33·b11] = Pues señor....
+[34·b12] = Pero no: este libro no le corresponde.
+[35·b12] = Acoged bien el de Marianela y a su debido tiempo se os dará el de Celipín.
+[36·b13] = FIN DE «MARIANELA»
+[37·b14] = Madrid.—Enero de 1878.
+[38·b15] = *** END OF THE PROJECT GUTENBERG EBOOK MARIANELA ***
+[39·b16] = Updated editions will replace the previous one—the old editions will be renamed.

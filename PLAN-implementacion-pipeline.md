@@ -215,12 +215,14 @@ Ajustes que salieron de mirarlo: título del capítulo duplicado con el encabeza
 
 ### Fase 7 — Golden tests sobre el corpus
 
-- [ ] Descargar el corpus (lista abajo).
-- [ ] Por libro, guardar en `test/golden/` la narración de 2–3 capítulos elegidos y el resumen del reporte. Solo se versiona el texto derivado, no los EPUB.
-- [ ] Métrica de regresión: porcentaje de caracteres narrados sobre caracteres del cuerpo, por libro, con una tolerancia (ej. ±2 %).
-- [ ] Los tests golden se saltan automáticamente si el corpus no está descargado (para que `pnpm test` funcione en un clon limpio).
+- [x] Descargar el corpus (lista abajo).
+- [x] Por libro, guardar en `test/golden/` la narración de 2–3 capítulos elegidos y el resumen del reporte. Solo se versiona el texto derivado, no los EPUB.
+- [x] Métrica de regresión: porcentaje de caracteres narrados sobre caracteres del cuerpo, por libro, con una tolerancia (ej. ±2 %).
+- [x] Los tests golden se saltan automáticamente si el corpus no está descargado (para que `pnpm test` funcione en un clon limpio).
 
 **Listo cuando:** los 6 libros del corpus se procesan sin errores fatales y revisaste sus previews.
+
+**Hecho.** `test/golden/<libro>.txt` con la estructura completa y 40 oraciones de tres capítulos por libro (vitest `toMatchFileSnapshot`), más `metrics.json` con el porcentaje narrado (tolerancia ±2 puntos). Tras un cambio intencional: `pnpm --filter @lectio/epub-pipeline golden:update`. Verificado con una mutación: cambiar el punto final del anuncio hace fallar los 8 libros.
 
 ### Fase 8 — Chunking, alineación y `narrate`
 

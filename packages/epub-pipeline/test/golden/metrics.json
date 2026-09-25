@@ -1,0 +1,42 @@
+{
+  "idpf-accessible-epub-3": {
+    "sections": 20,
+    "narrative": 16,
+    "narratedPercent": 91.6
+  },
+  "idpf-moby-dick": {
+    "sections": 143,
+    "narrative": 137,
+    "narratedPercent": 100
+  },
+  "idpf-wasteland-otf-obf": {
+    "sections": 7,
+    "narrative": 5,
+    "narratedPercent": 100
+  },
+  "pg-becquer-obras-escogidas": {
+    "sections": 29,
+    "narrative": 24,
+    "narratedPercent": 100
+  },
+  "pg-don-quijote": {
+    "sections": 142,
+    "narrative": 133,
+    "narratedPercent": 100
+  },
+  "pg-marianela": {
+    "sections": 27,
+    "narrative": 22,
+    "narratedPercent": 100
+  },
+  "se-sherlock-holmes": {
+    "sections": 18,
+    "narrative": 14,
+    "narratedPercent": 100
+  },
+  "se-vindication-rights-woman": {
+    "sections": 20,
+    "narrative": 14,
+    "narratedPercent": 100
+  }
+}

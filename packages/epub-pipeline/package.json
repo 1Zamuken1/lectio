@@ -19,7 +19,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "golden:update": "cross-env LECTIO_GOLDEN_UPDATE=1 vitest run test/corpus/golden.test.ts -u"
   },
   "dependencies": {
     "entities": "^8.1.0",
@@ -31,6 +32,7 @@
     "@types/node": "^24.0.0",
     "@types/yauzl": "^3.4.0",
     "@types/yazl": "^3.3.1",
+    "cross-env": "^10.1.0",
     "typescript": "~6.0.3",
     "vitest": "^5.0.2",
     "yazl": "^3.3.1"

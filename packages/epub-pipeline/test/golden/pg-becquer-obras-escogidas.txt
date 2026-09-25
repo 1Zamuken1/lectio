@@ -1,0 +1,164 @@
+# Obras escogidas — Gustavo Adolfo Bécquer
+idioma: es · índice: nav · pipeline v1
+
+## Estructura
+  0 front_matter       8  "Cover"  [title: título ""Cover""]
+  1 front_matter    1068  The Project Gutenberg eBook of Obras escogidas  [title: título "The Project Gutenberg eBook of Obras escogidas"]
+  2 front_matter     505  OBRAS ESCOGIDAS  [heuristic?: aviso legal fuera del cuerpo del libro]
+  3 narrative      12662  Á MANERA DE PRÓLOGO  [default: sin señales de material auxiliar]
+  4 narrative       5282  INTRODUCCIÓN  [default: sin señales de material auxiliar]
+  5 narrative      29488  LEYENDAS › MAESE PÉREZ EL ORGANISTA  [default: sin señales de material auxiliar]
+  6 narrative      14788  LEYENDAS › LOS OJOS VERDES  [default: sin señales de material auxiliar]
+  7 narrative      19946  LEYENDAS › EL RAYO DE LUNA  [default: sin señales de material auxiliar]
+  8 narrative      37370  LEYENDAS › TRES FECHAS  [default: sin señales de material auxiliar]
+  9 narrative      37181  LEYENDAS › LA CORZA BLANCA  [default: sin señales de material auxiliar]
+ 10 narrative      17535  LEYENDAS › LA ROSA DE PASIÓN  [default: sin señales de material auxiliar]
+ 11 narrative      19379  LEYENDAS › LA PROMESA  [default: sin señales de material auxiliar]
+ 12 narrative      15522  LEYENDAS › EL MONTE DE LAS ÁNIMAS  [default: sin señales de material auxiliar]
+ 13 narrative      29121  LEYENDAS › EL GNOMO  [default: sin señales de material auxiliar]
+ 14 narrative      19108  LEYENDAS › EL MISERERE  [default: sin señales de material auxiliar]
+ 15 narrative       7333  LEYENDAS › LAS HOJAS SECAS  [default: sin señales de material auxiliar]
+ 16 narrative      23193  LEYENDAS › LA VENTA DE LOS GATOS  [default: sin señales de material auxiliar]
+ 17 narrative      31496  DESDE MI CELDA › CARTA PRIMERA  [default: sin señales de material auxiliar]
+ 18 narrative      18847  DESDE MI CELDA › CARTA SEGUNDA  [default: sin señales de material auxiliar]
+ 19 narrative      22889  DESDE MI CELDA › CARTA TERCERA  [default: sin señales de material auxiliar]
+ 20 narrative      17894  DESDE MI CELDA › CARTA CUARTA  [default: sin señales de material auxiliar]
+ 21 narrative      18232  DESDE MI CELDA › CARTA QUINTA  [default: sin señales de material auxiliar]
+ 22 narrative      25330  DESDE MI CELDA › CARTA SEXTA  [default: sin señales de material auxiliar]
+ 23 narrative      25486  DESDE MI CELDA › CARTA SÉPTIMA  [default: sin señales de material auxiliar]
+ 24 narrative      24427  DESDE MI CELDA › CARTA OCTAVA  [default: sin señales de material auxiliar]
+ 25 narrative      18743  DESDE MI CELDA › CARTA NOVENA  [default: sin señales de material auxiliar]
+ 26 narrative      37182  RIMAS  [default: sin señales de material auxiliar]
+ 27 back_matter     1826  ÍNDICE  [title: título "ÍNDICE"]
+ 28 back_matter    16521  THE FULL PROJECT GUTENBERG™ LICENSE  [title: título "THE FULL PROJECT GUTENBERG™ LICENSE"]
+
+## Reglas
+limpieza: S1_page_numbers=0+352 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=0+1
+narración: N1_noterefs=1 N2_dois=0 N3_urls=12 N4_citations=0 N5_legal=0
+warnings: ninguno
+
+## Narración: Á MANERA DE PRÓLOGO (50 oraciones)
+[0·b0] ≠ Á manera de prólogo.
+[1·b2] = Ciudad de Sevilla:
+[2·b3] = Venimos siempre á ti, como á madre amorosa, á tomar luz para nuestro espíritu mirándote á los ojos, y á fortalecer nuestro corazón con tus recuerdos.
+[3·b3] = Henos hoy aquí una vez más; sólo que esta vez, con la alegría de volver á verte, traemos también otra: la de haber cumplido el ofrecimiento que te hicimos ha poco más de un año.
+[4·b3] = Y como si tenemos el pudor de nuestros dolores, tenemos en cambio la generosidad de nuestra alegría, y la que sentimos en estos instantes es tan pura y tan honda, deseamos compartirla con todos.
+[5·b4] = Venimos á ofrecerte, Sevilla, el monumento á Bécquer, erigido por dicha, y para mayor gloria del poeta, en el tiempo materialmente preciso para tallar el mármol y fundir el bronce.
+[6·b4] = Quiere esto decir, que nuestra voz, al llamar á todos para glorificarlo, no necesitó esfuerzo alguno, sino que halló prontamente eco de simpatía en el corazón de los españoles, y al punto se vió el halda de la Ensoñadora, nuestra mensajera ideal, llena de flores y monedas derramadas en ella por manos generosas: desde la augusta y fina mano de la reina de España, hasta la tosca y dura de quien tuvo que dejar la azada para entregar su ofrenda.
+[7·b4] = Juntas cayeron en el halda de la Ensoñadora las de los reyes y las del pueblo: sólo el amor es capaz de conseguir victorias tales, y acaso nada como la poesía las merezca.
+[8·b5] = El monumento que luego veréis en nuestro hermoso Parque, débese, pues, á España entera: España entera ha contribuído á realizar esta obra de justicia, de cultura y de amor; España entera ha tenido fiestas para el poeta, y poetas que á su vez lo canten; España entera se ha estremecido al nombre de Bécquer, como al contacto de mágica varita que hiriera las fibras más nobles y delicadas del alma.
+[9·b5] = Y nosotros, promotores de la empresa, que á muchos pudo parecer quijotesca aventura, y de la cual salimos orgullosos y ufanos, con la profunda y serena alegría de quien hace el bien por el bien mismo, al verla dichosamente rematada, sin que ningún guijarro de ningún malandrín acertara siquiera á rozarnos la piel, tenemos el deber de proclamarlo aquí, para que la misma aura que de corazón en corazón llevó la voz de nuestra idea, de corazón en corazón lleve también la de su resultado, y con ella la alentadora confianza en la viva eficacia de todo lo noble y lo bueno.
+[10·b6] = Erigido, como hemos dicho, el monumento á Bécquer merced á la cooperación de muchos buenos españoles, hay uno entre todos que merece primero que ninguno vuestra gratitud y vuestra simpatía más cordial: nos referimos al escultor Lorenzo Coullaut Valera, sin cuya colaboración espontánea es casi seguro que no se hubiera efectuado esta empresa, á lo menos tan rápida y felizmente.
+[11·b6] = No sólo puso al servicio de ella su arte de escultor, sino su corazón de poeta; y así, con inspiración luminosa y liberal entusiasmo, dió gallarda cima al monumento, obra tal vez la más bella y cabal que de sus manos salió nunca, y no quiso, ni siquiera pensó jamás, recibir por el primoroso trabajo otra recompensa que la de su propia satisfacción.
+[12·b7] = Este deseo de consagrarle á Bécquer un perdurable recuerdo en su patria, fué siempre sueño de los artistas sevillanos.
+[13·b7] = Años ha, reuniéronse todos ellos al calor de la idea, y realizaron un fervoroso homenaje al poeta querido, como primera piedra ideal, si cabe expresar esto así, de un monumento que entonces no llegó á levantarse.
+[14·b8] = Alma y vida de aquel movimiento fué el glorioso escultor Antonio Susillo, hermano espiritual de Bécquer, malogrado también como él, y que como él se llevó á la tierra al morir incalculables tesoros de la fantasía, flores del más puro genio sevillano.
+[15·b8] = Puede decirse de ellos, que si hubieran manejado á la inversa el cincel y la pluma, Bécquer sería el autor de los portentosos relieves del uno, y Susillo habría escrito las doradas leyendas y las aéreas rimas del otro.
+[16·b9] = Jóvenes y heridos por el dolor de la vida cayeron ambos.
+[17·b9] = Con el último suspiro de Bécquer comenzó el resplandor creciente de su gloria: en la trágica muerte de Susillo pensamos todos que aquella mano, siempre dócil como esclava sumisa á su pensamiento, sólo una vez debió serle rebelde.
+[18·b10] = Pues bien: sevillano como Susillo y discípulo de él es el autor del monumento á Bécquer que en el Parque se eleva.
+[19·b10] = Junto á Susillo recibió los primeros estímulos y las primeras inspiraciones en su arte.
+[20·b10] = Y acaso recibió también del maestro, por misteriosa compenetración de las almas, la poética herencia de modelar para su patria la noble frente del cantor de las golondrinas.
+[21·b11] = Hemos dicho que la gloria de Bécquer nació en su tumba.
+[22·b11] = En efecto, así fué.
+[23·b11] = No le acariciaron en vida los halagos del «aura de aplausos» que acompaña siempre á la gloria literaria, ni reflejó sobre su cabeza la luz de la «nube radiosa» que siempre la sigue.
+[24·b11] = El, sin embargo, sabía que «algo divino» llevaba en la frente.
+[25·b11] = Estimulada y acrecentada la admiración de unos cuantos amigos suyos, poetas y pintores, por el dolor de su temprana muerte, reunieron con cariño sus obras y las publicaron, librándolas tal vez de una completa oscuridad.
+[26·b12] = Jamás poeta alguno, al menos en España, tuvo más rápida y efusiva consagración.
+[27·b12] = De mano en mano corrieron sus libros y de boca en boca su nombre, y no hubo labios de mujer por donde no pasaran sus rimas, como aliento suave, como canción de brisa que separa las hojas de una flor.
+[28·b12] = En el corazón de la Humanidad late oculto un espíritu de justicia, y cuando se deja morir en el desamparo y el olvido á un hombre como Bécquer, ese espíritu se siente sacudido por algo que es justicia y remordimiento á la vez, y se quiere entonces reparar la grave falta cometida, enterrando en rosas las cenizas del muerto.
+[29·b12] = Siquiera sea tardía, bien venida sea esta póstuma reparación.
+[30·b13] = Oteando en los esplendorosos horizontes de la poesía lírica castellana del pasado siglo, en que vivió el poeta, y fijándonos sólo en aquellos altos luminares cuya luz fué más difundida y más potente, vemos cómo á los acentos roncos y viriles de Quintana y Gallego, de robusta y épica vena, que le prestaban á la patria herida vigor y temple en sus flaquezas y desmayos, sucede el glorioso período romántico, en el cual la musa de Espronceda, apasionada y tumultuosa, de soberano aliento y fuerte originalidad, avasalla, inquieta y cautiva á todos; y donde el estro espléndido de Zorrilla, verbo poético de nuestra habla, canta como hijo de alondra y de ruiseñor la hermosura de la Naturaleza, y como trovador errante las caballerescas leyendas del pueblo y las grandezas de los ricos alcázares, llenando los cielos de luz, los campos de flores, las selvas de pájaros alegres, y el mundo ideal de colores risueños v de brillantes fantasías.
+[31·b13] = Y después de estos grandes poetas, todo nervio y pujanza, todo llama, fuerza y galanura, aparece Bécquer, delicado, amoroso, íntimo, sentimental, doliente, con caminar misterioso y callado, con voz insinuante y acariciadora, y le da á la poesía lírica de su siglo una hora de luz de luna, que si en sí misma tiene encanto magnético, túvolo doble en aquella sazón, en medio de los fulgores de sol que la precedieron y de los que habían de seguirla.
+[32·b14] = Luz de luna, sí; luz de luna es toda su poesía, porque luz de luna llevaba en el alma.
+[33·b14] = Su bondad resignada fué el resplandor templado y celeste á cuyos rayos escribió sus páginas cautivadoras.
+[34·b14] = Soñó, y parecieron sus sueños tocados de la quimera y de la fiebre del insomnio, como hijos de la noche; amó, y fueron sus amores melancólicos y dolorosamente sumisos; y poníase la mano en el corazón por que sus latidos no sonasen, y le temía al resplandor de la aurora; lloró mucho, y en su inagotable ternura se confortó con el consuelo de saber que aún le quedaban lágrimas.
+[35·b14] = Y estos sentimientos, que tan inefable perfume prestan á su poesía, hallan el molde más dúctil y apropiado en la suave forma de sus rimas aladas, y el eco más acorde en la tenue música y en el impreciso y vago ritmo de sus versos.
+[36·b15] = Hay quien ha pretendido oscurecer la diáfana gloria de Bécquer, haciendo pasar sobre ella una ligera nube; motejándolo de imitador de Enrique Heine.
+[37·b15] = Nada más injusto ni más inexacto tampoco.
+[38·b15] = Hace falta padecer la obsesión de los parentescos literarios, de las afinidades y analogías, cuando no la manía persecutoria del plagio, que suele trastornar á muchos adoradores de este ó el otro ídolo, para no ver la esencial diferencia, la absoluta disparidad que existe entre estos dos espíritus, cualquiera que sea la medida de su grandeza.
+[39·b15] = Fueron notas características del genio de Heine el sarcasmo, la burla y la ironía; fuéronlo del de Bécquer la resignación y la ternura.
+
+## Narración: LAS HOJAS SECAS (73 oraciones)
+[0·b0] ≠ Las hojas secas.
+[1·b2] = El sol se había puesto: las nubes, que cruzaban hechas girones sobre mi cabeza, iban á amontonarse unas sobre otras en el horizonte lejano.
+[2·b2] = El viento frío de las tardes de otoño arremolinaba las hojas secas á mis pies.
+[3·b3] = Yo estaba sentado al borde de un camino, por donde siempre vuelven menos de los que van.
+[4·b4] = No sé en qué pensaba, si en efecto pensaba entonces en alguna cosa.
+[5·b4] = Mi alma temblaba á punto de lanzarse al espacio, como el pájaro tiembla y agita ligeramente las alas antes de levantar el vuelo.
+[6·b5] = Hay momentos en que, merced á una serie de abstracciones, el espíritu se sustrae á cuanto le rodea, y replegándose en sí mismo analiza y comprende todos los misteriosos fenómenos de la vida interna del hombre.
+[7·b6] = Hay otros en que se desliga de la carne, pierde su personalidad y se confunde con los elementos de la naturaleza, se relaciona con su modo de ser, y traduce su incomprensible lenguaje.
+[8·b7] = Yo me hallaba en uno de estos últimos momentos, cuando solo y en medio de la escueta llanura oí hablar cerca de mí.
+[9·b8] = Eran dos hojas secas las que hablaban, y éste, poco más ó menos, su extraño diálogo:
+[10·b9] = —¿De dónde vienes, hermana?
+[11·b10] = —Vengo de rodar con el torbellino, envuelta en la nube del polvo y de las hojas secas nuestras compañeras, á lo largo de la interminable llanura.
+[12·b10] = ¿Y tú?
+[13·b11] = —Yo he seguido algún tiempo la corriente del río, hasta que el vendaval me arrancó de entre el légamo y los juncos de la orilla.
+[14·b12] = —¿Y adónde vas?
+[15·b13] = —No lo sé: ¿lo sabe acaso el viento que me empuja?
+[16·b14] = —¡Ay!
+[17·b14] = ¿Quién diría que habíamos de acabar amarillas y secas arrastrándonos por la tierra, nosotras que vivimos vestidas de color y de luz meciéndonos en el aire?
+[18·b15] = —¿Te acuerdas de los hermosos días en que brotamos; de aquella apacible mañana en que, roto el hinchado botón que nos servía de cuna, nos desplegamos al templado beso del sol como un abanico de esmeraldas?
+[19·b16] = —¡Oh!
+[20·b16] = ¡Qué dulce era sentirse balanceada por la brisa á aquella altura, bebiendo por todos los poros el aire y la luz!
+[21·b17] = —¡Oh!
+[22·b17] = ¡Qué hermoso era ver correr el agua del río que lamía las retorcidas raíces del añoso tronco que nos sustentaba, aquel agua limpia y transparente que copiaba como un espejo el azul del cielo, de modo que creíamos vivir suspendidas entre dos abismos azules!
+[23·b18] = —¡Con qué placer nos asomábamos por cima de las verdes frondas para vernos retratadas en la temblorosa corriente!
+[24·b19] = —¡Cómo cantábamos juntas imitando el rumor de la brisa y siguiendo el ritmo de las ondas!
+[25·b20] = —Los insectos brillantes revoloteaban desplegando sus alas de gasa á nuestro alrededor.
+[26·b21] = —Y las mariposas blancas y las libélulas azules, que giran por el aire en extraños círculos, se paraban un momento en nuestros dentellados bordes á contarse los secretos de ese misterioso amor que dura un instante y les consume la vida.
+[27·b22] = —Cada cual de nosotras era una nota en el concierto de los bosques.
+[28·b23] = —Cada cual de nosotras era un tono en la armonía de su color.
+[29·b24] = —En las noches de luna, cuando su plateada luz resbalaba sobre la cima de los montes, ¿te acuerdas cómo charlábamos en voz baja entre las diáfanas sombras?
+[30·b25] = —Y referíamos con un blando susurro las historias de los silfos que se columpian en los hilos de oro que cuelgan las arañas entre los árboles.
+[31·b26] = —Hasta que suspendíamos nuestra monótona charla para oir embebecidas las quejas del ruiseñor, que había escogido nuestro tronco por escabel.
+[32·b27] = —Y eran tan tristes y tan suaves sus lamentos que, aunque llenas de gozo al oirle, nos amanecía llorando.
+[33·b28] = —¡Oh!
+[34·b28] = ¡Qué dulces eran aquellas lágrimas que nos prestaba el rocío de la noche y que resplandecían con todos los colores del iris á la primera luz de la aurora!
+[35·b29] = —Después vino la alegre banda de jilgueros á llenar de vida y de ruidos el bosque con la alborozada y confusa algarabía de sus cantos.
+[36·b30] = —Y una enamorada pareja colgó junto á nosotras su redondo nido de aristas y de plumas.
+[37·b31] = —Nosotras servíamos de abrigo á los pequeñuelos contra las molestas gotas de la lluvia en las tempestades de verano.
+[38·b32] = —Nosotras les servíamos de dosel y los defendíamos de los importunos rayos del sol.
+[39·b33] = —Nuestra vida pasaba como un sueño de oro, del que no sospechábamos que se podría despertar.
+
+## Narración: RIMAS (1491 oraciones)
+[0·b0] ≠ Rimas.
+[1·b2] = I
+[2·b3] = Yo sé un himno gigante y extraño
+[3·b4] = Que anuncia en la noche del alma una aurora,
+[4·b5] = Y estas páginas son de ese himno
+[5·b6] = Cadencias que el aire dilata en las sombras.
+[6·b7] = Yo quisiera escribirlo, del hombre
+[7·b8] = Domando el rebelde, mezquino idïoma,
+[8·b9] = Con palabras que fuesen á un tiempo
+[9·b10] = Suspiros y risas, colores y notas.
+[10·b11] = Pero en vano es luchar; que no hay cifra
+[11·b12] = Capaz de encerrarlo, y apenas ¡oh hermosa!
+[12·b13] = Si, teniendo en mis manos las tuyas,
+[13·b14] = Pudiera, al oído, cantártelo á solas.
+[14·b15] = II
+[15·b16] = Saeta que voladora
+[16·b17] = Cruza, arrojada al azar,
+[17·b18] = Sin adivinarse dónde
+[18·b19] = Temblando se clavará;
+[19·b20] = Hoja que del árbol seca
+[20·b21] = Arrebata el vendaval,
+[21·b22] = Sin que nadie acierte el surco
+[22·b23] = Donde á caer volverá;
+[23·b24] = Gigante ola que el viento
+[24·b25] = Riza y empuja en el mar,
+[25·b26] = Y rueda y pasa, y no sabe
+[26·b27] = Qué playa buscando va;
+[27·b28] = Luz que en cercos temblorosos
+[28·b29] = Brilla, próxima á expirar,
+[29·b30] = Ignorándose cuál de ellos
+[30·b31] = El último brillará;
+[31·b32] = Eso soy yo, que al acaso
+[32·b33] = Cruzo el mundo, sin pensar
+[33·b34] = De dónde vengo, ni adónde
+[34·b35] = Mis pasos me llevarán.
+[35·b36] = III
+[36·b37] = Sacudimiento extraño
+[37·b38] = Que agita las ideas,
+[38·b39] = Como huracán que empuja
+[39·b40] = Las olas en tropel;

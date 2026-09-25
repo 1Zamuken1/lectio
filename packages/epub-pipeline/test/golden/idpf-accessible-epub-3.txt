@@ -1,0 +1,118 @@
+# Accessible EPUB 3 — Matt Garrish
+idioma: en · índice: nav · pipeline v1
+
+## Estructura
+  0 front_matter       6  Cover  [semantic: epub:type=cover]
+  1 front_matter      11  SPi Global  [heuristic?: solo imagen]
+  2 front_matter    1065  Accessible EPUB 3  [heuristic?: aviso legal fuera del cuerpo del libro]
+  3 front_matter      18  Accessible EPUB 3  [heuristic?: índice: 95 % del texto en enlaces]
+  4 narrative       5908  Preface  [semantic: epub:type=preface]
+  5 narrative       2279  1. Introduction  [semantic: epub:type=chapter]
+  6 narrative       3154  1. Introduction › The Digital Famine  [semantic: epub:type=chapter]
+  7 narrative       5419  1. Introduction › Accessibility and Usability  [default: sin señales de material auxiliar]
+  8 narrative        695  2. Building a Better EPUB: Fundamental Accessibility  [semantic: epub:type=chapter]
+  9 narrative      46906  2. Building a Better EPUB: Fundamental Accessibility › A Solid Foundation: Structure and Semantics  [semantic: epub:type=chapter]
+ 10 narrative       7100  2. Building a Better EPUB: Fundamental Accessibility › Getting Around: Navigating an EPUB  [default: sin señales de material auxiliar]
+ 11 narrative       6235  2. Building a Better EPUB: Fundamental Accessibility › The Untold Story: Metadata  [default: sin señales de material auxiliar]
+ 12 narrative        868  3. It’s Alive: Rich Content Accessibility  [semantic: epub:type=chapter]
+ 13 narrative       9718  3. It’s Alive: Rich Content Accessibility › The Sound and the Fury: Audio and Video  [semantic: epub:type=chapter]
+ 14 narrative      19138  3. It’s Alive: Rich Content Accessibility › Talk to Me: Media Overlays  [default: sin señales de material auxiliar]
+ 15 narrative      29756  3. It’s Alive: Rich Content Accessibility › Tell It Like It Is: Text-to-Speech (TTS)  [default: sin señales de material auxiliar]
+ 16 narrative       5142  3. It’s Alive: Rich Content Accessibility › The Coded Word: Scripted Interactivity  [default: sin señales de material auxiliar]
+ 17 narrative      22234  3. It’s Alive: Rich Content Accessibility › A Little Help: WAI-ARIA  [default: sin señales de material auxiliar]
+ 18 narrative       1502  3. It’s Alive: Rich Content Accessibility › A Blank Slate: Canvas  [default: sin señales de material auxiliar]
+ 19 narrative       2823  4. Conclusion  [semantic: epub:type=chapter]
+
+## Reglas
+limpieza: S1_page_numbers=0+0 S1_line_numbers=0+0 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=1+0 S4_notes=0+0
+narración: N1_noterefs=0 N2_dois=0 N3_urls=13 N4_citations=0 N5_legal=2
+warnings: ninguno
+
+## Narración: Preface (70 oraciones)
+[0·b0] ≠ Preface.
+[1·b1] = Accessibility is a difficult concept to define.
+[2·b1] = There’s no single magic bullet solution that will make all content accessible to all people.
+[3·b1] = Perhaps that’s a strange way to preface a book on accessible practices, but it’s also a reality you need to be aware of.
+[4·b1] = Accessible practices change, technologies evolve to solve stubborn problems, and the world becomes a more accessible place all the time.
+[5·b2] = But although there are best practices that everyone should be following, and that will be detailed as we go along, this guide should neither be read as an instrument for accessibility compliance nor as a replacement for existing guidelines.
+[6·b3] = The goal is to provide you with insights and ideas into how to begin making your publications richer for all readers at the same time that you make them more accessible.
+[7·b3] = Proliferating usability guidelines and muddying the waters of compliance is not its intent.
+[8·b3] = There are areas that would take a book unto themselves to explore in detail in relation to the use of HTML5 content within EPUB, such as the Web Content Accessibility Guidelines (WCAG) and Web Accessibility Initiative’s Accessible Rich Internet Applications (WAI-ARIA).
+[9·b3] = Whenever issues extend beyond what can be covered in these best practices, pointers to where you can obtain more information will be included.
+[10·b3] = Don’t fall into the trap of hand-picking accessibility.
+[11·b4] = It is also naturally the case with a standard as new and wide-ranging as EPUB 3 that best practices will evolve and develop as the features it offers are explored and implemented.
+[12·b4] = This guide will endeavor to make clear whenever uncertainty exists around an approach, what alternatives there are, and where you should be looking to watch for developments.
+[13·b5] = You need to be thinking about accessibility and planning good content practices from the outset if you’re going to make the most of the features EPUB 3 has to offer.
+[14·b5] = This guide will be your map, but you have to be willing to follow it.
+[15·b6] = Note
+[16·b7] = This guide is envisioned as a living document and intended to be updated and re-released as new practices and techniques evolve.
+[17·b8] = Conventions Used in This Book
+[18·b9] = The following typographical conventions are used in this book:
+[19·b10] = Italic
+[20·b11] = Indicates new terms, URLs, email addresses, filenames, and file extensions.
+[21·b12] = Constant width
+[22·b13] = Used for program listings, as well as within paragraphs to refer to program elements such as variable or function names, databases, data types, environment variables, statements, and keywords.
+[23·b14] = Constant width bold
+[24·b15] = Shows commands or other text that should be typed literally by the user.
+[25·b16] = Constant width italic
+[26·b17] = Shows text that should be replaced with user-supplied values or by values determined by context.
+[27·b18] = Tip
+[28·b19] = This icon signifies a tip, suggestion, or general note.
+[29·b20] = Caution
+[30·b21] = This icon indicates a warning or caution.
+[31·b22] = Using Code Examples
+[32·b23] = This book is here to help you get your job done.
+[33·b23] = In general, you may use the code in this book in your programs and documentation.
+[34·b23] = You do not need to contact us for permission unless you’re reproducing a significant portion of the code.
+[35·b23] = For example, writing a program that uses several chunks of code from this book does not require permission.
+[36·b23] = Selling or distributing a CD-ROM of examples from O’Reilly books does require permission.
+[37·b23] = Answering a question by citing this book and quoting example code does not require permission.
+[38·b23] = Incorporating a significant amount of example code from this book into your product’s documentation does require permission.
+[39·b24] = We appreciate, but do not require, attribution.
+
+## Narración: 3. It’s Alive: Rich Content Accessibility (8 oraciones)
+[0·b0] ≠ 3. It’s Alive: Rich Content Accessibility.
+[1·b0] ∅ It’s Alive: Rich Content Accessibility
+[2·b1] = It’s now time to turn our attention to the features that EPUB 3 introduces to expand on the traditional reading experience; the excitement around EPUB 3 doesn’t come from text and images, after all.
+[3·b2] = This section takes focus on the dynamic aspects of EPUB 3.
+[4·b2] = Rich media, audio integration, and scripted interactivity are all new features that have been added in this version.
+[5·b2] = Some of these features, like audio and video support and scripting, introduce new accessibility challenges, while others, like overlaying audio on your text content and enhancing text-to-speech rendering, improve access for all.
+[6·b2] = (The members of this latter group are also commonly referred to as accessibility superstructures, because they are added on top of core EPUB content to enhance accessibility.)
+[7·b3] = But let’s get back to business of being accessible…
+
+## Narración: 4. Conclusion (35 oraciones)
+[0·b0] ≠ 4. Conclusion.
+[1·b0] ∅ Conclusion
+[2·b1] = EPUB 3 holds out much promise, but only if you care about the quality of your content and actively work to make it better.
+[3·b1] = If I’ve done my job, though, accessibility is hopefully no longer a foreign concept or impossible-sounding ideal anymore.
+[4·b1] = It’s fundamentally about high-quality data, with hooks in for people who can’t consume the content in its native format, whether auditory or visual.
+[5·b2] = The people you need to produce accessible EPUBs are not hard to find, either.
+[6·b2] = Web content developers abound as the internet generation comes of age.
+[7·b2] = And unlike in the early dark days of web accessibility, more and more people are learning WCAG and WAI-ARIA guidelines for accessible production.
+[8·b2] = They’re not skills you can ignore as a developer, as so much basic accessibility legislation is premised on them now.
+[9·b3] = My point, however, is only that creating accessible EPUB 3 publications is not a costly proposition.
+[10·b3] = It doesn’t require seeking out highly-specialized skills that won’t provide you a return on your investment.
+[11·b3] = Reflowable web content is the direction publishing is heading in, and well down the road to.
+[12·b4] = But to wrap up, no guide can ever make you take action, only impart some measure of knowledge.
+[13·b4] = Assuming I’ve met that threshold, the onus is now on you to take what you’ve learned and put it to good use.
+[14·b5] = EPUB 3 Best Practices Teaser
+[15·b6] = Accessible EPUB 3 is an excerpt of the book EPUB 3 Best Practices, currently in development for publication in 2012.
+[16·b7] = For more details and updates on its anticipated release date, keep an eye on the web page for the book:
+[17·b8] ∅ http://shop.oreilly.com/product/0636920024897.do
+[18·b10] = Figure 4-1.
+[19·b10] = EPUB 3 Best Practices, coming in 2012
+[20·b11] = About the Book
+[21·b12] = The new EPUB 3 specification from the IDPF incorporates a wide range of technologies and functionality that are set to revolutionize electronic publishing.
+[22·b12] = The format is poised to make the static two-dimensional page a thing of the past, introducing the world to new rich multimedia reading experiences and scripted interactivity.
+[23·b12] = But a specification that offers so much can be a daunting thing to learn.
+[24·b13] = EPUB 3 Best Practices steps in to help fill the knowledge void.
+[25·b13] = Authored by people involved in the development of the specification, and with extensive experience in electronic publishing, this guide will provide you with a solid foundation on which to begin developing your own EPUBs.
+[26·b13] = Topics covered include:
+[27·b14] = A comprehensive survey of accessible production features and best practices
+[28·b15] = A walkthrough of the new global language support features
+[29·b16] = An introduction to the new multimedia elements and how to use them to embed content
+[30·b17] = A guide to best practices for authoring of interactive elements and scripting
+[31·b18] = A review of publication and distribution metadata
+[32·b19] = Techniques for fixed and adaptive layouts
+[33·b20] = EPUB 3 Best Practices is a must-read for anyone looking to unleash the potential of the new format.
+[34·b21] = Colophon

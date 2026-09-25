@@ -1,0 +1,142 @@
+# The Waste Land — T.S. Eliot
+idioma: en · índice: nav · pipeline v1
+
+## Estructura
+  0 front_matter     212  The Waste Land  [semantic: epub:type=titlepage]
+  1 narrative       3101  I. THE BURIAL OF THE DEAD  [semantic: epub:type=bodymatter]
+  2 narrative       3918  II. A GAME OF CHESS  [semantic: epub:type=bodymatter]
+  3 narrative       4675  III. THE FIRE SERMON  [semantic: epub:type=bodymatter]
+  4 narrative        377  IV. DEATH BY WATER  [semantic: epub:type=bodymatter]
+  5 narrative       3848  V. WHAT THE THUNDER SAID  [semantic: epub:type=bodymatter]
+  6 notes           8806  NOTES ON "THE WASTE LAND"  [semantic: epub:type=rearnotes]
+
+## Reglas
+limpieza: S1_page_numbers=0+0 S1_line_numbers=0+43 S2_running_headers=0+0 S2_duplicate_titles=0+0 S3_hidden=0+0 S4_notes=50+0
+narración: N1_noterefs=50 N2_dois=0 N3_urls=0 N4_citations=0 N5_legal=0
+warnings: ninguno
+
+## Narración: I. THE BURIAL OF THE DEAD (87 oraciones)
+[0·b0] ≠ 1. The burial of the dead.
+[1·b1] = April is the cruellest month, breeding
+[2·b2] = Lilacs out of the dead land, mixing
+[3·b3] = Memory and desire, stirring
+[4·b4] = Dull roots with spring rain.
+[5·b5] = Winter kept us warm, covering
+[6·b6] = Earth in forgetful snow, feeding
+[7·b7] = A little life with dried tubers.
+[8·b8] = Summer surprised us, coming over the Starnbergersee
+[9·b9] = With a shower of rain; we stopped in the colonnade,
+[10·b10] = And went on in sunlight, into the Hofgarten,
+[11·b11] = And drank coffee, and talked for an hour.
+[12·b12] = Bin gar keine Russin, stamm' aus Litauen, echt deutsch.
+[13·b13] = And when we were children, staying at the archduke's,
+[14·b14] = My cousin's, he took me out on a sled,
+[15·b15] = And I was frightened.
+[16·b15] = He said, Marie,
+[17·b16] = Marie, hold on tight.
+[18·b16] = And down we went.
+[19·b17] = In the mountains, there you feel free.
+[20·b18] = I read, much of the night, and go south in the winter.
+[21·b19] = What are the roots that clutch, what branches grow
+[22·b20] = Out of this stony rubbish?
+[23·b20] = Son of man,
+[24·b21] = You cannot say, or guess, for you know only
+[25·b22] = A heap of broken images, where the sun beats,
+[26·b23] = And the dead tree gives no shelter, the cricket no relief,
+[27·b24] = And the dry stone no sound of water.
+[28·b24] = Only
+[29·b25] = There is shadow under this red rock,
+[30·b26] = (Come in under the shadow of this red rock),
+[31·b27] = And I will show you something different from either
+[32·b28] = Your shadow at morning striding behind you
+[33·b29] = Or your shadow at evening rising to meet you;
+[34·b30] = I will show you fear in a handful of dust.
+[35·b31] = Frisch weht der Wind
+[36·b32] = Der Heimat zu
+[37·b33] = Mein Irisch Kind,
+[38·b34] = Wo weilest du?
+[39·b35] = "You gave me hyacinths first a year ago;
+
+## Narración: III. THE FIRE SERMON (150 oraciones)
+[0·b0] ≠ 3. The fire sermon.
+[1·b0] ∅ THE FIRE SERMON
+[2·b1] = The river's tent is broken: the last fingers of leaf
+[3·b2] = Clutch and sink into the wet bank.
+[4·b2] = The wind
+[5·b3] = Crosses the brown land, unheard.
+[6·b3] = The nymphs are departed.
+[7·b4] = Sweet Thames, run softly, till I end my song.
+[8·b5] = The river bears no empty bottles, sandwich papers,
+[9·b6] = Silk handkerchiefs, cardboard boxes, cigarette ends
+[10·b7] = Or other testimony of summer nights.
+[11·b7] = The nymphs are departed.
+[12·b8] = And their friends, the loitering heirs of city directors;
+[13·b9] = Departed, have left no addresses.
+[14·b10] ≠ By the waters of Leman I sat down and wept...
+[15·b11] = Sweet Thames, run softly till I end my song,
+[16·b12] = Sweet Thames, run softly, for I speak not loud or long.
+[17·b13] = But at my back in a cold blast I hear
+[18·b14] = The rattle of the bones, and chuckle spread from ear to ear.
+[19·b15] = A rat crept softly through the vegetation
+[20·b16] = Dragging its slimy belly on the bank
+[21·b17] = While I was fishing in the dull canal
+[22·b18] = On a winter evening round behind the gashouse
+[23·b19] = Musing upon the king my brother's wreck
+[24·b20] = And on the king my father's death before him.
+[25·b21] = White bodies naked on the low damp ground
+[26·b22] = And bones cast in a little low dry garret,
+[27·b23] = Rattled by the rat's foot only, year to year.
+[28·b24] = But at my back from time to time I hear
+[29·b25] = The sound of horns and motors, which shall bring
+[30·b26] = Sweeney to Mrs. Porter in the spring.
+[31·b27] = O the moon shone bright on Mrs. Porter
+[32·b28] = And on her daughter
+[33·b29] = They wash their feet in soda water
+[34·b30] = Et O ces voix d'enfants, chantant dans la coupole!
+[35·b31] = Twit twit twit
+[36·b32] = Jug jug jug jug jug jug
+[37·b33] = So rudely forc'd.
+[38·b34] = Tereu
+[39·b35] = Unreal City
+
+## Narración: V. WHAT THE THUNDER SAID (118 oraciones)
+[0·b0] ≠ 5. What the thunder said.
+[1·b1] = After the torchlight red on sweaty faces
+[2·b2] = After the frosty silence in the gardens
+[3·b3] = After the agony in stony places
+[4·b4] = The shouting and the crying
+[5·b5] = Prison and palace and reverberation
+[6·b6] = Of thunder of spring over distant mountains
+[7·b7] = He who was living is now dead
+[8·b8] = We who were living are now dying
+[9·b9] = With a little patience
+[10·b10] = Here is no water but only rock
+[11·b11] = Rock and no water and the sandy road
+[12·b12] = The road winding above among the mountains
+[13·b13] = Which are mountains of rock without water
+[14·b14] = If there were water we should stop and drink
+[15·b15] = Amongst the rock one cannot stop or think
+[16·b16] = Sweat is dry and feet are in the sand
+[17·b17] = If there were only water amongst the rock
+[18·b18] = Dead mountain mouth of carious teeth that cannot spit
+[19·b19] = Here one can neither stand nor lie nor sit
+[20·b20] = There is not even silence in the mountains
+[21·b21] = But dry sterile thunder without rain
+[22·b22] = There is not even solitude in the mountains
+[23·b23] = But red sullen faces sneer and snarl
+[24·b24] = From doors of mudcracked houses
+[25·b25] = If there were water
+[26·b26] = And no rock
+[27·b27] = If there were rock
+[28·b28] = And also water
+[29·b29] = And water
+[30·b30] = A spring
+[31·b31] = A pool among the rock
+[32·b32] = If there were the sound of water only
+[33·b33] = Not the cicada
+[34·b34] = And dry grass singing
+[35·b35] = But sound of water over a rock
+[36·b36] = Where the hermit-thrush sings in the pine trees
+[37·b37] = Drip drop drip drop drop drop drop
+[38·b38] = But there is no water
+[39·b39] = Who is the third who walks always beside you?
