@@ -234,7 +234,7 @@ Esto te permite correr `api`, `worker` y `web` de forma independiente, compartir
 
 ## 12.1 Ideas a evaluar
 
-*Propuestas del 25-09-2026. No están en el roadmap todavía: son alternativas a decidir.*
+*Propuestas del 25-09-2026, surgidas al usar la demo. No están en el roadmap todavía: son alternativas a decidir.*
 
 ### A. Temas de pixel art seleccionables
 
@@ -271,6 +271,40 @@ Esto te permite correr `api`, `worker` y `web` de forma independiente, compartir
 PDF escaneados (imágenes) necesitarían OCR (ej. OCRmyPDF/Tesseract), que es otro alcance.
 
 **Si se hace:** empezar con Calibre como paso opcional antes del pipeline, marcar esos libros en el reporte como "convertido desde PDF" (clasificación de baja confianza) y medir la calidad con un corpus pequeño de PDF reales antes de prometer nada al usuario.
+
+### C. Navegación en secciones: bienvenida, biblioteca y lectura
+
+**Idea (25-09-2026):** separar la experiencia en pestañas o pantallas claras: una **bienvenida**, una **biblioteca** donde el usuario carga sus EPUB y ve los que ya tiene, y recién entonces la pantalla de **leer o escuchar** un libro.
+
+**Relación con lo diseñado:** la app ya prevé esas pantallas (`lectio-frontend.md` §3: biblioteca pública como portada, mi biblioteca, subir EPUB, detalle del libro, lector y reproductor). Lo nuevo es la **bienvenida** como pantalla propia (qué es Lectio, cómo empezar, un libro de ejemplo para probar) y el orden explícito del recorrido. El preview actual, en cambio, es de un solo libro.
+
+**Paso intermedio posible, antes de la app:** un comando `lectio library` que genere `out/index.html` con todos los libros ya procesados (portadas, duración, cuánto audio tienen) y enlaces a sus previews. Daría la experiencia de biblioteca sin backend y sirve para ensayar el diseño de esa pantalla.
+
+### D. Sección de descargas de audio
+
+**Idea (25-09-2026):** una sección donde queden los audios que el usuario decide descargar.
+
+Hay dos lecturas posibles, no excluyentes, que conviene decidir:
+1. **Descargas dentro de la app (sin conexión):** ya prevista en `lectio-frontend.md` §6.3 (Service Worker, capítulos guardados en el dispositivo). Faltaría una **sección propia** para verlas y administrarlas: qué libros y capítulos están descargados, espacio usado, borrar, descargar los próximos N capítulos.
+2. **Exportar los archivos** para usarlos fuera de Lectio: MP3 por capítulo, o un único **M4B con marcas de capítulo** (el formato de audiolibro que entienden Apple Books, Smart AudioBook Player o Audiobookshelf). La CLI ya genera MP3 y `playlist.m3u`; el M4B necesitaría ffmpeg.
+
+### E. Naturalidad de la voz
+
+**Hallazgo (25-09-2026, escuchando *Marianela*):** con las correcciones de ritmo, la voz ya no se entrecorta, pero **todavía suena a máquina**. Es un problema de producto de primer orden: el estudio de mercado muestra que la calidad vocal es justo donde compiten ElevenReader y Speechify, y es lo que decide si alguien escucha un libro completo.
+
+**Escalera de opciones, de menor a mayor costo:**
+
+| Opción | Costo aprox. por libro (500k caracteres) | Notas |
+|---|---|---|
+| Voces **Multilingual** de Edge (Ava, Andrew, Emma, Brian) | Gratis | Más recientes y expresivas que las regionales; hablan español, pero con un leve acento del inglés. Probado: entregan todas las marcas de palabra en español. **Primera prueba a oído, en curso.** |
+| Voces **HD** de Azure | ~US$ 11 (US$ 22 / 1M) | Mismo ecosistema que Edge, con una generación de voces más natural. Oficiales. |
+| OpenAI `gpt-4o-mini-tts` | ~US$ 8 (≈ US$ 0,015 por minuto) | Se le puede indicar el tono ("narrador de audiolibro, cálido y pausado"). Verificar si entrega marcas de tiempo; si no, alineación aproximada o por oración. |
+| Modelos abiertos (Chatterbox multilingüe, Kokoro) | ~US$ 0,1–1 en GPU propia o alquilada | Kokoro es débil en español; Chatterbox multilingüe hay que probarlo a oído. |
+| ElevenLabs | Varias veces más caro | Referente de naturalidad; su costo choca con el precio de mercado (`lectio-decision-tts.md` §3.2). |
+
+*Precios de docs/lectio-decision-tts.md y de la investigación del 25-09-2026; verificar antes de decidir.*
+
+**Implicancia:** si ninguna opción gratuita es suficiente, la voz natural pasa a ser un costo por libro, y eso afecta el modelo comercial (cuota gratuita con voz estándar, voz premium en un plan de pago). El puerto `TtsProvider` permite probar cada proveedor sin tocar el pipeline: el siguiente paso sería una **prueba ciega** con el mismo capítulo en 3 o 4 proveedores.
 
 ---
 
