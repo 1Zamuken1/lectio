@@ -8,7 +8,7 @@ import type { PipelineWarning } from './errors.js';
 import { resolveNavigation } from './navigation/navigation.js';
 import type { Navigation } from './navigation/types.js';
 import type { OpenedEpub } from './open-epub.js';
-import { loadSpineDocuments } from './segmentation/documents.js';
+import { loadSpineDocuments, type SpineDocument } from './segmentation/documents.js';
 import {
   DEFAULT_SEGMENTATION_OPTIONS,
   segmentSections,
@@ -23,6 +23,8 @@ export interface StructureOptions {
 export interface BookStructure {
   navigation: Navigation;
   sections: ClassifiedSection[];
+  /** Documentos del spine ya parseados (las etapas siguientes buscan notas en ellos). */
+  documents: SpineDocument[];
   /** Warnings de las etapas 1 a 5. */
   warnings: PipelineWarning[];
 }
@@ -42,5 +44,5 @@ export function readStructure(opened: OpenedEpub, options: StructureOptions = {}
     ...DEFAULT_CLASSIFICATION_OPTIONS,
     ...options.classification,
   });
-  return { navigation, sections: classified, warnings };
+  return { navigation, sections: classified, documents, warnings };
 }

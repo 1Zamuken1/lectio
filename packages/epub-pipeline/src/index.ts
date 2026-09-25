@@ -36,3 +36,6 @@ export {
   type SectionOrigin,
   type SegmentationOptions,
 } from './segmentation/sections.js';
+export { cleanSections, type CleanedSection, type ReadingNote } from './cleaning/clean.js';
+export type { RuleStat, RuleStats, StructuralRule } from './cleaning/stats.js';
+export type { SpineDocument } from './segmentation/documents.js';

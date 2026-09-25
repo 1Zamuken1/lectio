@@ -168,11 +168,19 @@ Resultado en el corpus: índice HTML de *Don Quijote* detectado (99 % en enlaces
 
 ### Fase 4 — Limpieza estructural y HTML de lectura (etapa 6)
 
-- [ ] Reglas S1 (números de página), S2 (running headers y títulos duplicados), S3 (ocultos), S4 (extracción de notas a `notes[]`).
-- [ ] Sanitización por lista blanca, reescritura de rutas de imágenes a claves de `resources`, atributo `data-b` por bloque.
-- [ ] Cada regla reporta cuántos elementos tocó y por qué vía (semántica o heurística).
+- [x] Reglas S1 (números de página), S2 (running headers y títulos duplicados), S3 (ocultos), S4 (extracción de notas a `notes[]`).
+- [x] Sanitización por lista blanca, reescritura de rutas de imágenes a claves de `resources`, atributo `data-b` por bloque.
+- [x] Cada regla reporta cuántos elementos tocó y por qué vía (semántica o heurística).
 
 **Tests:** positivos y negativos por regla (ej. un párrafo que es solo "1984" dentro de una novela no es un número de página si no hay señal adicional).
+
+**Hecho.** Diferencias con lo previsto, todas surgidas del corpus:
+- S1 incluye **números de verso** (`<span class="lnum">`, *The Waste Land*): sin esto se narraría "veinte" cada cinco versos. Los marcadores de página de Gutenberg (`x-ebookmaker-pageno`) son spans vacíos a mitad de palabra.
+- S4 **copia** las notas de una sección de notas aparte (sin tocarla) y **extrae** las locales. Los enlaces de vuelta con aspecto de llamada (Gutenberg: `[*]` ↔ `[*]`) se distinguen porque su "cuerpo" es otra llamada. Un `<aside>` solo es nota si una llamada lo referencia (los 26 recuadros de *Accessible EPUB 3* se conservan).
+- S2b (título duplicado) solo mira los documentos posteriores al ancla: antes eliminaba el encabezado "I" del capítulo cuando delante había una portadilla fusionada.
+- Sanitización propia sobre el DOM (lista blanca, sin `sanitize-html`) y serializador HTML propio: el de linkedom en modo XML emite `<br />`. Atributos en orden alfabético (salida determinista para los golden files) y espacios colapsados (el texto del DOM coincide con los offsets de la etapa 7).
+
+Corpus: 352 marcadores de página en Bécquer, 43 números de verso y 50 notas en *Waste Land*, 37 notas en *Vindication*; ningún HTML de lectura con etiquetas o atributos fuera de la lista blanca.
 
 ### Fase 5 — Oraciones, narración y normalización (etapas 7–9)
 
