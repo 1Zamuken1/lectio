@@ -24,12 +24,12 @@ NestJS, base de datos, colas, auth, frontend, Kokoro (se deja el puerto listo) y
 
 | Tema | Decisión |
 |---|---|
-| Runtime | Node 24 LTS, TypeScript estricto, ESM. |
+| Runtime | Node 24 LTS, TypeScript 6.0 estricto, ESM. (No TS 7: typescript-eslint aún exige `<6.1`.) |
 | Monorepo | pnpm workspaces + Turborepo, desde el día 1 (aunque solo haya 2 paquetes). |
 | Paquetes de esta etapa | `packages/epub-pipeline` (lógica pura, **sin red ni sistema de archivos**: recibe `Buffer`, devuelve objetos) y `apps/cli` (lee y escribe archivos, contiene el adaptador de Edge TTS). |
 | Tests | Vitest. |
-| Build | `tsup` para la librería; la CLI se ejecuta con `tsx` en desarrollo. |
-| Calidad | ESLint + Prettier; `tsc --noEmit` en CI local (`turbo run lint typecheck test`). |
+| Build | `tsc -p tsconfig.build.json` en ambos paquetes (sin bundler; `tsup` se descartó porque su generación de `.d.ts` falla con TS 6). En desarrollo la CLI corre desde el código fuente con `tsx --conditions=source`. |
+| Calidad | ESLint + Prettier + `tsc --noEmit`; todo junto con `pnpm check`. |
 | Librerías | `yauzl` (ZIP), `fast-xml-parser` (OPF/NCX), `linkedom` (DOM), `sanitize-html`, `Intl.Segmenter` (nativo), `commander` (CLI), `edge-tts-universal` (TTS; verificar al instalar que expone `WordBoundary`). |
 | Audio | MP3 24 kHz mono de Edge (`audio-24khz-48kbitrate-mono-mp3`). Los fragmentos se concatenan a nivel de bytes (mismo códec y bitrate → MP3 válido). La duración sale de las marcas de tiempo, así que **no hace falta ffmpeg**. |
 | Fixtures de test | Los EPUB sintéticos se **generan en el test** con un helper `buildEpub({...})` (usando `yazl`), no como binarios versionados: cada test declara exactamente el caso que prueba. |
@@ -111,14 +111,14 @@ Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
 
 ### Fase 0 — Andamiaje
 
-- [ ] `git init`, `.gitignore` (node_modules, dist, corpus, `out/`).
-- [ ] `package.json` raíz, `pnpm-workspace.yaml`, `turbo.json` con tareas `build`, `test`, `lint`, `typecheck`.
-- [ ] `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`), ESLint y Prettier.
-- [ ] `packages/epub-pipeline` y `apps/cli` vacíos, con un test trivial cada uno.
-- [ ] Helper `buildEpub()` para generar EPUB sintéticos en memoria (EPUB 2 y 3, con o sin nav/NCX).
-- [ ] `corpus/sources.json` + script de descarga (ver lista abajo).
+- [x] `git init`, `.gitignore` (node_modules, dist, corpus, `out/`).
+- [x] `package.json` raíz, `pnpm-workspace.yaml`, `turbo.json` con tareas `build`, `test`, `lint`, `typecheck`.
+- [x] `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`), ESLint y Prettier.
+- [x] `packages/epub-pipeline` y `apps/cli` vacíos, con un test trivial cada uno.
+- [x] Helper `buildEpub()` para generar EPUB sintéticos en memoria (EPUB 2 y 3, con o sin nav/NCX).
+- [x] `corpus/sources.json` + script de descarga (ver lista abajo).
 
-**Listo cuando:** `pnpm turbo run lint typecheck test` pasa desde la raíz.
+**Listo cuando:** `pnpm check` pasa desde la raíz. **Hecho** (commit `ef93f42`).
 
 ### Fase 1 — Contenedor y paquete (etapas 1–2)
 
@@ -229,7 +229,7 @@ Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
 
 ## Definición de terminado
 
-1. `pnpm turbo run lint typecheck test` en verde en un clon limpio.
+1. `pnpm check` en verde en un clon limpio.
 2. Los 6 libros del corpus se procesan sin error fatal; el preview de cada uno revisado.
 3. Un libro en español narrado con `lectio narrate`, escuchado, con los artefactos corregidos.
 4. `processEpub` expone el contrato de arriba, listo para usarlo desde el worker de NestJS.
