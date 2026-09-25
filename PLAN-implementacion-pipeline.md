@@ -153,10 +153,18 @@ Cada fase termina con tests en verde y un commit. Las fases 1–7 no usan red.
 
 ### Fase 3 — Clasificación (etapa 5)
 
-- [ ] Señales por precedencia: `epub:type`/`role` → landmarks/guide → regex de título (es/en) → heurísticas.
-- [ ] Marca de confianza baja para las decididas por heurística.
+- [x] Señales por precedencia: `epub:type`/`role` → landmarks/guide → regex de título (es/en) → heurísticas.
+- [x] Marca de confianza baja para las decididas por heurística.
 
 **Tests:** un caso por señal, y un caso de conflicto para verificar la precedencia (título "Notas" pero `epub:type="bodymatter"` → narrativa).
+
+**Hecho.** Precedencia final: tipo semántico específico → landmark exacto → tipo genérico (`frontmatter`/`bodymatter`/`backmatter`) → título → heurísticas → narrativa por defecto. Cambios respecto al diseño:
+- Veredicto **auxiliar** (índice, copyright, colofón, agradecimientos): la posición respecto al cuerpo del libro decide si es front o back matter.
+- Los tipos se leen en el **ancla** de la entrada del índice, no en el inicio fusionado: sin esto, la portadilla fusionada ocultaba el capítulo I de *Vindication* (17k caracteres).
+- En zonas sin entradas de índice, **cada documento es su propia sección** (antes se fusionaban portada + copyright + índice).
+- Heurísticas nuevas: aviso legal (©, ISBN) fuera del cuerpo, y preliminares del Siglo de Oro (tasa, fe de erratas) por título.
+
+Resultado en el corpus: índice HTML de *Don Quijote* detectado (99 % en enlaces), encabezados y licencias de Gutenberg, notas de *Waste Land* y *Vindication*, front matter sin marcar de *Accessible EPUB 3*. Test de regresión: ningún capítulo numerado de ningún libro queda fuera de la narración.
 
 ### Fase 4 — Limpieza estructural y HTML de lectura (etapa 6)
 

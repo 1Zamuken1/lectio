@@ -6,7 +6,7 @@ async function structureOf(
   options: BuildEpubOptions,
   segmentation: Partial<SegmentationOptions> = {},
 ) {
-  const structure = readStructure(await openEpub(await buildEpub(options)), segmentation);
+  const structure = readStructure(await openEpub(await buildEpub(options)), { segmentation });
   const summary = structure.sections.map((s) => ({
     title: s.title,
     ancestors: s.ancestors,

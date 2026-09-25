@@ -20,7 +20,15 @@ export type { DrmScheme } from './container/drm.js';
 export type { BookMetadata } from './package/metadata.js';
 export type { CoverImage, CoverSource } from './package/cover.js';
 export type { GuideReference, ManifestItem, PackageDocument, SpineItem } from './package/opf.js';
-export { readStructure, type BookStructure } from './structure.js';
+export { readStructure, type BookStructure, type StructureOptions } from './structure.js';
+export {
+  DEFAULT_CLASSIFICATION_OPTIONS,
+  type Classification,
+  type ClassificationOptions,
+  type ClassificationSignal,
+  type ClassifiedSection,
+  type SectionKind,
+} from './classification/classify.js';
 export type { Landmark, Navigation, NavigationSource, TocNode } from './navigation/types.js';
 export {
   DEFAULT_SEGMENTATION_OPTIONS,

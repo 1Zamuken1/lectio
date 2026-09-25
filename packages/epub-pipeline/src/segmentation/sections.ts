@@ -1,4 +1,4 @@
-import { descendants, tagName } from '../dom/xhtml.js';
+import { descendants, semanticTypes, tagName } from '../dom/xhtml.js';
 import { PipelineError, type PipelineWarning } from '../errors.js';
 import type { Navigation, TocNode } from '../navigation/types.js';
 import { firstHeadingText, type SpineDocument } from './documents.js';
@@ -40,6 +40,18 @@ export interface Section {
   /** `<section>` con un `<div data-lectio-src="ruta">` por documento abarcado. */
   content: Element;
   textLength: number;
+  /** Dónde empieza: documento e `id` del elemento de corte (null = inicio del documento). */
+  start: { path: string; id: string | null };
+  /**
+   * Punto declarado por la entrada del índice. Coincide con `start`, salvo cuando la
+   * portadilla de un grupo se fusionó delante (el capítulo I de un libro con portadilla).
+   */
+  anchor: { path: string; id: string | null };
+  /**
+   * Tipos semánticos (`epub:type`, roles `doc-*`) del ancla: `element` los del punto de
+   * corte y sus contenedores; `document` los del `<body>`/`<html>`.
+   */
+  semantics: { element: string[]; document: string[] };
 }
 
 interface Position {
@@ -49,7 +61,10 @@ interface Position {
 }
 
 interface Boundary {
+  /** Donde empieza la sección (puede ser anterior al ancla si se fusionó una portadilla). */
   position: Position;
+  /** Punto que la entrada del índice declara: de ahí se leen sus tipos semánticos. */
+  anchor: Position;
   title: string | null;
   ancestors: string[];
   origin: SectionOrigin;
@@ -85,6 +100,7 @@ export function segmentSections(
       ? tocBoundaries
       : documents.map((d) => ({
           position: { doc: d.index, element: null },
+          anchor: { doc: d.index, element: null },
           title: null,
           ancestors: [],
           origin: 'spine' as const,
@@ -123,7 +139,7 @@ function boundariesFromToc(
   const push = (position: Position, title: string, ancestors: string[]) => {
     const start = pending && measure.compare(pending, position) < 0 ? pending : position;
     pending = null;
-    boundaries.push({ position: start, title, ancestors, origin: 'toc' });
+    boundaries.push({ position: start, anchor: position, title, ancestors, origin: 'toc' });
   };
 
   const emit = (level: Point[], depth: number, ancestors: string[]) => {
@@ -224,7 +240,10 @@ function sortAndDedupe(
 /**
  * Cortes que no vienen del índice:
  * - el contenido previo a la primera entrada (portadas, avisos) forma su propia sección;
- * - los documentos `linear="no"` quedan aislados, sin mezclarse con el capítulo anterior.
+ * - los documentos `linear="no"` quedan aislados, sin mezclarse con el capítulo anterior;
+ * - en las zonas sin entradas de índice, cada documento es su propia sección. Fusionar
+ *   documentos solo tiene sentido detrás de un capítulo (divisiones de Calibre); una
+ *   portada, un copyright y un índice seguidos deben poder clasificarse por separado.
  */
 function withStructuralBoundaries(
   boundaries: Boundary[],
@@ -236,18 +255,30 @@ function withStructuralBoundaries(
     result.some((b) => measure.compare(b.position, position) === 0);
   const start: Position = { doc: 0, element: null };
 
-  if (!has(start)) {
-    result.push({ position: start, title: null, ancestors: [], origin: 'leading' });
-  }
+  const add = (position: Position, origin: SectionOrigin) =>
+    result.push({ position, anchor: position, title: null, ancestors: [], origin });
+
+  if (!has(start)) add(start, 'leading');
   for (const doc of documents) {
     if (doc.linear) continue;
     const here: Position = { doc: doc.index, element: null };
-    if (!has(here))
-      result.push({ position: here, title: null, ancestors: [], origin: 'non-linear' });
+    if (!has(here)) add(here, 'non-linear');
     const next = documents[doc.index + 1];
     const after: Position = { doc: doc.index + 1, element: null };
-    if (next?.linear && !has(after)) {
-      result.push({ position: after, title: null, ancestors: [], origin: 'spine' });
+    if (next?.linear && !has(after)) add(after, 'spine');
+  }
+
+  for (const doc of documents) {
+    const here: Position = { doc: doc.index, element: null };
+    if (has(here)) continue;
+    const covering = result
+      .filter((b) => measure.compare(b.position, here) < 0)
+      .reduce<Boundary | null>(
+        (last, b) => (!last || measure.compare(b.position, last.position) > 0 ? b : last),
+        null,
+      );
+    if (covering && covering.origin !== 'toc') {
+      add(here, covering.origin === 'leading' ? 'leading' : 'spine');
     }
   }
   return result.sort((a, b) => measure.compare(a.position, b.position));
@@ -267,6 +298,7 @@ function buildSections(
     const start = boundary.position;
     const end = boundaries[i + 1]?.position ?? null;
     const startDoc = documents[start.doc]!;
+    const anchorDoc = documents[boundary.anchor.doc]!;
     const content = startDoc.document.createElement('section');
     const spanned: string[] = [];
 
@@ -302,10 +334,35 @@ function buildSections(
       documents: spanned,
       content,
       textLength,
+      start: { path: startDoc.path, id: start.element?.getAttribute('id') ?? null },
+      anchor: { path: anchorDoc.path, id: boundary.anchor.element?.getAttribute('id') ?? null },
+      semantics: sectionSemantics(anchorDoc, boundary.anchor.element),
     });
   });
 
   return sections;
+}
+
+/**
+ * Con un punto de corte, sus tipos y los de sus ancestros (el `<h2 id>` suele estar
+ * dentro de `<section epub:type="chapter">`). Al inicio del documento, los de la
+ * cadena de primeros hijos (`<body>` > `<section epub:type="titlepage">` > ...).
+ */
+function sectionSemantics(doc: SpineDocument, start: Element | null) {
+  const element: string[] = [];
+  if (start) {
+    for (let node: Element | null = start; node && node !== doc.body; node = node.parentElement) {
+      element.push(...semanticTypes(node));
+    }
+  } else {
+    let node = doc.body.firstElementChild;
+    for (let depth = 0; node && depth < 4; depth++, node = node.firstElementChild) {
+      element.push(...semanticTypes(node));
+    }
+  }
+  const html = doc.body.parentElement;
+  const document = [...semanticTypes(doc.body), ...(html ? semanticTypes(html) : [])];
+  return { element: [...new Set(element)], document: [...new Set(document)] };
 }
 
 function hasImage(root: Element): boolean {

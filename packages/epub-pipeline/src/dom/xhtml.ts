@@ -38,6 +38,19 @@ export function epubTypes(element: Element): string[] {
   return (element.getAttribute('epub:type') ?? '').split(/\s+/).filter(Boolean);
 }
 
+/**
+ * Tipos semánticos de un elemento: `epub:type` más los roles ARIA de DPUB
+ * (`role="doc-endnotes"` → `endnotes`). Los prefijos de vocabulario se quitan
+ * (`z3998:fiction` → `fiction`).
+ */
+export function semanticTypes(element: Element): string[] {
+  const roles = (element.getAttribute('role') ?? '')
+    .split(/\s+/)
+    .filter((role) => role.startsWith('doc-'))
+    .map((role) => role.slice(4));
+  return [...epubTypes(element), ...roles].map((type) => type.split(':').pop()!.toLowerCase());
+}
+
 export function isElement(node: Node): node is Element {
   return node.nodeType === ELEMENT_NODE;
 }

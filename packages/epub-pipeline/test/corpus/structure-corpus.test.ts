@@ -64,3 +64,71 @@ describe('corpus: etapas 3 y 4 (estructura)', () => {
     expect(nonLinear.every((x) => x.documents.length <= 1)).toBe(true);
   });
 });
+
+describe('corpus: etapa 5 (clasificación)', () => {
+  const kindOf = (s: BookStructure, title: string) => titled(s, title)?.kind;
+  const books = [
+    'pg-don-quijote',
+    'pg-marianela',
+    'pg-becquer-obras-escogidas',
+    'se-sherlock-holmes',
+    'se-vindication-rights-woman',
+    'idpf-moby-dick',
+    'idpf-wasteland-otf-obf',
+    'idpf-accessible-epub-3',
+  ].filter(has);
+
+  it.skipIf(books.length === 0).each(books)(
+    '%s: ningún capítulo numerado queda fuera de la narración',
+    async (id) => {
+      const s = await structure(id);
+      const chapters = s.sections.filter((x) =>
+        /^((chapter|capítulo) [\divxlc]+\b|-[ivxlc]+- |[ivxlc]+\.?$)/i.test(x.title),
+      );
+
+      expect(chapters.filter((x) => x.kind !== 'narrative').map((x) => x.title)).toEqual([]);
+    },
+  );
+
+  it.skipIf(!has('pg-don-quijote'))(
+    'Don Quijote: el índice HTML, los avisos de Gutenberg y los preliminares legales se ocultan',
+    async () => {
+      const s = await structure('pg-don-quijote');
+
+      expect(kindOf(s, 'por Miguel de Cervantes Saavedra')).toBe('front_matter');
+      expect(kindOf(s, 'The Project Gutenberg eBook of Don Quijote')).toBe('front_matter');
+      expect(kindOf(s, 'TASA')).toBe('front_matter');
+      expect(kindOf(s, 'THE FULL PROJECT GUTENBERG™ LICENSE')).toBe('back_matter');
+      expect(kindOf(s, 'PRÓLOGO')).toBe('narrative');
+    },
+  );
+
+  it.skipIf(!has('se-vindication-rights-woman'))(
+    'Vindication: semántica de Standard Ebooks, con el capítulo I visible',
+    async () => {
+      const s = await structure('se-vindication-rights-woman');
+
+      expect(kindOf(s, 'Titlepage')).toBe('front_matter');
+      expect(kindOf(s, 'I')).toBe('narrative');
+      expect(kindOf(s, 'Endnotes')).toBe('notes');
+      expect(kindOf(s, 'Uncopyright')).toBe('back_matter');
+    },
+  );
+
+  it.skipIf(!has('idpf-wasteland-otf-obf'))('The Waste Land: notas del autor', async () => {
+    const s = await structure('idpf-wasteland-otf-obf');
+
+    expect(kindOf(s, 'NOTES ON "THE WASTE LAND"')).toBe('notes');
+    expect(s.sections.filter((x) => x.kind === 'narrative')).toHaveLength(5);
+  });
+
+  it.skipIf(!has('idpf-accessible-epub-3'))(
+    'Accessible EPUB 3: copyright e índice sin marcar se detectan por contenido',
+    async () => {
+      const s = await structure('idpf-accessible-epub-3');
+      const beforePreface = s.sections.slice(0, s.sections.findIndex((x) => x.title === 'Preface'));
+
+      expect(beforePreface.every((x) => x.kind === 'front_matter')).toBe(true);
+    },
+  );
+});
