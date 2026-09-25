@@ -240,6 +240,8 @@ Esto te permite correr `api`, `worker` y `web` de forma independiente, compartir
 
 **Idea:** varios temas visuales de pixel art (creados para Lectio) que el usuario elige y que cambian la UI/UX: marcos, botones, íconos, colores y pequeños detalles del reproductor.
 
+**Ambición (precisada el 25-09-2026):** uno o varios temas muy estilizados, con el máximo nivel de diseño, que hagan que la app se sienta **casi como un juego**: la biblioteca, la navegación, el reproductor y las transiciones con identidad de pixel art. La excepción es **todo lo que sea lectura** (el texto del libro, su tamaño, su interlineado y su contraste), que se toca lo mínimo posible para no afectar la lectura.
+
 **Por qué encaja:** el preview ya está construido sobre *tokens* de diseño (variables CSS de color, tipografía y espaciado), así que un tema es, en su mayor parte, otro juego de tokens más sus recursos gráficos. Para el portafolio, además, muestra un sistema de temas real y no solo un modo oscuro.
 
 **Condiciones para que no choque con la dirección visual (§ frontend 2.2):**
