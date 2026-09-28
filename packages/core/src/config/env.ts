@@ -32,6 +32,12 @@ const EnvSchema = z.object({
   COOKIE_SECURE: booleanFlag.default(true),
   /** Límite de solicitudes por IP (se apaga en los tests, salvo en los que lo prueban). */
   RATE_LIMIT_ENABLED: booleanFlag.default(true),
+  /** Carpeta del storage local (EPUB, portadas, audio). Por defecto, storage/ en la raíz. */
+  STORAGE_DIR: z.string().optional(),
+  /** Tamaño máximo de un EPUB subido, en MB. */
+  MAX_UPLOAD_MB: z.coerce.number().positive().default(50),
+  /** Prefijo de las colas en Redis: los tests usan otro para no cruzarse con el worker de desarrollo. */
+  QUEUE_PREFIX: z.string().min(1).default('lectio'),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

@@ -1,8 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     // Con la condición "source" se compila el pipeline, que usa tipos del DOM (linkedom).

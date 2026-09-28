@@ -75,13 +75,13 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] CORS con orígenes desde la configuración y `credentials: true`.
 - [x] Tests de integración del flujo completo, incluida la reutilización de un token rotado.
 
-### Fase 2: subir y procesar libros
+### Fase 2: subir y procesar libros (hecha)
 
-- [ ] `POST /books` (multipart, límite de tamaño, `source_hash` y 409 si el usuario ya lo subió) → guarda el EPUB (FileStorage), crea `Book` en `pending` y encola `book-processing`.
-- [ ] Worker `book-processing`: `processEpub` → guarda `Chapter[]` (HTML, oraciones con tramos de voz, notas, tipo) y actualiza `Book` (metadatos, portada, `nav_source`, `pipeline_version`, reporte). Si falla, guarda `error` con su `error_code`.
-- [ ] `GET /books`, `GET /books/:id` (con el estado del audio por capítulo y voz), `GET /books/:id/report` y `DELETE /books/:id`.
-- [ ] Portada servida desde el storage.
-- [ ] Tests de integración con EPUB del corpus: subir, esperar a que el worker termine y verificar capítulos y reporte; DRM y archivo inválido.
+- [x] `POST /books` (multipart, límite de tamaño, `source_hash` y 409 si el usuario ya lo subió) → guarda el EPUB (FileStorage), crea `Book` en `pending` y encola `book-processing`.
+- [x] Worker `book-processing`: `processEpub` → guarda `Chapter[]` (HTML, oraciones con tramos de voz, notas, tipo) y actualiza `Book` (metadatos, portada, `nav_source`, `pipeline_version`, reporte). Si falla, guarda `error` con su `error_code`.
+- [x] `GET /books`, `GET /books/:id` (con el estado del audio por capítulo y voz), `GET /books/:id/report` y `DELETE /books/:id`.
+- [x] Portada servida desde el storage.
+- [x] Tests de integración con EPUB del corpus: subir, esperar a que el worker termine y verificar capítulos y reporte; DRM y archivo inválido.
 
 ### Fase 3: leer y retomar
 

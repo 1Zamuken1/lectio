@@ -24,3 +24,14 @@ export {
   Public,
   type SessionUser,
 } from './modules/auth/infrastructure/http/decorators.js';
+export { StorageModule } from './modules/storage/storage.module.js';
+export {
+  FILE_STORAGE,
+  storageKeys,
+  mediaTypeOf,
+  type FileStorage,
+} from './modules/storage/file-storage.js';
+export { BooksModule } from './modules/books/books.module.js';
+export { BookProcessingModule } from './modules/books/book-processing.module.js';
+export { BooksService } from './modules/books/application/books.service.js';
+export { uuidv7 } from './common/ids/uuid.js';

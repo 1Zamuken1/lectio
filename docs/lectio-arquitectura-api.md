@@ -144,7 +144,8 @@ Worker (book-processing):
    → processEpub(buffer) de packages/epub-pipeline:
        validación y DRM → OPF → navegación → segmentación → clasificación
        → limpieza estructural → oraciones → limpieza de narración → normalización
-   → guarda Chapter[] (content_html, sentences, notes, kind, character_count)
+   → sube la portada y las imágenes de los capítulos (FileStorage: books/<id>/cover.*, books/<id>/resources/<hash>.*)
+   → en una transacción: reemplaza Chapter[] (content_html, sentences con sus tramos de voz, notes, kind, character_count)
    → actualiza Book: status = "ready", nav_source, pipeline_version, processing_report
    → si falla: status = "error" con error_code (DRM_PROTECTED, INVALID_ARCHIVE...)
 ```
@@ -303,9 +304,13 @@ Response 202
 { "id": "uuid", "status": "pending" }
 
 Errores:
-413 archivo demasiado grande
-409 { "code": "BOOK_ALREADY_EXISTS", "bookId": "uuid" }  el usuario ya subió este mismo archivo
+400 INVALID_UPLOAD       falta el archivo, no termina en .epub o no es un ZIP (se valida antes de guardarlo)
+413 PAYLOAD_TOO_LARGE    supera MAX_UPLOAD_MB (50 por defecto); el archivo llega a memoria, nunca al disco
+409 { "code": "BOOK_ALREADY_EXISTS", "bookId": "uuid" }  el usuario ya subió este mismo archivo (SHA-256)
+429                      más de 10 subidas por hora desde la misma IP
 ```
+
+El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET /books/:id` hasta que `status` sea `ready` o `error`. Un error del pipeline (`DRM_PROTECTED`, `INVALID_ARCHIVE`, `NO_TEXT_CONTENT`…) queda en `errorCode` y no se reintenta; un fallo inesperado se reintenta 3 veces y, si persiste, queda como `PROCESSING_FAILED`.
 
 **`GET /api/v1/books`**: biblioteca personal (autenticado)
 ```json
@@ -315,12 +320,16 @@ Errores:
     "id": "uuid",
     "title": "string",
     "author": "string",
-    "coverUrl": "string",
+    "language": "es",
+    "coverUrl": "/api/v1/books/<id>/cover",
     "status": "ready",
     "errorCode": null,
+    "createdAt": "2026-09-28T15:45:23Z",
     "progress": { "chapterOrder": 3, "totalChapters": 12, "mode": "listening" }
   }
 ]
+// Del más reciente al más antiguo. coverUrl es null si el libro no tiene portada.
+// progress llega con el progreso de lectura (fase 3 del plan).
 ```
 
 **`GET /api/v1/books/public`**: biblioteca pública (sin autenticar)
@@ -352,17 +361,27 @@ Lo usa el prerender del frontend para generar `/libros/:slug` en tiempo de build
       "id": "uuid",
       "orderIndex": 1,
       "title": "string",
-      "parentTitle": "Parte I",
+      "ancestors": ["Parte I"],
       "kind": "narrative",
       "characterCount": 18450,
-      "audioStatus": "ready"
+      "sentenceCount": 612,
+      "audio": { "gonzalo": "ready", "jorge": "processing" }
     }
   ]
 }
-// audioStatus: none | pending | processing | ready | error
+// Además los campos de GET /books (coverUrl, errorCode…) y pipelineVersion.
+// chapters queda vacío hasta que el libro está ready.
+// audio: estado por voz (none si falta la voz); llega con la generación de audio (fase 4).
 // Por defecto el cliente muestra solo kind = "narrative"; el resto queda disponible.
-// Errores: 403 si el libro es privado y no pertenece al usuario autenticado
+// Errores: 403 BOOK_FORBIDDEN si el libro es privado y no es del usuario; 404 BOOK_NOT_FOUND
 ```
+
+**`GET /api/v1/books/:id/cover`**: la portada (mismo acceso que el libro)
+```
+Response 200 con Content-Type image/jpeg | image/png | …, Cache-Control: private, max-age=86400
+Errores: 404 COVER_NOT_FOUND si el libro no tiene portada
+```
+Como una etiqueta `<img>` no envía la cabecera `Authorization`, el cliente la pide con `fetch` y la muestra como blob. Con el storage de producción pasa a ser una URL firmada (§1.7), igual que el audio.
 
 **`GET /api/v1/books/:id/report`**: reporte de procesamiento (autenticado, propietario)
 ```json
@@ -372,8 +391,9 @@ Lo usa el prerender del frontend para generar `/libros/:slug` en tiempo de build
 **`DELETE /api/v1/books/:id`**: elimina un libro propio con sus capítulos, audios y progreso (autenticado)
 ```
 Response 204
-Errores: 403 si no es el propietario; 409 si tiene audio en pending/processing
+Errores: 403 BOOK_FORBIDDEN si no es el propietario; 409 BOOK_BUSY si tiene audio en pending/processing
 ```
+Borra también sus archivos del storage (EPUB, portada, imágenes y audio).
 
 ### 2.3 Chapters
 

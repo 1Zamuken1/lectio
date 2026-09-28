@@ -19,8 +19,9 @@ export const QUEUES = {
     BullModule.forRootAsync({
       inject: [APP_CONFIG],
       useFactory: (config: AppConfig) => ({
+        // BullMQ 6 acepta la URL y crea el cliente de ioredis a partir de ella.
         connection: { url: config.REDIS_URL, maxRetriesPerRequest: null },
-        prefix: 'lectio',
+        prefix: config.QUEUE_PREFIX,
       }),
     }),
     BullModule.registerQueue({ name: QUEUES.bookProcessing }, { name: QUEUES.audioGeneration }),

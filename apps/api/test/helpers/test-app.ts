@@ -1,7 +1,29 @@
-import type { INestApplication } from '@nestjs/common';
-import { PrismaService } from '@lectio/core';
+import { Module, type INestApplication, type INestApplicationContext } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import {
+  BookProcessingModule,
+  ConfigModule,
+  PrismaModule,
+  PrismaService,
+  QueuesModule,
+  RedisModule,
+  StorageModule,
+} from '@lectio/core';
 import request from 'supertest';
 import { createApp } from '../../src/app.js';
+
+/** El worker de los tests: los mismos módulos que apps/worker, en el mismo proceso. */
+@Module({
+  imports: [
+    ConfigModule,
+    PrismaModule,
+    RedisModule,
+    QueuesModule,
+    StorageModule,
+    BookProcessingModule,
+  ],
+})
+class TestWorkerModule {}
 
 export interface TestApp {
   app: INestApplication;
@@ -12,10 +34,18 @@ export interface TestApp {
   close(): Promise<void>;
 }
 
-/** La API real (misma configuración que main.ts) sobre la base de tests. */
-export async function createTestApp(): Promise<TestApp> {
+/**
+ * La API real (misma configuración que main.ts) sobre la base de tests. Con `worker: true`
+ * levanta también los processors de las colas, como hace apps/worker.
+ */
+export async function createTestApp(options: { worker?: boolean } = {}): Promise<TestApp> {
   const app = await createApp({ logger: false });
   await app.init();
+  let worker: INestApplicationContext | null = null;
+  if (options.worker) {
+    worker = await NestFactory.createApplicationContext(TestWorkerModule, { logger: false });
+    await worker.init();
+  }
   const prisma = app.get(PrismaService);
   return {
     app,
@@ -29,6 +59,34 @@ export async function createTestApp(): Promise<TestApp> {
       const list = tables.map((t) => `"${t.tablename}"`).join(', ');
       await prisma.$executeRawUnsafe(`TRUNCATE ${list} RESTART IDENTITY CASCADE`);
     },
-    close: () => app.close(),
+    async close() {
+      await worker?.close();
+      await app.close();
+    },
   };
+}
+
+/** Crea una cuenta, inicia sesión y devuelve la cabecera Authorization lista para usar. */
+export async function signUp(t: TestApp, email: string): Promise<string> {
+  const credentials = { email, password: 'una frase larga y segura' };
+  await t.http.post('/api/v1/auth/register').send(credentials).expect(201);
+  const login = await t.http.post('/api/v1/auth/login').send(credentials).expect(200);
+  return `Bearer ${login.body.accessToken}`;
+}
+
+/** Espera a que el worker termine de procesar un libro (ready o error). */
+export async function waitForBook(
+  t: TestApp,
+  auth: string,
+  bookId: string,
+  timeoutMs = 20_000,
+): Promise<{ status: string; errorCode: string | null; [key: string]: unknown }> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const response = await t.http.get(`/api/v1/books/${bookId}`).set('Authorization', auth);
+    if (response.body.status === 'ready' || response.body.status === 'error') return response.body;
+    if (Date.now() > deadline)
+      throw new Error(`El libro ${bookId} sigue en ${response.body.status}`);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
 }

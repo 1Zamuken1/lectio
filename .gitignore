@@ -29,3 +29,6 @@ Thumbs.db
 
 # Configuración local de herramientas (Claude Code)
 .claude/
+
+# Archivos subidos y generados por la API en desarrollo (storage local)
+storage/

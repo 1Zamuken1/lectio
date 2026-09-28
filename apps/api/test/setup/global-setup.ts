@@ -1,12 +1,14 @@
 import { execSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
  * Antes de los tests de integración: apunta DATABASE_URL a la base de tests y le aplica
  * las migraciones. Los procesos de test heredan estas variables.
  */
-export default function setup(): void {
+export default async function setup(): Promise<void> {
   const rootEnv = new URL('../../../../.env', import.meta.url);
   if (existsSync(rootEnv)) process.loadEnvFile(rootEnv);
   const testUrl = process.env.TEST_DATABASE_URL;
@@ -18,9 +20,28 @@ export default function setup(): void {
   process.env.NODE_ENV = 'test';
   // Los tests hacen muchos login seguidos; el límite se prueba aparte, encendiéndolo.
   process.env.RATE_LIMIT_ENABLED ??= 'false';
+  // Colas y archivos propios: el worker de desarrollo (si está corriendo) no toma estos jobs.
+  process.env.QUEUE_PREFIX = 'lectio-test';
+  process.env.STORAGE_DIR = join(tmpdir(), 'lectio-test-storage');
+  process.env.MAX_UPLOAD_MB = '2';
+  rmSync(process.env.STORAGE_DIR, { recursive: true, force: true });
   execSync('pnpm exec prisma migrate deploy', {
     cwd: fileURLToPath(new URL('../../../../packages/core', import.meta.url)),
     env: process.env,
     stdio: 'pipe',
   });
+  await clearQueues();
+}
+
+/** Jobs que quedaron de una corrida anterior interrumpida. */
+async function clearQueues(): Promise<void> {
+  const { Queue } = await import('bullmq');
+  for (const name of ['book-processing', 'audio-generation']) {
+    const queue = new Queue(name, {
+      prefix: process.env.QUEUE_PREFIX,
+      connection: { url: process.env.REDIS_URL },
+    });
+    await queue.obliterate({ force: true });
+    await queue.close();
+  }
 }

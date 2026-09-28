@@ -4,11 +4,14 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import {
   APP_CONFIG,
   AuthModule,
+  BooksModule,
   ConfigModule,
   HealthModule,
   JwtAuthGuard,
   PrismaModule,
+  QueuesModule,
   RedisModule,
+  StorageModule,
   type AppConfig,
 } from '@lectio/core';
 import { HealthController } from './health/health.controller.js';
@@ -19,7 +22,10 @@ import { HealthController } from './health/health.controller.js';
     PrismaModule,
     RedisModule,
     HealthModule,
+    QueuesModule,
+    StorageModule,
     AuthModule,
+    BooksModule,
     // Límite global por IP (arquitectura §1.8); las rutas sensibles lo ajustan con @Throttle.
     ThrottlerModule.forRootAsync({
       inject: [APP_CONFIG],
