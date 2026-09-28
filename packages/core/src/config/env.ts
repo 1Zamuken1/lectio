@@ -5,6 +5,10 @@ import { z } from 'zod';
  * Configuración de la API y el worker, validada al arrancar: si falta algo o está mal,
  * el proceso no arranca y dice qué corregir (en vez de fallar en la primera petición).
  */
+const booleanFlag = z
+  .enum(['true', 'false', '1', '0'])
+  .transform((value) => value === 'true' || value === '1');
+
 const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
@@ -20,6 +24,14 @@ const EnvSchema = z.object({
         .filter(Boolean),
     ),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
+  /** Vida del access token (JWT), en segundos. */
+  ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+  /** Vida del refresh token (cookie), en días. */
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  /** Cookie Secure: los navegadores la aceptan también en http://localhost. */
+  COOKIE_SECURE: booleanFlag.default(true),
+  /** Límite de solicitudes por IP (se apaga en los tests, salvo en los que lo prueban). */
+  RATE_LIMIT_ENABLED: booleanFlag.default(true),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

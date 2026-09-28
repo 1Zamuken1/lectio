@@ -15,3 +15,12 @@ export {
   type DependencyHealth,
   type HealthReport,
 } from './modules/health/health.service.js';
+export { validationPipe } from './common/validation.js';
+export { AuthModule } from './modules/auth/auth.module.js';
+export { AuthService } from './modules/auth/application/auth.service.js';
+export { JwtAuthGuard } from './modules/auth/infrastructure/http/jwt-auth.guard.js';
+export {
+  CurrentUser,
+  Public,
+  type SessionUser,
+} from './modules/auth/infrastructure/http/decorators.js';

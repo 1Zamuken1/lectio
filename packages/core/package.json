@@ -24,14 +24,21 @@
     "db:deploy": "prisma migrate deploy",
     "build": "prisma generate && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.0",
     "@nestjs/common": "^12.1.1",
+    "@nestjs/core": "^12.1.1",
+    "@nestjs/jwt": "^12.0.2",
+    "@nestjs/swagger": "^12.0.2",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "argon2": "^0.45.1",
     "bullmq": "^6.3.9",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "ioredis": "^5.11.1",
     "pg": "^8.23.0",
     "reflect-metadata": "^0.2.2",
@@ -39,10 +46,12 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@swc/core": "^1.16.2",
     "@types/node": "^24.13.6",
     "@types/pg": "^8.23.1",
     "prisma": "^7.10.0",
     "typescript": "~6.0.3",
+    "unplugin-swc": "^2.0.0",
     "vitest": "^5.0.2"
   }
 }

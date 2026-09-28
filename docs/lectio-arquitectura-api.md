@@ -209,6 +209,8 @@ Las URLs de audio de libros privados se sirven como URLs firmadas de corta durac
 - `POST /books`: ej. 10/hora por usuario.
 - `POST /chapters/:id/audio`: ej. 10/min por usuario (la cuota y la concurrencia son el control real; esto frena scripts).
 
+En el MVP el contador vive en memoria de cada proceso de la API (una sola instancia). Con varias instancias se pasa a guardarlo en Redis (`@nestjs/throttler` lo soporta con un storage propio).
+
 ### 1.9 Sesión: access token + refresh token
 
 Una PWA que se usa a diario no puede pedir login cada vez que expira el token. Esquema:
@@ -251,7 +253,8 @@ Convención: prefijo `/api/v1`, autenticación vía `Authorization: Bearer <jwt>
 { "email": "string", "password": "string" }
 // Response 201
 { "id": "uuid", "email": "string" }
-// Errores: 409 si el correo ya existe
+// Errores: 409 EMAIL_TAKEN si el correo ya existe (se compara normalizado: sin espacios y en minúsculas);
+//          400 VALIDATION_FAILED con { errors: [{ field, messages }] } (contraseña de 8 a 128 caracteres)
 ```
 
 **`POST /api/v1/auth/login`**
@@ -260,8 +263,8 @@ Convención: prefijo `/api/v1`, autenticación vía `Authorization: Bearer <jwt>
 { "email": "string", "password": "string" }
 // Response 200
 { "accessToken": "string", "expiresIn": 900, "user": { "id": "uuid", "email": "string" } }
-// Además: Set-Cookie: refresh_token=...; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
-// Errores: 401 credenciales inválidas
+// Además: Set-Cookie: lectio_refresh=...; HttpOnly; Secure; SameSite=Strict; Path=/api/v1/auth
+// Errores: 401 INVALID_CREDENTIALS: el mismo para correo inexistente y contraseña incorrecta
 ```
 
 **`POST /api/v1/auth/refresh`**: renueva la sesión (usa la cookie, sin cuerpo)
@@ -269,7 +272,10 @@ Convención: prefijo `/api/v1`, autenticación vía `Authorization: Bearer <jwt>
 // Response 200
 { "accessToken": "string", "expiresIn": 900 }
 // Además: Set-Cookie con el nuevo refresh token (rotación)
-// Errores: 401 si la cookie falta, expiró, fue revocada o reutilizada
+// Errores: 401 INVALID_REFRESH_TOKEN si la cookie falta, expiró o se cerró con logout;
+//          401 REFRESH_TOKEN_REUSED si era un token ya rotado: se revoca toda su familia.
+//          Dos refresh simultáneos con el mismo token: gana uno y el otro cuenta como reutilización,
+//          así que el cliente debe serializar la renovación entre pestañas (Web Locks o BroadcastChannel).
 ```
 
 **`POST /api/v1/auth/logout`**: cierra la sesión actual
@@ -277,6 +283,14 @@ Convención: prefijo `/api/v1`, autenticación vía `Authorization: Bearer <jwt>
 Response 204
 Revoca el refresh token de la cookie y la borra (Set-Cookie con Max-Age=0).
 ```
+
+**`GET /api/v1/users/me`**: la cuenta de la sesión (autenticado)
+```json
+// Response 200
+{ "id": "uuid", "email": "string", "createdAt": "2026-09-28T15:45:23Z" }
+```
+
+Toda ruta exige el access token salvo las marcadas como públicas (auth, salud y, en la fase 5, la biblioteca pública): el guard global es cerrado por defecto.
 
 ### 2.2 Books
 

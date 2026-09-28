@@ -1,6 +1,6 @@
 import { Controller, Get, HttpStatus, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
-import { HealthService } from '@lectio/core';
+import { HealthService, Public } from '@lectio/core';
 
 interface StatusResponse {
   status(code: number): StatusResponse;
@@ -8,6 +8,7 @@ interface StatusResponse {
 }
 
 @ApiTags('health')
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(private readonly health: HealthService) {}

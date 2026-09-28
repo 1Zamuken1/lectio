@@ -16,6 +16,8 @@ export default function setup(): void {
   }
   process.env.DATABASE_URL = testUrl;
   process.env.NODE_ENV = 'test';
+  // Los tests hacen muchos login seguidos; el límite se prueba aparte, encendiéndolo.
+  process.env.RATE_LIMIT_ENABLED ??= 'false';
   execSync('pnpm exec prisma migrate deploy', {
     cwd: fileURLToPath(new URL('../../../../packages/core', import.meta.url)),
     env: process.env,

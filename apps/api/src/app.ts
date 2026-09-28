@@ -2,7 +2,8 @@ import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { APP_CONFIG, ErrorFilter, type AppConfig } from '@lectio/core';
+import { APP_CONFIG, ErrorFilter, validationPipe, type AppConfig } from '@lectio/core';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module.js';
 
 /**
@@ -15,6 +16,8 @@ export async function createApp(options: { logger?: false } = {}): Promise<INest
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new ErrorFilter());
+  app.useGlobalPipes(validationPipe());
+  app.use(cookieParser());
   app.enableShutdownHooks();
   // Solo los orígenes configurados (nunca "*"): las peticiones de sesión llevan credenciales.
   app.enableCors({
@@ -30,6 +33,7 @@ export async function createApp(options: { logger?: false } = {}): Promise<INest
     )
     .setVersion('1')
     .addBearerAuth()
+    .addCookieAuth('lectio_refresh')
     .build();
   SwaggerModule.setup('api/docs', app, () => SwaggerModule.createDocument(app, openApi));
   return app;

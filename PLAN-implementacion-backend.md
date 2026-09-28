@@ -66,14 +66,14 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] `pnpm dev` levanta api + worker; `README` con los pasos (Docker, migraciones).
 - [x] Actualizar `docs/`: estructura del monorepo (`packages/tts`) y `AudioSegment` por voz.
 
-### Fase 1: autenticación
+### Fase 1: autenticación (hecha)
 
-- [ ] `POST /auth/register`, `/auth/login`, `/auth/refresh` y `/auth/logout` (arquitectura §2.1).
-- [ ] Refresh token: se guarda solo su hash, con rotación, detección de reutilización (revoca la familia) y cookie `httpOnly; Secure; SameSite=Strict; Path=/api/v1/auth`.
-- [ ] Guard JWT global con `@Public()` para las rutas abiertas; `@CurrentUser()`.
-- [ ] Rate limiting: global y más estricto en login y registro (arquitectura §1.8).
-- [ ] CORS con orígenes desde la configuración y `credentials: true`.
-- [ ] Tests de integración del flujo completo, incluida la reutilización de un token rotado.
+- [x] `POST /auth/register`, `/auth/login`, `/auth/refresh` y `/auth/logout` (arquitectura §2.1).
+- [x] Refresh token: se guarda solo su hash, con rotación, detección de reutilización (revoca la familia) y cookie `httpOnly; Secure; SameSite=Strict; Path=/api/v1/auth`.
+- [x] Guard JWT global con `@Public()` para las rutas abiertas; `@CurrentUser()`.
+- [x] Rate limiting: global y más estricto en login y registro (arquitectura §1.8).
+- [x] CORS con orígenes desde la configuración y `credentials: true`.
+- [x] Tests de integración del flujo completo, incluida la reutilización de un token rotado.
 
 ### Fase 2: subir y procesar libros
 
