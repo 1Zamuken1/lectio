@@ -85,10 +85,11 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ### Fase 3: leer y retomar
 
-- [ ] `GET /chapters/:id` con `ETag` y `304` (arquitectura §1.11); nunca expone el texto de narración.
-- [ ] `PUT` y `GET /books/:id/progress` con `clientUpdatedAt` (gana el más reciente; 400 si viene del futuro o si el índice está fuera de rango).
-- [ ] Control de acceso: solo el propietario (los libros públicos llegan en la fase 5).
-- [ ] Tests de integración: ETag, conflicto entre dos dispositivos y acceso ajeno (403).
+- [x] `GET /chapters/:id` con `ETag` y `304` (arquitectura §1.11); nunca expone el texto de narración.
+- [x] `PUT` y `GET /books/:id/progress` con `clientUpdatedAt` (gana el más reciente; 400 si viene del futuro o si el índice está fuera de rango).
+- [x] Control de acceso: solo el propietario (los libros públicos llegan en la fase 5).
+- [x] Tests de integración: ETag, conflicto entre dos dispositivos y acceso ajeno (403).
+- [x] Imágenes de los capítulos (`GET /books/:id/resources?path=`) y el progreso en la biblioteca (`GET /books`).
 
 ### Fase 4: audio
 

@@ -329,7 +329,7 @@ El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET 
   }
 ]
 // Del más reciente al más antiguo. coverUrl es null si el libro no tiene portada.
-// progress llega con el progreso de lectura (fase 3 del plan).
+// progress es null si aún no empiezas el libro; chapterOrder es el orderIndex del capítulo actual.
 ```
 
 **`GET /api/v1/books/public`**: biblioteca pública (sin autenticar)
@@ -402,20 +402,33 @@ Borra también sus archivos del storage (EPUB, portada, imágenes y audio).
 // Response 200
 {
   "id": "uuid",
+  "bookId": "uuid",
   "orderIndex": 1,
   "title": "string",
-  "parentTitle": "string | null",
+  "ancestors": ["Primera parte"],
+  "kind": "narrative",
   "contentHtml": "<p data-b=\"0\">...</p>",
   "sentences": [
-    { "index": 0, "blockIndex": 0, "start": 0, "end": 84 }
+    { "index": 0, "blockIndex": 0, "start": 0, "end": 84, "narrated": true }
   ],
   "notes": [
     { "id": "fn3", "html": "<p>...</p>" }
   ]
 }
 // El texto a narrar (narration) no se expone: es un detalle interno del TTS.
-// Cabeceras: ETag y Cache-Control: private, no-cache (ver §1.11).
-// Response 304 sin cuerpo si If-None-Match coincide con el ETag actual.
+// narrated = false: la oración se muestra pero no se lee en voz alta (por ejemplo, solo símbolos).
+// Cabeceras: ETag ("<chapterId>.p<pipelineVersion>") y Cache-Control: private, no-cache (ver §1.11).
+// Response 304 sin cuerpo si If-None-Match coincide con el ETag actual (acepta W/ y listas).
+// Errores: 403 BOOK_FORBIDDEN, 404 CHAPTER_NOT_FOUND
+```
+
+**`GET /api/v1/books/:id/resources?path=OEBPS/img/figura.png`**: imagen de un capítulo
+```
+// path es la ruta que aparece en el src del HTML del capítulo (la ruta dentro del EPUB).
+// Response 200 con el Content-Type de la imagen, Cache-Control: private, max-age=86400,
+// X-Content-Type-Options: nosniff y una CSP con sandbox (un SVG del EPUB no ejecuta scripts).
+// La clave en el storage se deriva de la ruta: no hay forma de pedir un archivo ajeno al libro.
+// Errores: 403 BOOK_FORBIDDEN, 404 RESOURCE_NOT_FOUND
 ```
 
 ### 2.4 Audio
@@ -488,11 +501,13 @@ Errores:
   "applied": false,
   "current": { "chapterId": "uuid", "sentenceIndex": 201, "mode": "reading", "clientUpdatedAt": "2026-09-25T10:03:40Z" }
 }
-// Errores: 400 si sentenceIndex está fuera de rango para ese capítulo,
-//          o si clientUpdatedAt está más de 5 min en el futuro respecto al servidor
+// Reenviar exactamente la misma posición (un reintento) responde applied: true.
+// Errores 400: SENTENCE_OUT_OF_RANGE (incluye sentenceCount), CHAPTER_NOT_IN_BOOK,
+//              CLIENT_TIME_IN_FUTURE (más de 5 min adelantado respecto al servidor),
+//              VALIDATION_FAILED (formato); 403 BOOK_FORBIDDEN
 ```
 
-`clientUpdatedAt` es el momento en que el usuario estuvo realmente en esa posición, no el momento del envío: un progreso guardado sin conexión en el gym y enviado horas después no pisa lo que se leyó entretanto en el computador (`lectio-frontend.md` §6.4). Gana el `clientUpdatedAt` más reciente.
+`clientUpdatedAt` es el momento en que el usuario estuvo realmente en esa posición, no el momento del envío: un progreso guardado sin conexión en el gym y enviado horas después no pisa lo que se leyó entretanto en el computador (`lectio-frontend.md` §6.4). Gana el `clientUpdatedAt` más reciente. La comparación se hace dentro del mismo `INSERT … ON CONFLICT DO UPDATE … WHERE`, así que dos dispositivos guardando a la vez no se pisan.
 
 **`GET /api/v1/books/:id/progress`**: posición actual (autenticado)
 ```json

@@ -54,10 +54,29 @@ export class PrismaBookRepository implements BookRepository {
   async listByOwner(ownerId: string): Promise<BookSummary[]> {
     const rows = await this.prisma.book.findMany({
       where: { ownerId },
-      select: SUMMARY,
+      select: {
+        ...SUMMARY,
+        _count: { select: { chapters: true } },
+        readingProgress: {
+          where: { userId: ownerId },
+          select: { mode: true, chapter: { select: { orderIndex: true } } },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map(toSummary);
+    return rows.map(({ _count, readingProgress, ...row }) => {
+      const [progress] = readingProgress;
+      return {
+        ...toSummary(row),
+        progress: progress
+          ? {
+              chapterOrder: progress.chapter.orderIndex,
+              totalChapters: _count.chapters,
+              mode: progress.mode,
+            }
+          : null,
+      };
+    });
   }
 
   async findDetail(id: string): Promise<BookDetail | null> {

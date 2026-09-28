@@ -16,6 +16,7 @@ import {
   BookNotFoundError,
   InvalidUploadError,
 } from '../domain/errors.js';
+import { assertCanRead } from '../domain/access.js';
 import type { BookDetail, BookRecord, BookSummary } from '../domain/model.js';
 import {
   BOOK_PROCESSING_QUEUE,
@@ -72,7 +73,7 @@ export class BooksService {
   async detail(userId: string, bookId: string): Promise<BookDetail> {
     const detail = await this.books.findDetail(bookId);
     if (!detail) throw new BookNotFoundError();
-    this.assertCanRead(userId, detail);
+    assertCanRead(userId, detail);
     return detail;
   }
 
@@ -88,6 +89,21 @@ export class BooksService {
     return data ? { data, mediaType: mediaTypeOf(book.coverKey) } : null;
   }
 
+  /**
+   * Imagen de un capítulo, por la ruta que usa su HTML (la del EPUB). La clave se deriva de
+   * la ruta, así que no hay forma de pedir un archivo que no sea de este libro.
+   */
+  async resource(
+    userId: string,
+    bookId: string,
+    path: string,
+  ): Promise<{ data: Buffer; mediaType: string } | null> {
+    await this.readable(userId, bookId);
+    const key = storageKeys.resource(bookId, path);
+    const data = await this.storage.get(key);
+    return data ? { data, mediaType: mediaTypeOf(key) } : null;
+  }
+
   async remove(userId: string, bookId: string): Promise<void> {
     const book = await this.books.findRecord(bookId);
     if (!book) throw new BookNotFoundError();
@@ -101,12 +117,8 @@ export class BooksService {
   async readable(userId: string, bookId: string): Promise<BookRecord> {
     const book = await this.books.findRecord(bookId);
     if (!book) throw new BookNotFoundError();
-    this.assertCanRead(userId, book);
+    assertCanRead(userId, book);
     return book;
-  }
-
-  private assertCanRead(userId: string, book: { ownerId: string | null; isPublic: boolean }): void {
-    if (!book.isPublic && book.ownerId !== userId) throw new BookForbiddenError();
   }
 
   get maxUploadBytes(): number {

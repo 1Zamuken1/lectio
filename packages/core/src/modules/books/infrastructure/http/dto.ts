@@ -12,6 +12,17 @@ export class UploadResponseDto {
   status!: 'pending';
 }
 
+export class LibraryProgressDto {
+  @ApiProperty({ example: 4, description: 'orderIndex del capítulo actual.' })
+  chapterOrder!: number;
+
+  @ApiProperty({ example: 27 })
+  totalChapters!: number;
+
+  @ApiProperty({ enum: ['reading', 'listening'] })
+  mode!: string;
+}
+
 export class BookSummaryDto {
   @ApiProperty({ format: 'uuid' })
   id!: string;
@@ -41,6 +52,9 @@ export class BookSummaryDto {
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 
+  @ApiProperty({ type: LibraryProgressDto, nullable: true, required: false })
+  progress?: LibraryProgressDto | null;
+
   static from(book: BookSummary): BookSummaryDto {
     return {
       id: book.id,
@@ -51,6 +65,7 @@ export class BookSummaryDto {
       errorCode: book.errorCode,
       coverUrl: book.hasCover ? `/api/v1/books/${book.id}/cover` : null,
       createdAt: book.createdAt.toISOString(),
+      ...(book.progress !== undefined ? { progress: book.progress } : {}),
     };
   }
 }

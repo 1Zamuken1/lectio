@@ -5,11 +5,13 @@ import {
   APP_CONFIG,
   AuthModule,
   BooksModule,
+  ChaptersModule,
   ConfigModule,
   HealthModule,
   JwtAuthGuard,
   PrismaModule,
   QueuesModule,
+  ReadingProgressModule,
   RedisModule,
   StorageModule,
   type AppConfig,
@@ -26,6 +28,8 @@ import { HealthController } from './health/health.controller.js';
     StorageModule,
     AuthModule,
     BooksModule,
+    ChaptersModule,
+    ReadingProgressModule,
     // Límite global por IP (arquitectura §1.8); las rutas sensibles lo ajustan con @Throttle.
     ThrottlerModule.forRootAsync({
       inject: [APP_CONFIG],

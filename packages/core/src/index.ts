@@ -35,3 +35,5 @@ export { BooksModule } from './modules/books/books.module.js';
 export { BookProcessingModule } from './modules/books/book-processing.module.js';
 export { BooksService } from './modules/books/application/books.service.js';
 export { uuidv7 } from './common/ids/uuid.js';
+export { ChaptersModule } from './modules/chapters/chapters.module.js';
+export { ReadingProgressModule } from './modules/reading-progress/reading-progress.module.js';

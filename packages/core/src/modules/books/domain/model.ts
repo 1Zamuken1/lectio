@@ -21,6 +21,8 @@ export interface BookSummary {
   errorCode: string | null;
   hasCover: boolean;
   createdAt: Date;
+  /** Dónde va el usuario (solo en su biblioteca); null si no lo abrió todavía. */
+  progress?: { chapterOrder: number; totalChapters: number; mode: 'reading' | 'listening' } | null;
 }
 
 export interface ChapterSummary {

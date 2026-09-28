@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -24,11 +25,13 @@ import {
   ApiOperation,
   ApiPayloadTooLargeResponse,
   ApiProduces,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AppError } from '../../../../common/errors/app-error.js';
 import { CurrentUser, type SessionUser } from '../../../auth/infrastructure/http/decorators.js';
+import { ResourceNotFoundError } from '../../../chapters/domain/errors.js';
 import { BooksService } from '../../application/books.service.js';
 import { BookDetailDto, BookSummaryDto, UploadResponseDto } from './dto.js';
 
@@ -43,6 +46,12 @@ interface BinaryResponse {
 }
 
 const bookId = new ParseUUIDPipe({ version: '7' });
+
+/**
+ * Las imágenes vienen del EPUB y un SVG puede traer scripts: abierto directamente desde la
+ * API, se muestra aislado (sandbox, sin scripts ni recursos externos).
+ */
+const IMAGE_CSP = "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; sandbox";
 
 @ApiTags('books')
 @ApiBearerAuth()
@@ -124,7 +133,31 @@ export class BooksController {
     response.setHeader('Content-Type', cover.mediaType);
     response.setHeader('Cache-Control', 'private, max-age=86400');
     response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('Content-Security-Policy', IMAGE_CSP);
     response.send(cover.data);
+  }
+
+  @Get(':id/resources')
+  @ApiOperation({
+    summary: 'Imagen de un capítulo',
+    description: 'path es la ruta que aparece en el HTML del capítulo (la del EPUB).',
+  })
+  @ApiQuery({ name: 'path', example: 'OEBPS/img/figura.png' })
+  @ApiNotFoundResponse({ description: 'RESOURCE_NOT_FOUND' })
+  async resource(
+    @CurrentUser() user: SessionUser,
+    @Param('id', bookId) id: string,
+    @Query('path') path: string | undefined,
+    @Res() response: BinaryResponse,
+  ): Promise<void> {
+    const resource = path ? await this.books.resource(user.userId, id, path) : null;
+    if (!resource) throw new ResourceNotFoundError();
+    response.setHeader('Content-Type', resource.mediaType);
+    // Las imágenes de un libro no cambian: se pueden guardar un día.
+    response.setHeader('Cache-Control', 'private, max-age=86400');
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+    response.setHeader('Content-Security-Policy', IMAGE_CSP);
+    response.send(resource.data);
   }
 
   @Delete(':id')
