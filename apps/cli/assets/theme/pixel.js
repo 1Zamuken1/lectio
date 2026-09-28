@@ -208,7 +208,59 @@
 
   const SPINES = ['red', 'red-d', 'blue', 'green', 'gold-d', 'parch-d', 'blue-d', 'red'];
 
-  /** Estantería con libros de alturas y colores variados (lomos con banda dorada). */
+  /** Objetos de monasterio entre los libros (se apoyan en la tabla del estante). */
+  const SHELF_PALETTE = {
+    o: 'ink',
+    w: 'parch',
+    l: 'parch-d',
+    g: 'gold',
+    h: 'gold-d',
+    b: 'blue',
+    e: 'green',
+    r: 'red',
+    k: 'inkwell',
+    s: 'stone-l',
+    f: 'flame',
+    y: 'flame-core',
+  };
+  const SHELF_OBJECTS = [
+    // Pergaminos enrollados, apilados, con cinta roja.
+    ['...ooooooo.', '..olwwrwwlo', '...ooooooo.', '.ooooooo...', 'olwwrwwlo..', '.ooooooo...'],
+    // Reloj de arena.
+    [
+      'hhhhhhh',
+      '.o...o.',
+      '.ogggo.',
+      '..ogo..',
+      '...o...',
+      '..o.o..',
+      '.o.g.o.',
+      '.ogggo.',
+      'hhhhhhh',
+    ],
+    // Globo terráqueo sobre su pie.
+    [
+      '..ooo..',
+      '.obbeo.',
+      'obbeeeo',
+      'obeebbo',
+      'obbbeeo',
+      '.obbbo.',
+      '..ooo..',
+      '...h...',
+      '..hhh..',
+    ],
+    // Cráneo.
+    ['.ooooo.', 'owwwwwo', 'owwwwwo', 'oowowoo', 'owwwwwo', '.owowo.', '..ooo..'],
+    // Cabo de vela.
+    ['..f..', '.fyf.', '..o..', '.owo.', '.owo.', '.owo.', 'ohhho'],
+    // Tintero con pluma.
+    ['.....o', '....ow', '...ow.', '..ow..', '.okko.', 'okkkko', 'okskko', '.oooo.'],
+    // Libros acostados, uno sobre otro.
+    ['.oooooooo.', '.orrrrrro.', 'oooooooooo', 'obbbbbbbbo', 'ogggggggo.', 'oooooooooo'],
+  ];
+
+  /** Estantería con libros de alturas y colores variados y, de vez en cuando, un objeto. */
   function bookshelf(c, x, y, w, h, rnd, shelves = 4) {
     c.rect('wood-d', x, y, w, h);
     c.rect('wood', x + 2, y + 2, w - 4, h - 4);
@@ -217,10 +269,24 @@
       const base = y + 2 + gap * (s + 1) - 3;
       c.rect('wood-d', x + 2, base, w - 4, 3);
       c.rect('wood-l', x + 2, base, w - 4, 1);
+      // Fondo del estante en sombra: da profundidad a lo que se apoya en él.
+      c.rect('wood-d', x + 2, base - gap + 3, w - 4, 2);
       let bx = x + 4;
+      let sinceObject = 0;
       while (bx < x + w - 8) {
-        if (rnd() < 0.08) {
-          bx += 4 + Math.floor(rnd() * 5); // hueco
+        const room = x + w - 5 - bx;
+        if (sinceObject > 3 && rnd() < 0.3) {
+          const object = SHELF_OBJECTS[Math.floor(rnd() * SHELF_OBJECTS.length)];
+          const width = Math.max(...object.map((row) => row.length));
+          if (width <= room) {
+            c.sprite(object, SHELF_PALETTE, bx + 1, base - object.length);
+            bx += width + 2;
+            sinceObject = 0;
+            continue;
+          }
+        }
+        if (rnd() < 0.06) {
+          bx += 3 + Math.floor(rnd() * 4); // hueco
           continue;
         }
         const bw = 3 + Math.floor(rnd() * 4);
@@ -232,6 +298,7 @@
         c.rect('gold', bx, top + 3, bw - 1, 1);
         if (bh > 16) c.rect('gold', bx, base - 4, bw - 1, 1);
         bx += bw + (rnd() < 0.2 ? 1 : 0);
+        sinceObject++;
       }
     }
     c.rect('ink', x, y, w, 1);
@@ -239,20 +306,48 @@
     c.rect('ink', x + w - 1, y, 1, h);
   }
 
-  /** Ventanal gótico con vitral: arco de medio punto, emplomado y cielo de día o de noche. */
-  function archWindow(x, y, w, h) {
-    const frame = canvas();
-    const glass = canvas();
+  /** Forma del vano: rectángulo coronado por un arco de medio punto. */
+  function archShape(x, y, w, h) {
     const r = w / 2;
-    const inside = (px, py) => {
+    return (px, py) => {
+      if (py < y || py >= y + h) return false;
       if (py >= y + r) return px >= x && px < x + w;
       const dy = y + r - py - 0.5;
       const half = Math.sqrt(Math.max(0, r * r - dy * dy));
       return px + 0.5 >= x + r - half && px + 0.5 <= x + r + half;
     };
+  }
+
+  /** El vano como un solo path (para recortar el paisaje y el cielo). */
+  function archPath(x, y, w, h) {
+    const inside = archShape(x, y, w, h);
+    let d = '';
+    for (let py = y; py < y + h; py++) {
+      let start = null;
+      for (let px = x; px <= x + w; px++) {
+        const hit = px < x + w && inside(px, py);
+        if (hit && start === null) start = px;
+        if (!hit && start !== null) {
+          d += `M${start} ${py}h${px - start}v1h${start - px}z`;
+          start = null;
+        }
+      }
+    }
+    return d;
+  }
+
+  /**
+   * Ventanal gótico: marco de piedra, rosetón emplomado en el arco y, por el vidrio, el
+   * cielo y el paisaje (`view`, ya recortado a la forma del vano).
+   */
+  function archWindow(x, y, w, h, view) {
+    const inside = archShape(x, y, w, h);
+    const r = w / 2;
+    const frame = canvas();
+    const glass = canvas();
     for (let py = y - 3; py < y + h + 3; py++) {
       for (let px = x - 3; px < x + w + 3; px++) {
-        const inGlass = py < y + h && inside(px, py);
+        const inGlass = inside(px, py);
         const inFrame =
           !inGlass &&
           (inside(px - 3, py) ||
@@ -262,41 +357,171 @@
         if (inFrame) frame.rect(py >= y + h ? 'stone-d' : 'stone-l', px, py, 1, 1);
         else if (inGlass) {
           const band = (py - y) / h;
-          glass.rect(band < 0.35 ? 'sky-top' : band < 0.7 ? 'sky' : 'sky-low', px, py, 1, 1);
+          glass.rect(band < 0.3 ? 'sky-top' : band < 0.55 ? 'sky' : 'sky-low', px, py, 1, 1);
         }
       }
     }
-    // Emplomado: parteluz central y travesaños.
+
+    // Rosetón en el arco: un círculo de vidrios de color con emplomado radial.
+    const rose = canvas();
     const lead = canvas();
-    lead.rect('lead', x + Math.floor(w / 2), y + 2, 1, h - 2);
-    for (let ly = y + r + 6; ly < y + h; ly += 12) lead.rect('lead', x, ly, w, 1);
-    // Cristales de color en el arco (el vitral).
-    const colors = canvas();
-    colors.rect('red', x + r - 3, y + 5, 2, 2);
-    colors.rect('gold', x + r + 2, y + 5, 2, 2);
-    colors.rect('blue', x + r - 7, y + 10, 2, 2);
-    colors.rect('green', x + r + 6, y + 10, 2, 2);
-    return `${glass.svg()}${colors.svg()}${lead.svg()}${frame.svg()}`;
+    const cx = x + r - 0.5;
+    const cy = y + r - 4.5;
+    const radius = 7.5;
+    const PANES = ['red', 'blue', 'gold', 'blue', 'red', 'green', 'gold', 'green'];
+    for (let py = Math.floor(cy - radius); py <= cy + radius; py++) {
+      for (let px = Math.floor(cx - radius); px <= cx + radius; px++) {
+        const dx = px - cx;
+        const dy = py - cy;
+        const d = Math.hypot(dx, dy);
+        if (d > radius + 0.4) continue;
+        const angle = (Math.atan2(dy, dx) + Math.PI) / (2 * Math.PI); // 0..1
+        const sector = Math.floor(angle * 8) % 8;
+        const onSpoke = Math.abs(angle * 8 - Math.round(angle * 8)) < 0.12 && d > 2;
+        if (d > radius - 0.8 || d < 1.6 || onSpoke) lead.rect('lead', px, py, 1, 1);
+        else if (d < 3) rose.rect('gold', px, py, 1, 1);
+        else rose.rect(PANES[sector], px, py, 1, 1);
+      }
+    }
+    // Emplomado del vano: parteluz y dos travesaños (dejan ver el paisaje).
+    lead.rect(
+      'lead',
+      x + Math.floor(w / 2),
+      Math.ceil(cy + radius),
+      1,
+      y + h - Math.ceil(cy + radius),
+    );
+    for (const ly of [y + r + 12, y + r + 36]) if (ly < y + h) lead.rect('lead', x, ly, w, 1);
+
+    return `${glass.svg()}
+      <defs><clipPath id="px-window-clip"><path d="${archPath(x, y, w, h)}"/></clipPath></defs>
+      <g clip-path="url(#px-window-clip)">${view}</g>
+      ${rose.svg()}${lead.svg()}${frame.svg()}`;
   }
 
+  /** Cielo: de día sol, nubes que pasan y pájaros; de noche luna y estrellas. */
   function sky(x, y, w, h, rnd) {
-    // Día: sol y rayo de luz. Noche: luna y estrellas.
     const day = canvas();
-    day.rect('sun', x + w - 16, y + 20, 6, 6);
-    day.rect('sun', x + w - 17, y + 21, 8, 4);
+    day.rect('sun', x + w - 13, y + 24, 6, 6);
+    day.rect('sun', x + w - 14, y + 25, 8, 4);
+
+    const cloud = (cx, cy, width) => {
+      const c = canvas();
+      c.rect('cloud', cx + 2, cy, width - 5, 1);
+      c.rect('cloud', cx, cy + 1, width, 2);
+      c.rect('cloud-d', cx + 1, cy + 3, width - 2, 1);
+      return c.svg();
+    };
+    const clouds = [
+      [x - 4, y + 30, 12, 70, 0],
+      [x + 18, y + 20, 9, 95, -40],
+      [x + 30, y + 38, 14, 80, -20],
+    ]
+      .map(
+        ([cx, cy, cw, secs, delay]) =>
+          `<g class="px-day px-cloud" style="animation-duration:${secs}s;animation-delay:${delay}s">${cloud(cx, cy, cw)}</g>`,
+      )
+      .join('');
+
+    // Pájaros: una "v" de tres píxeles con dos poses (alas arriba y abajo).
+    const bird = (bx, by) =>
+      `<path class="px-wing-up" d="M${bx} ${by}h1v1h-1zM${bx + 1} ${by + 1}h1v1h-1zM${bx + 2} ${by}h1v1h-1z"/>` +
+      `<path class="px-wing-down" d="M${bx} ${by + 1}h1v1h-1zM${bx + 1} ${by}h1v1h-1zM${bx + 2} ${by + 1}h1v1h-1z"/>`;
+    const birds = `<g class="px-day px-birds" style="fill:var(--px-bird)">${bird(x - 6, y + 33)}${bird(x - 11, y + 36)}${bird(x - 2, y + 37)}</g>`;
+
     const night = canvas();
-    night.rect('moon', x + 9, y + 18, 5, 6);
-    night.rect('moon', x + 8, y + 19, 7, 4);
-    night.rect('sky', x + 11, y + 18, 3, 4); // luna menguante
+    night.rect('moon', x + 9, y + 22, 5, 6);
+    night.rect('moon', x + 8, y + 23, 7, 4);
+    night.rect('sky-top', x + 11, y + 22, 3, 4); // luna menguante
     const stars = [];
-    for (let i = 0; i < 9; i++) {
-      const sx = x + 3 + Math.floor(rnd() * (w - 6));
-      const sy = y + 6 + Math.floor(rnd() * (h * 0.6));
+    for (let i = 0; i < 12; i++) {
+      const sx = x + 2 + Math.floor(rnd() * (w - 4));
+      const sy = y + 4 + Math.floor(rnd() * (h * 0.45));
       stars.push(
         `<path class="px-star" style="animation-delay:${(rnd() * 3).toFixed(2)}s;fill:var(--px-star)" d="M${sx} ${sy}h1v1h-1z"/>`,
       );
     }
-    return `<g class="px-day">${day.svg()}</g><g class="px-night">${night.svg()}${stars.join('')}</g>`;
+    return `<g class="px-day">${day.svg()}</g>${clouds}${birds}<g class="px-night">${night.svg()}${stars.join('')}</g>`;
+  }
+
+  /**
+   * Paisaje por el ventanal: colinas lejanas, colinas con campos en mosaico, un pueblo con
+   * su iglesia y un camino que baja serpenteando. De noche, las ventanas se encienden.
+   */
+  function landscape(x, y, w, h) {
+    const c = canvas();
+    const bottom = y + h;
+    const wave = (px, base, parts) =>
+      base +
+      Math.round(
+        parts.reduce((sum, [amp, len, phase]) => sum + amp * Math.sin((px - x) / len + phase), 0),
+      );
+    const far = (px) =>
+      wave(px, y + 43, [
+        [2.2, 5.5, 0],
+        [1.3, 2.7, 1],
+      ]);
+    const mid = (px) =>
+      wave(px, y + 52, [
+        [2.6, 7, 1.2],
+        [0.8, 3, 0],
+      ]);
+    const near = (px) => wave(px, y + 63, [[1.8, 8, 2.4]]);
+
+    for (let px = x; px < x + w; px++) {
+      c.rect('hill-far', px, far(px), 1, bottom - far(px));
+      const top = mid(px);
+      c.rect('hill', px, top, 1, bottom - top);
+      c.rect('hill-d', px, top, 1, 1); // borde de la colina
+      // Campos en mosaico: parcelas de 5×3 alternando dos tonos (y algunas verdes).
+      for (let py = top + 2; py < near(px) - 1; py++) {
+        const cell =
+          Math.floor((px - x + (Math.floor((py - y) / 3) % 2) * 2) / 5) + Math.floor((py - y) / 3);
+        const tone = cell % 3 === 0 ? 'hill' : cell % 3 === 1 ? 'field' : 'field-d';
+        if (tone !== 'hill') c.rect(tone, px, py, 1, 1);
+      }
+      const n = near(px);
+      c.rect('hill-d', px, n, 1, bottom - n);
+    }
+
+    // Camino: baja del pueblo hacia el primer plano, cada vez más ancho.
+    for (let py = y + 55; py < bottom; py++) {
+      const t = (py - (y + 55)) / (bottom - (y + 55));
+      const center = x + 20 + Math.round(5 * Math.sin(py / 4.5) * t + t * 3);
+      const width = 1 + Math.round(t * 3);
+      c.rect('road', center - Math.floor(width / 2), py, width, 1);
+    }
+
+    // El pueblo, sobre la colina del medio: casas, la iglesia y sus ventanas.
+    const windowsDay = canvas();
+    const windowsNight = canvas();
+    const house = (hx) => {
+      const base = mid(hx + 2);
+      c.rect('roof', hx + 1, base - 5, 3, 1);
+      c.rect('roof', hx, base - 4, 5, 1);
+      c.rect('house', hx, base - 3, 5, 3);
+      windowsDay.rect('ink', hx + 2, base - 2, 1, 1);
+      windowsNight.rect('lit', hx + 2, base - 2, 1, 1);
+    };
+    const church = (chx) => {
+      const base = mid(chx + 3);
+      c.rect('house', chx + 2, base - 10, 2, 6); // campanario
+      c.rect('roof', chx + 2, base - 11, 2, 1);
+      c.rect('gold', chx + 2, base - 13, 1, 2); // cruz
+      c.rect('gold', chx + 1, base - 12, 3, 1);
+      c.rect('roof', chx, base - 5, 7, 1);
+      c.rect('house', chx, base - 4, 7, 4);
+      windowsDay.rect('ink', chx + 3, base - 8, 1, 2);
+      windowsNight.rect('lit', chx + 3, base - 8, 1, 2);
+      windowsDay.rect('ink', chx + 3, base - 2, 1, 2);
+      windowsNight.rect('lit', chx + 3, base - 2, 1, 2);
+    };
+    house(x + 7);
+    church(x + 13);
+    house(x + 22);
+    house(x + 28);
+
+    return `${c.svg()}<g class="px-day">${windowsDay.svg()}</g><g class="px-night px-lit">${windowsNight.svg()}</g>`;
   }
 
   /** Rayo de luz del ventanal (día): escalones que se ensanchan hacia el suelo. */
@@ -370,14 +595,12 @@
     return `<svg class="px-scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
       ${back.svg()}
       <rect class="px-night" x="0" y="0" width="${W}" height="${H}" style="fill:var(--px-dusk)"/>
-      ${archWindow(win.x, win.y, win.w, win.h)}
-      <g clip-path="url(#px-window-clip)">${sky(win.x, win.y, win.w, win.h, rnd)}</g>
+      ${archWindow(win.x, win.y, win.w, win.h, sky(win.x, win.y, win.w, win.h, rnd) + landscape(win.x, win.y, win.w, win.h))}
       ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 142)}
       ${motes(win.x, win.y + win.h, 70, 50, rnd)}
       ${furniture}
       ${desk ? glow(199, 116, 44) : ''}
       ${desk ? `<g class="px-companion">${owl(102, 114)}</g>` : ''}
-      <defs><clipPath id="px-window-clip"><rect x="${win.x}" y="${win.y}" width="${win.w}" height="${win.h}"/></clipPath></defs>
     </svg>`;
   }
 

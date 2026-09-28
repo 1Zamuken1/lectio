@@ -44,6 +44,19 @@
   --px-eye: #f2d36b;
   --px-flame: #f28c28;
   --px-flame-core: #ffe7a3;
+  /* Paisaje del ventanal (de día): colinas, campos, el pueblo, nubes y pájaros. */
+  --px-hill-far: #9db4c6;
+  --px-hill: #7a9b56;
+  --px-hill-d: #5c7d40;
+  --px-field: #c8b35a;
+  --px-field-d: #a9963f;
+  --px-road: #dcc896;
+  --px-house: #eadfc3;
+  --px-roof: #a3442e;
+  --px-cloud: #ffffff;
+  --px-cloud-d: #d7e8f3;
+  --px-bird: #3b3a3e;
+  --px-lit: #ffd35c;
 }
 
 :root[data-mode='night'] {
@@ -74,6 +87,18 @@
   --px-owl: #5e4832;
   --px-owl-l: #a8916f;
   --px-eye: #ffd76b;
+  /* Paisaje de noche: colinas en penumbra, nubes azuladas y el pueblo con luz. */
+  --px-hill-far: #26304f;
+  --px-hill: #1d3024;
+  --px-hill-d: #152319;
+  --px-field: #34351f;
+  --px-field-d: #292a18;
+  --px-road: #3f3a2e;
+  --px-house: #4d4739;
+  --px-roof: #45201a;
+  --px-cloud: #36426a;
+  --px-cloud-d: #2a3456;
+  --px-bird: transparent;
 }
 
 /* ---------------------------------------------------------------- Tokens de la interfaz */
@@ -717,6 +742,59 @@
 @keyframes px-twinkle {
   50% {
     opacity: 0.25;
+  }
+}
+
+/* Nubes que cruzan el ventanal (la duración y el retraso van en cada nube). */
+:root[data-motion='full'] .px-cloud {
+  animation-name: px-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes px-drift {
+  from {
+    transform: translateX(-26px);
+  }
+  to {
+    transform: translateX(58px);
+  }
+}
+
+/* Bandada: cruza el cielo cada media minuto, aleteando en dos poses. */
+.px-wing-down {
+  opacity: 0;
+}
+
+:root[data-motion='full'] .px-birds {
+  animation: px-fly 28s linear infinite;
+}
+
+:root[data-motion='full'] .px-wing-up {
+  animation: px-flap 0.6s steps(1) infinite;
+}
+
+:root[data-motion='full'] .px-wing-down {
+  animation: px-flap 0.6s steps(1) -0.3s infinite;
+}
+
+@keyframes px-fly {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(70px, -8px);
+  }
+}
+
+@keyframes px-flap {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
   }
 }
 
