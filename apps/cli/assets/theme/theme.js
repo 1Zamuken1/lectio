@@ -151,7 +151,11 @@
         h('input', {
           type: 'checkbox',
           checked: state[key] || null,
-          onchange: (e) => set(key, e.target.checked),
+          onchange: (e) => {
+            set(key, e.target.checked);
+            // Después de guardar: al activar los efectos, este ya suena.
+            window.LectioSound?.play('toggle');
+          },
         }),
         h('span', {}, h('strong', {}, label), hint ? h('small', {}, hint) : null),
       );

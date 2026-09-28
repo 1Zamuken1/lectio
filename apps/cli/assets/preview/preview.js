@@ -1533,6 +1533,39 @@
       closeVoiceMenu();
   });
 
+  // ------------------------------------------------------------ sonidos de los botones
+  //
+  // Un solo mapa para todo el lector: cada control suena con uno de los efectos del
+  // mundo (sound.js). El primero que coincide gana; `null` = el control ya tiene su
+  // propio sonido (o lo pone la acción que dispara) y aquí no se repite.
+
+  const BUTTON_SOUNDS = [
+    ['.mode-toggle, .settings-toggle, .world-option, .voice-pick', null], // theme.js y selectVoice
+    ['.toc button, .chapter-nav button', null], // go() suena al cambiar de capítulo
+    ['.confirm-actions .primary', null], // "Ir al capítulo": suena el cambio de página
+    [
+      '.player .tool[aria-label="Capítulo anterior"], .player .tool[aria-label="Capítulo siguiente"]',
+      null,
+    ],
+    ['.player .play', 'toggle', { force: true }], // igual al reproducir y al pausar
+    ['.skip-button', 'select'],
+    ['.player .speed, .voice-button, .menu-toggle', 'open'],
+    ['.generate', 'start'],
+    ['.tabs button', 'page'],
+    ['.tool[aria-pressed]', 'toggle'], // modo revisión
+    ['.confirm-actions button, .inspector .tool', 'toggle'],
+    ['.speed-presets button, .voice-sample, .link, .toc-toggle, .follow-return', 'select'],
+    ['.listen-chip button, .listen-inline, .tools .tool', 'select'],
+    ['button', 'select'],
+  ];
+
+  document.addEventListener('click', (event) => {
+    const control = event.target.closest('button');
+    if (!control || control.disabled) return;
+    const rule = BUTTON_SOUNDS.find(([selector]) => control.matches(selector));
+    if (rule?.[1]) window.LectioSound?.play(rule[1], rule[2]);
+  });
+
   // ------------------------------------------------------------ confirmación de cambio de capítulo
 
   /** ¿Se está escuchando este capítulo a mitad de camino? (al inicio o al final no se pregunta). */
