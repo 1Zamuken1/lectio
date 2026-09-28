@@ -8,6 +8,14 @@
     "typecheck": {},
     "test": {
       "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:integration": {
+      "cache": false,
+      "dependsOn": []
     }
   }
 }

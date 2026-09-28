@@ -21,10 +21,12 @@ lectio/
 ├── apps/
 │   ├── api/                 # NestJS: solo HTTP, encola jobs
 │   ├── worker/              # NestJS (application context, sin HTTP): consume colas
+│   ├── cli/                 # CLI: inspect, preview, narrate, serve (uso local y sin conexión)
 │   └── web/                 # Frontend
 ├── packages/
-│   ├── core/                # módulos de dominio + aplicación, compartidos por api y worker
+│   ├── core/                # módulos de dominio + aplicación + adaptadores; prisma/ con el esquema
 │   ├── epub-pipeline/       # pipeline de procesamiento de EPUB (lógica pura, sin NestJS)
+│   ├── tts/                 # Edge TTS, perfiles de voz y montaje MP3 (Node puro, sin NestJS)
 │   └── shared/              # DTOs y tipos compartidos con web
 ├── turbo.json
 ├── pnpm-workspace.yaml

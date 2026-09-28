@@ -16,7 +16,11 @@
     "check": "pnpm lint && pnpm format:check && turbo run typecheck test",
     "corpus:download": "node scripts/download-corpus.mjs",
     "lectio": "pnpm --silent --filter @lectio/cli dev",
-    "serve": "pnpm --silent --filter @lectio/cli dev serve"
+    "serve": "pnpm --silent --filter @lectio/cli dev serve",
+    "dev": "turbo run dev --filter=@lectio/api --filter=@lectio/worker",
+    "test:integration": "turbo run test:integration",
+    "db:migrate": "pnpm --filter @lectio/core db:migrate",
+    "db:up": "docker compose up -d"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

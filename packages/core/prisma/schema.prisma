@@ -1,0 +1,224 @@
+// Modelo de datos de Lectio (docs/lectio-modelo-datos.md). Tablas y columnas en
+// snake_case en Postgres; en TypeScript, camelCase.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                       String   @id @default(uuid(7)) @db.Uuid
+  email                    String   @unique
+  passwordHash             String   @map("password_hash")
+  /// Contador histórico de caracteres enviados a TTS (el consumo mensual sale del log).
+  totalCharactersProcessed Int      @default(0) @map("total_characters_processed")
+  /// Cuota mensual propia; null = la cuota por defecto de la configuración.
+  ttsMonthlyQuota          Int?     @map("tts_monthly_quota")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  books           Book[]
+  readingProgress ReadingProgress[]
+  usageLogs       TtsUsageLog[]
+  audioRequests   AudioSegment[]
+  refreshTokens   RefreshToken[]
+
+  @@map("users")
+}
+
+enum BookStatus {
+  pending
+  processing
+  ready
+  error
+
+  @@map("book_status")
+}
+
+enum NavSource {
+  nav
+  ncx
+  spine
+
+  @@map("nav_source")
+}
+
+model Book {
+  id               String     @id @default(uuid(7)) @db.Uuid
+  /// null = libro público del catálogo del sistema.
+  ownerId          String?    @map("owner_id") @db.Uuid
+  /// Solo libros públicos: /libros/:slug.
+  slug             String?    @unique
+  title            String?
+  author           String?
+  language         String?
+  isPublic         Boolean    @default(false) @map("is_public")
+  /// Claves en el storage (no URLs: las privadas se firman en cada petición).
+  sourceKey        String     @map("source_key")
+  coverKey         String?    @map("cover_key")
+  /// SHA-256 del EPUB: detecta que un usuario sube dos veces el mismo libro.
+  sourceHash       String     @map("source_hash")
+  status           BookStatus @default(pending)
+  errorCode        String?    @map("error_code")
+  errorMessage     String?    @map("error_message")
+  navSource        NavSource? @map("nav_source")
+  pipelineVersion  Int?       @map("pipeline_version")
+  processingReport Json?      @map("processing_report")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  updatedAt        DateTime   @updatedAt @map("updated_at")
+
+  owner           User?             @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  chapters        Chapter[]
+  readingProgress ReadingProgress[]
+
+  @@index([ownerId])
+  @@index([isPublic])
+  @@index([ownerId, sourceHash])
+  @@index([pipelineVersion])
+  @@map("books")
+}
+
+enum ChapterKind {
+  narrative
+  front_matter
+  back_matter
+  notes
+
+  @@map("chapter_kind")
+}
+
+model Chapter {
+  id             String      @id @default(uuid(7)) @db.Uuid
+  bookId         String      @map("book_id") @db.Uuid
+  orderIndex     Int         @map("order_index")
+  title          String
+  /// Títulos de los niveles superiores del índice ("Parte II").
+  ancestors      String[]
+  kind           ChapterKind
+  /// Evidencia de la clasificación (señal, confianza y motivo), para el reporte.
+  classification Json
+  contentHtml    String      @map("content_html")
+  /// [{ index, blockIndex, start, end, text, narration, voices? }]: base de la sincronización.
+  sentences      Json
+  notes          Json
+  /// Caracteres de narración: lo que se envía a TTS y cuenta para la cuota.
+  characterCount Int         @map("character_count")
+  sentenceCount  Int         @map("sentence_count")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  book            Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  audio           AudioSegment[]
+  usageLogs       TtsUsageLog[]
+  readingProgress ReadingProgress[]
+
+  @@unique([bookId, orderIndex])
+  @@map("chapters")
+}
+
+enum AudioStatus {
+  pending
+  processing
+  ready
+  error
+
+  @@map("audio_status")
+}
+
+/// El audio de un capítulo con una voz: uno por (capítulo, voz), así cambiar de voz a
+/// una ya generada es instantáneo.
+model AudioSegment {
+  id                 String      @id @default(uuid(7)) @db.Uuid
+  chapterId          String      @map("chapter_id") @db.Uuid
+  /// Perfil de voz de Lectio ("gonzalo") o voz de Edge.
+  voiceId            String      @map("voice_id")
+  /// null = generado por el sistema (libros públicos): sin cuota ni log de consumo.
+  requestedById      String?     @map("requested_by") @db.Uuid
+  status             AudioStatus @default(pending)
+  provider           String?
+  /// Prosodia con que se generó: si el perfil cambia, este audio queda obsoleto.
+  prosodyKey         String?     @map("prosody_key")
+  audioKey           String?     @map("audio_key")
+  alignmentKey       String?     @map("alignment_key")
+  durationMs         Int?        @map("duration_ms")
+  /// Caracteres reservados de la cuota mientras está pending/processing.
+  reservedCharacters Int         @map("reserved_characters")
+  retryCount         Int         @default(0) @map("retry_count")
+  errorMessage       String?     @map("error_message")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+
+  chapter     Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  requestedBy User?   @relation(fields: [requestedById], references: [id], onDelete: SetNull)
+
+  @@unique([chapterId, voiceId])
+  @@index([requestedById, status])
+  @@map("audio_segments")
+}
+
+enum ReadingMode {
+  reading
+  listening
+
+  @@map("reading_mode")
+}
+
+model ReadingProgress {
+  id              String      @id @default(uuid(7)) @db.Uuid
+  userId          String      @map("user_id") @db.Uuid
+  bookId          String      @map("book_id") @db.Uuid
+  chapterId       String      @map("chapter_id") @db.Uuid
+  /// Una sola posición para leer y para escuchar: la alineación la convierte en tiempo.
+  sentenceIndex   Int         @map("sentence_index")
+  mode            ReadingMode
+  /// Cuándo estuvo el usuario en esa posición (resuelve conflictos entre dispositivos).
+  clientUpdatedAt DateTime    @map("client_updated_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book    Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@map("reading_progress")
+}
+
+model TtsUsageLog {
+  id                  String   @id @default(uuid(7)) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  chapterId           String   @map("chapter_id") @db.Uuid
+  provider            String
+  voiceId             String   @map("voice_id")
+  charactersProcessed Int      @map("characters_processed")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("tts_usage_logs")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid(7)) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  /// SHA-256 del token: el token en claro solo existe en la cookie del usuario.
+  tokenHash  String    @unique @map("token_hash")
+  /// Todos los tokens de un mismo login; si se reutiliza uno rotado, se revoca la familia.
+  familyId   String    @map("family_id") @db.Uuid
+  expiresAt  DateTime  @map("expires_at")
+  revokedAt  DateTime? @map("revoked_at")
+  replacedBy String?   @map("replaced_by") @db.Uuid
+  userAgent  String?   @map("user_agent")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@map("refresh_tokens")
+}

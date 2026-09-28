@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    // Con la condición "source" se compila el pipeline, que usa tipos del DOM (linkedom).
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src", "test", "vitest.config.ts", "vitest.shared.ts", "vitest.integration.config.ts"]
+}

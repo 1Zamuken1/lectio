@@ -2,7 +2,7 @@
 
 Biblioteca personal de EPUB que entiende la estructura del libro y permite alternar entre leerlo y escucharlo con voz neuronal, desde la misma oración.
 
-> Estado: en desarrollo. Hoy es un **pipeline de procesamiento de EPUB con una CLI**: inspecciona un libro, genera su audio por capítulo y lo muestra en un preview web con reproductor sincronizado. La app completa (API, worker y PWA) está diseñada en [`docs/`](docs/README.md).
+> Estado: en desarrollo. Hoy funciona como **CLI con un lector web local**: procesa un EPUB, genera su audio por capítulo con la voz que elijas y lo lee y reproduce sincronizado por oración. El **backend** (API, worker, Postgres y colas) está en construcción; la app completa está diseñada en [`docs/`](docs/README.md).
 
 ## Probar la demo en 5 minutos
 
@@ -51,19 +51,37 @@ El audio se genera con **Edge TTS**, un servicio gratuito pero no oficial de Mic
 ## Estructura
 
 ```
-apps/cli/                 CLI: inspect, narrate, preview, voices (y el cliente del preview en assets/)
+apps/api/                 API HTTP (NestJS): solo atiende peticiones y encola trabajos
+apps/worker/              Worker (NestJS, sin HTTP): procesa libros y genera audio desde las colas
+apps/cli/                 CLI: inspect, narrate, preview, library, serve, voices (y el cliente web en assets/)
+packages/core/            Dominio, casos de uso y adaptadores (Prisma, colas, storage); prisma/ con el esquema
 packages/epub-pipeline/   Pipeline de procesamiento: lógica pura, sin red ni disco
+packages/tts/             Edge TTS, perfiles de voz y montaje MP3 (lo usan la CLI y el worker)
 corpus/                   Libros de referencia para pruebas (se descargan, no se versionan)
 docs/                     Documentación del proyecto
-scripts/                  Descarga del corpus y servidor estático para out/
+scripts/                  Descarga del corpus
 ```
 
 El pipeline convierte un EPUB en capítulos listos para leer y narrar en 11 etapas: contenedor y DRM, paquete, índice, segmentación, clasificación, limpieza, oraciones, limpieza de narración, normalización, fragmentos para el TTS y alineación. Detalle en [`docs/lectio-pipeline-limpieza.md`](docs/lectio-pipeline-limpieza.md).
 
+## Backend (en desarrollo)
+
+La API y el worker corren como procesos separados sobre Postgres y Redis (`docs/lectio-arquitectura-api.md`). Hace falta **Docker Desktop** abierto.
+
+```bash
+cp .env.example .env     # y cambia JWT_SECRET por un secreto largo y aleatorio
+pnpm db:up               # Postgres 17 y Redis 7 en contenedores (docker compose up -d)
+pnpm db:migrate          # aplica las migraciones de Prisma
+pnpm dev                 # API en http://localhost:3000/api/v1 y el worker
+```
+
+La documentación interactiva de la API (OpenAPI) queda en http://localhost:3000/api/docs.
+
 ## Desarrollo
 
 ```bash
-pnpm check     # lint + formato + typecheck + tests (incluye tests sobre el corpus si está descargado)
+pnpm check              # lint + formato + typecheck + tests (incluye tests sobre el corpus si está descargado)
+pnpm test:integration   # la API contra Postgres y Redis reales (base lectio_test; necesita Docker)
 pnpm build
 pnpm --filter @lectio/epub-pipeline golden:update   # tras un cambio intencional en las reglas
 ```

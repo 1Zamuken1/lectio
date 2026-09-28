@@ -56,15 +56,15 @@ docker-compose.yml
 
 Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde la fase 1), un commit y una pausa para revisar.
 
-### Fase 0: cimientos
+### Fase 0: cimientos (hecha)
 
-- [ ] `docker-compose.yml` (Postgres 17 y Redis 7, con volúmenes y healthchecks) y `.env.example`.
-- [ ] `packages/tts`: mover el adaptador de Edge, `mp3.ts`, `montage.ts` y `voices.ts` desde `apps/cli`, con sus tests; la CLI pasa a importarlos. Todo debe seguir funcionando igual (`narrate`, `serve`).
-- [ ] `packages/core` con Prisma: el esquema completo del modelo de datos (con el cambio de audio por voz), la primera migración y el cliente generado.
-- [ ] `apps/api` y `apps/worker` mínimos en NestJS 12: configuración validada, conexión a Postgres y Redis, `GET /api/v1/health` (con estado de la base y de Redis), Swagger en `/api/docs` y el filtro de errores.
-- [ ] Verificar ESM, NestJS 12 y Prisma 7 juntos. Si algo no calza, decidirlo aquí y no en la mitad de una fase.
-- [ ] `pnpm dev` levanta api + worker; `README` con los pasos (Docker, migraciones).
-- [ ] Actualizar `docs/`: estructura del monorepo (`packages/tts`) y `AudioSegment` por voz.
+- [x] `docker-compose.yml` (Postgres 17 y Redis 7, con volúmenes y healthchecks) y `.env.example`.
+- [x] `packages/tts`: mover el adaptador de Edge, `mp3.ts`, `montage.ts` y `voices.ts` desde `apps/cli`, con sus tests; la CLI pasa a importarlos. Todo debe seguir funcionando igual (`narrate`, `serve`).
+- [x] `packages/core` con Prisma: el esquema completo del modelo de datos (con el cambio de audio por voz), la primera migración y el cliente generado.
+- [x] `apps/api` y `apps/worker` mínimos en NestJS 12: configuración validada, conexión a Postgres y Redis, `GET /api/v1/health` (con estado de la base y de Redis), Swagger en `/api/docs` y el filtro de errores.
+- [x] Verificar ESM, NestJS 12 y Prisma 7 juntos. Si algo no calza, decidirlo aquí y no en la mitad de una fase.
+- [x] `pnpm dev` levanta api + worker; `README` con los pasos (Docker, migraciones).
+- [x] Actualizar `docs/`: estructura del monorepo (`packages/tts`) y `AudioSegment` por voz.
 
 ### Fase 1: autenticación
 

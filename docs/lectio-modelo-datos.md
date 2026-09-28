@@ -13,7 +13,7 @@ erDiagram
     USER ||--o{ REFRESH_TOKEN : "tiene sesiones"
     BOOK ||--o{ CHAPTER : contiene
     BOOK ||--o{ READING_PROGRESS : "referenciado en"
-    CHAPTER ||--o| AUDIO_SEGMENT : "tiene (0..1)"
+    CHAPTER ||--o{ AUDIO_SEGMENT : "tiene (uno por voz)"
     CHAPTER ||--o{ TTS_USAGE_LOG : origina
     CHAPTER ||--o{ READING_PROGRESS : "referenciado en"
 
@@ -33,8 +33,8 @@ erDiagram
         string slug UK "nullable: solo libros públicos"
         string title
         string author
-        string cover_url
-        string source_file_url
+        string cover_key "clave en el storage, nullable"
+        string source_key "clave del EPUB en el storage"
         string source_hash "SHA-256 del EPUB"
         string language
         boolean is_public
@@ -53,7 +53,7 @@ erDiagram
         uuid book_id FK
         int order_index
         string title
-        string parent_title "nullable"
+        string[] ancestors "títulos de los niveles superiores del índice"
         enum kind "narrative | front_matter | back_matter | notes"
         text content_html
         jsonb sentences
@@ -65,13 +65,14 @@ erDiagram
 
     AUDIO_SEGMENT {
         uuid id PK
-        uuid chapter_id FK UK "una relación activa por capítulo"
+        uuid chapter_id FK "UK junto con voice_id"
+        string voice_id "perfil de voz: gonzalo, jorge..."
         uuid requested_by FK "nullable: null = generado por el sistema"
         enum status "pending | processing | ready | error"
         string provider "edge | kokoro | ..."
-        string voice_id
-        string audio_url "nullable hasta ready"
-        string alignment_url "nullable hasta ready"
+        string prosody_key "prosodia con que se generó"
+        string audio_key "clave en el storage, nullable hasta ready"
+        string alignment_key "clave en el storage, nullable hasta ready"
         int duration_ms "nullable"
         int reserved_characters
         string error_message "nullable"
@@ -138,8 +139,8 @@ Un libro, ya sea privado (subido por un usuario) o público (dominio público, p
 | `owner_id` | uuid (FK → User), **nullable** | `null` cuando `is_public = true` y el libro pertenece al catálogo del sistema. |
 | `slug` | string, único, nullable | Identificador legible para URLs públicas (`/libros/don-quijote`). Obligatorio si `is_public = true`, `null` en libros privados (no tiene sentido una URL legible para un libro que nadie más puede ver). |
 | `title`, `author` | string | Extraídos del metadata OPF (pipeline, etapa 2). |
-| `cover_url` | string | Extraída del EPUB o generada por defecto. |
-| `source_file_url` | string | Ubicación del `.epub` original (storage de archivos). |
+| `cover_key` | string, nullable | Clave de la portada en el storage, extraída del EPUB. Se guardan claves y no URLs: las de libros privados se firman en cada petición. |
+| `source_key` | string | Clave del `.epub` original en el storage. |
 | `source_hash` | string | SHA-256 del archivo. Permite detectar que un usuario sube dos veces el mismo libro (se le avisa en vez de duplicarlo) y deja preparada la deduplicación entre usuarios evaluada para v1.1. |
 | `language` | string | Código ISO 639-1, del OPF o detectado a partir del texto. Determina la voz por defecto y el segmentador de oraciones. |
 | `is_public` | boolean, default `false` | Determina si aparece en la biblioteca pública sin autenticación. |
@@ -161,7 +162,8 @@ Un capítulo segmentado según la tabla de contenidos, con sus dos salidas: lect
 | `book_id` | uuid (FK → Book) | |
 | `order_index` | int | Orden real según la posición en el spine (no el orden declarado del TOC, que puede venir desordenado). |
 | `title` | string | Título del capítulo (del `nav`/NCX, o del primer heading en el respaldo por spine). |
-| `parent_title` | string, nullable | Título del nivel superior del TOC, para mostrar contexto: "Parte II › Capítulo 7". |
+| `ancestors` | string[] | Títulos de los niveles superiores del TOC, del más externo al más cercano, para mostrar contexto: "Segunda parte › Capítulo 7". (El diseño inicial tenía un solo `parent_title`; el pipeline entrega la ruta completa.) |
+| `classification` | jsonb | Evidencia de la clasificación: señal, confianza y motivo (pipeline, etapa 5). Se muestra en el reporte. |
 | `kind` | enum | `narrative` / `front_matter` / `back_matter` / `notes` (pipeline, etapa 5). Solo los `narrative` se muestran por defecto; los demás se conservan (principio no destructivo). |
 | `content_html` | text | HTML sanitizado para el lector: conserva formato, imágenes y llamadas a nota como enlaces. Cada bloque de texto lleva `data-b="<índice>"`. |
 | `sentences` | jsonb | Array de oraciones: `{ index, blockIndex, start, end, text, narration }`. `narration = ""` significa que la oración no se narra. Es la base de la sincronización. |
@@ -172,18 +174,19 @@ Un capítulo segmentado según la tabla de contenidos, con sus dos salidas: lect
 **Por qué `sentences` en jsonb y no en una tabla `Sentence`:** siempre se leen completas junto al capítulo, nunca se consultan individualmente, y un libro puede tener decenas de miles. Una tabla aparte multiplicaría filas sin ningún beneficio de consulta.
 
 ### 2.4 `AudioSegment`
-El audio generado para un capítulo. Relación **0..1** con `Chapter` en el MVP (un capítulo tiene como máximo un audio vigente; regenerar con otra voz reemplaza el registro).
+El audio generado para un capítulo **con una voz**: uno por (capítulo, voz). Volver a una voz ya generada es instantáneo (el lector cambia de audio en la misma oración) y cada generación cuenta para la cuota. Cambió respecto del diseño inicial, que tenía uno solo por capítulo: el lector ya ofrece elegir la voz (`lectio-decision-tts.md` §7.5).
 
 | Campo | Tipo | Notas |
 |---|---|---|
 | `id` | uuid (PK) | |
-| `chapter_id` | uuid (FK → Chapter, único) | Un `AudioSegment` por capítulo. |
+| `chapter_id` | uuid (FK → Chapter) | Único junto con `voice_id`. |
 | `requested_by` | uuid (FK → User), nullable | Quién solicitó la generación. `null` para el audio de libros públicos, generado por el proceso interno. Se usa para el límite de concurrencia y la reserva de cuota. |
 | `status` | enum | `pending` → `processing` → `ready` / `error`. |
 | `provider` | string | Proveedor que generó el audio (`edge`, `kokoro`…). Con el router y su circuit breaker, un mismo libro puede tener capítulos de proveedores distintos; conviene saberlo. |
-| `voice_id` | string | Identificador de la voz usada. |
-| `audio_url` | string, nullable | Solo se llena cuando `status = ready`. |
-| `alignment_url` | string, nullable | `alignment.json` con los tiempos de cada oración (pipeline, etapa 11). |
+| `voice_id` | string | Perfil de voz de Lectio (`gonzalo`, `jorge`, `salome`, `salome-grave`) o una voz de Edge. |
+| `prosody_key` | string, nullable | Resumen de la prosodia con que se generó. Si el perfil cambia (por ejemplo, su velocidad), el audio queda obsoleto y se regenera al pedirlo. |
+| `audio_key` | string, nullable | Clave del MP3 en el storage; solo con `status = ready`. Se guardan claves y no URLs porque las de libros privados se firman en cada petición y vencen. |
+| `alignment_key` | string, nullable | Clave de `alignment.json`, con los tiempos de cada oración (pipeline, etapa 11). |
 | `duration_ms` | int, nullable | Duración total en milisegundos (misma unidad que la alineación). |
 | `reserved_characters` | int | Caracteres reservados de la cuota del solicitante mientras el audio está en `pending`/`processing`. Se fija al encolar (copia de `Chapter.character_count`) para que la reserva no cambie si el capítulo se reprocesa en paralelo. |
 | `retry_count` | int, default 0 | Para la política de reintentos (RNF-04). |
@@ -263,7 +266,7 @@ Una solicitud de audio se acepta si `Chapter.character_count ≤ remaining` y el
 - **`owner_id` nullable en `Book`** en vez de crear un usuario "sistema" ficticio: un libro público no es propiedad de nadie, y así se evita excluir artificialmente un usuario especial de cualquier lógica de "libros del usuario X".
 - **El procesamiento se guarda, no se recalcula**: el pipeline corre una sola vez al subir el libro (job asíncrono) y persiste `content_html` y `sentences`. Leer un capítulo nunca reprocesa el EPUB. `pipeline_version` permite reprocesar a propósito cuando mejoran las reglas.
 - **Dos salidas por capítulo (`content_html` + `sentences`)** en lugar de un único texto limpio: el lector conserva formato y notas, mientras la narración omite lo que interrumpe (pipeline §1.1, principio no destructivo).
-- **`AudioSegment` es 0..1 por capítulo, no un historial**: regenerar con otra voz sobrescribe. Simplificación consciente del MVP.
+- **`AudioSegment` es uno por capítulo y voz, no un historial**: regenerar con la misma voz sobrescribe. Guardar cada voz permite cambiarla al instante en el lector.
 - **Reserva de cuota sin tabla propia**: la reserva se deriva de los `AudioSegment` pendientes. No hay un contador de "reservado" que pueda desincronizarse si un worker muere a mitad de un job.
 - **`TtsUsageLog` como tabla de eventos + contador desnormalizado en `User`**: rendimiento en la lectura del total sin perder trazabilidad por evento, proveedor y periodo.
 
@@ -279,7 +282,7 @@ Una solicitud de audio se acepta si `Chapter.character_count ≤ remaining` y el
 | `Book` | `(owner_id, source_hash)` | Detectar que un usuario sube el mismo libro dos veces. |
 | `Book` | `(pipeline_version)` | Encontrar libros a reprocesar. |
 | `Chapter` | `(book_id, order_index)` | Recuperar capítulos de un libro en orden. |
-| `AudioSegment` | `(chapter_id)` único | Ya cubierto por la FK única. |
+| `AudioSegment` | `(chapter_id, voice_id)` único | Un audio por capítulo y voz. |
 | `AudioSegment` | `(requested_by, status)` | Límite de concurrencia y cálculo de reserva (RF-23, RF-24). |
 | `ReadingProgress` | `(user_id, book_id)` único | Restricción de negocio y búsqueda directa. |
 | `TtsUsageLog` | `(user_id, created_at)` | Consumo del periodo mensual (RF-19, RF-23). |

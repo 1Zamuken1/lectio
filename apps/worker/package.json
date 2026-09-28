@@ -1,0 +1,33 @@
+{
+  "name": "@lectio/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Worker de Lectio (NestJS, sin HTTP): procesa libros y genera audio desde las colas.",
+  "scripts": {
+    "dev": "node --conditions=source --import @swc-node/register/esm-register --watch-path=src --watch-path=../../packages/core/src --watch-path=../../packages/epub-pipeline/src --watch-path=../../packages/tts/src src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@lectio/core": "workspace:*",
+    "@lectio/epub-pipeline": "workspace:*",
+    "@lectio/tts": "workspace:*",
+    "@nestjs/bullmq": "^12.0.0",
+    "@nestjs/common": "^12.1.1",
+    "@nestjs/core": "^12.1.1",
+    "bullmq": "^6.3.9",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@swc-node/register": "^1.12.1",
+    "@swc/core": "^1.16.2",
+    "@types/node": "^24.13.6",
+    "typescript": "~6.0.3",
+    "unplugin-swc": "^2.0.0",
+    "vitest": "^5.0.2"
+  }
+}
