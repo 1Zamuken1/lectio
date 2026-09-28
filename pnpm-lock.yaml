@@ -194,6 +194,9 @@ importers:
       '@lectio/epub-pipeline':
         specifier: workspace:*
         version: link:../epub-pipeline
+      '@lectio/tts':
+        specifier: workspace:*
+        version: link:../tts
       '@nestjs/bullmq':
         specifier: ^12.0.0
         version: 12.0.0(@nestjs/common@12.1.1(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.1.1)(bullmq@6.3.9(ioredis@5.11.1)(pg@8.23.0))

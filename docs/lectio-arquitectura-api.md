@@ -155,25 +155,27 @@ Flujo de generación de audio:
 
 Usuario → POST /chapters/:id/audio
    → verifica acceso al libro (propietario) y que no sea un libro público (403)
-   → si ya existe audio "ready" → 409; si está pending/processing → 200 con el estado actual
-   → transacción con bloqueo por usuario:
+   → transacción con bloqueo por usuario (SELECT … FROM users … FOR UPDATE):
+       · si ya existe audio "ready" con el perfil vigente → 409; si está pending/processing → 200
        · segmentos pending/processing del usuario < N  (si no → 429 AUDIO_CONCURRENCY_LIMIT)
        · character_count ≤ quota − consumed − reserved  (si no → 429 TTS_QUOTA_EXCEEDED)
-       · crea AudioSegment (status = "pending", reserved_characters = character_count)
-   → encola job en "audio-generation" con { audioSegmentId }
+       · crea AudioSegment (status = "pending", reserved_characters = character_count),
+         o reutiliza la fila si estaba en error u obsoleta
+   → encola job en "audio-generation" con { audioSegmentId } (si falla, borra la reserva)
    → responde 202 Accepted con el estado y la cuota restante
 
 Worker (audio-generation):
    → status = "processing"
-   → agrupa sentences[].narration en chunks de hasta maxChunkChars
-   → por cada chunk: TtsProvider.synthesize (el router elige el proveedor)
-       · fallo de un chunk → se reintenta ese chunk, no el capítulo
-   → concatena el audio y calcula la alineación por oración
+   → arma las unidades de voz (una por oración o tramo de diálogo)
+   → por cada unidad: TtsProvider.synthesize con la prosodia del perfil
+     (TTS_REQUESTS_PER_CHAPTER a la vez; guarda el progreso done/total como mucho 1 vez/s)
+       · fallo de una unidad → se reintenta esa unidad, no el capítulo
+   → monta el MP3 con las pausas de Lectio y calcula la alineación exacta por oración
    → sube audio + alignment.json (FileStorage)
    → transacción: AudioSegment "ready" (audio_url, alignment_url, duration_ms, provider)
                   + TtsUsageLog + incremento de User.total_characters_processed
-   → fallo definitivo (tras 3 reintentos): status = "error"; la reserva se libera sola,
-     porque deja de estar en pending/processing
+   → fallo definitivo (tras AUDIO_JOB_ATTEMPTS intentos): status = "error" con
+     reserved_characters = 0; la reserva deja de contar porque sale de pending/processing
 ```
 
 ### 1.6 Separación de procesos (incluida en el MVP)
@@ -433,28 +435,34 @@ Borra también sus archivos del storage (EPUB, portada, imágenes y audio).
 
 ### 2.4 Audio
 
-**`POST /api/v1/chapters/:id/audio`**: solicita la generación de audio de **un** capítulo (autenticado, propietario)
+**`POST /api/v1/chapters/:id/audio`**: solicita la generación de audio de **un** capítulo con una voz (autenticado, propietario)
 ```json
-// Request (opcional; si se omite, voz por defecto según el idioma del libro)
-{ "voiceId": "es-ES-AlvaroNeural" }
+// Request (opcional; si se omite, la voz por defecto del idioma del libro: gonzalo en español)
+{ "voiceId": "salome" }
 
-// Response 202
+// Response 202: reservado de la cuota y encolado
 {
   "chapterId": "uuid",
+  "voiceId": "salome",
   "status": "pending",
   "quota": { "remaining": 181550 }
 }
 
-// Response 200: ya había una solicitud pending/processing para ese capítulo (idempotente)
-{ "chapterId": "uuid", "status": "processing" }
+// Response 200: ya había una solicitud pending/processing para ese capítulo y esa voz (idempotente)
+{ "chapterId": "uuid", "voiceId": "salome", "status": "processing" }
 ```
+
+Cada voz es un audio distinto (`AudioSegment` por capítulo y voz): cambiar a una voz ya generada es instantáneo, y pedir otra voz cobra de nuevo los caracteres. Si el perfil de voz cambió desde que se generó (`outdated: true` en el GET), se puede volver a pedir.
 
 Errores:
 ```json
-// 409: ya existe audio "ready" para ese capítulo
+// 400: la voz no existe para el idioma del libro
+{ "statusCode": 400, "code": "VOICE_NOT_AVAILABLE", "message": "...", "available": ["gonzalo", "jorge", "salome", "salome-grave"] }
+
+// 409: ya existe audio "ready" para ese capítulo con esa voz
 { "statusCode": 409, "code": "AUDIO_ALREADY_EXISTS", "message": "..." }
 
-// 429: límite de capítulos simultáneos (RF-24)
+// 429: límite de capítulos simultáneos (RF-24, AUDIO_MAX_PER_USER)
 { "statusCode": 429, "code": "AUDIO_CONCURRENCY_LIMIT", "message": "...", "limit": 2 }
 
 // 429: cuota mensual insuficiente (RF-23)
@@ -464,24 +472,53 @@ Errores:
   "message": "...",
   "required": 18450,
   "remaining": 4210,
-  "resetsAt": "2026-10-01T00:00:00Z"
+  "resetsAt": "2026-10-01T00:00:00.000Z"
 }
 
-// 403: el libro es público (su audio lo genera el sistema)
+// 403: BOOK_FORBIDDEN (libro ajeno) o PUBLIC_BOOK_AUDIO (su audio lo genera el sistema)
 ```
 
-**`GET /api/v1/chapters/:id/audio`**: estado y resultado (mismo control de acceso que el libro)
+**`GET /api/v1/chapters/:id/audio?voice=salome`**: estado y resultado (mismo control de acceso que el libro; sin `voice`, la de por defecto)
 ```json
-// Response 200
+// Response 200 (generándose)
 {
-  "status": "ready",
-  "audioUrl": "string (URL firmada si el libro es privado)",
-  "alignmentUrl": "string",
-  "durationMs": 245310,
-  "provider": "edge"
+  "chapterId": "uuid", "voiceId": "salome", "status": "processing",
+  "progress": { "done": 42, "total": 180 },
+  "audioUrl": null, "alignmentUrl": null, "expiresAt": null,
+  "durationMs": null, "provider": null, "outdated": false
+}
+// Response 200 (listo)
+{
+  "chapterId": "uuid", "voiceId": "salome", "status": "ready", "progress": null,
+  "audioUrl": "/api/v1/media?key=...&exp=...&sig=...",
+  "alignmentUrl": "/api/v1/media?key=...&exp=...&sig=...",
+  "expiresAt": "2026-09-28T13:10:00.000Z",
+  "durationMs": 245310, "provider": "edge", "outdated": false
 }
 // status: none | pending | processing | ready | error
+// progress cuenta unidades de voz (oraciones o tramos de diálogo); total es 0 hasta que el worker lo toma.
 ```
+
+**`GET /api/v1/media?key=&exp=&sig=`**: el MP3 o el `alignment.json`, sin sesión (el permiso va en la URL firmada)
+```
+// Firma HMAC-SHA256 sobre la clave del storage y el vencimiento (MEDIA_URL_TTL_SECONDS, 1 h por
+// defecto). El vencimiento se redondea a ventanas de 10 min: consultar el estado varias veces
+// devuelve la misma URL, así el navegador y el Service Worker la pueden cachear.
+// Admite Range: 206 Partial Content con Content-Range; 416 si el tramo cae fuera del archivo.
+// La clave incluye la versión de la voz: su contenido nunca cambia (Cache-Control: immutable).
+// Errores: 403 MEDIA_URL_INVALID (firma alterada u otra clave) o MEDIA_URL_EXPIRED
+```
+
+**`GET /api/v1/voices?language=es`**: voces disponibles (público)
+```json
+[
+  { "id": "gonzalo", "name": "Gonzalo", "language": "es", "isDefault": true, "sampleUrl": "/api/v1/voices/gonzalo/sample" },
+  { "id": "jorge", "name": "Jorge", "language": "es", "isDefault": false, "sampleUrl": "/api/v1/voices/jorge/sample" }
+]
+// Sin language, todas. En inglés (sin perfiles propios), la voz de Edge por defecto.
+```
+
+**`GET /api/v1/voices/:id/sample`**: muestra de unos segundos con narración y diálogo (público, admite Range). Las genera el worker al arrancar y quedan en el storage; mientras tanto, 404 `VOICE_SAMPLE_NOT_READY`.
 
 ### 2.5 Reading Progress
 
@@ -525,8 +562,8 @@ Para reanudar en audio, el cliente busca en `alignment.json` la primera oración
 ```json
 // Response 200
 {
-  "periodStart": "2026-09-01T00:00:00Z",
-  "resetsAt": "2026-10-01T00:00:00Z",
+  "periodStart": "2026-09-01T00:00:00.000Z",
+  "resetsAt": "2026-10-01T00:00:00.000Z",
   "quota": 300000,
   "consumed": 99790,
   "reserved": 18660,
@@ -534,6 +571,9 @@ Para reanudar en audio, el cliente busca en `alignment.json` la primera oración
   "totalCharactersProcessed": 84213
 }
 ```
+
+- El periodo es el mes calendario en UTC. `consumed` suma `TtsUsageLog` desde `periodStart`; `reserved`, los `reserved_characters` de los segmentos del usuario en `pending`/`processing`; `remaining = quota − consumed − reserved`.
+- `quota` es `User.tts_monthly_quota` o, si es null, `TTS_MONTHLY_QUOTA` de la configuración.
 
 ### 2.7 Convención de errores
 

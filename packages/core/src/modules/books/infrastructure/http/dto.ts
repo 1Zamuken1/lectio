@@ -70,6 +70,14 @@ export class BookSummaryDto {
   }
 }
 
+export class ChapterAudioDto {
+  @ApiProperty({ example: 'gonzalo' })
+  voiceId!: string;
+
+  @ApiProperty({ enum: ['pending', 'processing', 'ready', 'error'] })
+  status!: string;
+}
+
 export class ChapterSummaryDto {
   @ApiProperty({ format: 'uuid' })
   id!: string;
@@ -96,8 +104,14 @@ export class ChapterSummaryDto {
   @ApiProperty()
   sentenceCount!: number;
 
+  @ApiProperty({
+    type: [ChapterAudioDto],
+    description: 'Audio pedido para este capítulo, por voz.',
+  })
+  audio!: ChapterAudioDto[];
+
   static from(chapter: ChapterSummary): ChapterSummaryDto {
-    return { ...chapter };
+    return { ...chapter, audio: chapter.audio.map((a) => ({ ...a })) };
   }
 }
 

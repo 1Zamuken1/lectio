@@ -38,6 +38,20 @@ const EnvSchema = z.object({
   MAX_UPLOAD_MB: z.coerce.number().positive().default(50),
   /** Prefijo de las colas en Redis: los tests usan otro para no cruzarse con el worker de desarrollo. */
   QUEUE_PREFIX: z.string().min(1).default('lectio'),
+
+  /** Motor de voz del worker: edge (Microsoft Edge TTS) o silent (sin red, para tests y desarrollo). */
+  TTS_PROVIDER: z.enum(['edge', 'silent']).default('edge'),
+  /** Cuota mensual de caracteres por usuario (RF-23), salvo que la cuenta tenga una propia. */
+  TTS_MONTHLY_QUOTA: z.coerce.number().int().nonnegative().default(300_000),
+  /** Capítulos que un usuario puede tener generándose a la vez (RF-24). */
+  AUDIO_MAX_PER_USER: z.coerce.number().int().positive().default(2),
+  /** Capítulos que el worker genera a la vez, y solicitudes a TTS por capítulo (RNF-07). */
+  AUDIO_WORKER_CONCURRENCY: z.coerce.number().int().positive().max(8).default(2),
+  TTS_REQUESTS_PER_CHAPTER: z.coerce.number().int().positive().max(8).default(2),
+  /** Intentos de un capítulo (además de los reintentos por unidad del adaptador). */
+  AUDIO_JOB_ATTEMPTS: z.coerce.number().int().positive().default(3),
+  /** Vida de las URL firmadas del audio y la alineación, en segundos. */
+  MEDIA_URL_TTL_SECONDS: z.coerce.number().int().min(60).default(3600),
 });
 
 export type AppConfig = z.infer<typeof EnvSchema>;

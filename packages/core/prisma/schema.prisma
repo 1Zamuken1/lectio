@@ -149,6 +149,9 @@ model AudioSegment {
   /// Caracteres reservados de la cuota mientras está pending/processing.
   reservedCharacters Int         @map("reserved_characters")
   retryCount         Int         @default(0) @map("retry_count")
+  /// Progreso del worker: unidades de voz sintetizadas de las del capítulo.
+  unitsDone          Int         @default(0) @map("units_done")
+  unitsTotal         Int         @default(0) @map("units_total")
   errorMessage       String?     @map("error_message")
   createdAt          DateTime    @default(now()) @map("created_at")
   updatedAt          DateTime    @updatedAt @map("updated_at")

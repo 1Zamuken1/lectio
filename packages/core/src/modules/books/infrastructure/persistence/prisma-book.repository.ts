@@ -97,6 +97,7 @@ export class PrismaBookRepository implements BookRepository {
             kind: true,
             characterCount: true,
             sentenceCount: true,
+            audio: { select: { voiceId: true, status: true }, orderBy: { voiceId: 'asc' } },
           },
         },
       },

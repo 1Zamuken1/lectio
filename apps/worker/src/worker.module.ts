@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import {
+  AudioGenerationModule,
   BookProcessingModule,
   ConfigModule,
   HealthModule,
@@ -10,7 +11,7 @@ import {
 } from '@lectio/core';
 
 /**
- * El worker registra los processors de las colas (libros; el audio llega en la fase 4) y ningún controlador: nunca
+ * El worker registra los processors de las colas (libros y audio) y ningún controlador: nunca
  * recibe tráfico HTTP, así el proceso que abre archivos subidos no queda expuesto.
  */
 @Module({
@@ -22,6 +23,7 @@ import {
     StorageModule,
     HealthModule,
     BookProcessingModule,
+    AudioGenerationModule,
   ],
 })
 export class WorkerModule {}

@@ -1,6 +1,7 @@
 import { Module, type INestApplication, type INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
+  AudioGenerationModule,
   BookProcessingModule,
   ConfigModule,
   PrismaModule,
@@ -12,18 +13,15 @@ import {
 import request from 'supertest';
 import { createApp } from '../../src/app.js';
 
+const WORKER_BASE = [ConfigModule, PrismaModule, RedisModule, QueuesModule, StorageModule];
+
 /** El worker de los tests: los mismos módulos que apps/worker, en el mismo proceso. */
-@Module({
-  imports: [
-    ConfigModule,
-    PrismaModule,
-    RedisModule,
-    QueuesModule,
-    StorageModule,
-    BookProcessingModule,
-  ],
-})
+@Module({ imports: [...WORKER_BASE, BookProcessingModule, AudioGenerationModule] })
 class TestWorkerModule {}
+
+/** Solo procesa libros: el audio pedido se queda en pending (para probar cuota y concurrencia). */
+@Module({ imports: [...WORKER_BASE, BookProcessingModule] })
+class BooksOnlyWorkerModule {}
 
 export interface TestApp {
   app: INestApplication;
@@ -36,14 +34,18 @@ export interface TestApp {
 
 /**
  * La API real (misma configuración que main.ts) sobre la base de tests. Con `worker: true`
- * levanta también los processors de las colas, como hace apps/worker.
+ * levanta también los processors de las colas, como hace apps/worker; con `audio: false`,
+ * solo el de libros.
  */
-export async function createTestApp(options: { worker?: boolean } = {}): Promise<TestApp> {
+export async function createTestApp(
+  options: { worker?: boolean; audio?: boolean } = {},
+): Promise<TestApp> {
   const app = await createApp({ logger: false });
   await app.init();
   let worker: INestApplicationContext | null = null;
   if (options.worker) {
-    worker = await NestFactory.createApplicationContext(TestWorkerModule, { logger: false });
+    const module = options.audio === false ? BooksOnlyWorkerModule : TestWorkerModule;
+    worker = await NestFactory.createApplicationContext(module, { logger: false });
     await worker.init();
   }
   const prisma = app.get(PrismaService);
@@ -87,6 +89,27 @@ export async function waitForBook(
     if (response.body.status === 'ready' || response.body.status === 'error') return response.body;
     if (Date.now() > deadline)
       throw new Error(`El libro ${bookId} sigue en ${response.body.status}`);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+}
+
+/** Espera a que el worker termine el audio de un capítulo (ready o error). */
+export async function waitForAudio(
+  t: TestApp,
+  auth: string,
+  chapterId: string,
+  voice = 'gonzalo',
+  timeoutMs = 20_000,
+): Promise<{ status: string; [key: string]: unknown }> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const response = await t.http
+      .get(`/api/v1/chapters/${chapterId}/audio`)
+      .query({ voice })
+      .set('Authorization', auth);
+    if (response.body.status === 'ready' || response.body.status === 'error') return response.body;
+    if (Date.now() > deadline)
+      throw new Error(`El audio de ${chapterId} sigue en ${response.body.status}`);
     await new Promise((resolve) => setTimeout(resolve, 150));
   }
 }

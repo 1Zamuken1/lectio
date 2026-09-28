@@ -77,11 +77,14 @@ pnpm dev                 # API en http://localhost:3000/api/v1 y el worker
 
 La documentación interactiva de la API (OpenAPI) queda en http://localhost:3000/api/docs.
 
+El worker genera el audio con Edge TTS. Para trabajar sin red (o sin gastar solicitudes), `TTS_PROVIDER=silent` en `.env` genera MP3 de silencio con una duración proporcional al texto: la cuota, la alineación y el reproductor funcionan igual. La cuota mensual y los límites de generación también se ajustan en `.env` (ver `.env.example`).
+
 ## Desarrollo
 
 ```bash
 pnpm check              # lint + formato + typecheck + tests (incluye tests sobre el corpus si está descargado)
 pnpm test:integration   # la API contra Postgres y Redis reales (base lectio_test; necesita Docker)
+LECTIO_EDGE_TESTS=1 pnpm test:integration   # además, un capítulo corto generado con Edge de verdad (lento, con red)
 pnpm build
 pnpm --filter @lectio/epub-pipeline golden:update   # tras un cambio intencional en las reglas
 ```

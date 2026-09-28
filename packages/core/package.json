@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@lectio/epub-pipeline": "workspace:*",
+    "@lectio/tts": "workspace:*",
     "@nestjs/bullmq": "^12.0.0",
     "@nestjs/common": "^12.1.1",
     "@nestjs/core": "^12.1.1",

@@ -33,6 +33,8 @@ export interface ChapterSummary {
   kind: 'narrative' | 'front_matter' | 'back_matter' | 'notes';
   characterCount: number;
   sentenceCount: number;
+  /** Audio de este capítulo por voz (uno por voz que se pidió). */
+  audio: Array<{ voiceId: string; status: 'pending' | 'processing' | 'ready' | 'error' }>;
 }
 
 export interface BookDetail extends BookSummary {

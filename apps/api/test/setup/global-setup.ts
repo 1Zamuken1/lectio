@@ -24,6 +24,9 @@ export default async function setup(): Promise<void> {
   process.env.QUEUE_PREFIX = 'lectio-test';
   process.env.STORAGE_DIR = join(tmpdir(), 'lectio-test-storage');
   process.env.MAX_UPLOAD_MB = '2';
+  // Voz sin red y un solo intento: los tests no dependen de Edge ni esperan reintentos.
+  process.env.TTS_PROVIDER ??= 'silent';
+  process.env.AUDIO_JOB_ATTEMPTS = '1';
   rmSync(process.env.STORAGE_DIR, { recursive: true, force: true });
   execSync('pnpm exec prisma migrate deploy', {
     cwd: fileURLToPath(new URL('../../../../packages/core', import.meta.url)),

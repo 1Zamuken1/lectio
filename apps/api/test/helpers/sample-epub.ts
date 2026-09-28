@@ -29,3 +29,17 @@ export function sampleEpub(title = 'El jardín de prueba'): Promise<Buffer> {
     ],
   });
 }
+
+/** Un capítulo con la palabra que hace fallar al proveedor silencioso (TTS_PROVIDER=silent). */
+export function failingEpub(): Promise<Buffer> {
+  return buildEpub({
+    metadata: { title: 'El libro que no suena', creators: ['Ana Autora'], language: 'es' },
+    chapters: [
+      {
+        id: 'cap1',
+        title: 'Capítulo único',
+        body: `<h1>Capítulo único</h1><p>${'Aquí todo iba bien. '.repeat(40)}</p><p>Hasta que LECTIOFALLATTS apareció.</p>`,
+      },
+    ],
+  });
+}

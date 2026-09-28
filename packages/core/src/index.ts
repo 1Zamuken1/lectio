@@ -37,3 +37,5 @@ export { BooksService } from './modules/books/application/books.service.js';
 export { uuidv7 } from './common/ids/uuid.js';
 export { ChaptersModule } from './modules/chapters/chapters.module.js';
 export { ReadingProgressModule } from './modules/reading-progress/reading-progress.module.js';
+export { AudioModule } from './modules/audio/audio.module.js';
+export { AudioGenerationModule } from './modules/audio/audio-generation.module.js';

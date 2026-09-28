@@ -93,11 +93,12 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ### Fase 4: audio
 
-- [ ] `POST /chapters/:id/audio { voiceId }`: transacción con bloqueo por usuario (`SELECT … FOR UPDATE`), cuota (`remaining = quota − consumed − reserved`) y concurrencia (429 con `code`). Es idempotente si ya hay un trabajo pendiente para ese capítulo y esa voz.
-- [ ] Worker `audio-generation`: unidades de voz → `packages/tts` (reintentos por unidad) → MP3 + `alignment.json` al storage → en una transacción, `AudioSegment` `ready` + `TtsUsageLog` + contador del usuario. Limitador global de BullMQ (RNF-07).
-- [ ] `GET /chapters/:id/audio?voice=`: estado, progreso (`done/total`) y URL firmada; el audio se sirve con `Range` (206).
-- [ ] `GET /users/me/usage` (arquitectura §2.6) y `GET /voices` (perfiles con su muestra).
-- [ ] Tests: la cuota bajo dos solicitudes simultáneas (solo una pasa), la concurrencia, la idempotencia, un fallo que libera la reserva, y la generación real con Edge solo en un test marcado como lento.
+- [x] `POST /chapters/:id/audio { voiceId }`: transacción con bloqueo por usuario (`SELECT … FOR UPDATE`), cuota (`remaining = quota − consumed − reserved`) y concurrencia (429 con `code`). Es idempotente si ya hay un trabajo pendiente para ese capítulo y esa voz.
+- [x] Worker `audio-generation`: unidades de voz → `packages/tts` (reintentos por unidad) → MP3 + `alignment.json` al storage → en una transacción, `AudioSegment` `ready` + `TtsUsageLog` + contador del usuario. Limitador global de BullMQ (RNF-07).
+- [x] `GET /chapters/:id/audio?voice=`: estado, progreso (`done/total`) y URL firmada; el audio se sirve con `Range` (206).
+- [x] `GET /users/me/usage` (arquitectura §2.6) y `GET /voices` (perfiles con su muestra).
+- [x] Tests: la cuota bajo dos solicitudes simultáneas (solo una pasa), la concurrencia, la idempotencia, un fallo que libera la reserva, y la generación real con Edge solo en un test marcado como lento.
+- [x] Proveedor silencioso (`TTS_PROVIDER=silent`) para los tests y para desarrollar sin red; `GET /books/:id` con el estado del audio por capítulo y voz.
 
 ### Fase 5: biblioteca pública
 

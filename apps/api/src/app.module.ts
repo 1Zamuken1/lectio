@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import {
   APP_CONFIG,
+  AudioModule,
   AuthModule,
   BooksModule,
   ChaptersModule,
@@ -30,6 +31,7 @@ import { HealthController } from './health/health.controller.js';
     BooksModule,
     ChaptersModule,
     ReadingProgressModule,
+    AudioModule,
     // Límite global por IP (arquitectura §1.8); las rutas sensibles lo ajustan con @Throttle.
     ThrottlerModule.forRootAsync({
       inject: [APP_CONFIG],
