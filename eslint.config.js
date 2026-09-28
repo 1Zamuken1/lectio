@@ -13,6 +13,8 @@ export default defineConfig(
       'corpus/**',
       'out/**',
       '**/.scratch/**',
+      // Cliente de Prisma generado (prisma generate)
+      'packages/core/src/generated/**',
     ],
   },
   js.configs.recommended,
