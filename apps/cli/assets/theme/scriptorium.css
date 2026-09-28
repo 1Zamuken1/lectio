@@ -57,6 +57,19 @@
   --px-cloud-d: #d7e8f3;
   --px-bird: #3b3a3e;
   --px-lit: #ffd35c;
+  /* Lomos: cada color con su luz y su sombra, para dar volumen. */
+  --px-red-l: #c24a3f;
+  --px-blue-l: #4a6c9e;
+  --px-green-l: #6a8c52;
+  --px-green-d: #34492a;
+  --px-leather: #7a4f2e;
+  --px-leather-l: #9a6a41;
+  --px-leather-d: #54341d;
+  --px-plum: #6b3a66;
+  --px-plum-l: #8a5184;
+  --px-plum-d: #48244a;
+  --px-shade: rgb(20 10 5 / 30%);
+  --px-moonbeam: transparent;
 }
 
 :root[data-mode='night'] {
@@ -99,6 +112,18 @@
   --px-cloud: #36426a;
   --px-cloud-d: #2a3456;
   --px-bird: transparent;
+  --px-red-l: #a8433a;
+  --px-blue-l: #34507e;
+  --px-green-l: #4a6638;
+  --px-green-d: #25361b;
+  --px-leather: #4a3120;
+  --px-leather-l: #634330;
+  --px-leather-d: #301f13;
+  --px-plum: #3e2440;
+  --px-plum-l: #573457;
+  --px-plum-d: #28172a;
+  --px-shade: rgb(0 0 0 / 35%);
+  --px-moonbeam: rgb(170 190 255 / 9%);
 }
 
 /* ---------------------------------------------------------------- Tokens de la interfaz */

@@ -206,7 +206,17 @@
     }
   }
 
-  const SPINES = ['red', 'red-d', 'blue', 'green', 'gold-d', 'parch-d', 'blue-d', 'red'];
+  /** Lomos: color base, luz (borde izquierdo) y sombra (borde derecho), para dar volumen. */
+  const SPINES = [
+    ['red', 'red-l', 'red-d'],
+    ['blue', 'blue-l', 'blue-d'],
+    ['green', 'green-l', 'green-d'],
+    ['leather', 'leather-l', 'leather-d'],
+    ['plum', 'plum-l', 'plum-d'],
+    ['red-d', 'red', 'ink'],
+    ['parch-d', 'parch', 'leather-d'],
+    ['leather', 'leather-l', 'leather-d'],
+  ];
 
   /** Objetos de monasterio entre los libros (se apoyan en la tabla del estante). */
   const SHELF_PALETTE = {
@@ -260,50 +270,139 @@
     ['.oooooooo.', '.orrrrrro.', 'oooooooooo', 'obbbbbbbbo', 'ogggggggo.', 'oooooooooo'],
   ];
 
-  /** Estantería con libros de alturas y colores variados y, de vez en cuando, un objeto. */
-  function bookshelf(c, x, y, w, h, rnd, shelves = 4) {
-    c.rect('wood-d', x, y, w, h);
-    c.rect('wood', x + 2, y + 2, w - 4, h - 4);
-    const gap = Math.floor((h - 4) / shelves);
+  /**
+   * Un libro de pie en su propia capa (el lienzo agrupa por color, así que compartirlo
+   * dejaría los dorados debajo de los lomos): contorno de tinta, luz y sombra, cabezada,
+   * nervios dorados y, según el libro, etiqueta del título o un florón grabado en oro.
+   */
+  function book(bx, base, bw, bh, [color, light, dark], rnd) {
+    const c = canvas();
+    const bands = bh > 22 ? 3 : 2;
+    const ornament = rnd();
+    const labelColor = rnd() < 0.5 ? 'parch' : 'ink';
+    const top = base - bh;
+    c.rect('ink', bx, top, bw, bh);
+    c.rect(color, bx + 1, top + 1, bw - 2, bh - 2);
+    c.rect(light, bx + 1, top + 1, 1, bh - 2);
+    c.rect(dark, bx + bw - 2, top + 1, 1, bh - 2);
+    c.rect(light, bx + 1, top + 1, bw - 2, 1); // cabezada
+    // Nervios: bandas en relieve (oro con su sombra).
+    const bandRows = [];
+    for (let b = 0; b < bands; b++) {
+      const at = top + Math.round(3 + (b * (bh - 7)) / Math.max(1, bands - 1));
+      bandRows.push(at);
+      c.rect('gold', bx + 1, at, bw - 2, 1);
+      c.rect('gold-d', bx + 1, at + 1, bw - 2, 1);
+    }
+    // Entre los dos primeros nervios: etiqueta con el título, o un florón de oro.
+    const from = bandRows[0] + 3;
+    const to = (bandRows[1] ?? base) - 2;
+    if (to - from >= 3 && bw >= 5) {
+      const mid = Math.floor((from + to) / 2);
+      if (ornament < 0.5) {
+        c.rect(labelColor, bx + 2, mid - 1, bw - 4, 3);
+        if (bw >= 6) c.rect(labelColor === 'ink' ? 'gold' : 'ink', bx + 3, mid, bw - 6, 1);
+      } else if (ornament < 0.8) {
+        const cx = bx + Math.floor(bw / 2);
+        c.rect('gold', cx, mid - 1, 1, 3);
+        c.rect('gold', cx - 1, mid, 3, 1);
+      }
+    }
+    return c.svg();
+  }
+
+  /**
+   * Estantería tallada: cornisa con dentículos y remate, postes con molduras, fondo de
+   * tablones y tres estantes con libros detallados y, de vez en cuando, un objeto. El
+   * mueble va en `c`; libros, objetos y la penumbra de cada estante se devuelven como
+   * capas aparte, para pintarlos encima.
+   */
+  function bookshelf(c, x, y, w, h, rnd, shelves = 3) {
+    const layers = [];
+    const shade = canvas();
+    const post = 5;
+    const cornice = 9;
+    const plinth = 6;
+    const inner = { x: x + post, y: y + cornice, w: w - post * 2, h: h - cornice - plinth };
+
+    // Fondo: tablones verticales con juntas.
+    c.rect('wood-d', inner.x, inner.y, inner.w, inner.h);
+    for (let px = inner.x + 3; px < inner.x + inner.w; px += 9)
+      c.rect('ink', px, inner.y, 1, inner.h);
+
+    // Postes laterales con moldura (filo claro, cuerpo, sombra) y muescas talladas.
+    for (const px of [x, x + w - post]) {
+      c.rect('ink', px, y, post, h);
+      c.rect('wood', px + 1, y + 1, post - 2, h - 2);
+      c.rect('wood-l', px + 1, y + 1, 1, h - 2);
+      c.rect('wood-d', px + post - 2, y + 1, 1, h - 2);
+      for (let ny = y + cornice + 6; ny < y + h - plinth - 4; ny += 12) {
+        c.rect('wood-d', px + 2, ny, 1, 3);
+        c.rect('gold-d', px + 2, ny + 1, 1, 1);
+      }
+    }
+
+    // Cornisa: tres molduras, dentículos y un remate dorado al centro.
+    c.rect('ink', x - 2, y, w + 4, cornice);
+    c.rect('wood-l', x - 1, y + 1, w + 2, 1);
+    c.rect('wood', x - 1, y + 2, w + 2, 2);
+    c.rect('wood-d', x - 1, y + 4, w + 2, 1);
+    for (let dx = x; dx < x + w - 1; dx += 4) c.rect('wood-l', dx + 1, y + 5, 2, 2);
+    c.rect('wood-d', x - 1, y + 7, w + 2, 1);
+    const crest = canvas();
+    crest.sprite(
+      ['..g..', '.ggg.', 'ghggh', '.ggg.'],
+      { g: 'gold', h: 'gold-d' },
+      x + Math.floor(w / 2) - 2,
+      y - 4,
+    );
+    layers.push(crest.svg());
+
+    // Zócalo.
+    c.rect('ink', x - 1, y + h - plinth, w + 2, plinth);
+    c.rect('wood', x, y + h - plinth + 1, w, plinth - 2);
+    c.rect('wood-l', x, y + h - plinth + 1, w, 1);
+
+    const gap = Math.floor(inner.h / shelves);
     for (let s = 0; s < shelves; s++) {
-      const base = y + 2 + gap * (s + 1) - 3;
-      c.rect('wood-d', x + 2, base, w - 4, 3);
-      c.rect('wood-l', x + 2, base, w - 4, 1);
-      // Fondo del estante en sombra: da profundidad a lo que se apoya en él.
-      c.rect('wood-d', x + 2, base - gap + 3, w - 4, 2);
-      let bx = x + 4;
+      const base = inner.y + gap * (s + 1) - 4;
+      // Penumbra bajo la tabla de arriba (se pinta sobre las cabezas de los libros).
+      shade.rect('shade', inner.x, base - gap + 4, inner.w, 3);
+      // Tabla: canto claro, cuerpo y sombra.
+      c.rect('ink', inner.x, base, inner.w, 4);
+      c.rect('wood-l', inner.x, base, inner.w, 1);
+      c.rect('wood', inner.x, base + 1, inner.w, 2);
+
+      let bx = inner.x + 2;
       let sinceObject = 0;
-      while (bx < x + w - 8) {
-        const room = x + w - 5 - bx;
-        if (sinceObject > 3 && rnd() < 0.3) {
+      const end = inner.x + inner.w - 2;
+      while (bx < end - 4) {
+        const room = end - bx;
+        if (sinceObject > 3 && rnd() < 0.22) {
           const object = SHELF_OBJECTS[Math.floor(rnd() * SHELF_OBJECTS.length)];
           const width = Math.max(...object.map((row) => row.length));
-          if (width <= room) {
-            c.sprite(object, SHELF_PALETTE, bx + 1, base - object.length);
+          if (width + 1 <= room) {
+            const layer = canvas();
+            layer.sprite(object, SHELF_PALETTE, bx + 1, base - object.length);
+            layers.push(layer.svg());
             bx += width + 2;
             sinceObject = 0;
             continue;
           }
         }
-        if (rnd() < 0.06) {
-          bx += 3 + Math.floor(rnd() * 4); // hueco
+        if (rnd() < 0.05) {
+          bx += 3 + Math.floor(rnd() * 3); // hueco
           continue;
         }
-        const bw = 3 + Math.floor(rnd() * 4);
-        const bh = Math.min(gap - 6, 12 + Math.floor(rnd() * (gap - 16)));
-        const color = SPINES[Math.floor(rnd() * SPINES.length)];
-        const top = base - bh;
-        c.rect('ink', bx, top, bw, bh);
-        c.rect(color, bx, top + 1, bw - 1, bh - 1);
-        c.rect('gold', bx, top + 3, bw - 1, 1);
-        if (bh > 16) c.rect('gold', bx, base - 4, bw - 1, 1);
-        bx += bw + (rnd() < 0.2 ? 1 : 0);
+        const bw = Math.min(room, 5 + Math.floor(rnd() * 5));
+        if (bw < 4) break;
+        const bh = Math.min(gap - 8, 16 + Math.floor(rnd() * (gap - 22)));
+        layers.push(book(bx, base, bw, bh, SPINES[Math.floor(rnd() * SPINES.length)], rnd));
+        bx += bw + (rnd() < 0.15 ? 1 : 0);
         sinceObject++;
       }
     }
-    c.rect('ink', x, y, w, 1);
-    c.rect('ink', x, y, 1, h);
-    c.rect('ink', x + w - 1, y, 1, h);
+    return layers.join('') + shade.svg();
   }
 
   /** Forma del vano: rectángulo coronado por un arco de medio punto. */
@@ -525,14 +624,16 @@
   }
 
   /** Rayo de luz del ventanal (día): escalones que se ensanchan hacia el suelo. */
-  function lightBeam(x, y, w, toY) {
+  function lightBeam(x, y, w, toY, { drift, color, mode }) {
     const c = canvas();
     for (let py = y; py < toY; py++) {
       const t = (py - y) / (toY - y);
-      const left = Math.round(x + t * 34);
-      c.rect('beam', left, py, Math.round(w + t * 26), 1);
+      const widen = Math.round(t * 26);
+      // `drift` > 0: la luz viene de la izquierda y cae hacia la derecha (y al revés).
+      const left = Math.round(x + t * drift - (drift < 0 ? widen : 0));
+      c.rect(color, left, py, w + widen, 1);
     }
-    return `<g class="px-day px-beam">${c.svg()}</g>`;
+    return `<g class="px-${mode} px-beam">${c.svg()}</g>`;
   }
 
   /** Halo de la vela (noche): anillos concéntricos escalonados. */
@@ -573,8 +674,7 @@
     const back = canvas();
     stoneWall(back, 0, 0, W, 142, rnd);
     floor(back, 0, 142, W, H - 142, rnd);
-    bookshelf(back, 10, 22, 96, 120, rnd);
-    bookshelf(back, 214, 22, 96, 120, rnd);
+    const shelves = bookshelf(back, 8, 16, 100, 126, rnd) + bookshelf(back, 212, 16, 100, 126, rnd);
 
     const win = { x: 138, y: 16, w: 44, h: 72 };
     let furniture = '';
@@ -593,11 +693,12 @@
     }
 
     return `<svg class="px-scene" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
-      ${back.svg()}
+      ${back.svg()}${shelves}
       <rect class="px-night" x="0" y="0" width="${W}" height="${H}" style="fill:var(--px-dusk)"/>
       ${archWindow(win.x, win.y, win.w, win.h, sky(win.x, win.y, win.w, win.h, rnd) + landscape(win.x, win.y, win.w, win.h))}
-      ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 142)}
-      ${motes(win.x, win.y + win.h, 70, 50, rnd)}
+      ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 142, { drift: -34, color: 'beam', mode: 'day' })}
+      ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 142, { drift: 30, color: 'moonbeam', mode: 'night' })}
+      ${motes(win.x - 40, win.y + win.h, 70, 50, rnd)}
       ${furniture}
       ${desk ? glow(199, 116, 44) : ''}
       ${desk ? `<g class="px-companion">${owl(102, 114)}</g>` : ''}
