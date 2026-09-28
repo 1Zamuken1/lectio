@@ -1,6 +1,11 @@
-// Lectio · íconos de la interfaz (docs/lectio-temas.md). En los mundos de pixel art, íconos
-// dibujados en una cuadrícula de 12×12; en el Clásico, íconos de línea. Toman el color del
-// texto (currentColor), así que cada tema los pinta con sus propios tokens.
+// Lectio · íconos de la interfaz (docs/lectio-temas.md).
+//
+// - Scriptorium: íconos de manuscrito iluminado, dibujados en píxeles de 16×16 con cuatro
+//   tintas (k = tinta, r = bermellón, g = oro, w = brillo). Cada tinta es una variable de
+//   CSS (--ic-ink, --ic-red, --ic-gold, --ic-light), así que el tema los recolorea: sobre
+//   un botón activo, por ejemplo, el bermellón pasa a oro. Se diseñaron con
+//   apps/cli/.scratch/icons16.mjs, que imprime cada cuadrícula para revisarla.
+// - Clásico (y los mundos sin set propio): íconos de línea con currentColor.
 //
 //   LectioIcons.icon('play')  → <span class="icon" data-icon="play"> con el SVG del mundo
 //   LectioIcons.set(el, 'pause') cambia el ícono de un elemento ya creado
@@ -9,180 +14,260 @@
 (() => {
   'use strict';
 
-  /** Cuadrículas de 12×12: X = píxel pintado. */
-  const PIXEL = {
+  const ILLUMINATED = {
     play: [
-      '............',
-      '...X........',
-      '...XX.......',
-      '...XXX......',
-      '...XXXX.....',
-      '...XXXXX....',
-      '...XXXXX....',
-      '...XXXX.....',
-      '...XXX......',
-      '...XX.......',
-      '...X........',
-      '............',
+      '................',
+      '................',
+      '.....k..........',
+      '.....kk.........',
+      '.....krk........',
+      '.....krrk.......',
+      '..gg.krrrk......',
+      '.g...kwrrrk.....',
+      '.g.g.kwrrrk.....',
+      '..g..krrrk......',
+      '.....krrk.......',
+      '.....krk........',
+      '.....kk.........',
+      '.....k..........',
+      '................',
+      '................',
     ],
     pause: [
-      '............',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '..XXX..XXX..',
-      '............',
+      '................',
+      '...gggg..gggg...',
+      '...kkkk..kkkk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kwrk..kwrk...',
+      '...kkkk..kkkk...',
+      '...gggg..gggg...',
+      '................',
+      '................',
     ],
     prev: [
-      '............',
-      '.XX......X..',
-      '.XX.....XX..',
-      '.XX....XXX..',
-      '.XX...XXXX..',
-      '.XX..XXXXX..',
-      '.XX..XXXXX..',
-      '.XX...XXXX..',
-      '.XX....XXX..',
-      '.XX.....XX..',
-      '.XX......X..',
-      '............',
+      '................',
+      '................',
+      '..gg........k...',
+      '..kk.......kk...',
+      '..kk......krk...',
+      '..kk.....krrk...',
+      '..kk....krrrk...',
+      '..kk...kwrrrk...',
+      '..kk...kwrrrk...',
+      '..kk....krrrk...',
+      '..kk.....krrk...',
+      '..kk......krk...',
+      '..kk.......kk...',
+      '..gg........k...',
+      '................',
+      '................',
+    ],
+    next: [
+      '................',
+      '................',
+      '...k........gg..',
+      '...kk.......kk..',
+      '...krk......kk..',
+      '...krrk.....kk..',
+      '...krrrk....kk..',
+      '...krrrwk...kk..',
+      '...krrrwk...kk..',
+      '...krrrk....kk..',
+      '...krrk.....kk..',
+      '...krk......kk..',
+      '...kk.......kk..',
+      '...k........gg..',
+      '................',
+      '................',
     ],
     rewind: [
-      '............',
-      '.....X....X.',
-      '....XX...XX.',
-      '...XXX..XXX.',
-      '..XXXX.XXXX.',
-      '.XXXXXXXXXX.',
-      '.XXXXXXXXXX.',
-      '..XXXX.XXXX.',
-      '...XXX..XXX.',
-      '....XX...XX.',
-      '.....X....X.',
-      '............',
+      '......r.........',
+      '.....rrkkk......',
+      '....rrr...kk....',
+      '.....rr.....k...',
+      '......r......k..',
+      '.............k..',
+      '.k....k..kkk..k.',
+      '.k...kk..k....k.',
+      '.k....k..kk...k.',
+      '.k....k....k..k.',
+      '..k..kkk.kk..k..',
+      '..k..........k..',
+      '...k........k...',
+      '....kk....kk....',
+      '......kkkk......',
+      '................',
+    ],
+    forward: [
+      '.........r......',
+      '......kkkrr.....',
+      '....kk...rrr....',
+      '...k.....rr.....',
+      '..k......r......',
+      '..k.............',
+      '.k....k..kkk..k.',
+      '.k...kk..k....k.',
+      '.k....k..kk...k.',
+      '.k....k....k..k.',
+      '..k..kkk.kk..k..',
+      '..k..........k..',
+      '...k........k...',
+      '....kk....kk....',
+      '......kkkk......',
+      '................',
     ],
     sun: [
-      '.....XX.....',
-      '.X...XX...X.',
-      '..X......X..',
-      '....XXXX....',
-      '...XXXXXX...',
-      'XX.XXXXXX.XX',
-      'XX.XXXXXX.XX',
-      '...XXXXXX...',
-      '....XXXX....',
-      '..X......X..',
-      '.X...XX...X.',
-      '.....XX.....',
+      '.......g........',
+      '.......g........',
+      '..g....r....g...',
+      '...g...r...g....',
+      '.....kkkkk......',
+      '....kgggggk.....',
+      '...kggwgggk.....',
+      'ggrrkgwggggkrrgg',
+      '...kgggggggk....',
+      '...kgggggggk....',
+      '....kgggggk.....',
+      '.....kkkkk......',
+      '...g...r...g....',
+      '..g....r....g...',
+      '.......g........',
+      '.......g........',
     ],
     moon: [
-      '....XXXX....',
-      '..XXXX......',
-      '.XXXX.......',
-      '.XXX........',
-      'XXXX........',
-      'XXXX........',
-      'XXXX........',
-      'XXXXX.......',
-      '.XXXXX....X.',
-      '.XXXXXXXXXX.',
-      '..XXXXXXXX..',
-      '....XXXX....',
+      '................',
+      '.............g..',
+      '.....kk.....g.g.',
+      '...kkgk......g..',
+      '...kwgk.........',
+      '..kwgk..........',
+      '..kwggk.........',
+      '.kwgggk.........',
+      '.kwgggk.........',
+      '..kwgggk........',
+      '..kwggggkk...k..',
+      '..kwggggggkkkk..',
+      '...kggggggggk...',
+      '....kkggggkk....',
+      '......kkkk......',
+      '................',
     ],
     settings: [
-      '.....XX.....',
-      '.XX.XXXX.XX.',
-      '.XXXXXXXXXX.',
-      '..XXX..XXX..',
-      '.XXX....XXX.',
-      'XXX......XXX',
-      'XXX......XXX',
-      '.XXX....XXX.',
-      '..XXX..XXX..',
-      '.XXXXXXXXXX.',
-      '.XX.XXXX.XX.',
-      '.....XX.....',
+      '.......kk.......',
+      '...kk.kggk.kk...',
+      '..kggkkggkkggk..',
+      '..kgggggggggk...',
+      '...kgggkkgggk...',
+      '.kkggkk..kkggkk.',
+      'kgggk..rr..kgggk',
+      'kggk..rwwr..kggk',
+      'kggk..rwwr..kggk',
+      'kgggk..rr..kgggk',
+      '.kkggkk..kkggkk.',
+      '...kgggkkgggk...',
+      '..kgggggggggk...',
+      '..kggkkggkkggk..',
+      '...kk.kggk.kk...',
+      '.......kk.......',
     ],
     review: [
-      '............',
-      '............',
-      '....XXXX....',
-      '..XX....XX..',
-      '.X...XX...X.',
-      'X...XXXX...X',
-      'X...XXXX...X',
-      '.X...XX...X.',
-      '..XX....XX..',
-      '....XXXX....',
-      '............',
-      '............',
+      '................',
+      '................',
+      '................',
+      '.....kkkkkk.....',
+      '...kk......kk...',
+      '..k....kk....k..',
+      '.k....krrk....k.',
+      'k....krggrk....k',
+      'k....krggrk....k',
+      '.k....krrk....k.',
+      '..k....kk....k..',
+      '...kk......kk...',
+      '.....kkkkkk.....',
+      '................',
+      '................',
+      '................',
     ],
     menu: [
-      '............',
-      '.XXXXXXXXXX.',
-      '.XXXXXXXXXX.',
-      '............',
-      '............',
-      '.XXXXXXXXXX.',
-      '.XXXXXXXXXX.',
-      '............',
-      '............',
-      '.XXXXXXXXXX.',
-      '.XXXXXXXXXX.',
-      '............',
+      '................',
+      '................',
+      '..r.............',
+      '.rgr.kkkkkkkkkk.',
+      '..r.............',
+      '................',
+      '................',
+      '..r.............',
+      '.rgr.kkkkkkkkkk.',
+      '..r.............',
+      '................',
+      '................',
+      '..r.............',
+      '.rgr.kkkkkkkkkk.',
+      '..r.............',
+      '................',
     ],
     home: [
-      '.....XX.....',
-      '....XXXX....',
-      '...XXXXXX...',
-      '..XXXXXXXX..',
-      '.XXXXXXXXXX.',
-      'XXXXXXXXXXXX',
-      '.XX......XX.',
-      '.XX......XX.',
-      '.XX..XX..XX.',
-      '.XX..XX..XX.',
-      '.XX..XX..XX.',
-      '.XXXXXXXXXX.',
+      '.......g........',
+      '......kkk.......',
+      '.....krrrk......',
+      '....krrrrrk.....',
+      '...krrrrrrrk....',
+      '..krrrrrrrrrk...',
+      '.kkkkkkkkkkkkk..',
+      '..kwwwwwwwwwk...',
+      '..kwwwkkkwwwk...',
+      '..kwwkgggkwwk...',
+      '..kwwkg.gkwwk...',
+      '..kwwkg.gkwwk...',
+      '..kwwkg.gkwwk...',
+      '..kkkkkkkkkkk...',
+      '................',
+      '................',
     ],
     voice: [
-      '............',
-      '.....X......',
-      '....XX...X..',
-      '...XXX....X.',
-      'XXXXXX..X..X',
-      'XXXXXX...X.X',
-      'XXXXXX...X.X',
-      'XXXXXX..X..X',
-      '...XXX....X.',
-      '....XX...X..',
-      '.....X......',
-      '............',
+      '................',
+      '................',
+      '.......k........',
+      '......kk....g...',
+      '.....krk.....g..',
+      '....krrk..g...g.',
+      'kkkkrwrk...g..g.',
+      'kwwkrwrk...g..g.',
+      'kwwkrwrk...g..g.',
+      'kkkkrwrk...g..g.',
+      '....krrk..g...g.',
+      '.....krk.....g..',
+      '......kk....g...',
+      '.......k........',
+      '................',
+      '................',
     ],
     close: [
-      '............',
-      '.XX......XX.',
-      '.XXX....XXX.',
-      '..XXX..XXX..',
-      '...XXXXXX...',
-      '....XXXX....',
-      '....XXXX....',
-      '...XXXXXX...',
-      '..XXX..XXX..',
-      '.XXX....XXX.',
-      '.XX......XX.',
-      '............',
+      '................',
+      '................',
+      '..kk........kk..',
+      '..krk......krk..',
+      '...krk....krk...',
+      '....krk..krk....',
+      '.....krkkrk.....',
+      '......krrk......',
+      '......krrk......',
+      '.....krkkrk.....',
+      '....krk..krk....',
+      '...krk....krk...',
+      '..krk......krk..',
+      '..kk........kk..',
+      '................',
+      '................',
     ],
   };
-  const mirror = (grid) => grid.map((row) => [...row].reverse().join(''));
-  PIXEL.next = mirror(PIXEL.prev);
-  PIXEL.forward = mirror(PIXEL.rewind);
 
   /** Íconos de línea (24×24) para el Clásico. */
   const LINE = {
@@ -206,33 +291,37 @@
     close: '<path d="M6 6l12 12M18 6L6 18"/>',
   };
 
-  function pixelSvg(grid) {
-    let d = '';
+  const INKS = { k: 'ink', r: 'red', g: 'gold', w: 'light' };
+
+  /** Un <path> por tinta, con los píxeles de cada fila unidos en tramos. */
+  function illuminatedSvg(grid) {
+    const paths = {};
     grid.forEach((row, y) => {
-      for (const match of row.matchAll(/X+/g))
-        d += `M${match.index} ${y}h${match[0].length}v1h-${match[0].length}z`;
+      for (const match of row.matchAll(/k+|r+|g+|w+/g)) {
+        const ink = INKS[match[0][0]];
+        paths[ink] =
+          (paths[ink] ?? '') + `M${match.index} ${y}h${match[0].length}v1h-${match[0].length}z`;
+      }
     });
-    return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="${d}" fill="currentColor"/></svg>`;
+    const body = Object.entries(paths)
+      .map(([ink, d]) => `<path d="${d}" style="fill:var(--ic-${ink})"/>`)
+      .join('');
+    return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${body}</svg>`;
   }
 
   function lineSvg(body) {
     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
   }
 
-  const pixelWorld = () => {
-    const world = document.documentElement.dataset.world;
-    return world !== undefined && world !== 'clasico';
-  };
-
   function draw(element) {
     const name = element.dataset.icon;
-    element.innerHTML = pixelWorld()
-      ? PIXEL[name]
-        ? pixelSvg(PIXEL[name])
-        : ''
-      : LINE[name]
-        ? lineSvg(LINE[name])
-        : '';
+    const illuminated = document.documentElement.dataset.world === 'scriptorium';
+    element.innerHTML =
+      illuminated && ILLUMINATED[name]
+        ? illuminatedSvg(ILLUMINATED[name])
+        : LINE[name]
+          ? lineSvg(LINE[name])
+          : '';
   }
 
   function icon(name, className = '') {

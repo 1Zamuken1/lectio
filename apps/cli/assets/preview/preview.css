@@ -920,7 +920,7 @@ button {
   text-align: right;
 }
 
-/* Íconos: 24 px (dos por píxel de la cuadrícula de 12), 36 px el ▶ grande. */
+/* Íconos: en el Clásico, de línea (20 px); en el Scriptorium, 32 px (dos por píxel de la cuadrícula de 16) y 48 px el ▶. */
 .icon {
   display: inline-flex;
   flex: none;
@@ -931,9 +931,9 @@ button {
   height: 20px;
 }
 
-:root:not([data-world='clasico']) .icon svg {
-  width: 24px;
-  height: 24px;
+:root[data-world='scriptorium'] .icon svg {
+  width: 32px;
+  height: 32px;
 }
 
 .icon.big svg {
@@ -941,9 +941,9 @@ button {
   height: 30px;
 }
 
-:root:not([data-world='clasico']) .icon.big svg {
-  width: 36px;
-  height: 36px;
+:root[data-world='scriptorium'] .icon.big svg {
+  width: 48px;
+  height: 48px;
 }
 
 .player .tool {

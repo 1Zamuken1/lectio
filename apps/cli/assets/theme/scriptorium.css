@@ -95,10 +95,10 @@
   --shadow: 0 2px 0 rgb(42 28 16 / 25%), 0 10px 24px rgb(42 28 16 / 18%);
   --gold: #7a5314;
 
-  /* Madera de la barra, el índice y el reproductor. */
-  --chrome: #5a3a22;
-  --chrome-dark: #3f2716;
-  --chrome-light: #7d5433;
+  /* Cuero granate de la encuadernación: barra, índice y reproductor. */
+  --chrome: #6a2018;
+  --chrome-dark: #3f110c;
+  --chrome-light: #8a3326;
   --chrome-ink: #f4e6c6;
   --chrome-muted: #d9c39a;
 
@@ -121,26 +121,99 @@
   --warn-soft: #3a2c19;
   --shadow: 0 2px 0 rgb(0 0 0 / 45%), 0 10px 24px rgb(0 0 0 / 40%);
   --gold: #e6b965;
-  --chrome: #2b1d12;
-  --chrome-dark: #1c130b;
-  --chrome-light: #3d2a1a;
+  --chrome: #3a120e;
+  --chrome-dark: #210906;
+  --chrome-light: #52201a;
   --chrome-ink: #eadbb8;
   --chrome-muted: #bba98a;
 }
 
-/* ---------------------------------------------------------------- Marcos de madera (HUD) */
+/* ---------------------------------------------------------------- Encuadernación (HUD) */
+/*
+ * La interfaz como la tapa de un códice: cuero granate con grano, filetes de oro y
+ * esquineros; los botones son placas de pergamino con borde de oro y el ▶, un medallón.
+ * Los íconos (icons.js) usan cuatro tintas: --ic-ink, --ic-red, --ic-gold y --ic-light.
+ */
 
-/* Borde pixel: un filete oscuro, uno claro biselado y la madera. */
+:root[data-world='scriptorium'] {
+  --ic-ink: var(--px-ink);
+  --ic-red: var(--px-red);
+  --ic-gold: var(--px-gold);
+  --ic-light: var(--px-parch);
+  /* Grano del cuero: solo alfa, sirve para cualquier color de fondo. */
+  --leather-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='1' y='2' width='1' height='1' fill='%23000' fill-opacity='.18'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23fff' fill-opacity='.06'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23000' fill-opacity='.14'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23000' fill-opacity='.2'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%23fff' fill-opacity='.05'/%3E%3C/svg%3E");
+  /* Brillo que recorre el oro al pasar el mouse. */
+  --gold-sheen: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgb(255 246 214 / 55%) 48%,
+    rgb(255 246 214 / 0%) 60%
+  );
+}
+
 [data-world='scriptorium'] .topbar,
 [data-world='scriptorium'] .player {
-  background: var(--chrome);
+  background-color: var(--chrome);
+  background-image: var(--leather-grain);
   color: var(--chrome-ink);
   border-color: var(--chrome-dark);
-  box-shadow:
-    inset 0 2px 0 var(--chrome-light),
-    inset 0 -2px 0 var(--chrome-dark),
-    0 3px 0 rgb(0 0 0 / 25%);
   backdrop-filter: none;
+}
+
+/* Filete de oro entre dos líneas oscuras, a lo largo del borde que da a la página. */
+[data-world='scriptorium'] .topbar {
+  box-shadow:
+    inset 0 -2px 0 var(--chrome-dark),
+    inset 0 -4px 0 var(--px-gold-d),
+    inset 0 -5px 0 var(--px-gold),
+    inset 0 -7px 0 var(--chrome-dark),
+    0 3px 0 rgb(0 0 0 / 25%);
+  padding-bottom: calc(0.6rem + 7px);
+}
+
+[data-world='scriptorium'] .player {
+  box-shadow:
+    inset 0 2px 0 var(--chrome-dark),
+    inset 0 4px 0 var(--px-gold-d),
+    inset 0 5px 0 var(--px-gold),
+    inset 0 7px 0 var(--chrome-dark),
+    0 -3px 0 rgb(0 0 0 / 20%);
+  padding-top: calc(0.7rem + 7px);
+}
+
+/* Esquineros: rombos de oro en los extremos del filete. */
+[data-world='scriptorium'] .topbar::before,
+[data-world='scriptorium'] .topbar::after,
+[data-world='scriptorium'] .player::before,
+[data-world='scriptorium'] .player::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: var(--px-gold);
+  border: 2px solid var(--chrome-dark);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+[data-world='scriptorium'] .topbar::before,
+[data-world='scriptorium'] .topbar::after {
+  bottom: -2px;
+}
+
+[data-world='scriptorium'] .player::before,
+[data-world='scriptorium'] .player::after {
+  top: -2px;
+}
+
+[data-world='scriptorium'] .topbar::before,
+[data-world='scriptorium'] .player::before {
+  left: 10px;
+}
+
+[data-world='scriptorium'] .topbar::after,
+[data-world='scriptorium'] .player::after {
+  right: 10px;
 }
 
 [data-world='scriptorium'] .brand {
@@ -156,10 +229,13 @@
   text-shadow: none;
 }
 
+/* Pestañas: dos marcadores de cinta; el activo, pergamino con borde de oro. */
 [data-world='scriptorium'] .tabs {
   background: var(--chrome-dark);
   border-radius: 0;
-  box-shadow: inset 0 2px 0 rgb(0 0 0 / 30%);
+  box-shadow:
+    inset 0 2px 0 rgb(0 0 0 / 30%),
+    0 0 0 1px var(--px-gold-d);
 }
 
 [data-world='scriptorium'] .tabs button {
@@ -168,70 +244,162 @@
   font-family: var(--font-display);
 }
 
-[data-world='scriptorium'] .tabs button[aria-selected='true'] {
-  background: var(--paper-raised);
-  color: var(--ink);
-  box-shadow: inset 0 -2px 0 var(--line);
+[data-world='scriptorium'] .tabs button:hover {
+  color: var(--px-gold);
 }
 
-/* Botones como placas de latón con relieve: se hunden al presionar. */
-[data-world='scriptorium'] .tool {
-  border: 2px solid var(--chrome-dark);
-  border-radius: 0;
-  background: var(--chrome-light);
-  color: var(--chrome-ink);
+[data-world='scriptorium'] .tabs button[aria-selected='true'] {
+  background: var(--px-parch);
+  color: var(--px-ink);
   box-shadow:
-    inset 2px 2px 0 rgb(255 255 255 / 12%),
-    inset -2px -2px 0 rgb(0 0 0 / 25%);
-  transition: transform 0.05s steps(1);
+    inset 0 0 0 2px var(--px-gold-d),
+    inset 0 -4px 0 var(--px-red);
+}
+
+/* Botones: placas de pergamino con borde de oro; se hunden al presionar. */
+[data-world='scriptorium'] .tool {
+  border: 2px solid var(--px-gold-d);
+  border-radius: 0;
+  background-color: var(--px-parch);
+  background-image: var(--gold-sheen);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  background-repeat: no-repeat;
+  color: var(--px-ink);
+  box-shadow:
+    inset 0 0 0 1px var(--px-gold),
+    inset 2px 2px 0 1px rgb(255 255 255 / 30%),
+    inset -2px -2px 0 1px rgb(0 0 0 / 12%),
+    0 2px 0 var(--chrome-dark);
+  transition:
+    transform 0.05s steps(1),
+    background-position 0.45s steps(6);
 }
 
 [data-world='scriptorium'] .tool:hover {
   border-color: var(--px-gold);
+  background-position: -30% 0;
 }
 
 [data-world='scriptorium'] .tool:active {
-  transform: translateY(1px);
+  transform: translateY(2px);
   box-shadow:
-    inset -2px -2px 0 rgb(255 255 255 / 10%),
-    inset 2px 2px 0 rgb(0 0 0 / 30%);
+    inset 0 0 0 1px var(--px-gold),
+    inset 2px 2px 0 1px rgb(0 0 0 / 15%);
 }
 
+/* Activo (modo revisión, ajustes abiertos…): placa bermellón; el ícono cambia rojo por oro. */
 [data-world='scriptorium'] .tool[aria-pressed='true'],
-[data-world='scriptorium'] .player .play {
-  background: var(--px-red);
-  border-color: var(--px-red-d);
+[data-world='scriptorium'] .tool[aria-expanded='true'] {
+  --ic-red: var(--px-gold);
+  --ic-light: var(--px-gold);
+  background-color: var(--px-red);
+  border-color: var(--px-gold);
   color: #fff6e3;
 }
 
-[data-world='scriptorium'][data-mode='night'] .player .play {
-  background: var(--px-gold-d);
-  border-color: var(--chrome-dark);
-  color: var(--chrome-dark);
+[data-world='scriptorium'] .tool:disabled {
+  --ic-red: var(--px-parch-d);
+  --ic-gold: var(--px-parch-d);
+  background-position: 120% 0;
+  opacity: 0.55;
 }
 
-/* ▶ como un sello de lacre: octágono en píxeles, con relieve. */
+[data-world='scriptorium'] .tool .label {
+  font-family: var(--font-display);
+}
+
+/* ▶ como medallón de oro: disco en píxeles con aro de tinta y el ícono grabado. */
 [data-world='scriptorium'] .player .play {
+  --ic-gold: var(--px-red-d);
+  --ic-light: rgb(255 246 214);
+  position: relative;
+  width: 4.25rem;
+  height: 4.25rem;
+  margin: -0.5rem 0.2rem;
+  border: 0;
   border-radius: 0;
-  clip-path: polygon(
-    8px 0,
-    calc(100% - 8px) 0,
-    100% 8px,
-    100% calc(100% - 8px),
-    calc(100% - 8px) 100%,
-    8px 100%,
-    0 calc(100% - 8px),
-    0 8px
+  background: var(--px-ink);
+  box-shadow: none;
+  clip-path: var(--pixel-disc);
+}
+
+[data-world='scriptorium'] .player .play::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background-color: var(--px-gold);
+  background-image:
+    var(--gold-sheen),
+    linear-gradient(to bottom, transparent 0 10%, rgb(255 240 190 / 55%) 10% 17%, transparent 17%),
+    linear-gradient(135deg, var(--px-gold) 45%, var(--px-gold-d) 100%);
+  background-size:
+    250% 100%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    120% 0,
+    0 0,
+    0 0;
+  background-repeat: no-repeat;
+  clip-path: var(--pixel-disc);
+  transition: background-position 0.5s steps(7);
+}
+
+[data-world='scriptorium'] .player .play:hover::before {
+  background-position:
+    -30% 0,
+    0 0,
+    0 0;
+}
+
+[data-world='scriptorium'] .player .play .icon {
+  position: relative;
+}
+
+[data-world='scriptorium'] .player .play:active {
+  transform: translateY(2px);
+}
+
+:root[data-world='scriptorium'] {
+  /* Disco en píxeles: un círculo de 14 unidades escalonado, en porcentajes. */
+  --pixel-disc: polygon(
+    28.6% 0,
+    71.4% 0,
+    71.4% 7.1%,
+    85.7% 7.1%,
+    85.7% 14.3%,
+    92.9% 14.3%,
+    92.9% 28.6%,
+    100% 28.6%,
+    100% 71.4%,
+    92.9% 71.4%,
+    92.9% 85.7%,
+    85.7% 85.7%,
+    85.7% 92.9%,
+    71.4% 92.9%,
+    71.4% 100%,
+    28.6% 100%,
+    28.6% 92.9%,
+    14.3% 92.9%,
+    14.3% 85.7%,
+    7.1% 85.7%,
+    7.1% 71.4%,
+    0 71.4%,
+    0 28.6%,
+    7.1% 28.6%,
+    7.1% 14.3%,
+    14.3% 14.3%,
+    14.3% 7.1%,
+    28.6% 7.1%
   );
-  box-shadow:
-    inset 3px 3px 0 rgb(255 255 255 / 22%),
-    inset -3px -3px 0 rgb(0 0 0 / 30%);
 }
 
 [data-world='scriptorium'] .player-title {
   font-family: var(--font-display);
   font-weight: 500;
   letter-spacing: 0.02em;
+  color: var(--px-gold);
 }
 
 [data-world='scriptorium'] .player-time,
@@ -239,7 +407,13 @@
   color: var(--chrome-muted);
 }
 
+/* En el Scriptorium el 15 va dentro del ícono (flecha curva). */
 [data-world='scriptorium'] .skip small {
+  display: none;
+}
+
+[data-world='scriptorium'] .player .speed,
+[data-world='scriptorium'] .voice-button {
   font-family: var(--font-display);
 }
 
@@ -762,4 +936,171 @@
   flex: 1;
   max-width: 11rem;
   accent-color: var(--accent);
+}
+
+/* ---------------------------------------------------------------- Encuadernación de paneles */
+/*
+ * Menús, ajustes, notas, el inspector y los diálogos: pergamino con marco de cuero y un
+ * filete de oro por dentro, títulos en fuente pixel y las mismas placas de los botones.
+ */
+
+[data-world='scriptorium'] .speed-menu,
+[data-world='scriptorium'] .settings-panel,
+[data-world='scriptorium'] .note-popover,
+[data-world='scriptorium'] .inspector,
+[data-world='scriptorium'] dialog.confirm,
+[data-world='scriptorium'] .listen-chip {
+  background: var(--paper-raised);
+  border: 3px solid var(--chrome);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 1px var(--chrome-dark),
+    inset 0 0 0 3px var(--paper-raised),
+    inset 0 0 0 4px var(--px-gold),
+    inset 0 0 0 5px var(--px-gold-d),
+    5px 5px 0 rgb(0 0 0 / 28%);
+}
+
+[data-world='scriptorium'] .speed-head,
+[data-world='scriptorium'] .settings-panel h2,
+[data-world='scriptorium'] dialog.confirm h2,
+[data-world='scriptorium'] .inspector header,
+[data-world='scriptorium'] .note-popover .note-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+/* Placas de pergamino con borde de oro dentro de los paneles. */
+[data-world='scriptorium'] .speed-presets button,
+[data-world='scriptorium'] .voice-pick,
+[data-world='scriptorium'] .voice-sample,
+[data-world='scriptorium'] .world-option,
+[data-world='scriptorium'] .confirm-actions button,
+[data-world='scriptorium'] .chapter-nav button,
+[data-world='scriptorium'] .toc-toggle,
+[data-world='scriptorium'] .follow-return {
+  border: 2px solid var(--px-gold-d);
+  border-radius: 0;
+  background-color: var(--px-parch);
+  background-image: var(--gold-sheen);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  background-repeat: no-repeat;
+  color: var(--px-ink);
+  box-shadow:
+    inset 0 0 0 1px var(--px-gold),
+    2px 2px 0 rgb(0 0 0 / 18%);
+  transition: background-position 0.45s steps(6);
+}
+
+[data-world='scriptorium'] .speed-presets button:hover,
+[data-world='scriptorium'] .voice-pick:hover:not(:disabled),
+[data-world='scriptorium'] .voice-sample:hover,
+[data-world='scriptorium'] .world-option:hover:not(:disabled),
+[data-world='scriptorium'] .confirm-actions button:hover,
+[data-world='scriptorium'] .chapter-nav button:hover,
+[data-world='scriptorium'] .toc-toggle:hover,
+[data-world='scriptorium'] .follow-return:hover {
+  border-color: var(--px-gold);
+  background-position: -30% 0;
+}
+
+[data-world='scriptorium'] .speed-presets button[aria-pressed='true'],
+[data-world='scriptorium'] .world-option[aria-pressed='true'],
+[data-world='scriptorium'] .confirm-actions .primary {
+  background-color: var(--px-red);
+  border-color: var(--px-gold);
+  color: #fff6e3;
+}
+
+[data-world='scriptorium'] .voice-pick[aria-pressed='true'] {
+  border-color: var(--px-red);
+  box-shadow:
+    inset 0 0 0 2px var(--px-red),
+    2px 2px 0 rgb(0 0 0 / 18%);
+}
+
+[data-world='scriptorium'] .voice-pick small,
+[data-world='scriptorium'] .world-option small {
+  color: #6b563d;
+}
+
+[data-world='scriptorium'] .voice-state.ready {
+  color: var(--px-red);
+}
+
+/* El índice: un lomo de cuero con filete de oro a la derecha; el capítulo actual lleva
+   una cinta de marcador bermellón. */
+[data-world='scriptorium'] .sidebar {
+  border-right: 0;
+  box-shadow:
+    inset -3px 0 0 var(--chrome-dark),
+    inset -9px 0 0 var(--chrome),
+    inset -10px 0 0 var(--px-gold),
+    inset -12px 0 0 var(--chrome-dark);
+}
+
+[data-world='scriptorium'] .toc button[aria-current='page'] {
+  position: relative;
+  background: var(--paper-raised);
+  border-left: 0;
+  box-shadow: inset 0 0 0 1px var(--px-gold-d);
+}
+
+[data-world='scriptorium'] .toc button[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  bottom: 6px;
+  left: 4px;
+  width: 7px;
+  background: var(--px-red);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 5px), 0 100%);
+}
+
+[data-world='scriptorium'] .toc button[aria-current='page'] .toc-title {
+  padding-left: 0.6rem;
+}
+
+/* Reporte: fichas con borde de oro y tablas con cabecera de cuero. */
+[data-world='scriptorium'] .stat {
+  border: 2px solid var(--px-gold-d);
+  border-radius: 0;
+  box-shadow: inset 0 0 0 1px var(--px-gold);
+}
+
+[data-world='scriptorium'] .stat strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--accent);
+}
+
+[data-world='scriptorium'] .report th {
+  background-color: var(--chrome);
+  background-image: var(--leather-grain);
+  color: var(--chrome-ink);
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+[data-world='scriptorium'] .report table {
+  border: 2px solid var(--chrome);
+  border-radius: 0;
+}
+
+[data-world='scriptorium'] .announcement,
+[data-world='scriptorium'] .legend span {
+  border-radius: 0;
+}
+
+[data-world='scriptorium'] .announcement {
+  border: 1px solid var(--px-gold-d);
+  box-shadow: inset 3px 0 0 var(--px-red);
+}
+
+[data-world='scriptorium'] .world-option[aria-pressed='true'] small,
+[data-world='scriptorium'] .speed-presets button[aria-pressed='true'] small {
+  color: #f6dfb6;
 }
