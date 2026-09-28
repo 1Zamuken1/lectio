@@ -4,7 +4,7 @@ import { extname, join, normalize, sep } from 'node:path';
 import { PIPELINE_VERSION } from '@lectio/epub-pipeline';
 import { NarrationQueue, RequestError } from '../server/jobs.js';
 import { voiceSample } from '../server/samples.js';
-import { findProfile, profilesFor, resolveVoice } from '../tts/voices.js';
+import { findProfile, profilesFor, resolveVoice } from '@lectio/tts';
 import { style, userPath } from '../ui/terminal.js';
 import { loadAudioIndex } from '../web/audio-index.js';
 

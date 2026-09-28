@@ -1,5 +1,5 @@
 import { MsEdgeTTS } from 'msedge-tts';
-import { DEFAULT_PROFILES, DEFAULT_VOICES, VOICE_PROFILES } from '../tts/voices.js';
+import { DEFAULT_PROFILES, DEFAULT_VOICES, VOICE_PROFILES } from '@lectio/tts';
 import { style } from '../ui/terminal.js';
 
 /**

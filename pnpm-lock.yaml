@@ -41,6 +41,9 @@ importers:
       '@lectio/epub-pipeline':
         specifier: workspace:*
         version: link:../../packages/epub-pipeline
+      '@lectio/tts':
+        specifier: workspace:*
+        version: link:../../packages/tts
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -97,6 +100,25 @@ importers:
       yazl:
         specifier: ^3.3.1
         version: 3.3.1
+
+  packages/tts:
+    dependencies:
+      '@lectio/epub-pipeline':
+        specifier: workspace:*
+        version: link:../epub-pipeline
+      msedge-tts:
+        specifier: ^2.0.8
+        version: 2.0.8
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.13.6
+      typescript:
+        specifier: ~6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: ^5.0.2
+        version: 5.0.2(@types/node@24.13.6)(vite@8.3.1(@types/node@24.13.6)(esbuild@0.28.2)(tsx@4.23.15))
 
 packages:
 

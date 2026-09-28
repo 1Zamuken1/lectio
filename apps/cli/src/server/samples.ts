@@ -3,9 +3,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { VoiceUnit } from '@lectio/epub-pipeline';
-import { EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
-import { renderUnits } from '../tts/montage.js';
-import type { ResolvedVoice } from '../tts/voices.js';
+import { EdgeTtsProvider, renderUnits, type ResolvedVoice } from '@lectio/tts';
 
 /** Frase de muestra con narración, diálogo y una pregunta: lo que distingue a cada perfil. */
 const SAMPLE: Array<Omit<VoiceUnit, 'sentence'>> = [

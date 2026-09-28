@@ -8,7 +8,6 @@ export default defineConfig({
       '@lectio/epub-pipeline': fileURLToPath(
         new URL('../../packages/epub-pipeline/src/index.ts', import.meta.url),
       ),
-      '@lectio/tts': fileURLToPath(new URL('../../packages/tts/src/index.ts', import.meta.url)),
     },
   },
   test: {

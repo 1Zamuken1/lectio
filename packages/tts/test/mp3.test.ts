@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mp3DurationMs, mp3Frames, mp3Silence, trimMp3 } from '../src/tts/mp3.js';
+import { mp3DurationMs, mp3Frames, mp3Silence, trimMp3 } from '../src/mp3.js';
 
 /** MP3 sintético como el de Edge: MPEG-2 capa III, 48 kbps, 24 kHz, mono (144 bytes, 24 ms). */
 function fakeMp3(frames: number, junk = 0): Buffer {

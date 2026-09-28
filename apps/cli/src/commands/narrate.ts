@@ -7,9 +7,7 @@ import {
   type ProcessedBook,
   type ProcessedChapter,
 } from '@lectio/epub-pipeline';
-import { EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
-import { renderUnits } from '../tts/montage.js';
-import { resolveVoice, type ResolvedVoice } from '../tts/voices.js';
+import { EdgeTtsProvider, renderUnits, type ResolvedVoice, resolveVoice } from '@lectio/tts';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, formatNumber, style, userPath } from '../ui/terminal.js';
 

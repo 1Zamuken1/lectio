@@ -3,7 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import type { Alignment } from '@lectio/epub-pipeline';
 import type { ManifestEntry } from '../commands/narrate.js';
-import { findProfile, profilesFor, resolveVoice } from '../tts/voices.js';
+import { findProfile, profilesFor, resolveVoice } from '@lectio/tts';
 
 /** Audio de un capítulo con una voz, tal como lo usa el reproductor. */
 export interface ChapterAudio {

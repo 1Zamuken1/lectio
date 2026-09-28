@@ -4,8 +4,7 @@ import { join } from 'node:path';
 import { processEpub, type ProcessedBook } from '@lectio/epub-pipeline';
 import { audioDir, isNarrated, narrateChapter, readManifest } from '../commands/narrate.js';
 import type { BookCard } from '../commands/preview.js';
-import { EdgeTtsProvider } from '../tts/edge-tts.adapter.js';
-import { resolveVoice } from '../tts/voices.js';
+import { EdgeTtsProvider, resolveVoice } from '@lectio/tts';
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error';
 

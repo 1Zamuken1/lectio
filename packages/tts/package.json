@@ -1,27 +1,32 @@
 {
-  "name": "@lectio/cli",
+  "name": "@lectio/tts",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "CLI para inspeccionar y narrar EPUB con el pipeline de Lectio.",
-  "bin": {
-    "lectio": "./dist/index.js"
+  "description": "Síntesis de voz de Lectio: adaptador de Edge TTS, perfiles de voz y montaje MP3 por unidades.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "tsx --conditions=source src/index.ts",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
     "@lectio/epub-pipeline": "workspace:*",
-    "@lectio/tts": "workspace:*",
-    "commander": "^15.0.0",
     "msedge-tts": "^2.0.8"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
-    "tsx": "^4.23.15",
     "typescript": "~6.0.3",
     "vitest": "^5.0.2"
   }

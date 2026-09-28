@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, join, relative } from 'node:path';
 import { processEpub, type ProcessedBook } from '@lectio/epub-pipeline';
-import { DEFAULT_PROFILES, DEFAULT_VOICES } from '../tts/voices.js';
+import { DEFAULT_PROFILES, DEFAULT_VOICES } from '@lectio/tts';
 import { slugify } from '../ui/slug.js';
 import { formatDuration, style, userPath } from '../ui/terminal.js';
 import { embedJson, escapeHtml, FONT_LINKS, pageAssets } from '../web/assets.js';

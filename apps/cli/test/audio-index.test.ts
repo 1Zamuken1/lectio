@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { ManifestEntry } from '../src/commands/narrate.js';
-import { resolveVoice } from '../src/tts/voices.js';
+import { resolveVoice } from '@lectio/tts';
 import { loadAudioIndex, voiceChoices } from '../src/web/audio-index.js';
 
 let root: string;
