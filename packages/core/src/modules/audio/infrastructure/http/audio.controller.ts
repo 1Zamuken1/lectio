@@ -12,7 +12,12 @@ import {
   ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { CurrentUser, type SessionUser } from '../../../auth/infrastructure/http/decorators.js';
+import {
+  CurrentUser,
+  OptionalAuth,
+  OptionalUser,
+  type SessionUser,
+} from '../../../auth/infrastructure/http/decorators.js';
 import { AudioService } from '../../application/audio.service.js';
 import { AudioRequestResponseDto, AudioStateDto, RequestAudioDto } from './dto.js';
 
@@ -52,18 +57,19 @@ export class AudioController {
   }
 
   @Get()
+  @OptionalAuth()
   @ApiOperation({
     summary: 'Estado del audio de un capítulo con una voz',
     description:
-      'Con status ready trae las URL firmadas del MP3 y de la alineación; mientras se genera, el progreso.',
+      'Con status ready trae las URL firmadas del MP3 y de la alineación; mientras se genera, el progreso. Sin sesión solo en libros públicos.',
   })
   @ApiQuery({ name: 'voice', required: false, example: 'gonzalo' })
   @ApiOkResponse({ type: AudioStateDto })
   async state(
-    @CurrentUser() user: SessionUser,
+    @OptionalUser() user: SessionUser | null,
     @Param('id', chapterId) id: string,
     @Query('voice') voice?: string,
   ): Promise<AudioStateDto> {
-    return AudioStateDto.from(await this.audio.state(user.userId, id, voice || undefined));
+    return AudioStateDto.from(await this.audio.state(user?.userId ?? null, id, voice || undefined));
   }
 }

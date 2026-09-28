@@ -77,6 +77,16 @@ pnpm dev                 # API en http://localhost:3000/api/v1 y el worker
 
 La documentación interactiva de la API (OpenAPI) queda en http://localhost:3000/api/docs.
 
+Para llenar la biblioteca pública con libros del corpus (`pnpm corpus:download` primero):
+
+```bash
+pnpm seed:public                                   # los libros en español, con audio en los 3 primeros capítulos
+pnpm seed:public --books pg-marianela --audio all  # un libro, con todo su audio
+pnpm seed:public --audio none                      # solo los libros
+```
+
+El audio lo genera el worker en segundo plano (`pnpm dev`). Los libros públicos se leen y escuchan sin cuenta.
+
 El worker genera el audio con Edge TTS. Para trabajar sin red (o sin gastar solicitudes), `TTS_PROVIDER=silent` en `.env` genera MP3 de silencio con una duración proporcional al texto: la cuota, la alineación y el reproductor funcionan igual. La cuota mensual y los límites de generación también se ajustan en `.env` (ver `.env.example`).
 
 ## Desarrollo

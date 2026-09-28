@@ -49,6 +49,17 @@ export class BookSummaryDto {
   @ApiProperty({ nullable: true, type: String, example: '/api/v1/books/<id>/cover' })
   coverUrl!: string | null;
 
+  @ApiProperty({ description: 'Del catálogo público de Lectio (sin dueño, no se puede borrar).' })
+  isPublic!: boolean;
+
+  @ApiProperty({
+    nullable: true,
+    type: String,
+    example: 'marianela',
+    description: 'Solo libros públicos: /libros/:slug.',
+  })
+  slug!: string | null;
+
   @ApiProperty({ format: 'date-time' })
   createdAt!: string;
 
@@ -64,6 +75,8 @@ export class BookSummaryDto {
       status: book.status,
       errorCode: book.errorCode,
       coverUrl: book.hasCover ? `/api/v1/books/${book.id}/cover` : null,
+      isPublic: book.isPublic,
+      slug: book.slug,
       createdAt: book.createdAt.toISOString(),
       ...(book.progress !== undefined ? { progress: book.progress } : {}),
     };

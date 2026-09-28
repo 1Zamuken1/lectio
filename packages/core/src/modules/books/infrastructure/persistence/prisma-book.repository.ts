@@ -12,6 +12,8 @@ const SUMMARY = {
   status: true,
   errorCode: true,
   coverKey: true,
+  isPublic: true,
+  slug: true,
   createdAt: true,
 } as const;
 
@@ -47,22 +49,68 @@ export class PrismaBookRepository implements BookRepository {
     });
   }
 
+  async createPublic(data: { id: string; slug: string; sourceKey: string; sourceHash: string }) {
+    // Regla del modelo de datos: un libro público no tiene dueño y siempre tiene slug.
+    await this.prisma.book.create({ data: { ...data, ownerId: null, isPublic: true } });
+  }
+
+  findPublicByHash(sourceHash: string) {
+    return this.prisma.book.findFirst({
+      where: { isPublic: true, sourceHash },
+      select: { id: true, slug: true, status: true },
+    });
+  }
+
+  async slugTaken(slug: string): Promise<boolean> {
+    return (await this.prisma.book.count({ where: { slug } })) > 0;
+  }
+
   findOwnedByHash(ownerId: string, sourceHash: string) {
     return this.prisma.book.findFirst({ where: { ownerId, sourceHash }, select: { id: true } });
   }
 
-  async listByOwner(ownerId: string): Promise<BookSummary[]> {
+  /**
+   * La biblioteca de un usuario: sus libros y los públicos que empezó a leer (con progreso).
+   * El progreso siempre es el de ese usuario.
+   */
+  listLibrary(userId: string): Promise<BookSummary[]> {
+    return this.#listWithProgress(
+      { OR: [{ ownerId: userId }, { isPublic: true, readingProgress: { some: { userId } } }] },
+      userId,
+      { createdAt: 'desc' },
+    );
+  }
+
+  /** El catálogo público (solo los libros listos), con el progreso del usuario si hay sesión. */
+  listPublic(userId: string | null): Promise<BookSummary[]> {
+    return this.#listWithProgress({ isPublic: true, status: 'ready' }, userId, { title: 'asc' });
+  }
+
+  async findPublicIdBySlug(slug: string): Promise<string | null> {
+    const row = await this.prisma.book.findFirst({
+      where: { slug, isPublic: true },
+      select: { id: true },
+    });
+    return row?.id ?? null;
+  }
+
+  async #listWithProgress(
+    where: Prisma.BookWhereInput,
+    userId: string | null,
+    orderBy: Prisma.BookOrderByWithRelationInput,
+  ): Promise<BookSummary[]> {
     const rows = await this.prisma.book.findMany({
-      where: { ownerId },
+      where,
       select: {
         ...SUMMARY,
         _count: { select: { chapters: true } },
         readingProgress: {
-          where: { userId: ownerId },
+          // Sin sesión no hay progreso que mostrar: un id que no existe no trae filas.
+          where: { userId: userId ?? '00000000-0000-0000-0000-000000000000' },
           select: { mode: true, chapter: { select: { orderIndex: true } } },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     });
     return rows.map(({ _count, readingProgress, ...row }) => {
       const [progress] = readingProgress;
@@ -85,7 +133,6 @@ export class PrismaBookRepository implements BookRepository {
       select: {
         ...SUMMARY,
         ownerId: true,
-        isPublic: true,
         pipelineVersion: true,
         chapters: {
           orderBy: { orderIndex: 'asc' },
@@ -103,8 +150,8 @@ export class PrismaBookRepository implements BookRepository {
       },
     });
     if (!row) return null;
-    const { chapters, ownerId, isPublic, pipelineVersion, ...summary } = row;
-    return { ...toSummary(summary), ownerId, isPublic, pipelineVersion, chapters };
+    const { chapters, ownerId, pipelineVersion, ...summary } = row;
+    return { ...toSummary(summary), ownerId, pipelineVersion, chapters };
   }
 
   async findReport(id: string): Promise<unknown> {

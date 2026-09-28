@@ -66,23 +66,38 @@ export class BooksService {
     return { id, status: 'pending' };
   }
 
-  list(ownerId: string): Promise<BookSummary[]> {
-    return this.books.listByOwner(ownerId);
+  /** Tus libros y los públicos que empezaste a leer. */
+  list(userId: string): Promise<BookSummary[]> {
+    return this.books.listLibrary(userId);
   }
 
-  async detail(userId: string, bookId: string): Promise<BookDetail> {
+  /** El catálogo público; con sesión, trae tu progreso en cada libro. */
+  listPublic(userId: string | null): Promise<BookSummary[]> {
+    return this.books.listPublic(userId);
+  }
+
+  async publicBySlug(slug: string): Promise<BookDetail> {
+    const id = await this.books.findPublicIdBySlug(slug);
+    if (!id) throw new BookNotFoundError();
+    return this.detail(null, id);
+  }
+
+  async detail(userId: string | null, bookId: string): Promise<BookDetail> {
     const detail = await this.books.findDetail(bookId);
     if (!detail) throw new BookNotFoundError();
     assertCanRead(userId, detail);
     return detail;
   }
 
-  async report(userId: string, bookId: string): Promise<unknown> {
+  async report(userId: string | null, bookId: string): Promise<unknown> {
     await this.readable(userId, bookId);
     return this.books.findReport(bookId);
   }
 
-  async cover(userId: string, bookId: string): Promise<{ data: Buffer; mediaType: string } | null> {
+  async cover(
+    userId: string | null,
+    bookId: string,
+  ): Promise<{ data: Buffer; mediaType: string } | null> {
     const book = await this.readable(userId, bookId);
     if (!book.coverKey) return null;
     const data = await this.storage.get(book.coverKey);
@@ -94,7 +109,7 @@ export class BooksService {
    * la ruta, así que no hay forma de pedir un archivo que no sea de este libro.
    */
   async resource(
-    userId: string,
+    userId: string | null,
     bookId: string,
     path: string,
   ): Promise<{ data: Buffer; mediaType: string } | null> {
@@ -113,8 +128,8 @@ export class BooksService {
     await this.storage.deletePrefix(storageKeys.book(bookId));
   }
 
-  /** El registro, si el usuario puede leerlo (dueño o libro público). */
-  async readable(userId: string, bookId: string): Promise<BookRecord> {
+  /** El registro, si el usuario (o un anónimo, con null) puede leerlo: dueño o libro público. */
+  async readable(userId: string | null, bookId: string): Promise<BookRecord> {
     const book = await this.books.findRecord(bookId);
     if (!book) throw new BookNotFoundError();
     assertCanRead(userId, book);

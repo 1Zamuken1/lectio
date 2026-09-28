@@ -21,6 +21,8 @@ export { AuthService } from './modules/auth/application/auth.service.js';
 export { JwtAuthGuard } from './modules/auth/infrastructure/http/jwt-auth.guard.js';
 export {
   CurrentUser,
+  OptionalAuth,
+  OptionalUser,
   Public,
   type SessionUser,
 } from './modules/auth/infrastructure/http/decorators.js';
@@ -39,3 +41,9 @@ export { ChaptersModule } from './modules/chapters/chapters.module.js';
 export { ReadingProgressModule } from './modules/reading-progress/reading-progress.module.js';
 export { AudioModule } from './modules/audio/audio.module.js';
 export { AudioGenerationModule } from './modules/audio/audio-generation.module.js';
+export { PublicCatalogModule } from './modules/books/public-catalog.module.js';
+export {
+  PublicCatalogService,
+  type PublishedBook,
+} from './modules/books/application/public-catalog.service.js';
+export { SystemAudioService } from './modules/audio/application/system-audio.service.js';

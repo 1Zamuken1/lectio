@@ -1,4 +1,10 @@
-import type { BookDetail, BookRecord, BookSummary, ProcessedBookData } from './model.js';
+import type {
+  BookDetail,
+  BookRecord,
+  BookStatus,
+  BookSummary,
+  ProcessedBookData,
+} from './model.js';
 
 export interface BookRepository {
   create(data: {
@@ -9,7 +15,19 @@ export interface BookRepository {
   }): Promise<void>;
   findRecord(id: string): Promise<BookRecord | null>;
   findOwnedByHash(ownerId: string, sourceHash: string): Promise<{ id: string } | null>;
-  listByOwner(ownerId: string): Promise<BookSummary[]>;
+  createPublic(data: {
+    id: string;
+    slug: string;
+    sourceKey: string;
+    sourceHash: string;
+  }): Promise<void>;
+  findPublicByHash(
+    sourceHash: string,
+  ): Promise<{ id: string; slug: string | null; status: BookStatus } | null>;
+  slugTaken(slug: string): Promise<boolean>;
+  listLibrary(userId: string): Promise<BookSummary[]>;
+  listPublic(userId: string | null): Promise<BookSummary[]>;
+  findPublicIdBySlug(slug: string): Promise<string | null>;
   findDetail(id: string): Promise<BookDetail | null>;
   findReport(id: string): Promise<unknown>;
   /** pending → processing; false si ya no estaba pendiente ni en error (otro worker lo tomó). */

@@ -20,7 +20,8 @@
     "dev": "turbo run dev --filter=@lectio/api --filter=@lectio/worker",
     "test:integration": "turbo run test:integration",
     "db:migrate": "pnpm --filter @lectio/core db:migrate",
-    "db:up": "docker compose up -d"
+    "db:up": "docker compose up -d",
+    "seed:public": "pnpm --silent --filter @lectio/worker seed:public"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

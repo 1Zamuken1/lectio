@@ -20,6 +20,9 @@ export interface BookSummary {
   status: BookStatus;
   errorCode: string | null;
   hasCover: boolean;
+  isPublic: boolean;
+  /** Solo libros públicos: /libros/:slug. */
+  slug: string | null;
   createdAt: Date;
   /** Dónde va el usuario (solo en su biblioteca); null si no lo abrió todavía. */
   progress?: { chapterOrder: number; totalChapters: number; mode: 'reading' | 'listening' } | null;
@@ -39,7 +42,6 @@ export interface ChapterSummary {
 
 export interface BookDetail extends BookSummary {
   ownerId: string | null;
-  isPublic: boolean;
   pipelineVersion: number | null;
   chapters: ChapterSummary[];
 }

@@ -30,7 +30,12 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AppError } from '../../../../common/errors/app-error.js';
-import { CurrentUser, type SessionUser } from '../../../auth/infrastructure/http/decorators.js';
+import {
+  CurrentUser,
+  OptionalAuth,
+  OptionalUser,
+  type SessionUser,
+} from '../../../auth/infrastructure/http/decorators.js';
 import { ResourceNotFoundError } from '../../../chapters/domain/errors.js';
 import { BooksService } from '../../application/books.service.js';
 import { BookDetailDto, BookSummaryDto, UploadResponseDto } from './dto.js';
@@ -92,43 +97,76 @@ export class BooksController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Tu biblioteca, del más reciente al más antiguo' })
+  @ApiOperation({
+    summary: 'Tu biblioteca, del más reciente al más antiguo',
+    description: 'Tus libros y los públicos que empezaste a leer.',
+  })
   @ApiOkResponse({ type: [BookSummaryDto] })
   async list(@CurrentUser() user: SessionUser): Promise<BookSummaryDto[]> {
     return (await this.books.list(user.userId)).map(BookSummaryDto.from);
   }
 
+  // Antes de ":id": si no, "public" se tomaría como un id.
+  @Get('public')
+  @OptionalAuth()
+  @ApiOperation({
+    summary: 'Biblioteca pública, por título',
+    description: 'Sin sesión. Con sesión, cada libro trae tu progreso.',
+  })
+  @ApiOkResponse({ type: [BookSummaryDto] })
+  async listPublic(@OptionalUser() user: SessionUser | null): Promise<BookSummaryDto[]> {
+    return (await this.books.listPublic(user?.userId ?? null)).map(BookSummaryDto.from);
+  }
+
+  @Get('public/:slug')
+  @OptionalAuth()
+  @ApiOperation({ summary: 'Detalle de un libro público por su slug', description: 'Sin sesión.' })
+  @ApiOkResponse({ type: BookDetailDto })
+  @ApiNotFoundResponse({ description: 'BOOK_NOT_FOUND' })
+  async publicBySlug(@Param('slug') slug: string): Promise<BookDetailDto> {
+    return BookDetailDto.fromDetail(await this.books.publicBySlug(slug));
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Detalle de un libro con sus capítulos' })
+  @OptionalAuth()
+  @ApiOperation({
+    summary: 'Detalle de un libro con sus capítulos',
+    description: 'Sin sesión solo para libros públicos.',
+  })
   @ApiOkResponse({ type: BookDetailDto })
   @ApiForbiddenResponse({ description: 'BOOK_FORBIDDEN: es de otra persona.' })
   @ApiNotFoundResponse({ description: 'BOOK_NOT_FOUND' })
   async detail(
-    @CurrentUser() user: SessionUser,
+    @OptionalUser() user: SessionUser | null,
     @Param('id', bookId) id: string,
   ): Promise<BookDetailDto> {
-    return BookDetailDto.fromDetail(await this.books.detail(user.userId, id));
+    return BookDetailDto.fromDetail(await this.books.detail(user?.userId ?? null, id));
   }
 
   @Get(':id/report')
+  @OptionalAuth()
   @ApiOperation({ summary: 'Reporte del pipeline: clasificación, limpieza y advertencias' })
   @ApiOkResponse({
     description: 'El reporte tal como lo guarda el pipeline (null si aún no termina).',
   })
-  report(@CurrentUser() user: SessionUser, @Param('id', bookId) id: string): Promise<unknown> {
-    return this.books.report(user.userId, id);
+  report(
+    @OptionalUser() user: SessionUser | null,
+    @Param('id', bookId) id: string,
+  ): Promise<unknown> {
+    return this.books.report(user?.userId ?? null, id);
   }
 
   @Get(':id/cover')
+  @OptionalAuth()
   @ApiOperation({ summary: 'Portada del libro' })
   @ApiProduces('image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml')
   @ApiNotFoundResponse({ description: 'COVER_NOT_FOUND: el libro no tiene portada.' })
   async cover(
-    @CurrentUser() user: SessionUser,
+    @OptionalUser() user: SessionUser | null,
     @Param('id', bookId) id: string,
     @Res() response: BinaryResponse,
   ): Promise<void> {
-    const cover = await this.books.cover(user.userId, id);
+    const cover = await this.books.cover(user?.userId ?? null, id);
     if (!cover) throw new AppError(404, 'COVER_NOT_FOUND', 'Este libro no tiene portada.');
     response.setHeader('Content-Type', cover.mediaType);
     response.setHeader('Cache-Control', 'private, max-age=86400');
@@ -138,6 +176,7 @@ export class BooksController {
   }
 
   @Get(':id/resources')
+  @OptionalAuth()
   @ApiOperation({
     summary: 'Imagen de un capítulo',
     description: 'path es la ruta que aparece en el HTML del capítulo (la del EPUB).',
@@ -145,12 +184,12 @@ export class BooksController {
   @ApiQuery({ name: 'path', example: 'OEBPS/img/figura.png' })
   @ApiNotFoundResponse({ description: 'RESOURCE_NOT_FOUND' })
   async resource(
-    @CurrentUser() user: SessionUser,
+    @OptionalUser() user: SessionUser | null,
     @Param('id', bookId) id: string,
     @Query('path') path: string | undefined,
     @Res() response: BinaryResponse,
   ): Promise<void> {
-    const resource = path ? await this.books.resource(user.userId, id, path) : null;
+    const resource = path ? await this.books.resource(user?.userId ?? null, id, path) : null;
     if (!resource) throw new ResourceNotFoundError();
     response.setHeader('Content-Type', resource.mediaType);
     // Las imágenes de un libro no cambian: se pueden guardar un día.

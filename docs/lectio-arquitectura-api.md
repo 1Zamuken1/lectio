@@ -199,7 +199,7 @@ Ambos procesos se conectan a la misma base de datos (Prisma) y al mismo Redis (B
 | Progreso | Solo el propietario | Cualquier usuario autenticado (su propio progreso) |
 | Eliminar | Solo el propietario | No disponible vía API |
 
-Las URLs de audio de libros privados se sirven como URLs firmadas de corta duración (ej. 1 h) desde el storage, no como URLs públicas permanentes (RNF-02).
+Las URLs de audio de libros privados se sirven como URLs firmadas de corta duración (ej. 1 h) desde el storage, no como URLs públicas permanentes (RNF-02). Los libros públicos usan el mismo esquema: así `/media` nunca consulta la base para decidir el acceso, y el enlace sigue siendo cacheable porque su vencimiento se redondea (§2.4).
 
 **Requisitos del storage para el reproductor** (`lectio-frontend.md` §6.3):
 - Soportar peticiones `Range` y responder `206 Partial Content` (necesario para adelantar y retroceder). R2 y S3 lo soportan de forma nativa; el adaptador local de desarrollo debe implementarlo (`@nestjs/serve-static` o `express.static` ya lo hacen).
@@ -293,7 +293,7 @@ Revoca el refresh token de la cookie y la borra (Set-Cookie con Max-Age=0).
 { "id": "uuid", "email": "string", "createdAt": "2026-09-28T15:45:23Z" }
 ```
 
-Toda ruta exige el access token salvo las marcadas como públicas (auth, salud y, en la fase 5, la biblioteca pública): el guard global es cerrado por defecto.
+Toda ruta exige el access token salvo las marcadas como públicas (auth, salud, voces, `/media` firmado) o con sesión opcional (la biblioteca pública y todo lo que se lee de un libro: detalle, reporte, portada, imágenes, capítulos y estado del audio). El guard global es cerrado por defecto. Con sesión opcional, sin `Authorization` se atiende como anónimo; con un token inválido o vencido responde 401 igual, para que el cliente renueve la sesión en vez de ver la versión anónima sin notarlo. Un anónimo que pide un libro privado recibe 401 (`UNAUTHORIZED`); otra cuenta, 403 (`BOOK_FORBIDDEN`).
 
 ### 2.2 Books
 
@@ -314,7 +314,7 @@ Errores:
 
 El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET /books/:id` hasta que `status` sea `ready` o `error`. Un error del pipeline (`DRM_PROTECTED`, `INVALID_ARCHIVE`, `NO_TEXT_CONTENT`…) queda en `errorCode` y no se reintenta; un fallo inesperado se reintenta 3 veces y, si persiste, queda como `PROCESSING_FAILED`.
 
-**`GET /api/v1/books`**: biblioteca personal (autenticado)
+**`GET /api/v1/books`**: biblioteca personal (autenticado): tus libros y los públicos que empezaste a leer
 ```json
 // Response 200
 [
@@ -326,6 +326,8 @@ El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET 
     "coverUrl": "/api/v1/books/<id>/cover",
     "status": "ready",
     "errorCode": null,
+    "isPublic": false,
+    "slug": null,
     "createdAt": "2026-09-28T15:45:23Z",
     "progress": { "chapterOrder": 3, "totalChapters": 12, "mode": "listening" }
   }
@@ -334,18 +336,22 @@ El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET 
 // progress es null si aún no empiezas el libro; chapterOrder es el orderIndex del capítulo actual.
 ```
 
-**`GET /api/v1/books/public`**: biblioteca pública (sin autenticar)
+**`GET /api/v1/books/public`**: biblioteca pública (sesión opcional)
 ```json
-// Response 200
+// Response 200: mismos campos que GET /books, ordenados por título; solo libros ready
 [
-  { "id": "uuid", "slug": "don-quijote", "title": "string", "author": "string", "coverUrl": "string", "language": "es" }
+  { "id": "uuid", "slug": "marianela", "title": "Marianela", "author": "Benito Pérez Galdós", "language": "es",
+    "coverUrl": "/api/v1/books/<id>/cover", "isPublic": true, "progress": null, "...": "..." }
 ]
+// Con sesión, progress es el del usuario en cada libro; sin sesión, siempre null.
 ```
+
+Los libros públicos no tienen dueño (`owner_id = null`) y siempre llevan `slug`. No se suben por la API: los carga el script interno `pnpm seed:public`, que publica libros del corpus y encola su audio como sistema (`requested_by = null`: sin reserva, sin cuota y sin `TtsUsageLog`, por la misma cola y con el mismo límite global que el de los usuarios). Correrlo de nuevo no duplica nada: el mismo archivo se reconoce por su SHA-256 y el audio ya listo se salta.
 
 **`GET /api/v1/books/public/:slug`**: detalle de un libro público por su slug (sin autenticar)
 ```
 Response 200: mismo cuerpo que GET /books/:id
-Errores: 404 si no existe un libro público con ese slug
+Errores: 404 BOOK_NOT_FOUND si no existe un libro público con ese slug
 ```
 Lo usa el prerender del frontend para generar `/libros/:slug` en tiempo de build (`lectio-frontend.md` §2.1).
 
@@ -367,13 +373,16 @@ Lo usa el prerender del frontend para generar `/libros/:slug` en tiempo de build
       "kind": "narrative",
       "characterCount": 18450,
       "sentenceCount": 612,
-      "audio": { "gonzalo": "ready", "jorge": "processing" }
+      "audio": [
+        { "voiceId": "gonzalo", "status": "ready" },
+        { "voiceId": "jorge", "status": "processing" }
+      ]
     }
   ]
 }
 // Además los campos de GET /books (coverUrl, errorCode…) y pipelineVersion.
 // chapters queda vacío hasta que el libro está ready.
-// audio: estado por voz (none si falta la voz); llega con la generación de audio (fase 4).
+// audio: una entrada por voz pedida para ese capítulo (las que faltan no aparecen).
 // Por defecto el cliente muestra solo kind = "narrative"; el resto queda disponible.
 // Errores: 403 BOOK_FORBIDDEN si el libro es privado y no es del usuario; 404 BOOK_NOT_FOUND
 ```

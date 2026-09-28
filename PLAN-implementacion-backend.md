@@ -102,9 +102,10 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ### Fase 5: biblioteca pública
 
-- [ ] Script interno `pnpm seed:public` que carga libros del corpus como públicos (`owner_id = null`, `slug`) y genera su audio como sistema (sin cuota, sin `TtsUsageLog`).
-- [ ] `GET /books/public` y `GET /books/public/:slug`; acceso sin autenticación a libros, capítulos y audio públicos, y 403 al pedir audio de un libro público.
-- [ ] Progreso de usuarios autenticados sobre libros públicos.
+- [x] Script interno `pnpm seed:public` que carga libros del corpus como públicos (`owner_id = null`, `slug`) y genera su audio como sistema (sin cuota, sin `TtsUsageLog`).
+- [x] `GET /books/public` y `GET /books/public/:slug`; acceso sin autenticación a libros, capítulos y audio públicos, y 403 al pedir audio de un libro público.
+- [x] Progreso de usuarios autenticados sobre libros públicos.
+- [x] Sesión opcional (`@OptionalAuth`): anónimo sin `Authorization`, 401 con un token inválido; un anónimo que pide un libro privado recibe 401. La biblioteca personal incluye los libros públicos empezados.
 
 ### Fase 6: el lector sobre la API
 

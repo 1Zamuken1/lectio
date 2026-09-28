@@ -28,6 +28,17 @@ export interface AudioRepository {
   findSegment(chapterId: string, voiceId: string): Promise<AudioSegmentRecord | null>;
   withUserLock<T>(userId: string, work: (scope: LockedAudioScope) => Promise<T>): Promise<T>;
   usage(userId: string, periodStart: Date): Promise<UsageSnapshot>;
+  /** Capítulos narrativos de un libro, en orden (para el audio del sistema). */
+  narrativeChapters(bookId: string): Promise<Array<{ id: string; orderIndex: number }>>;
+  /**
+   * Audio generado por el sistema (libros públicos): sin dueño, sin reserva ni cobro. null
+   * si ya está generándose o listo con el perfil vigente.
+   */
+  reserveSystem(
+    chapterId: string,
+    voiceId: string,
+    prosodyKey: string,
+  ): Promise<AudioSegmentRecord | null>;
 
   // Lado worker
   /** pending/processing → processing; null si ya no hay nada que generar. */

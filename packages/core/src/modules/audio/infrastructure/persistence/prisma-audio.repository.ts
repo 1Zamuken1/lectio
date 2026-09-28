@@ -83,6 +83,38 @@ export class PrismaAudioRepository implements AudioRepository {
     });
   }
 
+  narrativeChapters(bookId: string): Promise<Array<{ id: string; orderIndex: number }>> {
+    return this.prisma.chapter.findMany({
+      where: { bookId, kind: 'narrative', characterCount: { gt: 0 } },
+      select: { id: true, orderIndex: true },
+      orderBy: { orderIndex: 'asc' },
+    });
+  }
+
+  async reserveSystem(
+    chapterId: string,
+    voiceId: string,
+    prosodyKey: string,
+  ): Promise<AudioSegmentRecord | null> {
+    const existing = await findSegment(this.prisma, chapterId, voiceId);
+    if (existing && (ACTIVE as readonly string[]).includes(existing.status)) return null;
+    if (existing?.status === 'ready' && existing.prosodyKey === prosodyKey) return null;
+    const fresh = {
+      requestedById: null,
+      status: 'pending' as const,
+      reservedCharacters: 0,
+      unitsDone: 0,
+      unitsTotal: 0,
+      errorMessage: null,
+    };
+    return this.prisma.audioSegment.upsert({
+      where: { chapterId_voiceId: { chapterId, voiceId } },
+      create: { chapterId, voiceId, ...fresh },
+      update: { ...fresh, retryCount: { increment: 1 } },
+      select: SEGMENT,
+    });
+  }
+
   usage(userId: string, periodStart: Date): Promise<UsageSnapshot> {
     return this.#usage(this.prisma, userId, periodStart);
   }
