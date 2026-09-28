@@ -143,6 +143,31 @@
         slide: -2,
       });
     },
+    /**
+     * Campanita del taller: la voz nueva está lista. Parciales inarmónicos de campana
+     * (1 · 2,76 · 5,40 del fundamental) que se apagan despacio, dos golpes.
+     */
+    bell: (t) => {
+      for (const [strike, gain] of [
+        [0, 1],
+        [0.42, 0.7],
+      ]) {
+        for (const [ratio, level, decay] of [
+          [1, 0.1, 1.4],
+          [2.76, 0.05, 0.9],
+          [5.4, 0.025, 0.5],
+        ]) {
+          tone({
+            note: 88 + 12 * Math.log2(ratio),
+            start: t + strike,
+            duration: decay,
+            type: 'sine',
+            gain: level * gain,
+            attack: 0.003,
+          });
+        }
+      }
+    },
   };
 
   function soundAllowed() {
@@ -150,9 +175,14 @@
     return WORLDS_WITH_SOUND.has(settings.world) && settings.volume > 0;
   }
 
-  function play(name) {
+  /**
+   * `force`: sonar aunque haya narración (solo avisos breves, como la campanita del
+   * taller al terminar una voz). Igual respeta los efectos apagados y el volumen.
+   */
+  function play(name, { force = false } = {}) {
     const settings = Theme.get();
-    if (!settings.sfx || !soundAllowed() || narrating || document.hidden) return;
+    if (!settings.sfx || !soundAllowed() || document.hidden) return;
+    if (narrating && !force) return;
     if (!ensure()) return;
     SFX[name]?.(ctx.currentTime + 0.01);
   }

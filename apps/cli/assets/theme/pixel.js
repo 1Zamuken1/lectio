@@ -663,6 +663,324 @@
     return `<g class="px-day">${dots.join('')}</g>`;
   }
 
+  const CREW = {
+    stand: [
+      '...ooo...',
+      '..orrro..',
+      '.orrrrro.',
+      '.orrrsso.',
+      '.orrsoso.',
+      '..orsss..',
+      '.orrrrro.',
+      '.orrrrrso',
+      '.orbbbro.',
+      '.orrrrro.',
+      '.orrdrro.',
+      '..oo.oo..',
+    ],
+    walk: [
+      '...ooo...',
+      '..orrro..',
+      '.orrrrro.',
+      '.orrrsso.',
+      '.orrsoso.',
+      '..orsss..',
+      '.orrrrro.',
+      '.orrrrrso',
+      '.orbbbro.',
+      '.orrrrro.',
+      '.orrdrro.',
+      '.oo...oo.',
+    ],
+    writeA: [
+      '...ooo...',
+      '..orrro.k',
+      '.orrrrrok',
+      '.orrrssos',
+      '.orrsosos',
+      '..orssso.',
+      '.orrrrro.',
+      '.orrrrro.',
+      '.orbbbro.',
+      '.orrrrro.',
+      '.orrdrro.',
+      '..oo.oo..',
+    ],
+    writeB: [
+      '...ooo...',
+      '..orrro..',
+      '.orrrrro.',
+      '.orrrsso.',
+      '.orrsosok',
+      '..orsssok',
+      '.orrrrros',
+      '.orrrrro.',
+      '.orbbbro.',
+      '.orrrrro.',
+      '.orrdrro.',
+      '..oo.oo..',
+    ],
+    cheer: [
+      's..ooo..s',
+      'so.rrr.os',
+      '.orrrrro.',
+      '.orrrsso.',
+      '.orrsoso.',
+      '..orsss..',
+      '.orrrrro.',
+      '.orrrrro.',
+      '.orbbbro.',
+      '.orrrrro.',
+      '.orrdrro.',
+      '..oo.oo..',
+    ],
+    monk: [
+      '....ooo....',
+      '...ohhho...',
+      '..ohssssho.',
+      '..ohssosso.',
+      '..ohsssss..',
+      '...ossss...',
+      '..ommmmmo..',
+      '.ommmmmmmo.',
+      '.ommmmmmmo.',
+      '.ommmmmmso.',
+      '.ogggggggo.',
+      '.ommmmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '..ooo.ooo..',
+    ],
+    monkPoint: [
+      '....ooo....',
+      '...ohhho...',
+      '..ohssssho.',
+      '..ohssosso.',
+      '..ohsssss..',
+      '...ossss...',
+      '..ommmmmoss',
+      '.ommmmmmmo.',
+      '.ommmmmmmo.',
+      '.ommmmmmmo.',
+      '.ogggggggo.',
+      '.ommmmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '..ooo.ooo..',
+    ],
+    monkCheer: [
+      's...ooo...s',
+      'so.ohhho.os',
+      '.oohssssho.',
+      '..ohssosso.',
+      '..ohsssss..',
+      '...ossss...',
+      '..ommmmmo..',
+      '.ommmmmmmo.',
+      '.ommmmmmmo.',
+      '.ommmmmmmo.',
+      '.ogggggggo.',
+      '.ommmmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '.ommnmmmmo.',
+      '..ooo.ooo..',
+    ],
+  };
+
+  // ------------------------------------------------------------ taller de copistas
+  //
+  // Mientras se genera una voz, un maestro y nueve aprendices la "fabrican": llenan un
+  // pergamino gigante renglón por renglón (el progreso real) y, al terminar, uno lo
+  // enrolla y lo lleva por la puerta de la derecha. Los aprendices visten el color de la
+  // voz (data-voice en el <svg>; ver scriptorium.css). Sprites: .scratch/workshop-sprites.mjs.
+
+  const CREW_PALETTE = {
+    o: 'ink',
+    r: 'robe',
+    d: 'robe-d',
+    s: 'skin',
+    b: 'gold-d',
+    k: 'ink',
+    m: 'monk',
+    n: 'monk-d',
+    h: 'hair',
+    g: 'gold',
+    w: 'parch',
+  };
+  const flip = (rows) => rows.map((row) => [...row].reverse().join(''));
+
+  /** Un personaje con sus poses (cada una en su grupo, las alterna el CSS). */
+  function actor(poses, x, bottom, { className = '', style = '', mirror = false } = {}) {
+    const groups = Object.entries(poses).map(([pose, rows]) => {
+      const c = canvas();
+      const sprite = mirror ? flip(rows) : rows;
+      c.sprite(sprite, CREW_PALETTE, x, bottom - sprite.length);
+      return `<g class="ws-${pose}">${c.svg()}</g>`;
+    });
+    return `<g class="ws-actor ${className}" style="${style}">${groups.join('')}</g>`;
+  }
+
+  const WS_W = 200;
+  const WS_H = 40;
+  const FLOOR = 38;
+  const SHEET = { x: 34, y: 6, w: 64, h: 27 };
+  const ROWS = 8;
+  let workshopCount = 0;
+
+  /**
+   * El taller como SVG. `rows` son los renglones del pergamino: la página los descubre
+   * según el progreso (clipPath con un <rect> por renglón, ver `LectioWorkshop`).
+   */
+  function workshop(voice) {
+    const uid = `ws${++workshopCount}`;
+    const rnd = random(77);
+    const set = canvas();
+
+    // Tarima: una tabla de madera a lo ancho.
+    set.rect('ink', 0, FLOOR, WS_W, 2);
+    set.rect('wood', 0, FLOOR, WS_W, 1);
+
+    // Atril con el pergamino: patas, rodillos con pomos dorados.
+    for (const lx of [SHEET.x + 3, SHEET.x + SHEET.w - 4]) {
+      set.rect('ink', lx, SHEET.y, 2, FLOOR - SHEET.y);
+      set.rect('wood-d', lx, SHEET.y + 1, 1, FLOOR - SHEET.y - 1);
+    }
+    const roller = (ry) => {
+      const r = canvas();
+      r.rect('ink', SHEET.x - 2, ry, SHEET.w + 4, 3);
+      r.rect('wood-l', SHEET.x - 1, ry + 1, SHEET.w + 2, 1);
+      r.rect('gold', SHEET.x - 3, ry, 2, 3);
+      r.rect('gold', SHEET.x + SHEET.w + 1, ry, 2, 3);
+      return r.svg();
+    };
+
+    // La hoja y su texto: palabras de tinta; la inicial, iluminada en rojo y oro.
+    const sheet = canvas();
+    sheet.rect('parch-d', SHEET.x, SHEET.y, SHEET.w, SHEET.h);
+    sheet.rect('parch', SHEET.x + 1, SHEET.y + 1, SHEET.w - 2, SHEET.h - 2);
+    const text = canvas();
+    text.rect('red', SHEET.x + 4, SHEET.y + 3, 5, 5);
+    text.rect('gold', SHEET.x + 5, SHEET.y + 4, 3, 3);
+    text.rect('red', SHEET.x + 6, SHEET.y + 5, 1, 1);
+    const clips = [];
+    for (let i = 0; i < ROWS; i++) {
+      const ry = SHEET.y + 3 + i * 3;
+      const from = SHEET.x + (i < 2 ? 11 : 4);
+      const to = SHEET.x + SHEET.w - 4;
+      for (let wx = from; wx < to;) {
+        const len = Math.min(to - wx, 2 + Math.floor(rnd() * 5));
+        text.rect(i === 0 && wx === from ? 'red' : 'ink', wx, ry, len, 1);
+        wx += len + 1;
+      }
+      clips.push(
+        `<rect class="ws-row" data-from="${from}" data-to="${to}" x="${from}" y="${ry}" width="0" height="1"/>`,
+      );
+    }
+    const initialClip = `<rect x="${SHEET.x + 4}" y="${SHEET.y + 3}" width="5" height="5"/>`;
+
+    // Utilería: taburete, escalera, pupitre con tintero, mortero, vela.
+    const props = canvas();
+    props.rect('ink', 44, 33, 8, 1);
+    props.rect('wood', 45, 34, 6, 1);
+    for (const px of [45, 50]) props.rect('wood-d', px, 34, 1, 4);
+    for (const px of [99, 104]) props.rect('wood-d', px, 14, 1, FLOOR - 14);
+    for (let py = 17; py < FLOOR; py += 4) props.rect('wood-l', 99, py, 6, 1);
+    props.rect('ink', 111, 30, 10, 1);
+    props.rect('wood', 111, 31, 10, 2);
+    for (const px of [112, 119]) props.rect('wood-d', px, 33, 1, 5);
+    props.sprite(['.oo.', 'okko', 'okko'], { o: 'ink', k: 'inkwell' }, 116, 27);
+    props.sprite(['o....o', 'osssso', '.osso.', '..oo..'], { o: 'ink', s: 'stone-l' }, 155, 34);
+    props.sprite(
+      ['.y.', 'yfy', '.o.', 'owo', 'owo'],
+      { y: 'flame-core', f: 'flame', o: 'ink', w: 'parch' },
+      184,
+      27,
+    );
+
+    // La puerta: arco de piedra, hoja de madera (cerrada / abierta) y la campanita.
+    const door = canvas();
+    door.rect('stone-l', 188, 14, 12, FLOOR - 14);
+    door.rect('stone-l', 190, 12, 8, 2);
+    door.rect('ink', 190, 16, 8, FLOOR - 16);
+    const closed = canvas();
+    closed.rect('wood-d', 191, 17, 6, FLOOR - 17);
+    closed.rect('wood', 192, 17, 4, FLOOR - 17);
+    closed.rect('gold', 195, 27, 1, 1);
+    const open = canvas();
+    open.rect('flame-core', 192, 18, 5, FLOOR - 18);
+    open.rect('wood-d', 191, 17, 1, FLOOR - 17);
+    const bell = canvas();
+    bell.rect('ink', 193, 8, 2, 1);
+    bell.sprite(['.gg.', 'gggg', 'gggg', '.h..'], { g: 'gold', h: 'gold-d' }, 192, 9);
+
+    const stand = { a: CREW.stand, b: CREW.walk, cheer: CREW.cheer };
+    const write = { a: CREW.writeA, b: CREW.writeB, cheer: CREW.cheer };
+    const crew = [
+      // El maestro, señalando el pergamino.
+      actor({ a: CREW.monk, b: CREW.monkPoint, cheer: CREW.monkCheer }, 18, FLOOR, {
+        className: 'ws-toggle ws-master',
+        style: '--dur:2.4s',
+      }),
+      // Uno dormido a los pies del maestro (sentado: le faltan las piernas).
+      actor({ a: CREW.stand.slice(0, 10), cheer: CREW.cheer.slice(0, 10) }, 3, FLOOR, {
+        className: 'ws-sleeper',
+      }),
+      // Escribiendo: en el taburete, en la escalera y abajo.
+      actor(write, 44, 33, { className: 'ws-toggle ws-jump', style: '--dur:0.5s' }),
+      actor(write, 94, 26, {
+        className: 'ws-toggle ws-jump',
+        style: '--dur:0.6s;animation-delay:-0.2s',
+        mirror: true,
+      }),
+      actor(write, 66, FLOOR, { className: 'ws-toggle ws-jump ws-hand-off', style: '--dur:0.55s' }),
+      // Mojando la pluma en el tintero.
+      actor(write, 121, FLOOR, {
+        className: 'ws-toggle ws-jump',
+        style: '--dur:1.1s',
+        mirror: true,
+      }),
+      // Traen tinta y hojas, de ida y vuelta (el de las hojas a veces tropieza).
+      `<g class="ws-walker" style="--dist:18px;--dur:7s">${actor(stand, 128, FLOOR, {
+        className: 'ws-toggle ws-jump',
+        style: '--dur:0.35s',
+      })}</g>`,
+      // Moliendo pigmentos en el mortero.
+      actor(write, 146, FLOOR, { className: 'ws-toggle ws-jump', style: '--dur:0.4s' }),
+      `<g class="ws-walker ws-trips" style="--dist:16px;--dur:9s">${actor(stand, 164, FLOOR, {
+        className: 'ws-toggle ws-jump',
+        style: '--dur:0.35s',
+      })}</g>`,
+      // Sosteniendo la vela junto a la puerta.
+      actor(stand, 176, FLOOR, { className: 'ws-jump' }),
+    ];
+
+    // El que lleva el pergamino enrollado hasta la puerta (aparece al terminar).
+    const scroll = ['.ooooooo.', 'gwwwwwwwg', '.ooooooo.'];
+    const carrier = canvas();
+    carrier.sprite(scroll, { o: 'ink', w: 'parch', g: 'gold' }, 62, 22);
+    const carrierBody = actor({ a: CREW.cheer, b: CREW.cheer }, 62, FLOOR, {
+      className: 'ws-toggle',
+      style: '--dur:0.3s',
+    });
+
+    const zzz = `<g class="ws-zzz" style="fill:var(--px-parch-d)"><path d="M12 24h2v1h-2zM13 23h1v1h-1z"/><path d="M15 20h2v1h-2zM16 19h1v1h-1z"/></g>`;
+
+    return `<svg class="px-workshop" data-voice="${voice}" viewBox="0 0 ${WS_W} ${WS_H}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+      <defs><clipPath id="${uid}-text">${initialClip}${clips.join('')}</clipPath></defs>
+      ${set.svg()}${door.svg()}
+      <g class="ws-door-closed">${closed.svg()}</g><g class="ws-door-open">${open.svg()}</g>
+      <g class="ws-bell">${bell.svg()}</g>
+      ${props.svg()}
+      <g class="ws-sheet">${sheet.svg()}<g clip-path="url(#${uid}-text)">${text.svg()}</g></g>
+      <g class="ws-roller-top">${roller(SHEET.y - 2)}</g><g class="ws-roller-bottom">${roller(SHEET.y + SHEET.h)}</g>
+      ${crew.join('')}${zzz}
+      <g class="ws-carrier" style="--to:124px">${carrier.svg()}${carrierBody}</g>
+    </svg>`;
+  }
+
   // ------------------------------------------------------------ escenas
 
   const W = 320;
@@ -729,5 +1047,5 @@
     return `<svg class="px-quill" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
   }
 
-  window.LectioPixel = { scriptoriumScene, owlBadge, fleuron, quill, canvas, random };
+  window.LectioPixel = { scriptoriumScene, workshop, owlBadge, fleuron, quill, canvas, random };
 })();

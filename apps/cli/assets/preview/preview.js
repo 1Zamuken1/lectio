@@ -1149,6 +1149,7 @@
     hasAudio = api.available || data.chapters.some((c) => c.audio);
     playerBar.hidden = !hasAudio;
     app.querySelector('.layout')?.classList.toggle('has-player', hasAudio);
+    measurePlayer();
   }
 
   /** Cambia el audio del capítulo que suena por el de la voz elegida, en la misma oración. */
@@ -1229,6 +1230,7 @@
         await refreshAudio();
       } else {
         api.jobs = [...api.jobs.filter((j) => j.id !== body.job.id), body.job];
+        updateWorkshop();
         schedulePoll();
       }
     } catch (error) {
@@ -1258,6 +1260,7 @@
         (j) => j.status === 'done' && api.jobs.some((p) => p.id === j.id && p.status !== 'done'),
       );
       api.jobs = jobs;
+      updateWorkshop();
       if (finished) await refreshAudio();
     } catch {
       /* el servidor se detuvo: se reintenta en el siguiente ciclo */
@@ -1273,6 +1276,93 @@
       api.timer = setTimeout(pollJobs, 1000);
     }
   }
+
+  // ------------------------------------------------------------ taller de copistas
+  //
+  // Mientras se genera lo que pidió el usuario (no lo pedido por adelantado), el taller
+  // del mundo aparece sobre el reproductor y escribe el pergamino con el progreso real.
+  // Al terminar el trabajo, el pergamino se entrega por la puerta y suena la campanita.
+  // Es decoración: no captura clics ni se cancela salvo que el trabajo se detenga.
+
+  const workshop = { el: null, svg: null, jobId: null, rows: [], finishing: false };
+
+  function workshopAvailable() {
+    return (
+      document.documentElement.dataset.world === 'scriptorium' &&
+      typeof window.LectioPixel?.workshop === 'function'
+    );
+  }
+
+  function updateWorkshop() {
+    if (workshop.finishing) return;
+    const tracked = workshop.jobId && api.jobs.find((j) => j.id === workshop.jobId);
+    if (tracked?.status === 'done') return finishWorkshop();
+    const active = api.jobs.find(
+      (j) => !j.prefetch && (j.status === 'running' || j.status === 'queued'),
+    );
+    if (!active || !workshopAvailable()) return hideWorkshop(!workshopAvailable());
+    if (workshop.jobId !== active.id) {
+      hideWorkshop(true);
+      const el = h('div', { class: 'workshop', 'aria-hidden': 'true' });
+      el.innerHTML = window.LectioPixel.workshop(active.voice);
+      document.body.append(el);
+      Object.assign(workshop, {
+        el,
+        svg: el.querySelector('svg'),
+        jobId: active.id,
+        rows: [...el.querySelectorAll('.ws-row')],
+      });
+      measurePlayer();
+    }
+    writeScroll(active.total ? active.done / active.total : 0);
+  }
+
+  /** Descubre los renglones del pergamino según el progreso (0 a 1). */
+  function writeScroll(progress) {
+    const count = workshop.rows.length;
+    workshop.rows.forEach((row, i) => {
+      const fill = Math.max(0, Math.min(1, progress * count - i));
+      const width = (Number(row.dataset.to) - Number(row.dataset.from)) * fill;
+      row.setAttribute('width', String(Math.round(width)));
+    });
+  }
+
+  function finishWorkshop() {
+    if (!workshop.el) return;
+    workshop.finishing = true;
+    writeScroll(1);
+    workshop.svg.classList.add('ws-done');
+    const quick = document.documentElement.dataset.motion !== 'full';
+    setTimeout(() => window.LectioSound?.play('bell', { force: true }), quick ? 150 : 2600);
+    setTimeout(
+      () => {
+        workshop.finishing = false;
+        hideWorkshop();
+        updateWorkshop(); // quizá ya hay otro trabajo en marcha
+      },
+      quick ? 900 : 4300,
+    );
+  }
+
+  function hideWorkshop(immediate = false) {
+    const { el } = workshop;
+    if (!el || workshop.finishing) return;
+    Object.assign(workshop, { el: null, svg: null, jobId: null, rows: [] });
+    if (immediate) return el.remove();
+    el.classList.add('leaving');
+    setTimeout(() => el.remove(), 450);
+  }
+
+  /** El taller se para sobre el reproductor: necesita su alto real. */
+  function measurePlayer() {
+    const height = playerBar.hidden ? 0 : playerBar.offsetHeight;
+    document.documentElement.style.setProperty('--player-height', `${height}px`);
+  }
+  window.addEventListener('resize', measurePlayer);
+  window.LectioTheme.onChange(() => {
+    if (!workshopAvailable()) hideWorkshop(true);
+    else updateWorkshop();
+  });
 
   /** Trae el audio nuevo del servidor y, si es del capítulo que suena, cambia a él. */
   async function refreshAudio() {
@@ -1298,6 +1388,7 @@
   /** Estado de la generación del capítulo actual con la voz elegida, bajo el reproductor. */
   function renderVoiceStatus() {
     if (!ui.voiceStatus) return;
+    requestAnimationFrame(measurePlayer); // el estado puede cambiar el alto del reproductor
     const chapter = data.chapters[state.chapter];
     const voice = voiceById(voices.selected);
     const job = jobFor(state.chapter, voices.selected);

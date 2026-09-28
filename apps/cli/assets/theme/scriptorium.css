@@ -1207,3 +1207,283 @@
 [data-world='scriptorium'] .speed-presets button[aria-pressed='true'] small {
   color: #f6dfb6;
 }
+
+/* ---------------------------------------------------------------- Taller de copistas */
+/*
+ * Mientras se genera una voz, el taller aparece sobre el reproductor: el pergamino se
+ * escribe con el progreso real y, al terminar, un aprendiz lo lleva por la puerta
+ * (pixel.js: workshop; preview.js: LectioWorkshop). No bloquea: lo de abajo sigue
+ * respondiendo a los clics.
+ */
+
+:root[data-world='scriptorium'] {
+  --px-skin: #e7b98c;
+  --px-hair: #4a2f1a;
+  --px-monk: #6b4a2e;
+  --px-monk-d: #4a321e;
+  --px-robe: var(--px-leather);
+  --px-robe-d: var(--px-leather-d);
+}
+
+:root[data-world='scriptorium'][data-mode='night'] {
+  --px-skin: #b48a66;
+  --px-hair: #2a1a0e;
+  --px-monk: #4a3320;
+  --px-monk-d: #2f2014;
+}
+
+/* Cada voz tiene su hábito. */
+.px-workshop[data-voice='gonzalo'] {
+  --px-robe: var(--px-blue);
+  --px-robe-d: var(--px-blue-d);
+}
+
+.px-workshop[data-voice='jorge'] {
+  --px-robe: var(--px-green);
+  --px-robe-d: var(--px-green-d);
+}
+
+.px-workshop[data-voice='salome'] {
+  --px-robe: var(--px-red);
+  --px-robe-d: var(--px-red-d);
+}
+
+.px-workshop[data-voice='salome-grave'] {
+  --px-robe: var(--px-plum);
+  --px-robe-d: var(--px-plum-d);
+}
+
+.workshop {
+  position: fixed;
+  right: 0;
+  bottom: var(--player-height, 7.5rem);
+  z-index: 29;
+  width: min(640px, 100vw);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s steps(4);
+}
+
+.workshop.leaving {
+  opacity: 0;
+}
+
+.workshop svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.px-workshop * {
+  transform-box: fill-box;
+}
+
+/* Poses: "a" y "b" se alternan; "cheer" solo al terminar. */
+.px-workshop .ws-b,
+.px-workshop .ws-cheer,
+.px-workshop .ws-carrier,
+.px-workshop .ws-door-open {
+  opacity: 0;
+}
+
+:root[data-motion='full'] .px-workshop .ws-toggle .ws-a {
+  animation: ws-pose var(--dur, 0.5s) steps(1) infinite;
+}
+
+:root[data-motion='full'] .px-workshop .ws-toggle .ws-b {
+  animation: ws-pose var(--dur, 0.5s) steps(1) infinite reverse;
+}
+
+@keyframes ws-pose {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Ida y vuelta, dándose vuelta en cada extremo. */
+:root[data-motion='full'] .px-workshop .ws-walker {
+  transform-origin: center;
+  animation: ws-walk var(--dur, 7s) infinite;
+  animation-timing-function: steps(18);
+}
+
+:root[data-motion='full'] .px-workshop .ws-walker.ws-trips {
+  animation-name: ws-walk-trip;
+}
+
+@keyframes ws-walk {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  49.9% {
+    transform: translateX(var(--dist)) scaleX(1);
+  }
+  50% {
+    transform: translateX(var(--dist)) scaleX(-1);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+}
+
+/* A mitad de la vuelta, tropieza, queda en el suelo un momento y sigue. */
+@keyframes ws-walk-trip {
+  0% {
+    transform: translateX(0) scaleX(1);
+  }
+  49.9% {
+    transform: translateX(var(--dist)) scaleX(1);
+  }
+  50% {
+    transform: translateX(var(--dist)) scaleX(-1);
+  }
+  70% {
+    transform: translateX(calc(var(--dist) * 0.55)) scaleX(-1) rotate(0deg);
+  }
+  71% {
+    transform: translateX(calc(var(--dist) * 0.55)) scaleX(-1) translateY(4px) rotate(-90deg);
+  }
+  80% {
+    transform: translateX(calc(var(--dist) * 0.55)) scaleX(-1) translateY(4px) rotate(-90deg);
+  }
+  81% {
+    transform: translateX(calc(var(--dist) * 0.55)) scaleX(-1) rotate(0deg);
+  }
+  100% {
+    transform: translateX(0) scaleX(-1);
+  }
+}
+
+/* El dormilón respira y suelta sus zetas. */
+:root[data-motion='full'] .px-workshop .ws-zzz {
+  animation: ws-zzz 2.4s steps(3) infinite;
+}
+
+@keyframes ws-zzz {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  50% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+/* ---- Al terminar (.ws-done): se enrolla, lo llevan a la puerta, campana y festejo. */
+
+.px-workshop.ws-done .ws-a,
+.px-workshop.ws-done .ws-b,
+.px-workshop.ws-done .ws-zzz {
+  opacity: 0;
+  animation: none;
+}
+
+.px-workshop.ws-done .ws-cheer {
+  opacity: 1;
+}
+
+.px-workshop.ws-done .ws-walker {
+  animation-play-state: paused;
+}
+
+.px-workshop.ws-done .ws-hand-off {
+  opacity: 0;
+}
+
+.px-workshop .ws-sheet {
+  transform-origin: top;
+  transition: transform 0.5s steps(5);
+}
+
+.px-workshop.ws-done .ws-sheet {
+  transform: scaleY(0.08);
+}
+
+.px-workshop .ws-roller-bottom {
+  transition: transform 0.5s steps(5);
+}
+
+.px-workshop.ws-done .ws-roller-bottom {
+  transform: translateY(-25px);
+}
+
+.px-workshop.ws-done .ws-carrier {
+  animation: ws-deliver 2.2s steps(22) 0.5s forwards;
+}
+
+.px-workshop.ws-done .ws-carrier .ws-a {
+  opacity: 1;
+}
+
+:root[data-motion='full'] .px-workshop.ws-done .ws-jump {
+  animation: ws-jump 0.45s steps(3) infinite;
+}
+
+:root[data-motion='full'] .px-workshop.ws-done .ws-master {
+  animation: ws-jump 0.6s steps(3) infinite;
+}
+
+.px-workshop.ws-done .ws-door-closed {
+  animation: ws-hide 0s 2.1s forwards;
+}
+
+.px-workshop.ws-done .ws-door-open {
+  animation: ws-show 0s 2.1s forwards;
+}
+
+:root[data-motion='full'] .px-workshop.ws-done .ws-bell {
+  transform-origin: top;
+  animation: ws-ring 0.24s steps(2) 2.6s 5;
+}
+
+@keyframes ws-deliver {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  88% {
+    opacity: 1;
+    transform: translateX(var(--to));
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--to));
+  }
+}
+
+@keyframes ws-jump {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes ws-ring {
+  0% {
+    transform: rotate(-18deg);
+  }
+  100% {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes ws-hide {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ws-show {
+  to {
+    opacity: 1;
+  }
+}
