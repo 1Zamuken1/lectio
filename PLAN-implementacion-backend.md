@@ -130,7 +130,7 @@ pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/
 pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
 ```
 
-En la base de desarrollo quedan dos cuentas de prueba (contraseña de `apps/api/test/helpers/test-app.ts`): `prueba-web@example.com` (Bécquer, con audio de "Introducción" en Gonzalo y Jorge, y Don Quijote) y `e2e-fase6@example.com` (la revisión de extremo a extremo: Marianela con audio en tres voces). Se pueden borrar cuando ya no sirvan.
+La base de desarrollo quedó limpia al cerrar la fase 6: sin cuentas de prueba, con Marianela en la biblioteca pública (sin audio). Para probar la app, crea una cuenta desde el pergamino y sube un EPUB del corpus en `/estudio`.
 
 **Dónde está cada cosa**
 
