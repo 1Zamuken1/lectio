@@ -190,11 +190,14 @@ Transformaciones sobre `narration` para que el sintetizador no tropiece:
 - **Guiones de división silábica** al final de línea en EPUB convertidos desde PDF (`conver-\nsión` → `conversión`), solo si la unión produce una palabra que ya aparece en el libro.
 - **Espacios:** colapsar espacios múltiples y saltos de línea internos.
 - **Ortografía antigua (solo español, desde la v2 del pipeline):** la preposición "á" y las conjunciones "é", "ó", "ú" llevaban tilde antes de 1911 (Bécquer en Gutenberg). Una vocal acentuada suelta, Edge la deletrea ("a con acento"), así que se narra sin tilde. Las palabras no se tocan ("papá", "está"), y en portugués "é" es un verbo y se deja.
+- **Rayas de diálogo e inciso** (y el guion usado como raya): salen de la narración y las comas se conservan. Medido en la escucha real: Edge hace en cada raya una pausa de coma (~200 ms), y "dijo —con voz grave— «oye…»" sonaba entrecortado. `<break>` de SSML no funciona en Edge.
 - **Anuncio de capítulo:** la primera "oración" narrada del capítulo es su título (`parent_title` + `title`, ej. "Parte dos. Capítulo siete: El despertar"), seguido de una pausa. Se genera como oración sintética con `blockIndex` del heading.
 - **Numerales romanos en títulos:** "Capítulo IV" → "Capítulo 4", solo en títulos de capítulo, no en el cuerpo (donde "Luis XIV" debe quedarse como está y lo resuelve el TTS).
 - **Escape** de `&`, `<`, `>` si el proveedor usa SSML (Edge TTS y Azure lo usan).
 
-Lo que **no** se normaliza a propósito: números, fechas y abreviaturas del cuerpo. Los motores neuronales modernos los verbalizan mejor que cualquier regla propia, y reescribirlos arriesga introducir errores.
+Lo que **no** se normaliza a propósito: números, fechas y abreviaturas del cuerpo. Los motores neuronales modernos los verbalizan mejor que cualquier regla propia, y reescribirlos arriesga introducir errores. La prueba de oído en español (*Marianela*, septiembre de 2026) lo confirmó: no apareció ningún error de lectura que justificara una regla nueva.
+
+**Velocidad de síntesis:** a 1× la voz se siente lenta; se sintetiza a **+12 %** (punto medio entre 1× y 1,25×), incorporado en el MP3. Acorta también las pausas de las comas: los capítulos quedan ~11 % más cortos.
 
 ---
 

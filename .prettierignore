@@ -4,7 +4,6 @@ corpus/
 out/
 pnpm-lock.yaml
 docs/
-PLAN-implementacion-pipeline.md
 .scratch/
 # Cliente de Prisma generado
 packages/core/src/generated/

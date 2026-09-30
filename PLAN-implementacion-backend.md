@@ -1,6 +1,6 @@
 # Plan de implementación: backend (API + worker)
 
-> Documento temporal de trabajo, como `PLAN-implementacion-pipeline.md`. Se elimina al terminar esta etapa; las decisiones permanentes viven en `docs/`.
+> Documento temporal de trabajo. Se elimina al terminar esta etapa; las decisiones permanentes viven en `docs/`.
 
 ## Objetivo
 
@@ -150,7 +150,7 @@ La base de desarrollo quedó limpia al cerrar la fase 6: sin cuentas de prueba, 
 
 **Probar a mano (con el entorno arriba)**: el panel del navegador de Claude no pinta ni corre animaciones si está oculto y frena los temporizadores de la página (a 1 s o más): los tiempos medidos ahí no sirven; hay que mirar en vivo.
 
-**Pendientes sueltos**: la prueba de escucha de la fase 9 del plan del pipeline (después se borra `PLAN-implementacion-pipeline.md`).
+**Pipeline cerrado**: la prueba de oído en español no encontró errores que pidan reglas nuevas; lo aprendido quedó en `docs/lectio-pipeline-limpieza.md` y se borró su plan.
 
 ## Riesgos conocidos
 
