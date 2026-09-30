@@ -83,7 +83,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] Portada servida desde el storage.
 - [x] Tests de integración con EPUB del corpus: subir, esperar a que el worker termine y verificar capítulos y reporte; DRM y archivo inválido.
 
-### Fase 3: leer y retomar
+### Fase 3: leer y retomar (hecha)
 
 - [x] `GET /chapters/:id` con `ETag` y `304` (arquitectura §1.11); nunca expone el texto de narración.
 - [x] `PUT` y `GET /books/:id/progress` con `clientUpdatedAt` (gana el más reciente; 400 si viene del futuro o si el índice está fuera de rango).
@@ -91,7 +91,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] Tests de integración: ETag, conflicto entre dos dispositivos y acceso ajeno (403).
 - [x] Imágenes de los capítulos (`GET /books/:id/resources?path=`) y el progreso en la biblioteca (`GET /books`).
 
-### Fase 4: audio
+### Fase 4: audio (hecha)
 
 - [x] `POST /chapters/:id/audio { voiceId }`: transacción con bloqueo por usuario (`SELECT … FOR UPDATE`), cuota (`remaining = quota − consumed − reserved`) y concurrencia (429 con `code`). Es idempotente si ya hay un trabajo pendiente para ese capítulo y esa voz.
 - [x] Worker `audio-generation`: unidades de voz → `packages/tts` (reintentos por unidad) → MP3 + `alignment.json` al storage → en una transacción, `AudioSegment` `ready` + `TtsUsageLog` + contador del usuario. Limitador global de BullMQ (RNF-07).
@@ -100,7 +100,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] Tests: la cuota bajo dos solicitudes simultáneas (solo una pasa), la concurrencia, la idempotencia, un fallo que libera la reserva, y la generación real con Edge solo en un test marcado como lento.
 - [x] Proveedor silencioso (`TTS_PROVIDER=silent`) para los tests y para desarrollar sin red; `GET /books/:id` con el estado del audio por capítulo y voz.
 
-### Fase 5: biblioteca pública
+### Fase 5: biblioteca pública (hecha)
 
 - [x] Script interno `pnpm seed:public` que carga libros del corpus como públicos (`owner_id = null`, `slug`) y genera su audio como sistema (sin cuota, sin `TtsUsageLog`).
 - [x] `GET /books/public` y `GET /books/public/:slug`; acceso sin autenticación a libros, capítulos y audio públicos, y 403 al pedir audio de un libro público.
@@ -117,6 +117,43 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [ ] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
 
 ---
+
+## Estado y cómo retomar (30-09-2026)
+
+Hechas las fases 0 a 5 y la etapa 1 de la fase 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
+
+**Levantar el entorno**
+
+```bash
+pnpm db:up                       # Docker Desktop abierto primero
+pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/docs) y worker
+pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
+```
+
+En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`), que se borra al cerrar la fase 6.
+
+**Dónde está cada cosa**
+
+| Tema                                                              | Archivo                                                                                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Contratos de la API (endpoints, errores, flujos)                  | `docs/lectio-arquitectura-api.md`                                                                                           |
+| Decisiones de diseño de la app (salas, pergamino, errores, costo) | `docs/lectio-frontend.md` §2.3                                                                                              |
+| Temas pixel y el taller                                           | `docs/lectio-temas.md`                                                                                                      |
+| Backend (módulos hexagonales)                                     | `packages/core/src/modules/*`                                                                                               |
+| La app                                                            | `apps/web/src`: `api/` (sesión y cliente), `app/`, `auth/`, `library/`, `screens/`, `theme/` (portado de la CLI), `styles/` |
+
+**Siguiente: fase 6, etapa 2 (las salas)**, según `docs/lectio-frontend.md` §2.3:
+
+1. Arte propio de cada sala en `apps/web/src/theme/pixel.js`: la gran biblioteca del monasterio (estanterías altas, vitrales, atril) y la celda de copista (estante propio, escritorio, ventana). Hoy ambas usan `scriptoriumScene({ desk: false })` en `library/LibraryRoom.tsx`.
+2. Puerta con fundido entre salas (hoy es un botón de la barra, "Mi celda" / "Biblioteca").
+3. Ficha en el atril (hoy es la ficha flotante de la CLI, `DetailCard`), con capítulos y "Continuar" / "Empezar". La ruta `/libros/:slug` (pública) y `/leer/:id` aún no existen: el enlace de la ficha da 404.
+4. Subir: botón "Añadir libro" y soltar el archivo en la sala (`POST /books`, 409 `BOOK_ALREADY_EXISTS` lleva al existente). Libro en blanco "Añade tu primer libro" en la celda vacía.
+5. Libro procesándose: la cuadrilla del taller trae un libro gigante (polling de `GET /books/:id` hasta ready o error).
+6. Libro con error: arde o se desvanece y renace como tarjeta con el mensaje según `errorCode` y el botón de borrar.
+
+**Después: etapa 3 (lector y reproductor)**: portar `apps/cli/assets/preview/preview.js` (lector, reproductor de dos filas, voces, taller) sobre `GET /chapters/:id` (ETag), las imágenes (`/books/:id/resources`, con token → blob, como `components/ApiImage.tsx`), el audio (`POST`/`GET /chapters/:id/audio`, URL firmadas) y el progreso (`PUT /books/:id/progress` con `clientUpdatedAt`). Confirmar el costo solo si el capítulo pasa del 5 % de la cuota. Luego la revisión de extremo a extremo de la fase 6 y la fase 7 (PWA y sin conexión, prerender de la biblioteca pública).
+
+**Pendientes sueltos**: la prueba de escucha de la fase 9 del plan del pipeline (después se borra `PLAN-implementacion-pipeline.md`).
 
 ## Riesgos conocidos
 
