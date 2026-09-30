@@ -17,9 +17,9 @@ const LEAVE_MS = 1400;
 type Phase = 'walking' | 'waiting' | 'placed' | 'leaving';
 
 /**
- * La cuadrilla que trae un libro recién subido: entra por el extremo de la repisa (del
- * lado de la puerta), camina por la tabla con el libro en alto, uno tropieza, y lo deja en
- * su hueco (`data-book-id`). Si el worker aún no termina, esperan ahí; cuando `ready`,
+ * La cuadrilla que trae un libro recién subido: aparece en una punta de la tabla de la
+ * repisa (la que le deja más camino; nunca fuera de la tabla, que sería caminar en el
+ * aire), camina con el libro en alto, uno tropieza, y lo deja en su hueco (`data-book-id`). Si el worker aún no termina, esperan ahí; cuando `ready`,
  * el lomo aparece (`onPlaced`), festejan y se van (`onGone`). No bloquea nada: la
  * cuadrilla no recibe clics. Se dibuja dentro de la repisa (portal, coordenadas relativas
  * a ella): si la repisa se mueve mientras caminan, se mueven con ella.
@@ -43,6 +43,8 @@ export function BookCrew({
     from: number;
     to: number;
     top: number;
+    /** Camina hacia la izquierda: el sprite se da vuelta. */
+    flip: boolean;
   } | null>(null);
   const callbacks = useRef({ onPlaced, onGone });
   useEffect(() => {
@@ -66,11 +68,19 @@ export function BookCrew({
       }
       const s = slot.getBoundingClientRect();
       const r = shelf.getBoundingClientRect();
+      const center = s.left - r.left + s.width / 2;
+      const rightEnd = Math.max(0, r.width - WIDTH);
+      // Desde la izquierda, el libro (a BOOK_CENTER del borde) queda sobre el hueco; desde
+      // la derecha el sprite va dado vuelta, así que el libro queda a WIDTH - BOOK_CENTER.
+      const fromLeft = center - BOOK_CENTER;
+      const fromRight = center - (WIDTH - BOOK_CENTER);
+      const flip = rightEnd - fromRight > fromLeft;
       // La tabla está 10 px sobre el pie del hueco (padding de .slot).
       setPlace({
         shelf,
-        from: -WIDTH,
-        to: s.left - r.left + s.width / 2 - BOOK_CENTER,
+        flip,
+        from: flip ? rightEnd : 0,
+        to: Math.min(rightEnd, Math.max(0, flip ? fromRight : fromLeft)),
         top: s.bottom - r.top - 10 - HEIGHT,
       });
     };
@@ -82,8 +92,14 @@ export function BookCrew({
   useEffect(() => {
     const node = element.current;
     if (!place || !node) return;
+    const face = place.flip ? ' scaleX(-1)' : '';
+    // Aparecen en la punta de la tabla (un par de pasos de opacidad) y caminan al hueco.
     const walk = node.animate(
-      [{ transform: `translateX(${place.from}px)` }, { transform: `translateX(${place.to}px)` }],
+      [
+        { transform: `translateX(${place.from}px)${face}`, opacity: 0 },
+        { transform: `translateX(${place.from}px)${face}`, opacity: 1, offset: 0.06 },
+        { transform: `translateX(${place.to}px)${face}`, opacity: 1 },
+      ],
       { duration: WALK_MS, easing: `steps(${Math.round(WALK_MS / 100)})`, fill: 'forwards' },
     );
     walk.onfinish = () => setPhase('waiting');
@@ -105,10 +121,13 @@ export function BookCrew({
       return () => window.clearTimeout(timer);
     }
     if (phase === 'leaving') {
+      // De vuelta por donde vinieron (mirando al otro lado) y se desvanecen en la punta.
+      const face = place.flip ? '' : ' scaleX(-1)';
       const leave = node.animate(
         [
-          { transform: `translateX(${place.to}px) scaleX(-1)` },
-          { transform: `translateX(${place.from}px) scaleX(-1)` },
+          { transform: `translateX(${place.to}px)${face}`, opacity: 1 },
+          { transform: `translateX(${place.from}px)${face}`, opacity: 1, offset: 0.9 },
+          { transform: `translateX(${place.from}px)${face}`, opacity: 0 },
         ],
         { duration: LEAVE_MS, easing: `steps(${Math.round(LEAVE_MS / 100)})`, fill: 'forwards' },
       );

@@ -130,7 +130,7 @@ pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/
 pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
 ```
 
-En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`) con cuatro libros subidos (Bécquer, con progreso en "Los ojos verdes"; Don Quijote, Moby-Dick y Sherlock Holmes). Se borra al cerrar la fase 6.
+En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`) con dos libros subidos (Bécquer, con progreso en "Los ojos verdes", y Don Quijote). Se borra al cerrar la fase 6.
 
 **Dónde está cada cosa**
 

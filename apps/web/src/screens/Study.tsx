@@ -278,13 +278,23 @@ function useUndoableRemoval(notify: (text: string, action?: Notice['action']) =>
       });
   };
 
+  // Lo que quedó por borrar se envía igual al salir del estudio, al recargar o al cerrar la
+  // pestaña (keepalive: la petición sobrevive a la página).
   useEffect(() => {
     const scheduled = timers.current;
-    return () => {
+    const flush = () => {
       for (const [id, timer] of scheduled) {
         window.clearTimeout(timer);
-        void api.delete(`/api/v1/books/${id}`).catch(() => undefined);
+        void api
+          .request(`/api/v1/books/${id}`, { method: 'DELETE', keepalive: true })
+          .catch(() => undefined);
       }
+      scheduled.clear();
+    };
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      flush();
     };
   }, [api]);
 
