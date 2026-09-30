@@ -36,20 +36,25 @@ export function Topbar({ subtitle, children }: { subtitle: string; children?: Re
             type="button"
             className="tool account"
             title={`Sesión de ${state.user.email} · salir`}
+            aria-label="Salir"
             onClick={() => {
               Sound.play('toggle');
               void session.logout().then(() => navigate('/biblioteca'));
             }}
           >
+            <Icon name="key" />
             <span className="label">Salir</span>
           </button>
         ) : (
           <button
             type="button"
             className="tool account"
+            title="Entrar a tu cuenta"
+            aria-label="Entrar"
             onClick={() => ask({ tab: 'login' })}
             disabled={state.status === 'unknown'}
           >
+            <Icon name="key" />
             <span className="label">Entrar</span>
           </button>
         )}

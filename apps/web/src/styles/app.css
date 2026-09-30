@@ -330,7 +330,7 @@
   font-family: var(--font-read);
 }
 
-/* Provisional hasta la etapa 3: la página donde irá el lector. */
+/* El lector cuando no hay libro que mostrar: no existe, no es tuyo o aún se prepara. */
 .reader-soon {
   display: grid;
   place-items: center;
@@ -363,15 +363,6 @@
   margin: 0;
 }
 
-.reader-soon-page .author,
-.reader-soon-chapter {
-  color: var(--ink-soft);
-}
-
-.reader-soon-chapter {
-  font-style: italic;
-}
-
 [data-world='scriptorium'] .reader-soon {
   background: var(--px-ink);
 }
@@ -382,4 +373,200 @@
   box-shadow:
     inset 0 0 0 2px var(--px-gold-d),
     0 6px 0 rgb(0 0 0 / 30%);
+}
+
+/* ---------------------------------------------------------------- Lector */
+
+/* Fuente de lectura elegida en el menú "Aa" (solo el texto del libro). */
+:root[data-read-font='atkinson'] .prose {
+  font-family: var(--font-ui);
+}
+
+.chapter-loading {
+  max-width: var(--measure);
+  margin: 4rem auto;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--font-read);
+}
+
+/* En el lector, la marca lleva el título del libro: se corta si es largo. */
+@media (min-width: 901px) {
+  .layout .brand small {
+    display: inline-block;
+    max-width: 22ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+}
+
+.topbar a.tool {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+/* En el celular, el tamaño se cambia desde el menú "Aa": la barra no da para todo. */
+@media (max-width: 700px) {
+  .size-step {
+    display: none;
+  }
+}
+
+.text-toggle {
+  font-family: var(--font-read);
+  font-weight: 600;
+}
+
+.font-presets {
+  grid-template-columns: 1fr 1fr;
+}
+
+.font-presets button {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.5rem;
+}
+
+.font-presets strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.font-presets [data-font='literata'] strong {
+  font-family: var(--font-read);
+}
+
+.font-presets [data-font='atkinson'] strong {
+  font-family: var(--font-ui);
+}
+
+.font-presets small {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.image-missing {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- Reproductor */
+
+.generate-wrap {
+  display: grid;
+  gap: 0.25rem;
+  justify-items: center;
+}
+
+.generate:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.quota-line {
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+/* El mini reproductor: lo que suena, al pie de las salas. Hereda el marco de .player. */
+.mini-player {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.5rem calc(0.6rem + env(safe-area-inset-bottom));
+}
+
+[data-world='scriptorium'] .mini-player {
+  padding-top: calc(0.5rem + 7px);
+}
+
+.mini-player .mini-cover {
+  display: block;
+  width: 2.2rem;
+  height: 3rem;
+  object-fit: cover;
+  background: var(--paper-sunken);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.mini-player .player-meta {
+  grid-row: auto; /* el reproductor grande lo baja a otra fila en el celular */
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.mini-player .play,
+[data-world='scriptorium'] .mini-player .play {
+  width: 2.9rem;
+  height: 2.9rem;
+  margin: 0;
+}
+
+.mini-player .mini-back {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.mini-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.mini-progress span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+[data-world='scriptorium'] .mini-progress span {
+  background: var(--px-gold);
+}
+
+/* La sala se acorta para dejar sitio a la barra (la escena no queda tapada). */
+body[data-mini] #app {
+  padding-bottom: var(--mini-height, 4rem);
+}
+
+@media (max-width: 700px) {
+  .mini-player {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    gap: 0.5rem;
+  }
+
+  .mini-player .mini-back {
+    display: none;
+  }
+}
+
+/* Volumen: barras que suben y el porcentaje al lado (el parlante es el de la voz). */
+.volume-button {
+  gap: 0.35rem;
+}
+
+.volume-value {
+  min-width: 1.6em;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+[data-world='scriptorium'] .volume-button {
+  font-family: var(--font-display);
+}
+
+.volume-menu .speed-presets button[aria-pressed='true']:first-child {
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .volume-value {
+    display: none;
+  }
 }

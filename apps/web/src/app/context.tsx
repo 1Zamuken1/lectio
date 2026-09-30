@@ -2,10 +2,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
 import { ApiClient, ApiError } from '../api/client';
 import { Session, type SessionState } from '../api/session';
+import { PlayerController, type PlayerState } from '../player/controller';
+import { ProgressSync } from '../reader/position';
+import { useStore } from 'zustand';
 
 interface AppServices {
   api: ApiClient;
   session: Session;
+  /** Dónde vas en cada libro (navegador y servidor). */
+  progress: ProgressSync;
+  /** El único <audio> de la app: sigue sonando al cambiar de pantalla. */
+  player: PlayerController;
 }
 
 const AppContext = createContext<AppServices | null>(null);
@@ -17,7 +24,14 @@ export function createServices(): AppServices {
     ? { request: <T,>(name: string, run: () => Promise<T>) => navigator.locks.request(name, run) }
     : undefined;
   const session = new Session({ fetch: (...args) => fetch(...args), locks, channel });
-  return { session, api: new ApiClient(session) };
+  const api = new ApiClient(session);
+  const authenticated = () => session.state.status === 'authenticated';
+  const progress = new ProgressSync(api, queryClient, authenticated);
+  progress.install();
+  const player = new PlayerController(api, queryClient, progress, authenticated);
+  // En desarrollo, a mano desde la consola: window.lectio.player.state
+  if (import.meta.env.DEV) Object.assign(window, { lectio: { player, progress, session } });
+  return { session, api, progress, player };
 }
 
 export const queryClient = new QueryClient({
@@ -52,6 +66,13 @@ function useServices(): AppServices {
 }
 
 export const useApi = () => useServices().api;
+export const useProgress = () => useServices().progress;
+export const usePlayer = () => useServices().player;
+
+/** Una parte del estado del reproductor (se vuelve a pintar solo si cambia). */
+export function usePlayerState<T>(select: (state: PlayerState) => T): T {
+  return useStore(useServices().player.store, select);
+}
 
 export function useSession(): { state: SessionState; session: Session } {
   const { session } = useServices();

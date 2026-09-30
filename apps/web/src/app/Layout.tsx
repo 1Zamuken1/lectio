@@ -3,7 +3,9 @@ import { Outlet } from 'react-router';
 import { LoginScroll } from '../auth/LoginScroll';
 import { useAuthPrompt } from '../auth/auth-prompt';
 import { RoomFade } from '../library/room-door';
-import { useSession } from './context';
+import { ConfirmDialog } from '../player/ConfirmDialog';
+import { MiniPlayer } from '../player/MiniPlayer';
+import { usePlayer, useSession } from './context';
 
 /**
  * Marco de todas las pantallas: recupera la sesión al abrir la app y pone encima el
@@ -13,6 +15,14 @@ import { useSession } from './context';
 export function Layout() {
   const { state, session } = useSession();
   const prompt = useAuthPrompt();
+  const player = usePlayer();
+
+  // Al cerrar sesión, deja de sonar un libro tuyo (los públicos siguen).
+  useEffect(() => {
+    if (state.status !== 'anonymous') return;
+    const loaded = player.state.loaded;
+    if (loaded && !player.state.books[loaded.bookId]?.isPublic) player.stop();
+  }, [state.status, player]);
 
   useEffect(() => {
     void session.restore();
@@ -27,6 +37,8 @@ export function Layout() {
   return (
     <>
       <Outlet />
+      <MiniPlayer />
+      <ConfirmDialog />
       <RoomFade />
       {expired && (
         <LoginScroll

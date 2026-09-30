@@ -19,7 +19,7 @@ import { Layout } from './app/Layout';
 import { Study } from './screens/Study';
 import { NotFound } from './screens/NotFound';
 import { PublicLibrary } from './screens/PublicLibrary';
-import { ReaderSoon } from './screens/ReaderSoon';
+import { Reader } from './screens/Reader';
 import { TitleScreen } from './screens/TitleScreen';
 
 const router = createBrowserRouter([
@@ -30,8 +30,8 @@ const router = createBrowserRouter([
       { path: '/biblioteca', element: <PublicLibrary /> },
       { path: '/estudio', element: <Study /> },
       { path: '/celda', element: <Navigate to="/estudio" replace /> },
-      { path: '/leer/:id', element: <ReaderSoon /> },
-      { path: '/libros/:slug', element: <ReaderSoon /> },
+      { path: '/leer/:id', element: <Reader /> },
+      { path: '/libros/:slug', element: <Reader /> },
       { path: '*', element: <NotFound /> },
     ],
   },

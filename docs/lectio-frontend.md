@@ -101,6 +101,13 @@ La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el son
 | Qué ve cada sala | La biblioteca es el catálogo público (con tu progreso); tu estudio, tus libros y los públicos que empezaste. Con sesión, la pantalla de título lleva a tu estudio. |
 | Abrir un libro | Su **ficha en el atril**: un libro abierto sobre un atril de pixel art; a la izquierda portada, autor, progreso y "Continuar" / "Empezar"; a la derecha los capítulos narrativos por sección, con una cinta en el actual y la marca de los que tienen audio. |
 | Lector y reproductor | **Se portan tal cual** del preview (reproductor de dos filas, voces, velocidad, taller); solo cambia de dónde salen los datos. |
+| Lectura | Capítulos por demanda, índice lateral (lo no narrativo oculto por defecto), notas en un globo. Barra con A−/A+ y un menú **"Aa"** (tamaño y fuente: Literata o Atkinson Hyperlegible). Si el libro trae su propia capitular como imagen, no se agrega la inicial iluminada. |
+| Revisión y reporte | Pestañas **Libro / Reporte** en todos los libros (`?vista=reporte`). El modo revisión solo tacha lo que no se narra: la API no expone el texto narrado. |
+| Fuera del lector | El audio **sigue sonando**: un **mini reproductor** al pie de las salas (portada, capítulo, ▶/❚❚, línea de progreso, "Volver al libro" y ✕ para dejar de escuchar); la sala se acorta para no taparla. |
+| Volumen | Botón con menú junto a la velocidad (deslizador, silenciar, 25/50/75/100), con ícono propio (barras que suben: el parlante es el de la voz). Se recuerda aparte del volumen de los efectos. |
+| Adelantar el siguiente | Al 70 % del capítulo se pide el siguiente **solo si cuesta ≤ 5 % de la cuota**; si no, se pregunta al llegar. Si la cuota no alcanza, se avisa antes. |
+| Capítulo público sin audio | "Este capítulo aún no tiene voz" y un botón al capítulo con voz más cercano; al terminar, se salta al siguiente con audio. |
+| Cuenta | El botón Entrar / Salir lleva una **llave** (en el celular es lo único que se ve). |
 | Progreso del audio | El taller llena el pergamino con el **done/total real** del worker. |
 | Costo del audio | Se genera directo; **solo si el capítulo gasta más de ~5 % de la cuota del mes**, se confirma antes. La cuota se muestra **junto al botón de generar**. |
 | Temas | Scriptorium y Clásico. Bosque y Solarpunk llegan después sobre la misma base. |

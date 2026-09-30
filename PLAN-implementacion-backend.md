@@ -109,18 +109,18 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ### Fase 6: el lector sobre la API
 
-- [ ] El lector y la biblioteca actuales pasan a consumir la API: login y registro, subir EPUB desde la biblioteca, capítulos por demanda, audio y progreso del servidor. El taller de copistas usa el progreso real del job. Diseño decidido en `docs/lectio-frontend.md` §2.3. Por etapas:
+- [x] El lector y la biblioteca actuales pasan a consumir la API: login y registro, subir EPUB desde la biblioteca, capítulos por demanda, audio y progreso del servidor. El taller de copistas usa el progreso real del job. Diseño decidido en `docs/lectio-frontend.md` §2.3. Por etapas:
   - [x] 1. Base: `apps/web` (React, React Router, TanStack Query), tipos generados del OpenAPI, sesión coordinada entre pestañas (Web Locks + BroadcastChannel, con tests), temas portados, pantalla de título, biblioteca pública, celda y pergamino de entrada.
   - [x] 2. Las salas: biblioteca del monasterio y tu estudio con su arte, puerta con fundido, ficha en el atril, subir y soltar, estantes que se pasan con búsqueda y orden, la cuadrilla que trae el libro y el libro que arde y renace.
-  - [ ] 3. Lector y reproductor sobre la API: capítulos, imágenes, audio con voces, costo, taller con progreso real y progreso de lectura.
-- [ ] `lectio serve` queda para uso sin conexión (la CLI sigue funcionando sola).
-- [ ] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
+  - [x] 3. Lector y reproductor sobre la API: capítulos, imágenes, audio con voces, costo, taller con progreso real y progreso de lectura; mini reproductor en las salas, volumen y reporte.
+- [x] `lectio serve` queda para uso sin conexión (la CLI sigue funcionando sola).
+- [x] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
 
 ---
 
 ## Estado y cómo retomar (30-09-2026)
 
-Hechas las fases 0 a 5 y las etapas 1 y 2 de la fase 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
+Hechas las fases 0 a 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
 
 **Levantar el entorno**
 
@@ -130,23 +130,25 @@ pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/
 pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
 ```
 
-En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`) con dos libros subidos (Bécquer, con progreso en "Los ojos verdes", y Don Quijote). Se borra al cerrar la fase 6.
+En la base de desarrollo quedan dos cuentas de prueba (contraseña de `apps/api/test/helpers/test-app.ts`): `prueba-web@example.com` (Bécquer, con audio de "Introducción" en Gonzalo y Jorge, y Don Quijote) y `e2e-fase6@example.com` (la revisión de extremo a extremo: Marianela con audio en tres voces). Se pueden borrar cuando ya no sirvan.
 
 **Dónde está cada cosa**
 
-| Tema                                                              | Archivo                                                                                                                     |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Contratos de la API (endpoints, errores, flujos)                  | `docs/lectio-arquitectura-api.md`                                                                                           |
-| Decisiones de diseño de la app (salas, pergamino, errores, costo) | `docs/lectio-frontend.md` §2.3                                                                                              |
-| Temas pixel y el taller                                           | `docs/lectio-temas.md`                                                                                                      |
-| Backend (módulos hexagonales)                                     | `packages/core/src/modules/*`                                                                                               |
-| La app                                                            | `apps/web/src`: `api/` (sesión y cliente), `app/`, `auth/`, `library/`, `screens/`, `theme/` (portado de la CLI), `styles/` |
+| Tema                                                               | Archivo                                                                                                                                               |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contratos de la API (endpoints, errores, flujos)                   | `docs/lectio-arquitectura-api.md`                                                                                                                     |
+| Decisiones de diseño de la app (salas, lector, reproductor, costo) | `docs/lectio-frontend.md` §2.3                                                                                                                        |
+| Temas pixel y el taller                                            | `docs/lectio-temas.md`                                                                                                                                |
+| Backend (módulos hexagonales)                                      | `packages/core/src/modules/*`                                                                                                                         |
+| La app                                                             | `apps/web/src`: `api/`, `app/`, `auth/`, `library/`, `reader/` (lector), `player/` (reproductor), `screens/`, `theme/` (portado de la CLI), `styles/` |
 
-**Hecho en la etapa 2** (decisiones en `docs/lectio-frontend.md` §2.3): la nave con vitrales y tu estudio (`pixel.js`: `monasteryScene`, `studyScene`), la puerta con fundido (`library/room-door.tsx`), la ficha como libro abierto en el atril (`library/Lectern.tsx`), subir con botón, libro en blanco y soltar (`library/upload.tsx`), estantes que se pasan con búsqueda y orden (`library/shelves.ts`, con tests), la cuadrilla que trae el libro (`library/BookCrew.tsx`) y el libro que arde y renace como tarjeta (`library/FailedBook.tsx`). Tus libros se quitan desde el atril o la tarjeta, sin confirmar y con "Deshacer" 6 s; el borrado pendiente se envía igual al recargar o cerrar (`pagehide` + `keepalive`, en `screens/Study.tsx`). Con sesión, la pantalla de título lleva a tu estudio. `/leer/:id` y `/libros/:slug` ya cargan el libro y el capítulo (`?capitulo=`) en una página provisional (`screens/ReaderSoon.tsx`).
+**Hecho en la etapa 3**: el lector (`screens/Reader.tsx`, `reader/`) con capítulos por demanda (ETag), imágenes con token, notas, índice, tamaño y fuente (menú "Aa"), modo revisión reducido (tacha lo que no se narra: la API no expone el texto narrado) y la pestaña Reporte (`?vista=reporte`). La posición se guarda en el navegador y, con sesión, en el servidor (`reader/position.ts`: cada 10 s y al ocultar o cerrar, con `keepalive`). El reproductor es un único `<audio>` para toda la app (`player/controller.ts`, store de Zustand; en desarrollo, `window.lectio.player` desde la consola): voces con muestra, cambio de voz al empezar la oración siguiente, generar con la línea de cuota y confirmación sobre el 5 %, adelanto del siguiente al 70 % si es barato, avance automático, Media Session, volumen y el taller con el done/total real. La sincronización usa también `timeupdate`, porque `requestAnimationFrame` se detiene con la pestaña oculta (el `preview.js` de la CLI tiene ese mismo problema). Fuera del lector, el mini reproductor al pie de las salas (`player/MiniPlayer.tsx`). "Cap. X de Y" cuenta solo capítulos narrativos (`chapterNumber` en `GET /books`). El botón de la cuenta lleva una llave.
 
-**Siguiente: etapa 3 (lector y reproductor)**: reemplazar `screens/ReaderSoon.tsx` portando `apps/cli/assets/preview/preview.js` (lector, reproductor de dos filas, voces, taller) sobre `GET /chapters/:id` (ETag), las imágenes (`/books/:id/resources`, con token → blob, como `components/ApiImage.tsx`), el audio (`POST`/`GET /chapters/:id/audio`, URL firmadas) y el progreso (`PUT /books/:id/progress` con `clientUpdatedAt`). Confirmar el costo solo si el capítulo pasa del 5 % de la cuota. De paso: "Cap. 7 de 29" cuenta también los capítulos no narrativos (`totalChapters` del backend cuenta todos); y el botón Entrar/Salir no tiene ícono en el celular. Luego la revisión de extremo a extremo de la fase 6 y la fase 7 (PWA y sin conexión, prerender de la biblioteca pública).
+**Pipeline v2**: en español, la vocal acentuada suelta de la ortografía antigua ("á", "é", "ó") se narra sin tilde (Edge la deletreaba). Los libros ya guardados siguen con la narración de la v1 hasta que exista el reprocesamiento (se trabaja aparte).
 
-**Probar a mano (con el entorno arriba)**: subir un EPUB del corpus en `/estudio` para ver la cuadrilla (el panel del navegador de Claude no pinta animaciones si está oculto: sus tiempos no sirven, hay que mirarla en vivo). Para el libro que arde hace falta un EPUB que el worker rechace (un ZIP con `mimetype` y un `container.xml` que apunte a un OPF inexistente da `MISSING_PACKAGE`).
+**Siguiente**: la fase 7 (PWA instalable y sin conexión, prerender de la biblioteca pública; `docs/lectio-frontend.md` §6.3, §6.4 y §2.1).
+
+**Probar a mano (con el entorno arriba)**: el panel del navegador de Claude no pinta ni corre animaciones si está oculto y frena los temporizadores de la página (a 1 s o más): los tiempos medidos ahí no sirven; hay que mirar en vivo.
 
 **Pendientes sueltos**: la prueba de escucha de la fase 9 del plan del pipeline (después se borra `PLAN-implementacion-pipeline.md`).
 

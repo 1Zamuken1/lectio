@@ -66,6 +66,49 @@ export function useUploadBook() {
 }
 
 export type ChapterSummary = Schemas['ChapterSummaryDto'];
+export type Chapter = Schemas['ChapterDto'];
+export type Position = Schemas['PositionDto'];
+
+/**
+ * Un capítulo. La API responde con ETag y `Cache-Control: no-cache`: el navegador guarda
+ * la respuesta y la revalida sola (If-None-Match → 304), así que volver a un capítulo no
+ * lo descarga de nuevo. Su contenido solo cambia si el libro se reprocesa.
+ */
+export function useChapter(id: string | null) {
+  const api = useApi();
+  return useQuery({
+    queryKey: ['chapter', id],
+    queryFn: () => api.get<Chapter>(`/api/v1/chapters/${id}`),
+    enabled: id !== null,
+    staleTime: Infinity,
+    gcTime: 10 * 60_000,
+  });
+}
+
+/** Adelanta el capítulo siguiente para que pasar de página sea instantáneo. */
+export function usePrefetchChapter() {
+  const api = useApi();
+  const client = useQueryClient();
+  return (id: string) =>
+    client.prefetchQuery({
+      queryKey: ['chapter', id],
+      queryFn: () => api.get<Chapter>(`/api/v1/chapters/${id}`),
+      staleTime: Infinity,
+    });
+}
+
+/** Dónde ibas en el libro, según el servidor (solo con sesión; sin ella, en el navegador). */
+export function useServerPosition(bookId: string | null) {
+  const api = useApi();
+  const userId = useUserId();
+  return useQuery({
+    queryKey: ['progress', bookId, userId],
+    queryFn: () => api.get<Position>(`/api/v1/books/${bookId}/progress`),
+    enabled: bookId !== null && userId !== null,
+    // Siempre fresco al abrir el libro: quizá avanzaste en otro dispositivo.
+    staleTime: 0,
+  });
+}
 
 /**
  * El detalle de un libro (capítulos, progreso, audio por voz). Los públicos se piden por
