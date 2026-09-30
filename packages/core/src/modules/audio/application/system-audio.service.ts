@@ -39,4 +39,22 @@ export class SystemAudioService {
     }
     return { voiceId: voice.id, enqueued, skipped: selected.length - enqueued };
   }
+
+  /**
+   * Tras reprocesar un libro público: vuelve a encolar, con la misma voz, el audio que ya
+   * existía y quedó obsoleto porque cambió la narración. No agrega capítulos que no tenían
+   * audio. Nadie puede pedirlo a mano (el audio público es del sistema), por eso se hace
+   * solo; no hay cuota de por medio.
+   */
+  async regenerateOutdated(bookId: string, language: string | null): Promise<number> {
+    let enqueued = 0;
+    for (const { chapterId, voiceId } of await this.audio.outdatedSystemAudio(bookId)) {
+      const voice = pickVoice(voiceId, language);
+      const segment = await this.audio.reserveSystem(chapterId, voice.id, voice.prosodyKey);
+      if (!segment) continue;
+      await this.queue.enqueue(segment.id);
+      enqueued++;
+    }
+    return enqueued;
+  }
 }

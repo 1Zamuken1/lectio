@@ -31,4 +31,4 @@ Thumbs.db
 .claude/
 
 # Archivos subidos y generados por la API en desarrollo (storage local)
-storage/
+/storage/

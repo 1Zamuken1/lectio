@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { PipelineError, processEpub } from '@lectio/epub-pipeline';
+import { PipelineError, processEpub, type ProcessedBook } from '@lectio/epub-pipeline';
 import { FILE_STORAGE, storageKeys, type FileStorage } from '../../storage/file-storage.js';
 import { BOOK_REPOSITORY, type BookRepository } from '../domain/ports.js';
 
@@ -49,11 +49,7 @@ export class ProcessBookService {
 
     // Archivos primero y base después: si algo falla a mitad de camino, el reintento
     // sobrescribe los archivos y el libro nunca queda "ready" con imágenes que faltan.
-    const coverKey = book.cover ? storageKeys.cover(bookId, book.cover.mediaType) : null;
-    if (book.cover && coverKey) await this.storage.put(coverKey, book.cover.data);
-    for (const [path, resource] of book.resources) {
-      await this.storage.put(storageKeys.resource(bookId, path), resource.data);
-    }
+    const coverKey = await storeBookFiles(this.storage, bookId, book);
     await this.books.saveProcessed(bookId, { book, coverKey });
     return { status: 'ready', chapters: book.chapters.length };
   }
@@ -63,4 +59,18 @@ export class ProcessBookService {
     const message = error instanceof Error ? error.message : String(error);
     await this.books.markError(bookId, 'PROCESSING_FAILED', message.slice(0, 500));
   }
+}
+
+/** Sube la portada y las imágenes de los capítulos; devuelve la clave de la portada. */
+export async function storeBookFiles(
+  storage: FileStorage,
+  bookId: string,
+  book: ProcessedBook,
+): Promise<string | null> {
+  const coverKey = book.cover ? storageKeys.cover(bookId, book.cover.mediaType) : null;
+  if (book.cover && coverKey) await storage.put(coverKey, book.cover.data);
+  for (const [path, resource] of book.resources) {
+    await storage.put(storageKeys.resource(bookId, path), resource.data);
+  }
+  return coverKey;
 }

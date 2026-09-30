@@ -60,6 +60,7 @@ erDiagram
         jsonb notes
         int character_count "caracteres de narración"
         int sentence_count
+        string narration_hash "huella de lo que se narra, nullable"
         timestamp created_at
     }
 
@@ -71,6 +72,8 @@ erDiagram
         enum status "pending | processing | ready | error"
         string provider "edge | kokoro | ..."
         string prosody_key "prosodia con que se generó"
+        string narration_hash "huella de la narración con que se generó, nullable"
+        boolean billable "false = regeneración gratis por reprocesamiento"
         string audio_key "clave en el storage, nullable hasta ready"
         string alignment_key "clave en el storage, nullable hasta ready"
         int duration_ms "nullable"
@@ -95,7 +98,7 @@ erDiagram
     TTS_USAGE_LOG {
         uuid id PK
         uuid user_id FK
-        uuid chapter_id FK
+        uuid chapter_id FK "nullable: el capítulo ya no existe"
         string provider
         int characters_processed
         timestamp created_at
@@ -148,7 +151,7 @@ Un libro, ya sea privado (subido por un usuario) o público (dominio público, p
 | `error_code` | string, nullable | Código estable para que el frontend muestre un mensaje adecuado: `INVALID_ARCHIVE`, `MISSING_PACKAGE`, `DRM_PROTECTED`, `NO_TEXT_CONTENT`, `PROCESSING_TIMEOUT`. |
 | `error_message` | string, nullable | Detalle técnico (no se muestra tal cual al usuario). |
 | `nav_source` | enum, nullable | De dónde salió la tabla de contenidos: `nav` (EPUB 3), `ncx` (EPUB 2) o `spine` (respaldo, sin TOC utilizable). |
-| `pipeline_version` | int | Versión del pipeline que procesó el libro. Cuando mejoran las reglas, permite reprocesar selectivamente los libros procesados con versiones anteriores. |
+| `pipeline_version` | int | Versión del pipeline que procesó el libro. Cuando mejoran las reglas, `pnpm reprocess:books` reprocesa los libros `ready` con una versión anterior (`lectio-arquitectura-api.md` §1.5, flujo de reprocesamiento; §4 abajo). |
 | `processing_report` | jsonb, nullable | Reporte del pipeline: reglas aplicadas, cantidades eliminadas, fallbacks y warnings (ver pipeline §6). |
 
 **Regla de negocio:** si `is_public = true`, `owner_id` debe ser `null` y `slug` no puede ser `null`. Se valida a nivel de aplicación.
@@ -170,6 +173,7 @@ Un capítulo segmentado según la tabla de contenidos, con sus dos salidas: lect
 | `notes` | jsonb | Notas al pie extraídas del flujo: `[{ id, html }]`. El lector las muestra en un popover; la narración las omite. |
 | `character_count` | int | **Caracteres de narración** (suma de `sentences[].narration`): lo que realmente se envía a TTS. Se usa para verificar la cuota antes de encolar. |
 | `sentence_count` | int | Precalculado para mostrar el progreso ("oración 143 de 612") sin leer el jsonb. |
+| `narration_hash` | string, nullable | Huella de lo que se envía a TTS: las oraciones narradas con su bloque, su narración y sus tramos de voz (`narrationFingerprint` del pipeline). Al reprocesar, si cambia, el audio generado con la anterior queda obsoleto. `null` en capítulos procesados antes de que existiera (se completa al reprocesar). |
 
 **Por qué `sentences` en jsonb y no en una tabla `Sentence`:** siempre se leen completas junto al capítulo, nunca se consultan individualmente, y un libro puede tener decenas de miles. Una tabla aparte multiplicaría filas sin ningún beneficio de consulta.
 
@@ -185,6 +189,8 @@ El audio generado para un capítulo **con una voz**: uno por (capítulo, voz). V
 | `provider` | string | Proveedor que generó el audio (`edge`, `kokoro`…). Con el router y su circuit breaker, un mismo libro puede tener capítulos de proveedores distintos; conviene saberlo. |
 | `voice_id` | string | Perfil de voz de Lectio (`gonzalo`, `jorge`, `salome`, `salome-grave`) o una voz de Edge. |
 | `prosody_key` | string, nullable | Resumen de la prosodia con que se generó. Si el perfil cambia (por ejemplo, su velocidad), el audio queda obsoleto y se regenera al pedirlo. |
+| `narration_hash` | string, nullable | Huella de las oraciones con que se generó (las que leyó el worker al empezar). Distinta de `Chapter.narration_hash` = obsoleto por cambio de narración; si alguna de las dos es `null` no hay con qué comparar y se da por vigente. |
+| `billable` | boolean, default `true` | `false` cuando es una regeneración por cambio de narración (reprocesamiento): no reserva cuota y al quedar `ready` no genera `TtsUsageLog` ni suma a `total_characters_processed`. |
 | `audio_key` | string, nullable | Clave del MP3 en el storage; solo con `status = ready`. Se guardan claves y no URLs porque las de libros privados se firman en cada petición y vencen. |
 | `alignment_key` | string, nullable | Clave de `alignment.json`, con los tiempos de cada oración (pipeline, etapa 11). |
 | `duration_ms` | int, nullable | Duración total en milisegundos (misma unidad que la alineación). |
@@ -219,12 +225,12 @@ Registro de cada generación de audio completada, para trazabilidad y para calcu
 |---|---|---|
 | `id` | uuid (PK) | |
 | `user_id` | uuid (FK → User) | Quién solicitó la generación. |
-| `chapter_id` | uuid (FK → Chapter) | Qué capítulo se procesó. |
+| `chapter_id` | uuid (FK → Chapter), nullable | Qué capítulo se procesó. Pasa a `null` si el capítulo se borra (se quitó al reprocesar o se borró el libro): el consumo del mes no puede desaparecer con él. Antes era `ON DELETE CASCADE`, y borrar un libro con audio devolvía la cuota del mes. |
 | `provider` | string | Proveedor usado; permite calcular costo real por proveedor. |
 | `characters_processed` | int | Caracteres de narración efectivamente enviados. |
 | `created_at` | timestamp | Define a qué periodo mensual pertenece el consumo. |
 
-Solo se inserta cuando el audio queda `ready`, en la **misma transacción** que actualiza `AudioSegment.status` e incrementa `User.total_characters_processed`. Así un reintento nunca cuenta dos veces el mismo consumo. El audio de libros públicos (`requested_by = null`) no genera `TtsUsageLog`.
+Solo se inserta cuando el audio queda `ready`, en la **misma transacción** que actualiza `AudioSegment.status` e incrementa `User.total_characters_processed`. Así un reintento nunca cuenta dos veces el mismo consumo. El audio de libros públicos (`requested_by = null`) y la regeneración por cambio de narración (`billable = false`) no generan `TtsUsageLog`.
 
 ### 2.7 `RefreshToken`
 Sesiones de larga duración para la PWA (`lectio-arquitectura-api.md` §1.9).
@@ -265,6 +271,12 @@ Una solicitud de audio se acepta si `Chapter.character_count ≤ remaining` y el
 
 - **`owner_id` nullable en `Book`** en vez de crear un usuario "sistema" ficticio: un libro público no es propiedad de nadie, y así se evita excluir artificialmente un usuario especial de cualquier lógica de "libros del usuario X".
 - **El procesamiento se guarda, no se recalcula**: el pipeline corre una sola vez al subir el libro (job asíncrono) y persiste `content_html` y `sentences`. Leer un capítulo nunca reprocesa el EPUB. `pipeline_version` permite reprocesar a propósito cuando mejoran las reglas.
+- **Reprocesar conserva los ids de los capítulos**: `ReadingProgress` y `AudioSegment` apuntan al capítulo, así que reemplazar `Chapter[]` (como al subir) los borraría en cascada. Los capítulos se emparejan por título respetando el orden (subsecuencia común más larga); los emparejados se actualizan en su lugar. Si la estructura cambió:
+  - el progreso en un capítulo quitado pasa al que ocupa su posición (o al último), desde la oración 0, sin aviso en la interfaz; en uno conservado se recorta `sentence_index` si ahora tiene menos oraciones;
+  - el audio de un capítulo quitado se borra (y sus archivos); su consumo queda en `TtsUsageLog` con `chapter_id = null`;
+  - si hay audio generándose en un capítulo que se quitaría, el libro se posterga.
+  El libro sigue `ready` durante todo el proceso, y si la versión nueva falla, se queda con la anterior.
+- **Audio obsoleto por huella de narración, no por versión**: solo queda obsoleto el audio de los capítulos cuya narración cambió de verdad. Regenerarlo es gratis y a pedido del usuario (nada se regenera ni se cobra solo); el de los libros públicos lo vuelve a encolar el sistema.
 - **Dos salidas por capítulo (`content_html` + `sentences`)** en lugar de un único texto limpio: el lector conserva formato y notas, mientras la narración omite lo que interrumpe (pipeline §1.1, principio no destructivo).
 - **`AudioSegment` es uno por capítulo y voz, no un historial**: regenerar con la misma voz sobrescribe. Guardar cada voz permite cambiarla al instante en el lector.
 - **Reserva de cuota sin tabla propia**: la reserva se deriva de los `AudioSegment` pendientes. No hay un contador de "reservado" que pueda desincronizarse si un worker muere a mitad de un job.
@@ -280,7 +292,7 @@ Una solicitud de audio se acepta si `Chapter.character_count ≤ remaining` y el
 | `Book` | `(slug)` único | Resolver `/libros/:slug` de la biblioteca pública. |
 | `Book` | `(is_public)` | Listar la biblioteca pública (RF-21). |
 | `Book` | `(owner_id, source_hash)` | Detectar que un usuario sube el mismo libro dos veces. |
-| `Book` | `(pipeline_version)` | Encontrar libros a reprocesar. |
+| `Book` | `(pipeline_version)` | Encontrar libros a reprocesar (`pnpm reprocess:books`). |
 | `Chapter` | `(book_id, order_index)` | Recuperar capítulos de un libro en orden. |
 | `AudioSegment` | `(chapter_id, voice_id)` único | Un audio por capítulo y voz. |
 | `AudioSegment` | `(requested_by, status)` | Límite de concurrencia y cálculo de reserva (RF-23, RF-24). |

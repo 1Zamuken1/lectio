@@ -4,6 +4,10 @@ import type {
   BookStatus,
   BookSummary,
   ProcessedBookData,
+  ReprocessData,
+  ReprocessResult,
+  ReprocessTarget,
+  StaleBook,
 } from './model.js';
 
 export interface BookRepository {
@@ -35,6 +39,14 @@ export interface BookRepository {
   /** Reemplaza los capítulos y deja el libro `ready` (idempotente: un reintento no duplica). */
   saveProcessed(id: string, data: ProcessedBookData): Promise<void>;
   markError(id: string, code: string, message: string): Promise<void>;
+  /** Libros listos con una versión del pipeline anterior a `version` (opcionalmente, solo esos ids). */
+  listStale(version: number, ids?: string[]): Promise<StaleBook[]>;
+  findReprocessTarget(id: string): Promise<ReprocessTarget | null>;
+  /**
+   * Reemplaza el contenido de un libro ya listo sin cambiar los ids de los capítulos que
+   * se conservan (ver ChapterPlan); el libro sigue `ready` durante todo el proceso.
+   */
+  applyReprocess(id: string, data: ReprocessData): Promise<ReprocessResult>;
   /** ¿Hay audio pending/processing en algún capítulo? */
   hasActiveAudio(id: string): Promise<boolean>;
   delete(id: string): Promise<void>;
@@ -43,6 +55,8 @@ export interface BookRepository {
 /** Productor de la cola book-processing (la API encola; el worker procesa). */
 export interface BookProcessingQueue {
   enqueue(bookId: string): Promise<void>;
+  /** Reprocesar un libro ya listo con la versión actual del pipeline. */
+  enqueueReprocess(bookId: string): Promise<void>;
 }
 
 export const BOOK_REPOSITORY = Symbol('BOOK_REPOSITORY');

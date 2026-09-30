@@ -62,4 +62,5 @@ export {
 // Audio (etapas 10 y 11): troceado para el TTS y alineación. Sin red: el proveedor es un puerto.
 export { buildAlignment, buildChunks, type AudioChunk } from './audio/chunks.js';
 export { alignVoiceUnits, buildVoiceUnits, type PauseKind, type VoiceUnit } from './audio/units.js';
+export { narrationFingerprint } from './audio/fingerprint.js';
 export type { Alignment, TtsBoundary, TtsProvider, TtsResult } from './audio/tts.js';

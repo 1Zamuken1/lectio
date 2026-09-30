@@ -5,6 +5,8 @@ export interface ChapterContext {
   id: string;
   bookId: string;
   characterCount: number;
+  /** Huella de la narración vigente; null si el capítulo es de antes de que existiera. */
+  narrationHash: string | null;
   book: { ownerId: string | null; isPublic: boolean; language: string | null };
 }
 
@@ -17,6 +19,10 @@ export interface AudioSegmentRecord {
   status: AudioStatus;
   provider: string | null;
   prosodyKey: string | null;
+  /** Huella de la narración con que se generó (null: audio de antes de que existiera). */
+  narrationHash: string | null;
+  /** false = regeneración gratis por un cambio de narración: al terminar no se cobra. */
+  billable: boolean;
   audioKey: string | null;
   alignmentKey: string | null;
   durationMs: number | null;
@@ -47,6 +53,8 @@ export interface UsageSnapshot {
 export interface GeneratedAudio {
   provider: string;
   prosodyKey: string;
+  /** Huella de las oraciones que se sintetizaron (las que leyó el worker al empezar). */
+  narrationHash: string;
   audioKey: string;
   alignmentKey: string;
   durationMs: number;

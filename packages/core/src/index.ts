@@ -46,4 +46,9 @@ export {
   PublicCatalogService,
   type PublishedBook,
 } from './modules/books/application/public-catalog.service.js';
+export { BookReprocessingModule } from './modules/books/book-reprocessing.module.js';
+export {
+  ReprocessBookService,
+  type ReprocessOutcome,
+} from './modules/books/application/reprocess-book.service.js';
 export { SystemAudioService } from './modules/audio/application/system-audio.service.js';

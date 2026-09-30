@@ -123,6 +123,7 @@ Dos colas separadas, cada una con su propio processor:
 | Cola | Job | Disparado por | Actualiza |
 |---|---|---|---|
 | `book-processing` | Pipeline completo del EPUB (etapas 1–9) | Subida de un libro (RF-03 a RF-06, RF-13 a RF-16) | `Book.status`, `Book.processing_report`, crea `Chapter[]` |
+| `book-processing` (job `reprocess`) | El mismo pipeline sobre un libro ya listo, con la versión actual | `pnpm reprocess:books` (proceso interno) | `Chapter[]` en su lugar, `Book.pipeline_version`; marca obsoleto el audio cuya narración cambió |
 | `audio-generation` | Chunking, síntesis y alineación de un capítulo (etapas 10–11) | Solicitud de audio (RF-10 a RF-12, RF-22 a RF-24) | `AudioSegment`, `TtsUsageLog`, `User.total_characters_processed` |
 
 **Por qué colas separadas:** tienen perfiles de carga distintos. Parsear un EPUB es rápido y local; sintetizar audio depende de un servicio externo y puede fallar o reintentar. Separarlas evita que un cuello de botella en TTS bloquee el procesamiento de libros nuevos.
@@ -151,12 +152,52 @@ Worker (book-processing):
 ```
 
 ```
+Flujo de reprocesamiento (libros ready con pipeline_version < PIPELINE_VERSION):
+
+pnpm reprocess:books [--books id,id] [--dry-run] [--inline]
+   → lista los libros ready con una versión anterior
+   → encola un job "reprocess" por libro (id "reprocess-<libro>-v<versión>": repetirlo no duplica),
+     o con --inline lo procesa en el mismo proceso (como seed:public)
+
+Worker (book-processing, job reprocess):
+   → el libro sigue "ready" y se puede leer todo el tiempo (no pasa por processing)
+   → descarga el EPUB original (source_key) y corre processEpub con la versión actual
+       · si falla (PipelineError o sin EPUB): el libro queda como estaba, con su versión
+         anterior; se registra en el log y nunca pasa a "error"
+   → sube portada e imágenes (claves por hash de la ruta: las mismas se sobrescriben)
+   → empareja los capítulos nuevos con los guardados por título, respetando el orden (LCS):
+       · misma estructura (mismo orden y títulos): todos conservan su id
+       · si no: los emparejados conservan su id; los demás se crean o se quitan
+   → transacción con el libro bloqueado (SELECT … FOR UPDATE), que verifica que siga ready
+     y con la versión leída (si no, otro proceso se adelantó y no se hace nada):
+       · si hay audio pending/processing en un capítulo que se quitaría → se posterga
+         (se vuelve a correr el script más tarde)
+       · el audio sin huella de narración (anterior a esta función) recibe la de la
+         narración guardada, así la comparación con la nueva es justa
+       · actualiza en su lugar los capítulos conservados (content_html, sentences,
+         narration_hash…); crea los nuevos; mueve el progreso de los quitados al capítulo
+         que ocupa su posición (oración 0); borra los quitados (su audio en cascada; el
+         TtsUsageLog queda con chapter_id = null, así el consumo del mes no cambia)
+       · recorta sentence_index si un capítulo conservado tiene ahora menos oraciones
+       · actualiza Book: pipeline_version, metadatos, processing_report
+   → borra del storage los archivos del audio de los capítulos quitados
+   → libro público: vuelve a encolar como sistema el audio que ya tenía y cuya narración
+     cambió (sin cuota; nadie más puede pedirlo). En libros privados no se regenera ni se
+     cobra nada solo: el audio queda obsoleto y el usuario lo regenera gratis (§2.4)
+```
+
+**Por qué el audio obsoleto se decide por huella y no por versión:** una versión nueva del pipeline suele cambiar pocas oraciones (la regla de la tilde de "ó" toca unos cuantos capítulos de un libro). `Chapter.narration_hash` resume exactamente lo que se envía a TTS (oraciones narradas, su bloque, su narración y sus tramos de voz) y cada `AudioSegment` guarda la huella de las oraciones con que se generó; solo el audio cuya huella difiere queda obsoleto. Corregir el HTML de lectura no obliga a regenerar la voz.
+
+```
 Flujo de generación de audio:
 
 Usuario → POST /chapters/:id/audio
    → verifica acceso al libro (propietario) y que no sea un libro público (403)
    → transacción con bloqueo por usuario (SELECT … FROM users … FOR UPDATE):
-       · si ya existe audio "ready" con el perfil vigente → 409; si está pending/processing → 200
+       · si ya existe audio "ready" con el perfil y la narración vigentes → 409; si está pending/processing → 200
+       · si el "ready" quedó obsoleto porque cambió la narración (reprocesamiento): se regenera
+         gratis (billable = false, reserved_characters = 0, sin chequeo de cuota; la
+         concurrencia sí cuenta)
        · segmentos pending/processing del usuario < N  (si no → 429 AUDIO_CONCURRENCY_LIMIT)
        · character_count ≤ quota − consumed − reserved  (si no → 429 TTS_QUOTA_EXCEEDED)
        · crea AudioSegment (status = "pending", reserved_characters = character_count),
@@ -172,8 +213,10 @@ Worker (audio-generation):
        · fallo de una unidad → se reintenta esa unidad, no el capítulo
    → monta el MP3 con las pausas de Lectio y calcula la alineación exacta por oración
    → sube audio + alignment.json (FileStorage)
-   → transacción: AudioSegment "ready" (audio_url, alignment_url, duration_ms, provider)
+   → transacción: AudioSegment "ready" (audio_url, alignment_url, duration_ms, provider,
+                  narration_hash de las oraciones que leyó al empezar)
                   + TtsUsageLog + incremento de User.total_characters_processed
+                  (solo si se cobra: con solicitante y billable)
    → fallo definitivo (tras AUDIO_JOB_ATTEMPTS intentos): status = "error" con
      reserved_characters = 0; la reserva deja de contar porque sale de pending/processing
 ```
@@ -236,7 +279,7 @@ Una PWA que se usa a diario no puede pedir login cada vez que expira el token. E
 
 ### 1.11 Caché HTTP de capítulos
 
-El contenido de un capítulo solo cambia si el libro se reprocesa (`pipeline_version`). `GET /chapters/:id` responde con:
+El contenido de un capítulo solo cambia si el libro se reprocesa (`pipeline_version`; los capítulos que se conservan mantienen su id, §1.5). `GET /chapters/:id` responde con:
 - `ETag` derivado de `chapterId + pipelineVersion`.
 - `Cache-Control: private, no-cache` (el navegador guarda la respuesta, pero la revalida).
 
@@ -463,7 +506,11 @@ Borra también sus archivos del storage (EPUB, portada, imágenes y audio).
 { "chapterId": "uuid", "voiceId": "salome", "status": "processing" }
 ```
 
-Cada voz es un audio distinto (`AudioSegment` por capítulo y voz): cambiar a una voz ya generada es instantáneo, y pedir otra voz cobra de nuevo los caracteres. Si el perfil de voz cambió desde que se generó (`outdated: true` en el GET), se puede volver a pedir.
+Cada voz es un audio distinto (`AudioSegment` por capítulo y voz): cambiar a una voz ya generada es instantáneo, y pedir otra voz cobra de nuevo los caracteres. Si el audio quedó obsoleto (`outdated: true` en el GET), se puede volver a pedir:
+- `outdatedReason: "voice"`: cambió el perfil de voz. Regenerarlo se cobra como cualquier solicitud.
+- `outdatedReason: "narration"`: el libro se reprocesó y cambió lo que se narra en el capítulo. Es una corrección de Lectio, no consumo del usuario: regenerarlo es **gratis** (`quota.remaining` no baja, no hay `TtsUsageLog`), aunque cuenta para el límite de concurrencia. Si cambiaron las dos cosas, manda `narration`.
+
+Mientras no se regenera, el audio obsoleto se sigue pudiendo escuchar. Si el reprocesamiento cambió la segmentación de oraciones, el resaltado puede no coincidir del todo; con correcciones de narración (como la de la tilde) coincide.
 
 Errores:
 ```json
@@ -496,7 +543,7 @@ Errores:
   "chapterId": "uuid", "voiceId": "salome", "status": "processing",
   "progress": { "done": 42, "total": 180 },
   "audioUrl": null, "alignmentUrl": null, "expiresAt": null,
-  "durationMs": null, "provider": null, "outdated": false
+  "durationMs": null, "provider": null, "outdated": false, "outdatedReason": null
 }
 // Response 200 (listo)
 {
@@ -504,7 +551,7 @@ Errores:
   "audioUrl": "/api/v1/media?key=...&exp=...&sig=...",
   "alignmentUrl": "/api/v1/media?key=...&exp=...&sig=...",
   "expiresAt": "2026-09-28T13:10:00.000Z",
-  "durationMs": 245310, "provider": "edge", "outdated": false
+  "durationMs": 245310, "provider": "edge", "outdated": false, "outdatedReason": null
 }
 // status: none | pending | processing | ready | error
 // progress cuenta unidades de voz (oraciones o tramos de diálogo); total es 0 hasta que el worker lo toma.

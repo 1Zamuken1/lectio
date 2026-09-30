@@ -10,6 +10,7 @@ import {
   PublicBookAudioError,
   TtsQuotaExceededError,
 } from '../domain/errors.js';
+import { outdatedReason, type OutdatedReason } from '../domain/freshness.js';
 import type { AudioSegmentRecord, AudioStatus, ChapterContext } from '../domain/model.js';
 import {
   AUDIO_GENERATION_QUEUE,
@@ -36,8 +37,10 @@ export interface AudioState {
   expiresAt: Date | null;
   durationMs: number | null;
   provider: string | null;
-  /** El perfil de voz cambió desde que se generó: se puede volver a pedir. */
+  /** El perfil de voz o la narración cambiaron desde que se generó: se puede volver a pedir. */
   outdated: boolean;
+  /** Por qué está obsoleto; con `narration`, regenerarlo no gasta cuota. */
+  outdatedReason: OutdatedReason | null;
 }
 
 export interface Usage {
@@ -76,15 +79,24 @@ export class AudioService {
       if (existing?.status === 'pending' || existing?.status === 'processing') {
         return { created: false as const, status: existing.status };
       }
-      if (existing?.status === 'ready' && existing.prosodyKey === voice.prosodyKey) {
-        throw new AudioAlreadyExistsError();
-      }
+      const reason =
+        existing?.status === 'ready'
+          ? outdatedReason(existing, {
+              prosodyKey: voice.prosodyKey,
+              narrationHash: chapter.narrationHash,
+            })
+          : null;
+      if (existing?.status === 'ready' && reason === null) throw new AudioAlreadyExistsError();
+      // El libro se reprocesó y cambió lo que se narra: es una corrección de Lectio, así que
+      // regenerar el audio que el usuario ya tenía no le cuesta cuota (sí cuenta para la
+      // concurrencia: pasa por la misma cola).
+      const billable = reason !== 'narration';
       const usage = await scope.usage(periodStart);
       if (usage.active >= this.config.AUDIO_MAX_PER_USER) {
         throw new AudioConcurrencyLimitError(this.config.AUDIO_MAX_PER_USER);
       }
       const remaining = remainingQuota(usage);
-      if (chapter.characterCount > remaining) {
+      if (billable && chapter.characterCount > remaining) {
         throw new TtsQuotaExceededError({
           required: chapter.characterCount,
           remaining,
@@ -96,8 +108,10 @@ export class AudioService {
         voiceId: voice.id,
         userId,
         characters: chapter.characterCount,
+        billable,
       });
-      return { created: true as const, segment, remaining: remaining - chapter.characterCount };
+      const charged = billable ? chapter.characterCount : 0;
+      return { created: true as const, segment, remaining: remaining - charged };
     });
 
     if (!outcome.created) {
@@ -124,7 +138,12 @@ export class AudioService {
     assertCanRead(userId, chapter.book);
     const voice = pickVoice(voiceId, chapter.book.language);
     const segment = await this.audio.findSegment(chapter.id, voice.id);
-    return this.#toState(chapterId, voice.id, voice.prosodyKey, segment);
+    return this.#toState(
+      chapterId,
+      voice.id,
+      { prosodyKey: voice.prosodyKey, narrationHash: chapter.narrationHash },
+      segment,
+    );
   }
 
   async usage(userId: string): Promise<Usage> {
@@ -150,7 +169,7 @@ export class AudioService {
   #toState(
     chapterId: string,
     voiceId: string,
-    prosodyKey: string,
+    current: { prosodyKey: string; narrationHash: string | null },
     segment: AudioSegmentRecord | null,
   ): AudioState {
     const base: AudioState = {
@@ -164,6 +183,7 @@ export class AudioService {
       durationMs: null,
       provider: null,
       outdated: false,
+      outdatedReason: null,
     };
     if (!segment) return base;
     if (segment.status === 'pending' || segment.status === 'processing') {
@@ -171,6 +191,7 @@ export class AudioService {
     }
     if (segment.status !== 'ready' || !segment.audioKey || !segment.alignmentKey) return base;
     const audio = this.signer.sign(segment.audioKey);
+    const reason = outdatedReason(segment, current);
     return {
       ...base,
       audioUrl: audio.url,
@@ -178,7 +199,8 @@ export class AudioService {
       expiresAt: audio.expiresAt,
       durationMs: segment.durationMs,
       provider: segment.provider,
-      outdated: segment.prosodyKey !== prosodyKey,
+      outdated: reason !== null,
+      outdatedReason: reason,
     };
   }
 }

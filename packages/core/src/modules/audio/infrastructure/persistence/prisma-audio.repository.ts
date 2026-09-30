@@ -10,6 +10,7 @@ import type {
   GenerationInput,
   UsageSnapshot,
 } from '../../domain/model.js';
+import { narrationChanged } from '../../domain/freshness.js';
 import type { AudioRepository, LockedAudioScope } from '../../domain/ports.js';
 
 const SEGMENT = {
@@ -20,6 +21,8 @@ const SEGMENT = {
   status: true,
   provider: true,
   prosodyKey: true,
+  narrationHash: true,
+  billable: true,
   audioKey: true,
   alignmentKey: true,
   durationMs: true,
@@ -46,6 +49,7 @@ export class PrismaAudioRepository implements AudioRepository {
         id: true,
         bookId: true,
         characterCount: true,
+        narrationHash: true,
         book: { select: { ownerId: true, isPublic: true, language: true } },
       },
     });
@@ -62,11 +66,12 @@ export class PrismaAudioRepository implements AudioRepository {
       return work({
         usage: (periodStart) => this.#usage(tx, userId, periodStart),
         findSegment: (chapterId, voiceId) => findSegment(tx, chapterId, voiceId),
-        reserve: ({ chapterId, voiceId, userId: requestedById, characters }) => {
+        reserve: ({ chapterId, voiceId, userId: requestedById, characters, billable }) => {
           const fresh = {
             requestedById,
             status: 'pending' as const,
-            reservedCharacters: characters,
+            billable,
+            reservedCharacters: billable ? characters : 0,
             unitsDone: 0,
             unitsTotal: 0,
             errorMessage: null,
@@ -96,12 +101,22 @@ export class PrismaAudioRepository implements AudioRepository {
     voiceId: string,
     prosodyKey: string,
   ): Promise<AudioSegmentRecord | null> {
-    const existing = await findSegment(this.prisma, chapterId, voiceId);
+    const [existing, chapter] = await Promise.all([
+      findSegment(this.prisma, chapterId, voiceId),
+      this.prisma.chapter.findUnique({ where: { id: chapterId }, select: { narrationHash: true } }),
+    ]);
     if (existing && (ACTIVE as readonly string[]).includes(existing.status)) return null;
-    if (existing?.status === 'ready' && existing.prosodyKey === prosodyKey) return null;
+    if (
+      existing?.status === 'ready' &&
+      existing.prosodyKey === prosodyKey &&
+      !narrationChanged(existing.narrationHash, chapter?.narrationHash ?? null)
+    ) {
+      return null;
+    }
     const fresh = {
       requestedById: null,
       status: 'pending' as const,
+      billable: true,
       reservedCharacters: 0,
       unitsDone: 0,
       unitsTotal: 0,
@@ -113,6 +128,24 @@ export class PrismaAudioRepository implements AudioRepository {
       update: { ...fresh, retryCount: { increment: 1 } },
       select: SEGMENT,
     });
+  }
+
+  async outdatedSystemAudio(
+    bookId: string,
+  ): Promise<Array<{ chapterId: string; voiceId: string }>> {
+    const rows = await this.prisma.audioSegment.findMany({
+      where: { requestedById: null, status: 'ready', chapter: { bookId } },
+      select: {
+        chapterId: true,
+        voiceId: true,
+        narrationHash: true,
+        chapter: { select: { narrationHash: true } },
+      },
+      orderBy: [{ chapter: { orderIndex: 'asc' } }, { voiceId: 'asc' }],
+    });
+    return rows
+      .filter((row) => narrationChanged(row.narrationHash, row.chapter.narrationHash))
+      .map(({ chapterId, voiceId }) => ({ chapterId, voiceId }));
   }
 
   usage(userId: string, periodStart: Date): Promise<UsageSnapshot> {
@@ -187,7 +220,13 @@ export class PrismaAudioRepository implements AudioRepository {
     return this.prisma.$transaction(async (tx) => {
       const segment = await tx.audioSegment.findUnique({
         where: { id: segmentId },
-        select: { status: true, requestedById: true, chapterId: true, voiceId: true },
+        select: {
+          status: true,
+          requestedById: true,
+          billable: true,
+          chapterId: true,
+          voiceId: true,
+        },
       });
       if (segment?.status !== 'processing') return false;
       await tx.audioSegment.update({
@@ -199,8 +238,9 @@ export class PrismaAudioRepository implements AudioRepository {
           errorMessage: null,
         },
       });
-      // El audio del sistema (libros públicos) no tiene a quién cobrarle.
-      if (segment.requestedById) {
+      // El audio del sistema (libros públicos) no tiene a quién cobrarle, y la regeneración
+      // por un cambio de narración (reprocesamiento) no se cobra.
+      if (segment.requestedById && segment.billable) {
         await tx.ttsUsageLog.create({
           data: {
             userId: segment.requestedById,
