@@ -42,7 +42,7 @@ describe('sortBooks', () => {
     book('leyendo', {
       title: 'Ñandú',
       createdAt: '2025-01-01T00:00:00Z',
-      progress: { chapterOrder: 1, totalChapters: 10, mode: 'reading' },
+      progress: { chapterOrder: 1, chapterNumber: 2, totalChapters: 10, mode: 'reading' },
     }),
   ];
 

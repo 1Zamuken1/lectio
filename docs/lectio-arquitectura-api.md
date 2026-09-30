@@ -329,11 +329,13 @@ El pipeline corre en el worker, fuera de la petición: el cliente consulta `GET 
     "isPublic": false,
     "slug": null,
     "createdAt": "2026-09-28T15:45:23Z",
-    "progress": { "chapterOrder": 3, "totalChapters": 12, "mode": "listening" }
+    "progress": { "chapterOrder": 5, "chapterNumber": 3, "totalChapters": 12, "mode": "listening" }
   }
 ]
 // Del más reciente al más antiguo. coverUrl es null si el libro no tiene portada.
 // progress es null si aún no empiezas el libro; chapterOrder es el orderIndex del capítulo actual.
+// chapterNumber y totalChapters cuentan solo capítulos narrativos ("Cap. 3 de 12"): la portada,
+// la dedicatoria o las notas no son capítulos. chapterNumber es 0 si aún vas en los preliminares.
 ```
 
 **`GET /api/v1/books/public`**: biblioteca pública (sesión opcional)

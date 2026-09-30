@@ -25,7 +25,15 @@ export interface BookSummary {
   slug: string | null;
   createdAt: Date;
   /** Dónde va el usuario (solo en su biblioteca); null si no lo abrió todavía. */
-  progress?: { chapterOrder: number; totalChapters: number; mode: 'reading' | 'listening' } | null;
+  progress?: {
+    /** orderIndex del capítulo actual (para abrir el lector en él). */
+    chapterOrder: number;
+    /** Su número entre los capítulos narrativos (0 si aún está en los preliminares). */
+    chapterNumber: number;
+    /** Capítulos narrativos del libro. */
+    totalChapters: number;
+    mode: 'reading' | 'listening';
+  } | null;
 }
 
 export interface ChapterSummary {

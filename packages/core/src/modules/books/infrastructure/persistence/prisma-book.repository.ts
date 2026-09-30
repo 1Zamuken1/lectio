@@ -103,7 +103,6 @@ export class PrismaBookRepository implements BookRepository {
       where,
       select: {
         ...SUMMARY,
-        _count: { select: { chapters: true } },
         readingProgress: {
           // Sin sesión no hay progreso que mostrar: un id que no existe no trae filas.
           where: { userId: userId ?? '00000000-0000-0000-0000-000000000000' },
@@ -112,14 +111,29 @@ export class PrismaBookRepository implements BookRepository {
       },
       orderBy,
     });
-    return rows.map(({ _count, readingProgress, ...row }) => {
+    // "Cap. 3 de 12" cuenta solo capítulos narrativos (portada, dedicatoria y notas no son
+    // capítulos): se traen sus posiciones, solo de los libros empezados.
+    const started = rows.filter((r) => r.readingProgress.length > 0).map((r) => r.id);
+    const narrative = new Map<string, number[]>();
+    if (started.length > 0) {
+      const chapters = await this.prisma.chapter.findMany({
+        where: { bookId: { in: started }, kind: 'narrative' },
+        select: { bookId: true, orderIndex: true },
+      });
+      for (const { bookId, orderIndex } of chapters) {
+        narrative.set(bookId, [...(narrative.get(bookId) ?? []), orderIndex]);
+      }
+    }
+    return rows.map(({ readingProgress, ...row }) => {
       const [progress] = readingProgress;
+      const orders = narrative.get(row.id) ?? [];
       return {
         ...toSummary(row),
         progress: progress
           ? {
               chapterOrder: progress.chapter.orderIndex,
-              totalChapters: _count.chapters,
+              chapterNumber: orders.filter((o) => o <= progress.chapter.orderIndex).length,
+              totalChapters: orders.length,
               mode: progress.mode,
             }
           : null,

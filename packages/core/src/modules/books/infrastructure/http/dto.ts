@@ -16,7 +16,17 @@ export class LibraryProgressDto {
   @ApiProperty({ example: 4, description: 'orderIndex del capítulo actual.' })
   chapterOrder!: number;
 
-  @ApiProperty({ example: 27 })
+  @ApiProperty({
+    example: 3,
+    description:
+      'Número del capítulo actual entre los narrativos ("Cap. 3 de 22"); 0 si aún está en los preliminares.',
+  })
+  chapterNumber!: number;
+
+  @ApiProperty({
+    example: 22,
+    description: 'Capítulos narrativos (sin portada, dedicatoria ni notas).',
+  })
   totalChapters!: number;
 
   @ApiProperty({ enum: ['reading', 'listening'] })

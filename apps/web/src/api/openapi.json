@@ -13,9 +13,7 @@
             "description": "Alguna dependencia no responde."
           }
         },
-        "tags": [
-          "health"
-        ]
+        "tags": ["health"]
       }
     },
     "/api/v1/auth/register": {
@@ -51,9 +49,7 @@
           }
         },
         "summary": "Crea una cuenta",
-        "tags": [
-          "auth"
-        ]
+        "tags": ["auth"]
       }
     },
     "/api/v1/auth/login": {
@@ -90,9 +86,7 @@
           }
         },
         "summary": "Inicia sesión",
-        "tags": [
-          "auth"
-        ]
+        "tags": ["auth"]
       }
     },
     "/api/v1/auth/refresh": {
@@ -121,9 +115,7 @@
           }
         ],
         "summary": "Renueva la sesión",
-        "tags": [
-          "auth"
-        ]
+        "tags": ["auth"]
       }
     },
     "/api/v1/auth/logout": {
@@ -141,9 +133,7 @@
           }
         ],
         "summary": "Cierra la sesión actual",
-        "tags": [
-          "auth"
-        ]
+        "tags": ["auth"]
       }
     },
     "/api/v1/users/me": {
@@ -171,9 +161,7 @@
           }
         ],
         "summary": "La cuenta de la sesión actual",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     },
     "/api/v1/books": {
@@ -187,9 +175,7 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "file"
-                ],
+                "required": ["file"],
                 "properties": {
                   "file": {
                     "type": "string",
@@ -225,9 +211,7 @@
           }
         ],
         "summary": "Sube un EPUB",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       },
       "get": {
         "description": "Tus libros y los públicos que empezaste a leer.",
@@ -254,9 +238,7 @@
           }
         ],
         "summary": "Tu biblioteca, del más reciente al más antiguo",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/public": {
@@ -285,9 +267,7 @@
           }
         ],
         "summary": "Biblioteca pública, por título",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/public/{slug}": {
@@ -325,9 +305,7 @@
           }
         ],
         "summary": "Detalle de un libro público por su slug",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/{id}": {
@@ -368,9 +346,7 @@
           }
         ],
         "summary": "Detalle de un libro con sus capítulos",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       },
       "delete": {
         "operationId": "BooksController_remove",
@@ -401,9 +377,7 @@
           }
         ],
         "summary": "Borra un libro con sus capítulos, audio y progreso",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/{id}/report": {
@@ -430,9 +404,7 @@
           }
         ],
         "summary": "Reporte del pipeline: clasificación, limpieza y advertencias",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/{id}/cover": {
@@ -459,9 +431,7 @@
           }
         ],
         "summary": "Portada del libro",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/books/{id}/resources": {
@@ -497,9 +467,7 @@
           }
         ],
         "summary": "Imagen de un capítulo",
-        "tags": [
-          "books"
-        ]
+        "tags": ["books"]
       }
     },
     "/api/v1/chapters/{id}": {
@@ -556,9 +524,7 @@
           }
         ],
         "summary": "Contenido de un capítulo para leer",
-        "tags": [
-          "chapters"
-        ]
+        "tags": ["chapters"]
       }
     },
     "/api/v1/books/{id}/progress": {
@@ -606,9 +572,7 @@
           }
         ],
         "summary": "Guarda la posición en el libro",
-        "tags": [
-          "progress"
-        ]
+        "tags": ["progress"]
       },
       "get": {
         "operationId": "ReadingProgressController_get",
@@ -640,9 +604,7 @@
           }
         ],
         "summary": "Posición actual en el libro (o el inicio si no hay)",
-        "tags": [
-          "progress"
-        ]
+        "tags": ["progress"]
       }
     },
     "/api/v1/chapters/{id}/audio": {
@@ -709,9 +671,7 @@
           }
         ],
         "summary": "Pide el audio de un capítulo con una voz",
-        "tags": [
-          "audio"
-        ]
+        "tags": ["audio"]
       },
       "get": {
         "description": "Con status ready trae las URL firmadas del MP3 y de la alineación; mientras se genera, el progreso. Sin sesión solo en libros públicos.",
@@ -753,9 +713,7 @@
           }
         ],
         "summary": "Estado del audio de un capítulo con una voz",
-        "tags": [
-          "audio"
-        ]
+        "tags": ["audio"]
       }
     },
     "/api/v1/media": {
@@ -803,9 +761,7 @@
           }
         },
         "summary": "Audio o alineación con URL firmada",
-        "tags": [
-          "audio"
-        ]
+        "tags": ["audio"]
       }
     },
     "/api/v1/voices": {
@@ -839,9 +795,7 @@
           }
         },
         "summary": "Voces disponibles, con su muestra",
-        "tags": [
-          "voices"
-        ]
+        "tags": ["voices"]
       }
     },
     "/api/v1/voices/{id}/sample": {
@@ -863,9 +817,7 @@
           }
         },
         "summary": "Muestra de unos segundos de una voz",
-        "tags": [
-          "voices"
-        ]
+        "tags": ["voices"]
       }
     },
     "/api/v1/users/me/usage": {
@@ -891,9 +843,7 @@
           }
         ],
         "summary": "Consumo de TTS de este mes",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     }
   },
@@ -934,10 +884,7 @@
             "maxLength": 128
           }
         },
-        "required": [
-          "email",
-          "password"
-        ]
+        "required": ["email", "password"]
       },
       "UserDto": {
         "type": "object",
@@ -951,10 +898,7 @@
             "example": "lectora@example.com"
           }
         },
-        "required": [
-          "id",
-          "email"
-        ]
+        "required": ["id", "email"]
       },
       "LoginResponseDto": {
         "type": "object",
@@ -972,11 +916,7 @@
             "$ref": "#/components/schemas/UserDto"
           }
         },
-        "required": [
-          "accessToken",
-          "expiresIn",
-          "user"
-        ]
+        "required": ["accessToken", "expiresIn", "user"]
       },
       "AccessTokenDto": {
         "type": "object",
@@ -991,10 +931,7 @@
             "description": "Segundos hasta que vence."
           }
         },
-        "required": [
-          "accessToken",
-          "expiresIn"
-        ]
+        "required": ["accessToken", "expiresIn"]
       },
       "MeDto": {
         "type": "object",
@@ -1012,11 +949,7 @@
             "format": "date-time"
           }
         },
-        "required": [
-          "id",
-          "email",
-          "createdAt"
-        ]
+        "required": ["id", "email", "createdAt"]
       },
       "UploadResponseDto": {
         "type": "object",
@@ -1027,15 +960,10 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending"
-            ]
+            "enum": ["pending"]
           }
         },
-        "required": [
-          "id",
-          "status"
-        ]
+        "required": ["id", "status"]
       },
       "LibraryProgressDto": {
         "type": "object",
@@ -1045,23 +973,22 @@
             "example": 4,
             "description": "orderIndex del capítulo actual."
           },
+          "chapterNumber": {
+            "type": "number",
+            "example": 3,
+            "description": "Número del capítulo actual entre los narrativos (\"Cap. 3 de 22\"); 0 si aún está en los preliminares."
+          },
           "totalChapters": {
             "type": "number",
-            "example": 27
+            "example": 22,
+            "description": "Capítulos narrativos (sin portada, dedicatoria ni notas)."
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "reading",
-              "listening"
-            ]
+            "enum": ["reading", "listening"]
           }
         },
-        "required": [
-          "chapterOrder",
-          "totalChapters",
-          "mode"
-        ]
+        "required": ["chapterOrder", "chapterNumber", "totalChapters", "mode"]
       },
       "BookSummaryDto": {
         "type": "object",
@@ -1087,12 +1014,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "processing",
-              "ready",
-              "error"
-            ],
+            "enum": ["pending", "processing", "ready", "error"],
             "description": "pending → processing → ready | error"
           },
           "errorCode": {
@@ -1151,18 +1073,10 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "processing",
-              "ready",
-              "error"
-            ]
+            "enum": ["pending", "processing", "ready", "error"]
           }
         },
-        "required": [
-          "voiceId",
-          "status"
-        ]
+        "required": ["voiceId", "status"]
       },
       "ChapterSummaryDto": {
         "type": "object",
@@ -1180,9 +1094,7 @@
             "example": "-I- Perdido"
           },
           "ancestors": {
-            "example": [
-              "Capítulos"
-            ],
+            "example": ["Capítulos"],
             "description": "Niveles superiores del índice.",
             "type": "array",
             "items": {
@@ -1191,12 +1103,7 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "narrative",
-              "front_matter",
-              "back_matter",
-              "notes"
-            ],
+            "enum": ["narrative", "front_matter", "back_matter", "notes"],
             "description": "Por defecto el cliente muestra solo narrative."
           },
           "characterCount": {
@@ -1249,12 +1156,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "processing",
-              "ready",
-              "error"
-            ],
+            "enum": ["pending", "processing", "ready", "error"],
             "description": "pending → processing → ready | error"
           },
           "errorCode": {
@@ -1340,13 +1242,7 @@
             "description": "false = la oración no se narra (número de página, cita…)."
           }
         },
-        "required": [
-          "index",
-          "blockIndex",
-          "start",
-          "end",
-          "narrated"
-        ]
+        "required": ["index", "blockIndex", "start", "end", "narrated"]
       },
       "NoteDto": {
         "type": "object",
@@ -1360,10 +1256,7 @@
             "example": "<p>…</p>"
           }
         },
-        "required": [
-          "id",
-          "html"
-        ]
+        "required": ["id", "html"]
       },
       "ChapterDto": {
         "type": "object",
@@ -1390,12 +1283,7 @@
           },
           "kind": {
             "type": "string",
-            "enum": [
-              "narrative",
-              "front_matter",
-              "back_matter",
-              "notes"
-            ]
+            "enum": ["narrative", "front_matter", "back_matter", "notes"]
           },
           "contentHtml": {
             "type": "string",
@@ -1440,10 +1328,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "reading",
-              "listening"
-            ]
+            "enum": ["reading", "listening"]
           },
           "clientUpdatedAt": {
             "type": "string",
@@ -1452,12 +1337,7 @@
             "description": "Cuándo estuvo el usuario en esa posición (no cuándo se envía)."
           }
         },
-        "required": [
-          "chapterId",
-          "sentenceIndex",
-          "mode",
-          "clientUpdatedAt"
-        ]
+        "required": ["chapterId", "sentenceIndex", "mode", "clientUpdatedAt"]
       },
       "PositionDto": {
         "type": "object",
@@ -1472,10 +1352,7 @@
           },
           "mode": {
             "type": "string",
-            "enum": [
-              "reading",
-              "listening"
-            ]
+            "enum": ["reading", "listening"]
           },
           "clientUpdatedAt": {
             "type": "string",
@@ -1483,12 +1360,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "chapterId",
-          "sentenceIndex",
-          "mode",
-          "clientUpdatedAt"
-        ]
+        "required": ["chapterId", "sentenceIndex", "mode", "clientUpdatedAt"]
       },
       "SaveProgressResponseDto": {
         "type": "object",
@@ -1510,9 +1382,7 @@
             ]
           }
         },
-        "required": [
-          "applied"
-        ]
+        "required": ["applied"]
       },
       "RequestAudioDto": {
         "type": "object",
@@ -1532,9 +1402,7 @@
             "example": 181550
           }
         },
-        "required": [
-          "remaining"
-        ]
+        "required": ["remaining"]
       },
       "AudioRequestResponseDto": {
         "type": "object",
@@ -1549,10 +1417,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "pending",
-              "processing"
-            ]
+            "enum": ["pending", "processing"]
           },
           "quota": {
             "description": "Solo al crear la solicitud (202).",
@@ -1563,11 +1428,7 @@
             ]
           }
         },
-        "required": [
-          "chapterId",
-          "voiceId",
-          "status"
-        ]
+        "required": ["chapterId", "voiceId", "status"]
       },
       "AudioProgressDto": {
         "type": "object",
@@ -1583,10 +1444,7 @@
             "description": "0 mientras el worker no lo toma."
           }
         },
-        "required": [
-          "done",
-          "total"
-        ]
+        "required": ["done", "total"]
       },
       "AudioStateDto": {
         "type": "object",
@@ -1601,13 +1459,7 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "none",
-              "pending",
-              "processing",
-              "ready",
-              "error"
-            ]
+            "enum": ["none", "pending", "processing", "ready", "error"]
           },
           "progress": {
             "nullable": true,
@@ -1687,13 +1539,7 @@
             "example": "/api/v1/voices/gonzalo/sample"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "language",
-          "isDefault",
-          "sampleUrl"
-        ]
+        "required": ["id", "name", "language", "isDefault", "sampleUrl"]
       },
       "UsageDto": {
         "type": "object",

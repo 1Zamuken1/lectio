@@ -174,7 +174,7 @@ describe('catálogo público', () => {
       expect.objectContaining({
         id: book.id,
         isPublic: true,
-        progress: { chapterOrder: 1, totalChapters: 2, mode: 'listening' },
+        progress: { chapterOrder: 1, chapterNumber: 2, totalChapters: 2, mode: 'listening' },
       }),
     ]);
     // La otra cuenta no lo empezó: ni en su biblioteca ni con progreso en el catálogo.

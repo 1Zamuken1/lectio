@@ -1,4 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { PIPELINE_VERSION } from '../../../packages/epub-pipeline/src/process.js';
+import { buildEpub } from '../../../packages/epub-pipeline/test/helpers/build-epub.js';
 import { createTestApp, signUp, waitForBook, type TestApp } from './helpers/test-app.js';
 import { PNG, sampleEpub } from './helpers/sample-epub.js';
 
@@ -58,7 +60,7 @@ describe('GET /chapters/:id', () => {
       .set('Authorization', lectora)
       .expect(200);
     const etag = first.headers.etag as string;
-    expect(etag).toMatch(/^".+\.p1"$/);
+    expect(etag).toMatch(new RegExp(`^".+\\.p${PIPELINE_VERSION}"$`));
     expect(first.headers['cache-control']).toBe('private, no-cache');
 
     const again = await t.http
@@ -251,8 +253,46 @@ describe('progreso de lectura', () => {
     const library = await t.http.get('/api/v1/books').set('Authorization', lectora).expect(200);
     expect(library.body[0].progress).toEqual({
       chapterOrder: 1,
+      chapterNumber: 2,
       totalChapters: 2,
       mode: 'listening',
+    });
+  });
+
+  it('"Cap. X de Y" cuenta solo los capítulos narrativos', async () => {
+    const { body } = await t.http
+      .post('/api/v1/books')
+      .set('Authorization', lectora)
+      .attach(
+        'file',
+        await buildEpub({
+          metadata: { title: 'Con dedicatoria', language: 'es' },
+          chapters: [
+            { id: 'd', title: 'Dedicatoria', body: '<p>A quien lea.</p>' },
+            { id: 'a', title: 'Capítulo uno', body: '<p>Había una vez un jardín.</p>' },
+            { id: 'b', title: 'Capítulo dos', body: '<p>Y después llovió.</p>' },
+          ],
+        }),
+        'dedicatoria.epub',
+      )
+      .expect(202);
+    const withFrontMatter = (await waitForBook(t, lectora, body.id)) as unknown as typeof book;
+    const save = (chapterId: string) =>
+      t.http
+        .put(`/api/v1/books/${withFrontMatter.id}/progress`)
+        .set('Authorization', lectora)
+        .send({ chapterId, sentenceIndex: 0, mode: 'reading', clientUpdatedAt: at(9) })
+        .expect(200);
+    const progressOf = async () =>
+      (await t.http.get('/api/v1/books').set('Authorization', lectora)).body.find(
+        (b: { id: string }) => b.id === withFrontMatter.id,
+      ).progress;
+
+    await save(withFrontMatter.chapters[1]!.id);
+    expect(await progressOf()).toMatchObject({
+      chapterOrder: 1,
+      chapterNumber: 1,
+      totalChapters: 2,
     });
   });
 
