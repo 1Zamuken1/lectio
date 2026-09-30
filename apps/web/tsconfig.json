@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Navegador, empaquetado por Vite: sin tipos de Node en el código de la app.
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["vite/client"],
+    "jsx": "react-jsx",
+    // El motor de pixel art, los íconos y el sonido son JS portado de la CLI: sus tipos
+    // vienen del .d.ts de al lado.
+    "allowJs": false,
+    "declaration": false,
+    "sourceMap": false,
+    "noEmit": true
+  },
+  "include": ["src", "test"]
+}

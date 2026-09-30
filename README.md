@@ -72,7 +72,7 @@ La API y el worker corren como procesos separados sobre Postgres y Redis (`docs/
 cp .env.example .env     # y cambia JWT_SECRET por un secreto largo y aleatorio
 pnpm db:up               # Postgres 17 y Redis 7 en contenedores (docker compose up -d)
 pnpm db:migrate          # aplica las migraciones de Prisma
-pnpm dev                 # API en http://localhost:3000/api/v1 y el worker
+pnpm dev                 # la app en http://localhost:5173, la API en :3000/api/v1 y el worker
 ```
 
 La documentación interactiva de la API (OpenAPI) queda en http://localhost:3000/api/docs.

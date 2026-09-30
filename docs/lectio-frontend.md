@@ -39,14 +39,15 @@ Android con Chrome soporta todo lo anterior. En iOS (Safari, PWA añadida a pant
 
 | Necesidad | Elección | Motivo |
 |---|---|---|
-| Framework | **React + React Router v7 (modo framework), sobre Vite** | Mantiene Vite (como ya prevé la documentación) y permite **prerenderizar** rutas concretas. Resuelve el SEO de la biblioteca pública (RF-21) sin montar un servidor de SSR. |
+| Framework | **React + React Router v8 (modo data), sobre Vite** | Cliente puro de la API. Se eligió el modo data (`createBrowserRouter`) y no el modo framework: v8 salió con cambios que conviene evaluar antes de depender de su compilador. El **prerender** de la biblioteca pública (RF-21) se resuelve en la fase 7, junto con la PWA. |
 | PWA / Service Worker | `vite-plugin-pwa` (Workbox) | Precarga del app shell, estrategias de caché declarativas, soporte de `Range` para audio (ver §6.3). |
 | Estado del servidor | TanStack Query | Caché, reintentos y **polling** del estado de procesamiento y de generación de audio. |
 | Estado del reproductor | Zustand | Estado global pequeño y fuera del árbol de rutas: el audio sigue sonando al navegar. |
 | Almacenamiento local | IndexedDB (vía `idb`) + Cache Storage | Capítulos descargados, alineaciones y cola de progreso pendiente de sincronizar. |
 | Sanitización (defensa en profundidad) | DOMPurify | El backend ya sanitiza `content_html`; se vuelve a sanitizar al renderizar. |
-| Estilos | Tailwind CSS | Rápido de iterar; temas claro/oscuro/sepia con variables CSS. |
-| Tipos | `packages/shared` | Mismos DTOs que la API, sin duplicar. |
+| Estilos | **CSS propio con variables** | El arte pixel y los temas ya están hechos así en la CLI (tokens, `scriptorium.css`); en una interfaz tan ilustrada, Tailwind aportaba poco. |
+| Tipos | **Generados del OpenAPI de la API** (`openapi-typescript`) | `pnpm --filter @lectio/web api:types` exporta el documento sin levantar la API (Nest en modo preview) y genera `src/api/schema.d.ts`. Un test de `apps/api` falla si el contrato cambió y no se regeneró. |
+| Fuentes | **Autoalojadas** (`@fontsource`) | Literata, Atkinson Hyperlegible y Pixelify Sans sin depender de Google Fonts; funcionan sin conexión en la PWA. |
 
 **Alternativa válida:** Next.js (App Router). Más conocido en ofertas laborales, pero trae su propia capa de servidor (server actions, rutas de API) que se superpone con NestJS y enturbia la separación backend/frontend que el proyecto quiere mostrar. Con React Router el frontend es un cliente puro de la API.
 
@@ -80,6 +81,29 @@ Resultado: el frontend completo se despliega como **sitio estático** (Cloudflar
 | Seguimiento del audio | Resalta la oración que suena y hace scroll solo; si el usuario hace scroll, el seguimiento se pausa y aparece "Volver a la oración actual". |
 | Oración que suena | **Fondo azul tinta suave** (en el tema oscuro, azul oscuro). |
 | Marcas de revisión (preview) | Sutiles y activables: por defecto se lee como un libro; en "modo revisión" se ve qué se omite, las notas y el anuncio de cada capítulo. |
+
+## 2.3 La app sobre la API (fase 6, decidido el 28-09-2026)
+
+La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el sonido de la CLI (portados como módulos ES) y sus hojas de estilo; la CLI conserva su copia para el uso sin conexión (`lectio serve`).
+
+| Tema | Decisión |
+|---|---|
+| Entrada sin cuenta | La pantalla de título lleva a la **biblioteca pública**: se lee y se escucha sin registrarse. La celda y subir libros piden entrar. |
+| Dos salas | La pública es la **gran biblioteca del monasterio** (estanterías altas, vitrales, atril); la personal es tu **celda de copista** (tu estante, escritorio y ventana). Se pasa por una **puerta con fundido**, o con el botón de la barra. |
+| Entrar y crear cuenta | Un **pergamino que baja desenrollándose** con dos sellos de lacre como pestañas ("Entrar" / "Crear cuenta"). En Clásico es una tarjeta sobria. |
+| Sesión | El refresh es **invisible y coordinado entre pestañas**: Web Locks lo serializa (dos pestañas con la misma cookie parecerían una reutilización y la API revocaría la familia) y BroadcastChannel reparte el token nuevo, el login y el logout. Si el refresh falla, el pergamino aparece encima **sin cortar el audio ni perder la posición**. |
+| Subir un EPUB | Botón "Añadir libro" y, además, **soltar el archivo en cualquier parte de la sala**. |
+| Celda vacía | El estante con un **libro en blanco** "Añade tu primer libro" y una línea sobre EPUB sin DRM; el búho lo señala. |
+| Libro procesándose | La cuadrilla del taller (el monje y sus aprendices) **va a buscar un libro gigante y lo trae** a su hueco, en tono ligeramente cómico; la tarjeta dice "Preparando…". |
+| Libro con error | El libro **se quema o se desvanece** y **renace de las cenizas con magia** convertido en una tarjeta con el mensaje en lenguaje simple (por `errorCode`: DRM, archivo dañado…) y el botón de borrar. |
+| Abrir un libro | Su **ficha en el atril**: portada, autor, capítulos, progreso y "Continuar" / "Empezar". |
+| Lector y reproductor | **Se portan tal cual** del preview (reproductor de dos filas, voces, velocidad, taller); solo cambia de dónde salen los datos. |
+| Progreso del audio | El taller llena el pergamino con el **done/total real** del worker. |
+| Costo del audio | Se genera directo; **solo si el capítulo gasta más de ~5 % de la cuota del mes**, se confirma antes. La cuota se muestra **junto al botón de generar**. |
+| Temas | Scriptorium y Clásico. Bosque y Solarpunk llegan después sobre la misma base. |
+| Alcance | La app en línea completa. La PWA instalable y el modo sin conexión (§6.3, §6.4) quedan para la fase 7. |
+
+Las imágenes de libros privados (portadas, ilustraciones) no se pueden pedir con un `<img src>`: el navegador no manda la cabecera `Authorization`. Se piden con el token y se muestran como blob; las de libros públicos van directo.
 
 ## 3. Pantallas
 

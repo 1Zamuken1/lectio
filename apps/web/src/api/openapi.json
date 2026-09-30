@@ -1,0 +1,1745 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "La API, Postgres y Redis responden."
+          },
+          "503": {
+            "description": "Alguna dependencia no responde."
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "EMAIL_TAKEN: ya existe una cuenta con ese correo."
+          },
+          "429": {
+            "description": "Demasiados intentos desde esta IP."
+          }
+        },
+        "summary": "Crea una cuenta",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "description": "Devuelve el access token y deja el refresh token en una cookie httpOnly.",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "INVALID_CREDENTIALS"
+          },
+          "429": {
+            "description": "Demasiados intentos desde esta IP."
+          }
+        },
+        "summary": "Inicia sesión",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "description": "Usa la cookie del refresh token (sin cuerpo), la rota y entrega un access token nuevo.",
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessTokenDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "INVALID_REFRESH_TOKEN o REFRESH_TOKEN_REUSED"
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Renueva la sesión",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "Sesión cerrada (también si ya lo estaba)."
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Cierra la sesión actual",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED: falta el access token o venció."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "La cuenta de la sesión actual",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/books": {
+      "post": {
+        "description": "Lo guarda y lo encola: el worker lo procesa en segundo plano. Consulta GET /books/:id hasta que status sea ready o error.",
+        "operationId": "BooksController_upload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Archivo .epub sin DRM"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "BOOK_ALREADY_EXISTS: ya lo subiste; incluye bookId."
+          },
+          "413": {
+            "description": "El archivo supera MAX_UPLOAD_MB."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Sube un EPUB",
+        "tags": [
+          "books"
+        ]
+      },
+      "get": {
+        "description": "Tus libros y los públicos que empezaste a leer.",
+        "operationId": "BooksController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Tu biblioteca, del más reciente al más antiguo",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/public": {
+      "get": {
+        "description": "Sin sesión. Con sesión, cada libro trae tu progreso.",
+        "operationId": "BooksController_listPublic",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookSummaryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Biblioteca pública, por título",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/public/{slug}": {
+      "get": {
+        "description": "Sin sesión.",
+        "operationId": "BooksController_publicBySlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "BOOK_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Detalle de un libro público por su slug",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/{id}": {
+      "get": {
+        "description": "Sin sesión solo para libros públicos.",
+        "operationId": "BooksController_detail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDetailDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "BOOK_FORBIDDEN: es de otra persona."
+          },
+          "404": {
+            "description": "BOOK_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Detalle de un libro con sus capítulos",
+        "tags": [
+          "books"
+        ]
+      },
+      "delete": {
+        "operationId": "BooksController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "403": {
+            "description": "BOOK_FORBIDDEN"
+          },
+          "409": {
+            "description": "BOOK_BUSY: hay audio generándose."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Borra un libro con sus capítulos, audio y progreso",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/{id}/report": {
+      "get": {
+        "operationId": "BooksController_report",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "El reporte tal como lo guarda el pipeline (null si aún no termina)."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reporte del pipeline: clasificación, limpieza y advertencias",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/{id}/cover": {
+      "get": {
+        "operationId": "BooksController_cover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "COVER_NOT_FOUND: el libro no tiene portada."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Portada del libro",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/books/{id}/resources": {
+      "get": {
+        "description": "path es la ruta que aparece en el HTML del capítulo (la del EPUB).",
+        "operationId": "BooksController_resource",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "example": "OEBPS/img/figura.png"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "RESOURCE_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Imagen de un capítulo",
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/v1/chapters/{id}": {
+      "get": {
+        "description": "Con If-None-Match igual al ETag responde 304 sin cuerpo: el capítulo no se vuelve a descargar. Sin sesión solo en libros públicos.",
+        "operationId": "ChaptersController_read",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "headers": {
+              "ETag": {
+                "description": "Versión del capítulo"
+              }
+            },
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterDto"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "No cambió desde el ETag enviado."
+          },
+          "403": {
+            "description": "BOOK_FORBIDDEN"
+          },
+          "404": {
+            "description": "CHAPTER_NOT_FOUND"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Contenido de un capítulo para leer",
+        "tags": [
+          "chapters"
+        ]
+      }
+    },
+    "/api/v1/books/{id}/progress": {
+      "put": {
+        "description": "Gana el clientUpdatedAt más reciente: si ya había uno posterior (de otro dispositivo), no se sobrescribe y se devuelve la posición vigente.",
+        "operationId": "ReadingProgressController_save",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveProgressDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaveProgressResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "CHAPTER_NOT_IN_BOOK, SENTENCE_OUT_OF_RANGE, CLIENT_TIME_IN_FUTURE o VALIDATION_FAILED"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Guarda la posición en el libro",
+        "tags": [
+          "progress"
+        ]
+      },
+      "get": {
+        "operationId": "ReadingProgressController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Posición actual en el libro (o el inicio si no hay)",
+        "tags": [
+          "progress"
+        ]
+      }
+    },
+    "/api/v1/chapters/{id}/audio": {
+      "post": {
+        "description": "Reserva los caracteres del capítulo de la cuota mensual y lo encola; consulta GET hasta que status sea ready. Si ya se está generando, responde 200 con el estado (idempotente).",
+        "operationId": "AudioController_request",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestAudioDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ya se estaba generando.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioRequestResponseDto"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Encolado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioRequestResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VOICE_NOT_AVAILABLE (incluye available)"
+          },
+          "403": {
+            "description": "BOOK_FORBIDDEN o PUBLIC_BOOK_AUDIO"
+          },
+          "409": {
+            "description": "AUDIO_ALREADY_EXISTS"
+          },
+          "429": {
+            "description": "AUDIO_CONCURRENCY_LIMIT (incluye limit) o TTS_QUOTA_EXCEEDED (incluye required, remaining y resetsAt)"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pide el audio de un capítulo con una voz",
+        "tags": [
+          "audio"
+        ]
+      },
+      "get": {
+        "description": "Con status ready trae las URL firmadas del MP3 y de la alineación; mientras se genera, el progreso. Sin sesión solo en libros públicos.",
+        "operationId": "AudioController_state",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "voice",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "gonzalo",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudioStateDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Estado del audio de un capítulo con una voz",
+        "tags": [
+          "audio"
+        ]
+      }
+    },
+    "/api/v1/media": {
+      "get": {
+        "description": "No usa la sesión: el permiso va en la URL (la entrega GET /chapters/:id/audio). Admite Range.",
+        "operationId": "MediaController_media",
+        "parameters": [
+          {
+            "name": "Range",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "bytes=0-"
+            }
+          },
+          {
+            "name": "sig",
+            "required": true,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "exp",
+            "required": true,
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "key",
+            "required": true,
+            "in": "query",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "El archivo completo."
+          },
+          "206": {
+            "description": "El tramo pedido con Range."
+          },
+          "403": {
+            "description": "MEDIA_URL_INVALID o MEDIA_URL_EXPIRED"
+          }
+        },
+        "summary": "Audio o alineación con URL firmada",
+        "tags": [
+          "audio"
+        ]
+      }
+    },
+    "/api/v1/voices": {
+      "get": {
+        "description": "La de por defecto primero.",
+        "operationId": "VoicesController_list",
+        "parameters": [
+          {
+            "name": "language",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "es",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VoiceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Voces disponibles, con su muestra",
+        "tags": [
+          "voices"
+        ]
+      }
+    },
+    "/api/v1/voices/{id}/sample": {
+      "get": {
+        "operationId": "VoicesController_sample",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "VOICE_NOT_FOUND o VOICE_SAMPLE_NOT_READY"
+          }
+        },
+        "summary": "Muestra de unos segundos de una voz",
+        "tags": [
+          "voices"
+        ]
+      }
+    },
+    "/api/v1/users/me/usage": {
+      "get": {
+        "description": "remaining = quota − consumed − reserved. La cuota se reinicia el día 1 (UTC).",
+        "operationId": "UsageController_usage",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consumo de TTS de este mes",
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Lectio API",
+    "description": "Biblioteca de EPUB que se leen y se escuchan con voz neuronal, sincronizados por oración.",
+    "version": "1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "lectio_refresh"
+      }
+    },
+    "schemas": {
+      "CredentialsDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "lectora@example.com",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "example": "una frase larga y fácil de recordar",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "example": "lectora@example.com"
+          }
+        },
+        "required": [
+          "id",
+          "email"
+        ]
+      },
+      "LoginResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT para la cabecera Authorization: Bearer. Guárdalo en memoria."
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 900,
+            "description": "Segundos hasta que vence."
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresIn",
+          "user"
+        ]
+      },
+      "AccessTokenDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "JWT para la cabecera Authorization: Bearer. Guárdalo en memoria."
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 900,
+            "description": "Segundos hasta que vence."
+          }
+        },
+        "required": [
+          "accessToken",
+          "expiresIn"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "example": "lectora@example.com"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "createdAt"
+        ]
+      },
+      "UploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ]
+      },
+      "LibraryProgressDto": {
+        "type": "object",
+        "properties": {
+          "chapterOrder": {
+            "type": "number",
+            "example": 4,
+            "description": "orderIndex del capítulo actual."
+          },
+          "totalChapters": {
+            "type": "number",
+            "example": 27
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reading",
+              "listening"
+            ]
+          }
+        },
+        "required": [
+          "chapterOrder",
+          "totalChapters",
+          "mode"
+        ]
+      },
+      "BookSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "example": "Marianela"
+          },
+          "author": {
+            "type": "string",
+            "nullable": true,
+            "example": "Benito Pérez Galdós"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "example": "es"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "error"
+            ],
+            "description": "pending → processing → ready | error"
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Si status = error: DRM_PROTECTED, INVALID_ARCHIVE, NO_TEXT_CONTENT…"
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "/api/v1/books/<id>/cover"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Del catálogo público de Lectio (sin dueño, no se puede borrar)."
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "example": "marianela",
+            "description": "Solo libros públicos: /libros/:slug."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "progress": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LibraryProgressDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "author",
+          "language",
+          "status",
+          "errorCode",
+          "coverUrl",
+          "isPublic",
+          "slug",
+          "createdAt"
+        ]
+      },
+      "ChapterAudioDto": {
+        "type": "object",
+        "properties": {
+          "voiceId": {
+            "type": "string",
+            "example": "gonzalo"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "error"
+            ]
+          }
+        },
+        "required": [
+          "voiceId",
+          "status"
+        ]
+      },
+      "ChapterSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderIndex": {
+            "type": "number",
+            "example": 4
+          },
+          "title": {
+            "type": "string",
+            "example": "-I- Perdido"
+          },
+          "ancestors": {
+            "example": [
+              "Capítulos"
+            ],
+            "description": "Niveles superiores del índice.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "narrative",
+              "front_matter",
+              "back_matter",
+              "notes"
+            ],
+            "description": "Por defecto el cliente muestra solo narrative."
+          },
+          "characterCount": {
+            "type": "number",
+            "description": "Caracteres de narración (lo que cuenta para la cuota)."
+          },
+          "sentenceCount": {
+            "type": "number"
+          },
+          "audio": {
+            "description": "Audio pedido para este capítulo, por voz.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterAudioDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "orderIndex",
+          "title",
+          "ancestors",
+          "kind",
+          "characterCount",
+          "sentenceCount",
+          "audio"
+        ]
+      },
+      "BookDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "example": "Marianela"
+          },
+          "author": {
+            "type": "string",
+            "nullable": true,
+            "example": "Benito Pérez Galdós"
+          },
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "example": "es"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "ready",
+              "error"
+            ],
+            "description": "pending → processing → ready | error"
+          },
+          "errorCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Si status = error: DRM_PROTECTED, INVALID_ARCHIVE, NO_TEXT_CONTENT…"
+          },
+          "coverUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "/api/v1/books/<id>/cover"
+          },
+          "isPublic": {
+            "type": "boolean",
+            "description": "Del catálogo público de Lectio (sin dueño, no se puede borrar)."
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "example": "marianela",
+            "description": "Solo libros públicos: /libros/:slug."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "progress": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LibraryProgressDto"
+              }
+            ]
+          },
+          "pipelineVersion": {
+            "type": "number",
+            "nullable": true
+          },
+          "chapters": {
+            "description": "Vacío hasta que el libro está ready.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "author",
+          "language",
+          "status",
+          "errorCode",
+          "coverUrl",
+          "isPublic",
+          "slug",
+          "createdAt",
+          "pipelineVersion",
+          "chapters"
+        ]
+      },
+      "SentenceDto": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number",
+            "description": "Clave de sincronización entre lectura y audio."
+          },
+          "blockIndex": {
+            "type": "number",
+            "description": "Bloque del HTML (atributo data-b); -1 = anuncio del capítulo."
+          },
+          "start": {
+            "type": "number",
+            "description": "Inicio [start, end) dentro del texto del bloque."
+          },
+          "end": {
+            "type": "number"
+          },
+          "narrated": {
+            "type": "boolean",
+            "description": "false = la oración no se narra (número de página, cita…)."
+          }
+        },
+        "required": [
+          "index",
+          "blockIndex",
+          "start",
+          "end",
+          "narrated"
+        ]
+      },
+      "NoteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "fn3"
+          },
+          "html": {
+            "type": "string",
+            "example": "<p>…</p>"
+          }
+        },
+        "required": [
+          "id",
+          "html"
+        ]
+      },
+      "ChapterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bookId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "orderIndex": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "ancestors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "narrative",
+              "front_matter",
+              "back_matter",
+              "notes"
+            ]
+          },
+          "contentHtml": {
+            "type": "string",
+            "description": "HTML sanitizado: bloques con data-b, llamadas a nota como <a data-lectio-note>, imágenes con la ruta del EPUB (ver GET /books/:id/resources)."
+          },
+          "sentences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SentenceDto"
+            }
+          },
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoteDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "bookId",
+          "orderIndex",
+          "title",
+          "ancestors",
+          "kind",
+          "contentHtml",
+          "sentences",
+          "notes"
+        ]
+      },
+      "SaveProgressDto": {
+        "type": "object",
+        "properties": {
+          "chapterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sentenceIndex": {
+            "type": "number",
+            "example": 143,
+            "description": "Índice de la oración (Chapter.sentences[].index)."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reading",
+              "listening"
+            ]
+          },
+          "clientUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-28T09:58:12Z",
+            "description": "Cuándo estuvo el usuario en esa posición (no cuándo se envía)."
+          }
+        },
+        "required": [
+          "chapterId",
+          "sentenceIndex",
+          "mode",
+          "clientUpdatedAt"
+        ]
+      },
+      "PositionDto": {
+        "type": "object",
+        "properties": {
+          "chapterId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "sentenceIndex": {
+            "type": "number"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "reading",
+              "listening"
+            ]
+          },
+          "clientUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "chapterId",
+          "sentenceIndex",
+          "mode",
+          "clientUpdatedAt"
+        ]
+      },
+      "SaveProgressResponseDto": {
+        "type": "object",
+        "properties": {
+          "applied": {
+            "type": "boolean",
+            "description": "false: había un progreso más reciente (de otro dispositivo)."
+          },
+          "clientUpdatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current": {
+            "description": "La posición vigente, si no se aplicó.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PositionDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "applied"
+        ]
+      },
+      "RequestAudioDto": {
+        "type": "object",
+        "properties": {
+          "voiceId": {
+            "type": "string",
+            "example": "gonzalo",
+            "description": "Perfil de voz (GET /voices). Si se omite, el de por defecto del idioma del libro."
+          }
+        }
+      },
+      "QuotaDto": {
+        "type": "object",
+        "properties": {
+          "remaining": {
+            "type": "number",
+            "example": 181550
+          }
+        },
+        "required": [
+          "remaining"
+        ]
+      },
+      "AudioRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "chapterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "voiceId": {
+            "type": "string",
+            "example": "gonzalo"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing"
+            ]
+          },
+          "quota": {
+            "description": "Solo al crear la solicitud (202).",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QuotaDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "chapterId",
+          "voiceId",
+          "status"
+        ]
+      },
+      "AudioProgressDto": {
+        "type": "object",
+        "properties": {
+          "done": {
+            "type": "number",
+            "example": 42,
+            "description": "Unidades de voz sintetizadas."
+          },
+          "total": {
+            "type": "number",
+            "example": 180,
+            "description": "0 mientras el worker no lo toma."
+          }
+        },
+        "required": [
+          "done",
+          "total"
+        ]
+      },
+      "AudioStateDto": {
+        "type": "object",
+        "properties": {
+          "chapterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "voiceId": {
+            "type": "string",
+            "example": "gonzalo"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "none",
+              "pending",
+              "processing",
+              "ready",
+              "error"
+            ]
+          },
+          "progress": {
+            "nullable": true,
+            "description": "Solo en pending/processing.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AudioProgressDto"
+              }
+            ]
+          },
+          "audioUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL firmada; admite Range (206)."
+          },
+          "alignmentUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "URL firmada del alignment.json."
+          },
+          "expiresAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "Vencimiento de las URL."
+          },
+          "durationMs": {
+            "type": "number",
+            "nullable": true,
+            "example": 245310
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true,
+            "example": "edge"
+          },
+          "outdated": {
+            "type": "boolean",
+            "description": "El perfil de voz cambió desde que se generó; se puede pedir de nuevo."
+          }
+        },
+        "required": [
+          "chapterId",
+          "voiceId",
+          "status",
+          "progress",
+          "audioUrl",
+          "alignmentUrl",
+          "expiresAt",
+          "durationMs",
+          "provider",
+          "outdated"
+        ]
+      },
+      "VoiceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "gonzalo"
+          },
+          "name": {
+            "type": "string",
+            "example": "Gonzalo"
+          },
+          "language": {
+            "type": "string",
+            "example": "es"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "La que se usa si no se elige ninguna."
+          },
+          "sampleUrl": {
+            "type": "string",
+            "example": "/api/v1/voices/gonzalo/sample"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "language",
+          "isDefault",
+          "sampleUrl"
+        ]
+      },
+      "UsageDto": {
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resetsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "quota": {
+            "type": "number",
+            "example": 300000
+          },
+          "consumed": {
+            "type": "number",
+            "example": 99790,
+            "description": "Cobrado este mes (audio ya generado)."
+          },
+          "reserved": {
+            "type": "number",
+            "example": 18660,
+            "description": "Reservado por el audio que se está generando."
+          },
+          "remaining": {
+            "type": "number",
+            "example": 181550
+          },
+          "totalCharactersProcessed": {
+            "type": "number",
+            "example": 84213,
+            "description": "Histórico, desde que existe la cuenta."
+          }
+        },
+        "required": [
+          "periodStart",
+          "resetsAt",
+          "quota",
+          "consumed",
+          "reserved",
+          "remaining",
+          "totalCharactersProcessed"
+        ]
+      }
+    }
+  }
+}

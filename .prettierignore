@@ -8,3 +8,7 @@ PLAN-implementacion-pipeline.md
 .scratch/
 # Cliente de Prisma generado
 packages/core/src/generated/
+
+# Tipos de la app generados desde el OpenAPI de la API (pnpm --filter @lectio/web api:types)
+apps/web/src/api/openapi.json
+apps/web/src/api/schema.d.ts

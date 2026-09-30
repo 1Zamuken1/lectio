@@ -26,7 +26,13 @@ export async function createApp(options: { logger?: false } = {}): Promise<INest
     exposedHeaders: ['ETag', 'Content-Range', 'Accept-Ranges', 'Content-Length'],
   });
 
-  const openApi = new DocumentBuilder()
+  SwaggerModule.setup('api/docs', app, () => SwaggerModule.createDocument(app, openApiConfig()));
+  return app;
+}
+
+/** Metadatos del documento OpenAPI (los usan /api/docs y el export para apps/web). */
+export function openApiConfig() {
+  return new DocumentBuilder()
     .setTitle('Lectio API')
     .setDescription(
       'Biblioteca de EPUB que se leen y se escuchan con voz neuronal, sincronizados por oración.',
@@ -35,6 +41,4 @@ export async function createApp(options: { logger?: false } = {}): Promise<INest
     .addBearerAuth()
     .addCookieAuth('lectio_refresh')
     .build();
-  SwaggerModule.setup('api/docs', app, () => SwaggerModule.createDocument(app, openApi));
-  return app;
 }

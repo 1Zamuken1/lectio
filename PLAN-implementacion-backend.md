@@ -109,7 +109,10 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ### Fase 6: el lector sobre la API
 
-- [ ] El lector y la biblioteca actuales pasan a consumir la API: login y registro, subir EPUB desde la biblioteca, capítulos por demanda, audio y progreso del servidor. El taller de copistas usa el progreso real del job.
+- [ ] El lector y la biblioteca actuales pasan a consumir la API: login y registro, subir EPUB desde la biblioteca, capítulos por demanda, audio y progreso del servidor. El taller de copistas usa el progreso real del job. Diseño decidido en `docs/lectio-frontend.md` §2.3. Por etapas:
+  - [x] 1. Base: `apps/web` (React, React Router, TanStack Query), tipos generados del OpenAPI, sesión coordinada entre pestañas (Web Locks + BroadcastChannel, con tests), temas portados, pantalla de título, biblioteca pública, celda y pergamino de entrada.
+  - [ ] 2. Las salas: biblioteca del monasterio y celda con su arte, puerta con fundido, ficha en el atril, subir y soltar, la cuadrilla que trae el libro y el libro que arde y renace.
+  - [ ] 3. Lector y reproductor sobre la API: capítulos, imágenes, audio con voces, costo, taller con progreso real y progreso de lectura.
 - [ ] `lectio serve` queda para uso sin conexión (la CLI sigue funcionando sola).
 - [ ] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
 

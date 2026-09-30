@@ -17,7 +17,7 @@
     "corpus:download": "node scripts/download-corpus.mjs",
     "lectio": "pnpm --silent --filter @lectio/cli dev",
     "serve": "pnpm --silent --filter @lectio/cli dev serve",
-    "dev": "turbo run dev --filter=@lectio/api --filter=@lectio/worker",
+    "dev": "turbo run dev --filter=@lectio/api --filter=@lectio/worker --filter=@lectio/web",
     "test:integration": "turbo run test:integration",
     "db:migrate": "pnpm --filter @lectio/core db:migrate",
     "db:up": "docker compose up -d",
