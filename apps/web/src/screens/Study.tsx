@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { ApiError } from '../api/client';
 import { isPreparing, keys, useLibrary, type BookSummary } from '../api/queries';
 import { useApi, useSession } from '../app/context';
 import { useAuthPrompt } from '../auth/auth-prompt';
@@ -145,10 +146,11 @@ export function Study() {
               ) : undefined
             }
           >
-            {book.status === 'error' && (
+            {/* Tus libros se pueden quitar (los públicos que empezaste, no: son del catálogo). */}
+            {!book.isPublic && !isPreparing(book) && (
               <button
                 type="button"
-                className="open-book"
+                className={book.status === 'error' ? 'open-book' : 'lectern-remove'}
                 onClick={() => {
                   close();
                   removal.remove(book);
@@ -263,7 +265,13 @@ function useUndoableRemoval(notify: (text: string, action?: Notice['action']) =>
     timers.current.delete(id);
     void api
       .delete(`/api/v1/books/${id}`)
-      .catch(() => notify('No pude quitarlo: inténtalo otra vez.'))
+      .catch((error: unknown) =>
+        notify(
+          error instanceof ApiError && error.code === 'BOOK_BUSY'
+            ? 'Hay audio generándose para ese libro: espera a que termine y vuelve a quitarlo.'
+            : 'No pude quitarlo: inténtalo otra vez.',
+        ),
+      )
       .finally(() => {
         void client.invalidateQueries({ queryKey: keys.library(userId) });
         forget(id);

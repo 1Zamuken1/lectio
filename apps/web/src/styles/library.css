@@ -1921,3 +1921,20 @@ body[data-screen='library'] #app {
 .shelf {
   position: relative;
 }
+
+/* Quitar un libro desde el atril: discreto, bajo "Continuar". */
+.lectern-remove {
+  margin-top: 0.25rem;
+  padding: 0.2rem 0.4rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.lectern-remove:hover {
+  color: var(--accent);
+}
