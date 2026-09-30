@@ -126,7 +126,7 @@ Las imágenes de libros privados (portadas, ilustraciones) no se pueden pedir co
 | Espacio | Panel **"Descargas"** desde la barra (en las dos salas, porque sin cuenta también se descarga): espacio usado y disponible, libros con sus capítulos, borrar por capítulo, por libro o todo. |
 | Instalar | Botón discreto **"Instalar"** junto a la llave, solo cuando el navegador lo ofrece (Android, escritorio). En iPhone, un globo del búho explica "Compartir → Añadir a inicio" **una sola vez**. |
 | Versión nueva | Aviso pequeño **"Nueva versión"** con "Actualizar". Nunca recarga sola (no corta el audio ni la lectura); si no se toca, se aplica en la próxima apertura. |
-| Ícono | Un **libro abierto en pixel art sobre azul tinta**, con los colores del Scriptorium; legible a 48 px. |
+| Ícono | Un **libro abierto que flota sobre una mesa de encantamientos** (inspirada en la de Minecraft, no igual), en pixel art sobre azul tinta y con los colores del Scriptorium; legible a 48 px. |
 | Prerender | `/`, `/biblioteca` y `/libros/:slug`. La página de un libro lleva en el HTML **la ficha (título, autor, portada, índice) y el texto del primer capítulo narrativo**; al cargar, React toma el control y se ve igual que hoy. |
 
 ## 3. Pantallas

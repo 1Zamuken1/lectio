@@ -1,7 +1,9 @@
 /**
- * Íconos de la PWA: un libro abierto en pixel art sobre azul tinta (frontend §2.4).
+ * Íconos de la PWA (frontend §2.4): un libro abierto que flota sobre una mesa de
+ * encantamientos, en pixel art sobre azul tinta. Inspirado en la de Minecraft, con los
+ * colores del Scriptorium: paño bermellón, esquinas de oro y piedra oscura con motas.
  * Se dibujan desde la cuadrícula de abajo, sin dependencias: `pnpm --filter @lectio/web icons`
- * escribe los PNG y el SVG en `public/icons/`. Los colores son los del Scriptorium.
+ * escribe los PNG y el SVG en `public/icons/`.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { deflateSync, crc32 } from 'node:zlib';
@@ -11,50 +13,45 @@ const COLORS = {
   p: '#f2e4c4', // página
   s: '#d6bf94', // sombra junto al lomo
   t: '#8c7657', // renglones
-  g: '#d9a441', // tapa
+  g: '#d9a441', // tapa del libro y esquinas de la mesa
   G: '#a8792a', // canto de la tapa
-  r: '#9e2b25', // cinta
+  w: '#fff4c9', // destellos
+  l: '#7fb3dc', // chispas que caen del libro a la mesa
+  r: '#9e2b25', // paño de la mesa
+  R: '#6e1d18', // borde del paño
+  k: '#3b3a3e', // piedra de la mesa
+  v: '#6f6254', // motas de la piedra
 };
 const BACKGROUND = '#2f4f7a'; // azul tinta
 
-// Página izquierda y derecha (11 columnas cada una); el lomo es la costura "oo" del medio.
-const LEFT = [
-  '.ooooooooo.',
-  'gopppppppso',
-  'goptttttpso',
-  'gopppppppso',
-  'goptttttpso',
-  'gopppppppso',
-  'goptttpppso',
-  'gopppppppso',
-  'goptttttpso',
-  'gopppppppso',
-  'goptttttpso',
-  'gopppppppso',
-  'goooooooooo',
-  'GGGGGGGGGGG',
-  '...........',
-  '...........',
+// El libro arriba (con destellos), un hueco con chispas y la mesa abajo.
+const ART = [
+  '......w............w......',
+  '....oooooooo..oooooooo....',
+  'w..goppppppsoosppppppog...',
+  '...gopttttpsoospttttpog...',
+  '...goppppppsoosppppppog...',
+  '...gopttttpsoospttttpog..w',
+  '...goppppppsoosppppppog...',
+  '...goptttppsoosptttppog...',
+  '...goppppppsoosppppppog...',
+  '...goooooooooooooooooog...',
+  '...GGGGGGGGGGGGGGGGGGGG...',
+  '........l........l........',
+  '.....l......l.......l.....',
+  '..........................',
+  '....oooooooooooooooooo....',
+  '...ogrrrrrrrrrrrrrrrrgo...',
+  '..orrrrrrrrrrrrrrrrrrrro..',
+  '.orrrrrrrrrrrrrrrrrrrrrro.',
+  '.ogRRRRRRRRRRRRRRRRRRRRgo.',
+  '.okkkkkkkkkkkkkkkkkkkkkko.',
+  '.okvkkkkkkkkggkkkkkkkkvko.',
+  '.okkkkvkkkkggggkkkkvkkkko.',
+  '.okkvkkkkkkkggkkkkkkvkkko.',
+  '.okkkkkkkkkkkkkkkkkkkkkko.',
+  '.oooooooooooooooooooooooo.',
 ];
-const RIGHT = [
-  '.ooooooooo.',
-  'ospppppppog',
-  'osptttttpog',
-  'ospppppppog',
-  'osptttttpog',
-  'ospppppppog',
-  'osptttttpog',
-  'ospppppppog',
-  'osptttpppog',
-  'ospppppppog',
-  'osptttttpog',
-  'ospppprrpog',
-  'oooooorroog',
-  'GGGGGGrrGGG',
-  '......rr...',
-  '......r....',
-];
-const ART = LEFT.map((row, y) => row + RIGHT[y]);
 const ART_W = ART[0].length;
 const ART_H = ART.length;
 if (ART.some((row) => row.length !== ART_W)) throw new Error('Filas de distinto largo');
@@ -122,11 +119,11 @@ function svg() {
 
 // El "maskable" deja el dibujo dentro del círculo seguro (80 % del lado).
 const ICONS = [
-  ['icon-192.png', 192, 8],
-  ['icon-512.png', 512, 20],
-  ['maskable-192.png', 192, 5],
-  ['maskable-512.png', 512, 14],
-  ['apple-touch-icon.png', 180, 7],
+  ['icon-192.png', 192, 6],
+  ['icon-512.png', 512, 16],
+  ['maskable-192.png', 192, 4],
+  ['maskable-512.png', 512, 11],
+  ['apple-touch-icon.png', 180, 6],
 ];
 
 const dir = new URL('../public/icons/', import.meta.url);
