@@ -11,6 +11,8 @@ export declare const Pixel: {
   monasteryScene(): string;
   /** Tu estudio. */
   studyScene(): string;
+  /** El pie del atril bajo la ficha del libro. */
+  lecternStand(): string;
   /** El taller de copistas; `voice` elige la cuadrilla. */
   workshop(voice: string): string;
   owlBadge(): string;

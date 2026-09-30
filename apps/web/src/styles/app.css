@@ -329,3 +329,57 @@
   text-align: center;
   font-family: var(--font-read);
 }
+
+/* Provisional hasta la etapa 3: la página donde irá el lector. */
+.reader-soon {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--paper-sunken);
+}
+
+.reader-soon-page {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  width: min(34rem, 100%);
+  padding: 2rem 1.75rem;
+  text-align: center;
+  font-family: var(--font-read);
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+}
+
+.reader-soon-page h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+}
+
+.reader-soon-page p {
+  margin: 0;
+}
+
+.reader-soon-page .author,
+.reader-soon-chapter {
+  color: var(--ink-soft);
+}
+
+.reader-soon-chapter {
+  font-style: italic;
+}
+
+[data-world='scriptorium'] .reader-soon {
+  background: var(--px-ink);
+}
+
+[data-world='scriptorium'] .reader-soon-page {
+  border: 4px solid var(--px-ink);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--px-gold-d),
+    0 6px 0 rgb(0 0 0 / 30%);
+}

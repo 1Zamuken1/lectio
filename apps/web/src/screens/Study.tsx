@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
 import { isPreparing, useLibrary, type BookSummary } from '../api/queries';
 import { useSession } from '../app/context';
 import { useAuthPrompt } from '../auth/auth-prompt';
 import { Icon } from '../components/art';
 import { Topbar } from '../components/Topbar';
 import { bookErrorMessage } from '../library/book-messages';
-import { DetailCard, LibraryRoom } from '../library/LibraryRoom';
-import { progressLabel } from '../library/progress';
+import { Lectern } from '../library/Lectern';
+import { LibraryRoom } from '../library/LibraryRoom';
+import { progressLabel, readerHref } from '../library/progress';
 import { useGoThroughDoor } from '../library/room-door';
 import { BlankBook, DropVeil, useBookUpload, useFileDrop, useFilePicker } from '../library/upload';
 import { Sound } from '../theme/sound';
@@ -93,31 +93,20 @@ export function Study() {
               : 'Aquí va tu primer libro.'
         }
         renderDetail={(book, close) => (
-          <DetailCard
+          <Lectern
             book={book}
+            href={readerHref(book)}
             onClose={close}
-            stats={[
-              [
-                'Estado',
-                book.status === 'ready'
-                  ? 'Listo'
-                  : book.status === 'error'
-                    ? 'Con problemas'
-                    : 'Preparando',
-              ],
-              ['Tu lectura', progressLabel(book) ?? 'Sin empezar'],
-            ]}
-          >
-            {book.status === 'ready' && (
-              <Link
-                className="open-book"
-                to={`/leer/${book.id}`}
-                onClick={() => Sound.play('open')}
-              >
-                {book.progress ? 'Continuar' : 'Empezar'}
-              </Link>
-            )}
-          </DetailCard>
+            status={
+              isPreparing(book) ? (
+                <p className="lectern-note">
+                  Aún lo estoy preparando: en unos segundos aparecen aquí sus capítulos.
+                </p>
+              ) : book.status === 'error' ? (
+                <p className="lectern-note">{bookErrorMessage(book.errorCode)}</p>
+              ) : undefined
+            }
+          />
         )}
       />
       {picker.element}

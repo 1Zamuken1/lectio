@@ -1466,6 +1466,29 @@ function studyScene() {
   </svg>`;
 }
 
+/**
+ * El pie del atril donde se abre la ficha del libro: tablero inclinado con su moldura,
+ * columna torneada con nudo dorado y base en cruz. El libro (HTML) se apoya encima.
+ */
+function lecternStand() {
+  const c = canvas();
+  c.rect('ink', 0, 0, 96, 6);
+  c.rect('ink', 42, 6, 12, 26);
+  c.rect('ink', 38, 14, 20, 4);
+  c.rect('ink', 24, 32, 48, 6);
+  c.rect('wood', 1, 1, 94, 3);
+  c.rect('wood-l', 1, 1, 94, 1);
+  c.rect('wood-d', 1, 4, 94, 1);
+  c.rect('wood', 43, 6, 10, 26);
+  c.rect('wood-l', 44, 6, 1, 26);
+  c.rect('wood-d', 51, 6, 1, 26);
+  c.rect('gold', 39, 15, 18, 2);
+  c.rect('gold-d', 39, 16, 18, 1);
+  c.rect('wood', 25, 33, 46, 3);
+  c.rect('wood-l', 25, 33, 46, 1);
+  return `<svg class="px-lectern" viewBox="0 0 96 38" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
+}
+
 /** Búho solo, para acompañar en el índice o en la biblioteca. */
 function owlBadge() {
   return `<svg class="px-badge" viewBox="0 0 18 18" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${owl(1, 1)}</svg>`;
@@ -1494,6 +1517,7 @@ export const Pixel = {
   scriptoriumScene,
   monasteryScene,
   studyScene,
+  lecternStand,
   workshop,
   owlBadge,
   fleuron,

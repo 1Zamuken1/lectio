@@ -250,7 +250,7 @@ body[data-screen='library'] #app {
 }
 
 .shelf code,
-.book-detail code {
+.lectern-book code {
   padding: 0.3rem 0.5rem;
   font-size: 0.85rem;
   background: var(--paper-raised);
@@ -355,31 +355,161 @@ body[data-screen='library'] #app {
 
 /* ---------------------------------------------------------------- Ficha del libro */
 
-/* Flota sobre la escena: abrirla no mueve la página. */
-.detail-slot {
-  position: absolute;
-  z-index: 5;
-  top: clamp(1rem, 4vh, 2.5rem);
-  right: clamp(1rem, 4vw, 3rem);
-  width: min(27rem, calc(100% - 2rem));
-  max-height: calc(100% - 2rem);
-  overflow: auto;
+/* Un libro abierto sobre el atril, al centro de la sala; la sala se atenúa detrás y un
+   clic fuera lo cierra. Abrirlo no mueve la página (Lectern.tsx). */
+.lectern-slot {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
 }
 
-.detail-slot[hidden] {
+.lectern-slot[hidden] {
   display: none;
 }
 
-.book-detail {
+.lectern {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 4.5rem 1rem 0;
+}
+
+.lectern-backdrop {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  background: rgb(0 0 0 / 35%);
+  border: 0;
+  cursor: default;
+}
+
+.lectern-book {
   position: relative;
   display: grid;
-  grid-template-columns: 7.5rem minmax(0, 1fr);
-  gap: 1rem;
-  padding: 1.25rem;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  width: min(56rem, 100%);
+  height: min(30rem, calc(100vh - 12rem));
   background: var(--paper-raised);
   border: 1px solid var(--line);
   border-radius: 0.8rem;
   box-shadow: var(--shadow);
+}
+
+.lectern-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 1.5rem 1.75rem;
+  overflow: auto;
+}
+
+.lectern-page.left {
+  align-items: center;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+
+.lectern-page.left .cover {
+  width: calc(min(12rem, 28vh) * 2 / 3);
+  height: min(12rem, 28vh);
+  object-fit: cover;
+  flex: none;
+}
+
+.lectern-book > .detail-close {
+  z-index: 1;
+  top: 1.1rem;
+  right: 1.1rem;
+}
+
+.lectern-page .book-stats {
+  text-align: left;
+}
+
+.lectern-page h3 {
+  margin: 0 0 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.lectern-note {
+  margin: auto 0;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.lectern-stand {
+  display: none;
+}
+
+/* Capítulos: la sección como encabezado; el que vas, con su cinta; con audio, su marca. */
+.lectern-chapters {
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lectern-section {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lectern-chapters a,
+.lectern-chapters li > span {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.3rem 0.5rem;
+  color: var(--ink);
+  text-decoration: none;
+  border-radius: 0.3rem;
+}
+
+.lectern-chapters a:hover,
+.lectern-chapters a:focus-visible {
+  background: var(--paper-sunken);
+}
+
+.lectern-chapter {
+  flex: 1;
+  min-width: 0;
+}
+
+.lectern-audio {
+  flex: none;
+  color: var(--accent);
+}
+
+.lectern-audio .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.lectern-chapters .is-current a {
+  position: relative;
+  font-weight: 700;
+  background: var(--accent-soft, var(--paper-sunken));
+}
+
+.lectern-chapters .is-current a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: -0.5rem;
+  left: -0.9rem;
+  width: 0.45rem;
+  background: var(--accent);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
 }
 
 .detail-close {
@@ -428,7 +558,7 @@ body[data-screen='library'] #app {
   padding-right: 1.5rem;
 }
 
-.book-detail h2 {
+.lectern-book h2 {
   margin: 0;
   font-family: var(--font-display);
   font-size: 1.45rem;
@@ -437,11 +567,11 @@ body[data-screen='library'] #app {
   overflow-wrap: anywhere;
 }
 
-.book-detail h2:focus {
+.lectern-book h2:focus {
   outline: none;
 }
 
-.book-detail .author {
+.lectern-book .author {
   margin: 0;
   color: var(--ink-soft);
 }
@@ -486,20 +616,31 @@ body[data-screen='library'] #app {
 
 /* En el celular, la ficha sube desde abajo. */
 @media (max-width: 700px) {
-  .detail-slot {
-    position: fixed;
-    top: auto;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: auto;
-    max-height: 78vh;
+  .lectern {
+    padding: 0;
   }
 
-  .book-detail {
-    grid-template-columns: 6rem minmax(0, 1fr);
+  .lectern-book {
+    display: block;
+    height: auto;
+    max-height: 85vh;
+    overflow: auto;
     border-radius: 1rem 1rem 0 0;
-    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .lectern-page {
+    overflow: visible;
+  }
+
+  .lectern-page.left {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .lectern-page.left .cover {
+    width: 6rem;
+    height: 9rem;
   }
 
   .library-floor {
@@ -551,12 +692,30 @@ body[data-screen='library'] #app {
   animation-delay: calc(0.45s + var(--i) * 0.08s);
 }
 
-:root[data-motion='full'] .book-detail {
-  animation: card-in 0.3s steps(5) backwards;
+/* El libro se abre desde el lomo: cada página se despliega hacia su lado. */
+:root[data-motion='full'] .lectern-backdrop {
+  animation: stage-fade 0.25s ease-out backwards;
 }
 
-:root[data-motion='full'] .book-detail .cover {
-  animation: cover-turn 0.45s steps(7) 0.08s backwards;
+:root[data-motion='full'] .lectern-page.left {
+  transform-origin: 100% 50%;
+  animation: page-unfold 0.35s steps(5) backwards;
+}
+
+:root[data-motion='full'] .lectern-page.right {
+  transform-origin: 0 50%;
+  animation: page-unfold 0.35s steps(5) 0.1s backwards;
+}
+
+:root[data-motion='full'] .lectern-book .cover {
+  animation: cover-turn 0.45s steps(7) 0.25s backwards;
+}
+
+@keyframes page-unfold {
+  from {
+    opacity: 0;
+    transform: scaleX(0.1);
+  }
 }
 
 :root[data-motion='full'] .shelf-owl.hop {
@@ -568,8 +727,13 @@ body[data-screen='library'] #app {
 }
 
 @media (max-width: 700px) {
-  :root[data-motion='full'] .book-detail {
+  :root[data-motion='full'] .lectern-book {
     animation: sheet-in 0.3s steps(6) backwards;
+  }
+
+  :root[data-motion='full'] .lectern-page.left,
+  :root[data-motion='full'] .lectern-page.right {
+    animation: none;
   }
 }
 
@@ -846,14 +1010,56 @@ body[data-screen='library'] #app {
   display: none;
 }
 
-[data-world='scriptorium'] .book-detail {
-  background: var(--paper-raised);
-  border: 4px solid var(--chrome-dark);
+/* El libro del atril: tapas de cuero con filete dorado, dos páginas de pergamino con la
+   sombra del lomo y, debajo, el pie de madera en pixel art. */
+[data-world='scriptorium'] .lectern-backdrop {
+  background: rgb(10 6 3 / 50%);
+}
+
+[data-world='scriptorium'] .lectern-book {
+  padding: 10px;
+  height: min(30rem, calc(100vh - 17rem));
+  background: var(--px-leather-d);
+  border: 4px solid var(--px-ink);
   border-radius: 0;
   box-shadow:
     inset 0 0 0 2px var(--px-gold-d),
     0 6px 0 rgb(0 0 0 / 30%),
-    0 18px 40px rgb(0 0 0 / 40%);
+    0 18px 40px rgb(0 0 0 / 45%);
+}
+
+[data-world='scriptorium'] .lectern-page {
+  background: var(--paper-raised);
+}
+
+[data-world='scriptorium'] .lectern-page.left {
+  border-right: 0;
+  box-shadow: inset -14px 0 14px -10px rgb(60 35 15 / 45%);
+}
+
+[data-world='scriptorium'] .lectern-page.right {
+  box-shadow: inset 14px 0 14px -10px rgb(60 35 15 / 45%);
+}
+
+[data-world='scriptorium'] .lectern-page h3 {
+  color: var(--accent);
+}
+
+[data-world='scriptorium'] .lectern-chapters a,
+[data-world='scriptorium'] .lectern-chapters li > span {
+  border-radius: 0;
+}
+
+[data-world='scriptorium'] .lectern-stand {
+  display: block;
+  width: min(18rem, 40%);
+  margin-top: -4px;
+}
+
+[data-world='scriptorium'] .lectern-stand .px-lectern {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
 }
 
 [data-world='scriptorium'] .detail-close {
@@ -874,8 +1080,19 @@ body[data-screen='library'] #app {
     padding-top: clamp(7rem, 26vh, 12rem);
   }
 
-  [data-world='scriptorium'] .book-detail {
+  [data-world='scriptorium'] .lectern-book {
+    padding: 6px 6px 0;
+    height: auto;
     border-width: 4px 0 0;
+  }
+
+  [data-world='scriptorium'] .lectern-page.left,
+  [data-world='scriptorium'] .lectern-page.right {
+    box-shadow: none;
+  }
+
+  [data-world='scriptorium'] .lectern-stand {
+    display: none;
   }
 
   [data-world='scriptorium'] .shelf-hint {

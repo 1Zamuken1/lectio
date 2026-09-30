@@ -1,13 +1,12 @@
-import { Link } from 'react-router';
 import { usePublicBooks } from '../api/queries';
 import { useSession } from '../app/context';
 import { useAuthPrompt } from '../auth/auth-prompt';
 import { Icon } from '../components/art';
 import { Topbar } from '../components/Topbar';
-import { DetailCard, LibraryRoom } from '../library/LibraryRoom';
-import { progressLabel } from '../library/progress';
+import { Lectern } from '../library/Lectern';
+import { LibraryRoom } from '../library/LibraryRoom';
+import { readerHref } from '../library/progress';
 import { useGoThroughDoor } from '../library/room-door';
-import { Sound } from '../theme/sound';
 
 /**
  * La gran biblioteca del monasterio: el catálogo público. Se lee y se escucha sin cuenta;
@@ -50,22 +49,12 @@ export function PublicLibrary() {
               : 'Aquí no hay libros todavía.'
         }
         renderDetail={(book, close) => (
-          <DetailCard
+          <Lectern
             book={book}
+            href={readerHref(book)}
             onClose={close}
-            stats={[
-              ['Idioma', book.language?.toUpperCase() ?? '—'],
-              ['Tu lectura', progressLabel(book) ?? 'Sin empezar'],
-            ]}
-          >
-            <Link
-              className="open-book"
-              to={`/libros/${book.slug}`}
-              onClick={() => Sound.play('open')}
-            >
-              {book.progress ? 'Continuar' : 'Empezar'}
-            </Link>
-          </DetailCard>
+            facts={[['Idioma', book.language?.toUpperCase() ?? '—']]}
+          />
         )}
       />
     </>

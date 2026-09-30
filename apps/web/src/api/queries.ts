@@ -64,3 +64,24 @@ export function useUploadBook() {
     onSettled: () => client.invalidateQueries({ queryKey: keys.library(userId ?? '') }),
   });
 }
+
+export type ChapterSummary = Schemas['ChapterSummaryDto'];
+
+/**
+ * El detalle de un libro (capítulos, progreso, audio por voz). Los públicos se piden por
+ * slug; los tuyos, por id. Solo cuando está listo: antes no tiene capítulos.
+ */
+export function useBookDetail(book: Pick<BookSummary, 'id' | 'isPublic' | 'slug' | 'status'>) {
+  const api = useApi();
+  const userId = useUserId();
+  return useQuery({
+    queryKey: [...keys.book(book.id), userId],
+    queryFn: () =>
+      api.get<BookDetail>(
+        book.isPublic && book.slug
+          ? `/api/v1/books/public/${encodeURIComponent(book.slug)}`
+          : `/api/v1/books/${book.id}`,
+      ),
+    enabled: book.status === 'ready',
+  });
+}

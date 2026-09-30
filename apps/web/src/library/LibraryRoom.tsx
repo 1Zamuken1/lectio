@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { isPreparing, type BookSummary } from '../api/queries';
-import { ApiImage } from '../components/ApiImage';
-import { Icon, PixelArt } from '../components/art';
+import { PixelArt } from '../components/art';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { useRoomDoor } from './room-door';
@@ -23,8 +22,8 @@ const ROOMS: Record<Room, { title: string; scene: () => string }> = {
 
 /**
  * Una sala con su estantería (portado de la biblioteca de la CLI): la escena ocupa la
- * pantalla, la estantería está dentro y la ficha del libro flota encima (en el celular,
- * sube desde abajo), así que abrirla no mueve nada. Sabio, el búho, comenta la elección.
+ * pantalla, la estantería está dentro y la ficha del libro se abre encima, en el atril
+ * (Lectern.tsx; en el celular sube desde abajo), así que abrirla no mueve nada. Sabio, el búho, comenta la elección.
  * La puerta dibujada en la escena lleva a la otra sala (`onDoor`); la barra tiene el
  * mismo botón para el teclado y el celular, donde la puerta queda fuera del encuadre.
  * `notice` hace hablar al búho (subidas, errores) y `focus` elige un libro desde afuera
@@ -148,7 +147,7 @@ export function LibraryRoom({
           {children}
         </section>
       </div>
-      <div className="detail-slot" hidden={!book}>
+      <div className="lectern-slot" hidden={!book}>
         {book && renderDetail(book, () => choose(null))}
       </div>
     </main>
@@ -194,57 +193,5 @@ function Spine({
         {title}
       </span>
     </button>
-  );
-}
-
-/** La ficha que flota sobre la escena (en el celular, sube desde abajo). */
-export function DetailCard({
-  book,
-  onClose,
-  stats,
-  children,
-}: {
-  book: BookSummary;
-  onClose: () => void;
-  stats: Array<[string, string]>;
-  children: ReactNode;
-}) {
-  const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => heading.current?.focus({ preventScroll: true }), [book.id]);
-  const title = book.title ?? 'Sin título';
-  return (
-    <aside className="book-detail" aria-label={`Ficha de ${title}`}>
-      <button
-        type="button"
-        className="detail-close"
-        aria-label="Cerrar la ficha"
-        title="Cerrar"
-        onClick={onClose}
-      >
-        <Icon name="close" />
-      </button>
-      {book.coverUrl ? (
-        <ApiImage className="cover" src={book.coverUrl} isPublic={book.isPublic} alt="" />
-      ) : (
-        <div className="cover cover-blank" aria-hidden="true">
-          {title}
-        </div>
-      )}
-      <div className="detail-body">
-        <h2 ref={heading} tabIndex={-1}>
-          {title}
-        </h2>
-        <p className="author">{book.author || 'Autor desconocido'}</p>
-        <dl className="book-stats">
-          {stats.map(([label, value]) => (
-            <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
-        {children}
-      </div>
-    </aside>
   );
 }
