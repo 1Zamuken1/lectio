@@ -128,9 +128,9 @@ Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por
 
 ---
 
-## Estado y cómo retomar (30-09-2026)
+## Estado y cómo retomar (30-09-2026, fin del día)
 
-Hechas las fases 0 a 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
+Hechas las fases 0 a 6 y la **etapa 1 de la fase 7**; el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
 
 **Levantar el entorno**
 
@@ -138,29 +138,51 @@ Hechas las fases 0 a 6. Todo con tests: `pnpm check` (unitarios, lint, formato y
 pnpm db:up                       # Docker Desktop abierto primero
 pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/docs) y worker
 pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
+pnpm --filter @lectio/core db:deploy   # si hay migraciones nuevas
+pnpm --filter @lectio/web preview:pwa  # la PWA de verdad (build + preview :4174, API por proxy)
 ```
 
-La base de desarrollo quedó limpia al cerrar la fase 6: sin cuentas de prueba, con Marianela en la biblioteca pública (sin audio). Para probar la app, crea una cuenta desde el pergamino y sube un EPUB del corpus en `/estudio`.
+La API y el worker de `pnpm dev` se reinician solos al cambiar `packages/core`, el pipeline o `packages/tts`. El Service Worker **solo existe en el build** (`preview:pwa`); en `pnpm dev` no hay.
+
+**La base de desarrollo**: solo la cuenta real del usuario, con sus libros (todos en v3), y Marianela en la biblioteca pública (sin audio). Para probar con otra cuenta: crearla con la contraseña de los tests (`apps/api/test/helpers/test-app.ts`) y borrarla al terminar (libro por la API, usuario por SQL). En esa cuenta real queda un capítulo de _Obras escogidas_ con Gonzalo grabado con el texto anterior: sirve para ver "Regenerar gratis".
 
 **Dónde está cada cosa**
 
-| Tema                                                               | Archivo                                                                                                                                               |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Contratos de la API (endpoints, errores, flujos)                   | `docs/lectio-arquitectura-api.md`                                                                                                                     |
-| Decisiones de diseño de la app (salas, lector, reproductor, costo) | `docs/lectio-frontend.md` §2.3                                                                                                                        |
-| Temas pixel y el taller                                            | `docs/lectio-temas.md`                                                                                                                                |
-| Backend (módulos hexagonales)                                      | `packages/core/src/modules/*`                                                                                                                         |
-| La app                                                             | `apps/web/src`: `api/`, `app/`, `auth/`, `library/`, `reader/` (lector), `player/` (reproductor), `screens/`, `theme/` (portado de la CLI), `styles/` |
+| Tema                                                                                       | Archivo                                                                                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contratos de la API (endpoints, errores, flujos, audio desactualizado §2.4)                | `docs/lectio-arquitectura-api.md`                                                                                                                                                                                                                                                                          |
+| Decisiones de la app: salas, lector, reproductor, costo (§2.3) y PWA / sin conexión (§2.4) | `docs/lectio-frontend.md`                                                                                                                                                                                                                                                                                  |
+| Reglas del pipeline (la tilde antigua en la etapa 9)                                       | `docs/lectio-pipeline-limpieza.md`                                                                                                                                                                                                                                                                         |
+| Temas pixel y el taller                                                                    | `docs/lectio-temas.md`                                                                                                                                                                                                                                                                                     |
+| Backend (módulos hexagonales)                                                              | `packages/core/src/modules/*`; reprocesar: `books/application/reprocess-book.service.ts` y `apps/worker/src/reprocess-books.ts`                                                                                                                                                                            |
+| La app                                                                                     | `apps/web/src`: `api/`, `app/`, `auth/`, `library/`, `reader/`, `player/`, `screens/`, `theme/`, `styles/`                                                                                                                                                                                                 |
+| PWA                                                                                        | `apps/web/src/sw/sw.ts` (Service Worker, Workbox `injectManifest`), `apps/web/src/pwa/` (`db.ts` IndexedDB, `persist.ts` caché de las salas, `online.ts` conexión, `install.ts`, `UpdateNotice.tsx`), `vite.config.ts` (manifest), íconos con `pnpm --filter @lectio/web icons` (`scripts/make-icons.mjs`) |
 
-**Hecho en la etapa 3**: el lector (`screens/Reader.tsx`, `reader/`) con capítulos por demanda (ETag), imágenes con token, notas, índice, tamaño y fuente (menú "Aa"), modo revisión reducido (tacha lo que no se narra: la API no expone el texto narrado) y la pestaña Reporte (`?vista=reporte`). La posición se guarda en el navegador y, con sesión, en el servidor (`reader/position.ts`: cada 10 s y al ocultar o cerrar, con `keepalive`). El reproductor es un único `<audio>` para toda la app (`player/controller.ts`, store de Zustand; en desarrollo, `window.lectio.player` desde la consola): voces con muestra, cambio de voz al empezar la oración siguiente, generar con la línea de cuota y confirmación sobre el 5 %, adelanto del siguiente al 70 % si es barato, avance automático, Media Session, volumen y el taller con el done/total real. La sincronización usa también `timeupdate`, porque `requestAnimationFrame` se detiene con la pestaña oculta (el `preview.js` de la CLI tiene ese mismo problema). Fuera del lector, el mini reproductor al pie de las salas (`player/MiniPlayer.tsx`). "Cap. X de Y" cuenta solo capítulos narrativos (`chapterNumber` en `GET /books`). El botón de la cuenta lleva una llave.
+**Hecho hasta ahora en la app (fase 6)**: el lector (`screens/Reader.tsx`, `reader/`) con capítulos por demanda (ETag), imágenes con token, notas, índice, menú "Aa", modo revisión reducido y la pestaña Reporte (`?vista=reporte`). La posición se guarda en el navegador y, con sesión, en el servidor (`reader/position.ts`: cada 10 s y al ocultar o cerrar, con `keepalive`). El reproductor es un único `<audio>` para toda la app (`player/controller.ts`, Zustand; en desarrollo, `window.lectio.player`): voces, cambio de voz al empezar la oración siguiente, generar con la línea de cuota, adelanto al 70 %, avance automático, Media Session, volumen, el taller con el done/total real y el mini reproductor en las salas.
 
-**Pipeline v3 y reprocesamiento**: en español, cualquier vocal suelta con tilde (también la grave y la del anuncio del capítulo) se narra sin tilde; Edge la deletreaba. El reprocesamiento quedó mergeado (`pnpm reprocess:books [--dry-run] [--inline]`) y la base de desarrollo está toda en v3. La app ofrece regenerar gratis el audio grabado con un texto anterior (bajo el reproductor, `player.regenerate()`); en desarrollo queda uno así en tu cuenta: un capítulo de _Obras escogidas_ con Gonzalo.
+**Hecho hoy**
 
-**Siguiente**: la fase 7, etapa 2 (descargas). La etapa 1 dejó la base PWA: Service Worker propio (`apps/web/src/sw/sw.ts`, Workbox con `injectManifest`), manifest e íconos (`pnpm --filter @lectio/web icons`), `src/pwa/` (conexión, instalar, aviso de versión nueva y la caché de las salas en IndexedDB) y la sesión que sin red sigue con la cuenta de este navegador. El Service Worker solo existe en el build: se prueba con `pnpm --filter @lectio/web preview:pwa` (:4174, con la API por proxy). En el panel del navegador de Claude no se puede cortar la red: se detiene el servidor y se simula con `dispatchEvent(new Event('offline'))`.
+- **Fase 7, etapa 1 (base PWA)**: app shell y fuentes latinas precargados, portadas en caché, aviso "Nueva versión" (nunca recarga sola), botón "Instalar" y globo del búho en iPhone, ícono (libro que flota sobre una mesa de encantamientos). Sin conexión: las salas muestran la última visita (TanStack Query persistido en IndexedDB), los libros quedan apagados (`.spine.is-offline`) y no se sube, genera, entra, sale ni quita; la sesión sigue con la cuenta de este navegador (`rememberInBrowser` en `api/session.ts`) y se renueva al volver la red.
+- **Pipeline v3**: la vocal suelta con cualquier tilde (también la grave y la del anuncio del capítulo) se narra sin tilde; las marcas combinantes cuentan como parte de la palabra ("soñó", "averigüé" no se tocan).
+- **Reprocesamiento mergeado** (rama `claude/upbeat-bhabha-45a79e`) y la base de desarrollo reprocesada a v3.
+- **Regenerar gratis el audio desactualizado** (`player.regenerate()`, línea bajo el reproductor): sigue sonando el anterior y se cambia al nuevo al empezar la oración siguiente. En el backend, cada grabación tiene su propia clave (voz + momento, en hex: es lo que acepta `/media`), se borran los archivos de la anterior, y una regeneración que falla vuelve a la grabación anterior.
 
-**Probar a mano (con el entorno arriba)**: el panel del navegador de Claude no pinta ni corre animaciones si está oculto y frena los temporizadores de la página (a 1 s o más): los tiempos medidos ahí no sirven; hay que mirar en vivo.
+**Siguiente: fase 7, etapa 2 (descargas)**. Ya decidido (frontend §2.4): manual, por capítulo en el atril y "Descargar los próximos 3" por libro; se descarga la voz que suena; también sin cuenta (libros públicos); panel "Descargas" desde la barra de las dos salas (espacio usado y disponible, borrar por capítulo, libro o todo). Puntos de partida:
 
-**Pipeline cerrado**: la prueba de oído en español no encontró errores que pidan reglas nuevas; lo aprendido quedó en `docs/lectio-pipeline-limpieza.md` y se borró su plan.
+- `pwa/online.ts`: `useAvailableOffline()` hoy devuelve siempre `false`; es donde las salas y el atril preguntan si un libro se abre sin red.
+- `pwa/db.ts`: subir a la versión 2 con un store de descargas (capítulo, voz, clave del audio, tamaño, fecha).
+- Clave de caché del audio: la URL firmada cambia y vence, pero su parámetro `key` (la clave del storage) es estable y ahora **única por grabación**: sirve como clave de Cache Storage (sin pedir un `audioSegmentId` a la API).
+- `sw/sw.ts`: ruta para `/api/v1/media` desde la caché con `workbox-range-requests` (206; hay que instalarlo), y para `GET /chapters/:id` e imágenes de los capítulos descargados.
+- El reproductor (`#fetchAudio`) y el lector (`useChapter`) tienen que leer de lo descargado sin red; `navigator.storage.persist()` al primer uso.
+- Después: etapa 3 (cola de progreso sin conexión), 4 (prerender) y 5 (Playwright offline y Android real). Antes de la parte visible del panel "Descargas" y de los botones del atril, hacer las preguntas de diseño que falten (su aspecto en Scriptorium y Clásico).
+
+**Limitaciones conocidas (para decidir más adelante)**
+
+- El aviso de audio desactualizado aparece al dar play, no antes (el reproductor consulta ese audio al cargarlo).
+- Mientras se regraba, si se recarga la página o se vuelve al capítulo, la grabación anterior no se puede pedir (el segmento está `pending` y no da URL).
+- Sin probar aún en un celular real: instalación, globo de iPhone y sin conexión de verdad (etapa 5).
+
+**Probar a mano con el panel del navegador de Claude**: si está oculto no pinta ni corre animaciones, frena los temporizadores (a 1 s o más) y no carga las imágenes `loading="lazy"`; no se puede cortar la red: se detiene el servidor y se simula con `dispatchEvent(new Event('offline'))`. La oferta de instalación se simula despachando un `beforeinstallprompt` con `prompt()`.
 
 ## Riesgos conocidos
 
