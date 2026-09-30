@@ -88,12 +88,12 @@ La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el son
 
 | Tema | Decisión |
 |---|---|
-| Entrada sin cuenta | La pantalla de título lleva a la **biblioteca pública**: se lee y se escucha sin registrarse. La celda y subir libros piden entrar. |
-| Dos salas | La pública es la **gran biblioteca del monasterio** (estanterías altas, vitrales, atril); la personal es tu **celda de copista** (tu estante, escritorio y ventana). Se pasa por una **puerta con fundido**, o con el botón de la barra. |
+| Entrada sin cuenta | La pantalla de título lleva a la **biblioteca pública**: se lee y se escucha sin registrarse. Tu estudio y subir libros piden entrar. |
+| Dos salas | La pública es la **gran biblioteca del monasterio** (estanterías altas, vitrales, atril); la personal es tu **estudio** (una repisa de pared con tus libros, escritorio bajo la ventana, sillón de lectura y alfombra). Se pasa por una **puerta con fundido**, o con el botón de la barra. |
 | Entrar y crear cuenta | Un **pergamino que baja desenrollándose** con dos sellos de lacre como pestañas ("Entrar" / "Crear cuenta"). En Clásico es una tarjeta sobria. |
 | Sesión | El refresh es **invisible y coordinado entre pestañas**: Web Locks lo serializa (dos pestañas con la misma cookie parecerían una reutilización y la API revocaría la familia) y BroadcastChannel reparte el token nuevo, el login y el logout. Si el refresh falla, el pergamino aparece encima **sin cortar el audio ni perder la posición**. |
 | Subir un EPUB | Botón "Añadir libro" y, además, **soltar el archivo en cualquier parte de la sala**. |
-| Celda vacía | El estante con un **libro en blanco** "Añade tu primer libro" y una línea sobre EPUB sin DRM; el búho lo señala. |
+| Estudio vacío | La repisa con un **libro en blanco** "Añade tu primer libro" y una línea sobre EPUB sin DRM; el búho lo señala. |
 | Libro procesándose | La cuadrilla del taller (el monje y sus aprendices) **va a buscar un libro gigante y lo trae** a su hueco, en tono ligeramente cómico; la tarjeta dice "Preparando…". |
 | Libro con error | El libro **se quema o se desvanece** y **renace de las cenizas con magia** convertido en una tarjeta con el mensaje en lenguaje simple (por `errorCode`: DRM, archivo dañado…) y el botón de borrar. |
 | Abrir un libro | Su **ficha en el atril**: portada, autor, capítulos, progreso y "Continuar" / "Empezar". |

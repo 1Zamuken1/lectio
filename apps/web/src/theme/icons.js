@@ -231,6 +231,24 @@ const ILLUMINATED = {
     '................',
     '................',
   ],
+  door: [
+    '................',
+    '.....kkkkkk.....',
+    '...kkggggggkk...',
+    '..kggrrrrrrggk..',
+    '..kgrrrrkrrrgk..',
+    '.kgrwrrrkrrrrgk.',
+    '.kgrwrrrkrrrrgk.',
+    '.kgkkkkkkkkkrgk.',
+    '.kgrwrrrkrrrrgk.',
+    '.kgrwrrrkrrgrgk.',
+    '.kgrwrrrkrrrrgk.',
+    '.kgkkkkkkkkkrgk.',
+    '.kgrwrrrkrrrrgk.',
+    '.kgrwrrrkrrrrgk.',
+    'kkkkkkkkkkkkkkkk',
+    '................',
+  ],
   voice: [
     '................',
     '................',
@@ -289,6 +307,7 @@ const LINE = {
   voice:
     '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  door: '<path d="M6 20V10a6 6 0 0 1 12 0v10"/><path d="M4 20h16"/><path d="M12 4v16"/><circle cx="14.5" cy="13.5" r="0.8" fill="currentColor"/>',
 };
 
 const INKS = { k: 'ink', r: 'red', g: 'gold', w: 'light' };

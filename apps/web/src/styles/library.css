@@ -889,3 +889,320 @@ body[data-screen='library'] #app {
     padding: 1.5rem 1rem 1rem;
   }
 }
+
+/* ---------------------------------------------------------------- Las dos salas */
+/* La biblioteca del monasterio (catálogo público) y tu estudio. Se pasa de una a otra por
+   la puerta de la escena o por el botón de la barra, con un fundido (room-door.tsx). */
+
+/* En el Clásico el título se ve; en el Scriptorium lo cuenta la escena. */
+.room-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  text-align: center;
+  color: var(--ink);
+}
+
+[data-world='scriptorium'] .room-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.library-floor {
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Tono de cada sala en el Clásico: el estudio, un papel algo más cálido. */
+:root:not([data-world='scriptorium']) .library[data-room='study'] {
+  background: var(--paper-sunken);
+}
+
+/* La escena recibe el clic de la puerta: el suelo solo lo toman sus muebles. */
+[data-world='scriptorium'] .library-floor {
+  pointer-events: none;
+}
+
+[data-world='scriptorium'] .library-floor > * {
+  pointer-events: auto;
+}
+
+[data-world='scriptorium'] .library {
+  isolation: isolate;
+}
+
+.px-door {
+  cursor: pointer;
+}
+
+.px-door-open,
+.door-open .px-door-closed {
+  display: none;
+}
+
+.door-open .px-door-open {
+  display: inline;
+}
+
+.px-door:hover .px-door-closed {
+  filter: brightness(1.25);
+}
+
+/* El fundido entre salas: a tinta en el Scriptorium, a papel en el Clásico. */
+.room-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--paper);
+  pointer-events: none;
+}
+
+[data-world='scriptorium'] .room-fade {
+  background: var(--px-ink);
+}
+
+.room-fade.out {
+  animation: room-fade-out 0.4s ease-in forwards;
+}
+
+.room-fade.in {
+  animation: room-fade-in 0.4s ease-out forwards;
+}
+
+[data-world='scriptorium'] .room-fade.out {
+  animation-timing-function: steps(6);
+}
+
+[data-world='scriptorium'] .room-fade.in {
+  animation-timing-function: steps(6);
+}
+
+@keyframes room-fade-out {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes room-fade-in {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* El estudio: tus libros en una repisa de pared con escuadras de hierro, no en un mueble.
+   Cuelga entre la puerta y la ventana (la escena deja ese muro libre) y crece hacia abajo. */
+@media (min-width: 701px) {
+  [data-world='scriptorium'] .library[data-room='study'] .library-floor {
+    align-items: flex-start;
+    margin: 0;
+    padding: clamp(5rem, 20vh, 11rem) 0 2.5rem 12vw;
+  }
+
+  [data-world='scriptorium'] .library[data-room='study'] .bookcase {
+    width: 48vw;
+  }
+}
+
+[data-world='scriptorium'] .library[data-room='study'] .bookcase {
+  padding: 1rem 1.5rem 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+[data-world='scriptorium'] .library[data-room='study'] .bookcase::before,
+[data-world='scriptorium'] .library[data-room='study'] .bookcase::after {
+  content: '';
+  position: absolute;
+  bottom: -18px;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(
+    to bottom left,
+    var(--px-lead) 0 calc(50% - 2px),
+    var(--px-ink) calc(50% - 2px) 50%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+[data-world='scriptorium'] .library[data-room='study'] .bookcase::before {
+  left: 1rem;
+  transform: scaleX(-1);
+}
+
+[data-world='scriptorium'] .library[data-room='study'] .bookcase::after {
+  right: 1rem;
+}
+
+[data-world='scriptorium'] .library[data-room='study'] .shelf.empty p {
+  padding: 0.4rem 0.7rem;
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+}
+
+/* En el celular, el estudio se encuadra en la ventana y el escritorio (x ≈ 228 de 320), no
+   en el muro de la repisa. */
+@media (max-width: 700px) {
+  [data-world='scriptorium'] .library[data-room='study'] .scene .px-scene {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: auto;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    transform: translateX(-71%);
+  }
+}
+
+/* ---------------------------------------------------------------- Subir libros */
+
+.shelf-tools {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 0.6rem;
+}
+
+.add-book {
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.add-book:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+[data-world='scriptorium'] .add-book {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  border-radius: 0;
+  box-shadow:
+    inset 2px 2px 0 rgb(255 255 255 / 18%),
+    inset -2px -2px 0 rgb(0 0 0 / 25%),
+    3px 3px 0 var(--chrome-dark);
+}
+
+/* La repisa vacía: el libro en blanco sobre la tabla y, al lado, cómo añadir uno. */
+.blank-shelf {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  align-self: stretch;
+  min-height: calc(13rem - 10px);
+}
+
+.blank-shelf p {
+  max-width: 24rem;
+  margin: 0 0 1.5rem;
+  color: var(--ink-soft);
+}
+
+.shelf.empty:has(.blank-shelf) {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.spine.blank-book {
+  --spine: var(--paper-raised);
+  --spine-w: 46px;
+  --spine-h: 160px;
+  flex: none;
+  color: var(--muted);
+  border-style: dashed;
+}
+
+[data-world='scriptorium'] .spine.blank-book {
+  --spine: var(--px-parch);
+  color: var(--px-text);
+}
+
+[data-world='scriptorium'] .blank-shelf p {
+  padding: 0.4rem 0.7rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+}
+
+:root[data-motion='full'] .spine.blank-book:not(:disabled) {
+  animation: blank-glow 1.6s steps(4) infinite alternate;
+}
+
+@keyframes blank-glow {
+  to {
+    filter: brightness(1.12);
+  }
+}
+
+/* El libro que el worker aún prepara: apagado, con el lomo "a medio escribir". */
+.spine.is-preparing {
+  filter: saturate(0.35) brightness(0.85);
+  cursor: progress;
+}
+
+:root[data-motion='full'] .spine.is-preparing {
+  animation: preparing 1.2s steps(3) infinite alternate;
+}
+
+@keyframes preparing {
+  to {
+    filter: saturate(0.6) brightness(1);
+  }
+}
+
+/* Velo al arrastrar un archivo sobre el estudio. */
+.drop-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  border: 4px dashed var(--accent);
+  pointer-events: none;
+}
+
+.drop-veil p {
+  margin: 0;
+  padding: 0.9rem 1.3rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  text-align: center;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border-radius: 0.6rem;
+}
+
+[data-world='scriptorium'] .drop-veil {
+  background: rgb(20 12 6 / 55%);
+  border-color: var(--px-gold);
+}
+
+[data-world='scriptorium'] .drop-veil p {
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 4px solid var(--px-ink);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 rgb(0 0 0 / 35%);
+}

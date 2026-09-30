@@ -71,6 +71,10 @@
   --px-plum-d: #48244a;
   --px-shade: rgb(20 10 5 / 30%);
   --px-moonbeam: transparent;
+  /* Luz de los vitrales de la nave (solo de día). */
+  --px-beam-red: rgb(255 110 90 / 17%);
+  --px-beam-blue: rgb(110 160 255 / 17%);
+  --px-beam-gold: rgb(255 214 120 / 22%);
 }
 
 :root[data-mode='night'] {

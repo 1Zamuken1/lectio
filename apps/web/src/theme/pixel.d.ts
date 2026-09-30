@@ -7,6 +7,10 @@ export interface PixelCanvas {
 
 export declare const Pixel: {
   scriptoriumScene(options?: { desk?: boolean }): string;
+  /** La gran biblioteca del monasterio (el catálogo público). */
+  monasteryScene(): string;
+  /** Tu estudio. */
+  studyScene(): string;
   /** El taller de copistas; `voice` elige la cuadrilla. */
   workshop(voice: string): string;
   owlBadge(): string;

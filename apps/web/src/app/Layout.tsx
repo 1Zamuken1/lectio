@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { LoginScroll } from '../auth/LoginScroll';
 import { useAuthPrompt } from '../auth/auth-prompt';
+import { RoomFade } from '../library/room-door';
 import { useSession } from './context';
 
 /**
@@ -26,6 +27,7 @@ export function Layout() {
   return (
     <>
       <Outlet />
+      <RoomFade />
       {expired && (
         <LoginScroll
           reason="Tu sesión se cerró. Entra de nuevo para seguir: nada de lo que hacías se pierde."

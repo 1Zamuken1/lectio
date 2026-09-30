@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 /**
  * Pedir que se inicie sesión desde cualquier parte ("Para subir libros, entra…"). El
- * pergamino lo muestra el layout; `then` corre al entrar (por ejemplo, ir a la celda).
+ * pergamino lo muestra el layout; `then` corre al entrar (por ejemplo, ir al estudio).
  */
 interface AuthPrompt {
   open: null | { tab: 'login' | 'register'; reason?: string; then?: () => void };

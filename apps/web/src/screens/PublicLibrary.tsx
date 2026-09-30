@@ -1,40 +1,44 @@
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { usePublicBooks } from '../api/queries';
 import { useSession } from '../app/context';
 import { useAuthPrompt } from '../auth/auth-prompt';
+import { Icon } from '../components/art';
 import { Topbar } from '../components/Topbar';
 import { DetailCard, LibraryRoom } from '../library/LibraryRoom';
 import { progressLabel } from '../library/progress';
+import { useGoThroughDoor } from '../library/room-door';
 import { Sound } from '../theme/sound';
 
 /**
  * La gran biblioteca del monasterio: el catálogo público. Se lee y se escucha sin cuenta;
- * la puerta lleva a la celda (pide entrar si no hay sesión).
+ * la puerta lleva a tu estudio (pide entrar si no hay sesión).
  */
 export function PublicLibrary() {
   const books = usePublicBooks();
-  const navigate = useNavigate();
+  const go = useGoThroughDoor();
   const { state } = useSession();
   const ask = useAuthPrompt((s) => s.ask);
 
-  const goToCell = () => {
-    Sound.play('open');
-    if (state.status === 'authenticated') navigate('/celda');
+  const goToStudy = () => {
+    if (state.status === 'authenticated') go('/estudio');
     else
       ask({
-        reason: 'Tu celda guarda tus libros y por dónde vas. Entra o crea una cuenta.',
-        then: () => navigate('/celda'),
+        reason: 'Tu estudio guarda tus libros y por dónde vas. Entra o crea una cuenta.',
+        then: () => go('/estudio'),
       });
   };
 
   return (
     <>
       <Topbar subtitle="biblioteca">
-        <button type="button" className="tool door" onClick={goToCell} title="Ir a tu celda">
-          <span className="label">Mi celda</span>
+        <button type="button" className="tool door" onClick={goToStudy} title="Ir a tu estudio">
+          <Icon name="door" />
+          <span className="label">Mi estudio</span>
         </button>
       </Topbar>
       <LibraryRoom
+        room="monastery"
+        onDoor={goToStudy}
         books={books.data}
         loading={books.isPending}
         empty={<p>La biblioteca del monasterio aún no tiene libros.</p>}

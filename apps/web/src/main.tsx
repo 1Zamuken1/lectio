@@ -12,11 +12,11 @@ import './styles/app.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { AppProvider, createServices } from './app/context';
 import { Layout } from './app/Layout';
-import { Cell } from './screens/Cell';
+import { Study } from './screens/Study';
 import { NotFound } from './screens/NotFound';
 import { PublicLibrary } from './screens/PublicLibrary';
 import { TitleScreen } from './screens/TitleScreen';
@@ -27,7 +27,8 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <TitleScreen /> },
       { path: '/biblioteca', element: <PublicLibrary /> },
-      { path: '/celda', element: <Cell /> },
+      { path: '/estudio', element: <Study /> },
+      { path: '/celda', element: <Navigate to="/estudio" replace /> },
       { path: '*', element: <NotFound /> },
     ],
   },

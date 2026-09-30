@@ -438,7 +438,7 @@ function archPath(x, y, w, h) {
  * Ventanal gótico: marco de piedra, rosetón emplomado en el arco y, por el vidrio, el
  * cielo y el paisaje (`view`, ya recortado a la forma del vano).
  */
-function archWindow(x, y, w, h, view) {
+function archWindow(x, y, w, h, view, clipId = 'px-window-clip') {
   const inside = archShape(x, y, w, h);
   const r = w / 2;
   const frame = canvas();
@@ -492,8 +492,8 @@ function archWindow(x, y, w, h, view) {
   for (const ly of [y + r + 12, y + r + 36]) if (ly < y + h) lead.rect('lead', x, ly, w, 1);
 
   return `${glass.svg()}
-    <defs><clipPath id="px-window-clip"><path d="${archPath(x, y, w, h)}"/></clipPath></defs>
-    <g clip-path="url(#px-window-clip)">${view}</g>
+    <defs><clipPath id="${clipId}"><path d="${archPath(x, y, w, h)}"/></clipPath></defs>
+    <g clip-path="url(#${clipId})">${view}</g>
     ${rose.svg()}${lead.svg()}${frame.svg()}`;
 }
 
@@ -1022,6 +1022,450 @@ function scriptoriumScene({ desk = true } = {}) {
   </svg>`;
 }
 
+// ------------------------------------------------------------ las salas de la app
+//
+// La gran biblioteca del monasterio (el catálogo público) y tu estudio (tus
+// libros). Las dos tienen una puerta que se puede pulsar (.px-door): la página la abre
+// (.px-door-open) y funde a la otra sala.
+
+/** Rellena una forma (función px, py → bool) con runs horizontales de un color. */
+function fillShape(c, color, shape, x, y, w, h) {
+  for (let py = y; py < y + h; py++) {
+    let start = null;
+    for (let px = x; px <= x + w; px++) {
+      const hit = px < x + w && shape(px, py);
+      if (hit && start === null) start = px;
+      if (!hit && start !== null) {
+        c.rect(color, start, py, px - start, 1);
+        start = null;
+      }
+    }
+  }
+}
+
+/** Vano de arco apuntado (gótico): dos arcos de radio `w` que se cruzan en la clave. */
+function lancetShape(x, y, w, h) {
+  const a = Math.round(w * 0.87);
+  return (px, py) => {
+    if (py < y || py >= y + h || px < x || px >= x + w) return false;
+    if (py >= y + a) return true;
+    const cx = px + 0.5;
+    const cy = py + 0.5;
+    return Math.hypot(cx - (x + w), cy - (y + a)) <= w && Math.hypot(cx - x, cy - (y + a)) <= w;
+  };
+}
+
+/** Losas de piedra de la nave: hiladas desparejas, más altas hacia el frente. */
+function flagstones(c, x, y, w, h, rnd) {
+  c.rect('mortar', x, y, w, h);
+  for (let row = 0, py = y; py < y + h; row++) {
+    const lh = 4 + row;
+    for (let px = x - (row % 2) * 7; px < x + w;) {
+      const lw = 12 + Math.floor(rnd() * 8) + row * 2;
+      const left = Math.max(px, x);
+      const right = Math.min(px + lw - 1, x + w);
+      c.rect(
+        rnd() < 0.2 ? 'stone-d' : 'stone',
+        left,
+        py,
+        right - left,
+        Math.min(lh - 1, y + h - py),
+      );
+      c.rect('stone-l', left, py, right - left, 1);
+      px += lw;
+    }
+    py += lh;
+  }
+}
+
+/** Colores de cada vitral: vidrio base, claro y hondo, y el medallón con su anillo. */
+const VITRALS = {
+  red: { main: 'red', light: 'red-l', deep: 'red-d', medal: 'gold', ring: 'gold-d' },
+  blue: { main: 'blue', light: 'blue-l', deep: 'blue-d', medal: 'red', ring: 'gold' },
+  gold: { main: 'gold', light: 'parch', deep: 'gold-d', medal: 'blue', ring: 'red' },
+};
+
+/**
+ * Vitral alto de arco apuntado: vidrios en rombo con emplomado diagonal, un medallón bajo
+ * la clave, borde de plomo, marco de piedra y alféizar.
+ */
+function stainedGlass(x, y, w, h, colors) {
+  const inside = lancetShape(x, y, w, h);
+  const glass = canvas();
+  const lead = canvas();
+  const frame = canvas();
+  const mx = x + w / 2 - 0.5;
+  const my = y + Math.round(w * 0.87) + 12;
+  for (let py = y - 2; py < y + h + 2; py++) {
+    for (let px = x - 2; px < x + w + 2; px++) {
+      if (!inside(px, py)) {
+        const nearGlass =
+          inside(px - 2, py) || inside(px + 2, py) || inside(px, py - 2) || inside(px, py + 2);
+        if (nearGlass) frame.rect('stone-l', px, py, 1, 1);
+        continue;
+      }
+      const d = Math.hypot(px - mx, py - my);
+      const edge = !inside(px - 1, py) || !inside(px + 1, py) || !inside(px, py - 1);
+      if (edge) lead.rect('lead', px, py, 1, 1);
+      else if (d < 6.5) {
+        if (d > 5.4) lead.rect('lead', px, py, 1, 1);
+        else if (d > 4.2) glass.rect(colors.ring, px, py, 1, 1);
+        else glass.rect(d < 1.5 ? 'parch' : colors.medal, px, py, 1, 1);
+      } else if ((px + py) % 6 === 0 || (px - py + 600) % 6 === 0) lead.rect('lead', px, py, 1, 1);
+      else {
+        const cell = Math.floor((px + py) / 6) + Math.floor((px - py + 600) / 6);
+        const tone = cell % 3 === 0 ? colors.light : cell % 5 === 1 ? colors.deep : colors.main;
+        glass.rect(tone, px, py, 1, 1);
+      }
+    }
+  }
+  frame.rect('stone-d', x - 3, y + h, w + 6, 2);
+  frame.rect('stone-l', x - 3, y + h, w + 6, 1);
+  return glass.svg() + lead.svg() + frame.svg();
+}
+
+/** Mancha de luz de color en el suelo, donde cae el haz de un vitral (de día). */
+function lightPool(cx, cy, rx, ry, color) {
+  const c = canvas();
+  for (let dy = -ry; dy <= ry; dy++) {
+    const half = Math.round(rx * Math.sqrt(1 - (dy * dy) / (ry * ry)));
+    c.rect(color, cx - half, cy + dy, half * 2, 1);
+  }
+  return `<g class="px-day px-beam">${c.svg()}</g>`;
+}
+
+/**
+ * El pasillo que se aleja: arcos cada vez más chicos y oscuros, con libros en los muros
+ * y, al fondo, una ventanita con luz.
+ */
+function aisle(x, y, w, h) {
+  const c = canvas();
+  const rings = ['stone-l', 'stone-d', 'mortar', 'wood-d', 'ink'];
+  const spines = ['red', 'blue', 'green', 'gold-d', 'plum'];
+  rings.forEach((color, i) => {
+    const inset = i * 3;
+    const ry = y + Math.round(inset * 0.8);
+    const shape = archShape(x + inset, ry, w - inset * 2, h - (ry - y));
+    fillShape(c, color, shape, x + inset, ry, w - inset * 2, h - (ry - y));
+  });
+  for (let i = 1; i < 4; i++) {
+    const inset = i * 3 + 1;
+    for (let py = y + h - 16 + i * 2; py < y + h - 3; py += 3) {
+      const color = spines[(i + py) % spines.length];
+      c.rect(color, x + inset, py, 1, 2);
+      c.rect(color, x + w - inset - 1, py, 1, 2);
+    }
+  }
+  const mid = x + Math.floor(w / 2);
+  c.rect('sky-low', mid - 1, y + 17, 2, 4);
+  return c.svg();
+}
+
+/** Atril de la nave: pie, columna con nudo dorado, tablero inclinado y el libro abierto. */
+function lectern(cx, bottom) {
+  const c = canvas();
+  c.rect('ink', cx - 9, bottom - 3, 18, 3);
+  c.rect('ink', cx - 3, bottom - 27, 6, 24);
+  c.rect('ink', cx - 19, bottom - 32, 38, 6);
+  c.rect('wood', cx - 8, bottom - 2, 16, 1);
+  c.rect('wood', cx - 2, bottom - 26, 4, 23);
+  c.rect('wood', cx - 18, bottom - 31, 36, 3);
+  c.rect('wood-l', cx - 2, bottom - 26, 1, 23);
+  c.rect('wood-l', cx - 18, bottom - 31, 36, 1);
+  c.rect('wood-d', cx - 18, bottom - 28, 36, 1);
+  c.rect('gold', cx - 3, bottom - 16, 6, 2);
+  return c.svg() + openBook(cx - 17, bottom - 42);
+}
+
+/** Candelabro de pie, de bronce, con su vela. */
+function candelabrum(x, bottom, height) {
+  const c = canvas();
+  c.rect('ink', x - 4, bottom - 2, 9, 2);
+  c.rect('ink', x - 1, bottom - height, 3, height - 2);
+  c.rect('ink', x - 3, bottom - height - 1, 7, 2);
+  c.rect('gold-d', x - 3, bottom - 2, 7, 1);
+  c.rect('gold-d', x, bottom - height, 1, height - 2);
+  for (const k of [0.35, 0.7]) c.rect('gold', x - 1, bottom - Math.round(height * k), 3, 1);
+  c.rect('gold', x - 2, bottom - height - 1, 5, 1);
+  return c.svg() + candle(x - 3, bottom - height - 15);
+}
+
+/** Escalera corrediza apoyada en la estantería, colgada de su riel de bronce. */
+function ladder(topX, topY, bottomX, bottomY) {
+  const c = canvas();
+  c.rect('ink', topX - 3, topY - 3, 14, 3);
+  c.rect('gold-d', topX - 2, topY - 2, 12, 1);
+  for (let py = topY; py <= bottomY; py++) {
+    const t = (py - topY) / (bottomY - topY);
+    const lx = Math.round(topX + (bottomX - topX) * t);
+    for (const off of [0, 7]) {
+      c.rect('ink', lx + off - 1, py, 3, 1);
+      c.rect('wood-l', lx + off, py, 1, 1);
+    }
+    if ((py - topY) % 7 === 4) {
+      c.rect('wood', lx + 1, py, 6, 1);
+      c.rect('wood-d', lx + 1, py + 1, 6, 1);
+    }
+  }
+  c.rect('ink', bottomX - 1, bottomY + 1, 3, 2);
+  c.rect('ink', bottomX + 6, bottomY + 1, 3, 2);
+  return c.svg();
+}
+
+/**
+ * Puerta de tablones con arco de piedra, bisagras de hierro y aldaba. Cerrada o abierta
+ * (luz cálida del otro lado y la hoja girada); el rectángulo transparente recibe el clic.
+ */
+function door(x, y, w, h) {
+  const inside = archShape(x, y, w, h);
+  const frame = canvas();
+  const leaf = canvas();
+  const open = canvas();
+  for (let py = y - 3; py < y + h; py++) {
+    for (let px = x - 3; px < x + w + 3; px++) {
+      if (inside(px, py)) {
+        const plank = (px - x) % 5;
+        leaf.rect(plank === 0 ? 'wood-d' : plank === 1 ? 'wood-l' : 'wood', px, py, 1, 1);
+        open.rect(py < y + 6 ? 'flame' : 'flame-core', px, py, 1, 1);
+      } else if (inside(px - 3, py) || inside(px + 3, py) || inside(px, py + 3)) {
+        frame.rect(px >= x + w ? 'stone-d' : 'stone-l', px, py, 1, 1);
+      }
+    }
+  }
+  const r = Math.floor(w / 2);
+  for (const hy of [y + r + 4, y + h - 12]) {
+    leaf.rect('ink', x + 1, hy, w - 7, 2);
+    leaf.rect('lead', x + 1, hy, w - 8, 1);
+  }
+  leaf.rect('ink', x + w - 6, y + Math.round(h * 0.58), 3, 4);
+  leaf.rect('gold', x + w - 5, y + Math.round(h * 0.58) + 1, 1, 2);
+  // Abierta: la hoja se ve de canto a la izquierda y la luz se derrama en el suelo.
+  open.rect('wood-d', x, y + r, 3, h - r);
+  open.rect('wood-l', x, y + r, 1, h - r);
+  const spill = canvas();
+  for (let i = 0; i < 5; i++) spill.rect('beam', x - i, y + h + i, w + i * 2, 1);
+  return `<g class="px-door">${frame.svg()}
+    <g class="px-door-closed">${leaf.svg()}</g>
+    <g class="px-door-open">${open.svg()}${spill.svg()}</g>
+    <rect class="px-door-hit" x="${x - 3}" y="${y - 3}" width="${w + 6}" height="${h + 3}" fill="transparent"/>
+  </g>`;
+}
+
+/** La gran biblioteca del monasterio: nave alta, tres vitrales, escalera, atril y puerta. */
+function monasteryScene() {
+  const rnd = random(2203);
+  const back = canvas();
+  stoneWall(back, 0, 0, W, 142, rnd);
+  flagstones(back, 0, 142, W, H - 142, rnd);
+  // Pilastras entre los vitrales, con su capitel.
+  for (const px of [131, 181]) {
+    back.rect('stone-d', px, 0, 8, 142);
+    back.rect('stone-l', px + 1, 0, 1, 142);
+    back.rect('stone-l', px - 1, 90, 10, 3);
+  }
+  const shelves = bookshelf(back, 2, 6, 84, 136, rnd, 5) + bookshelf(back, 236, 6, 54, 136, rnd, 5);
+
+  const lancets = [
+    [100, 'red'],
+    [150, 'blue'],
+    [200, 'gold'],
+  ];
+  const windows = lancets
+    .map(([lx, color]) => stainedGlass(lx, 12, 20, 74, VITRALS[color]))
+    .join('');
+  const beams = lancets
+    .map(([lx, color]) => {
+      const tint = `beam-${color}`;
+      return (
+        lightBeam(lx, 88, 20, 146, { drift: 10, color: tint, mode: 'day' }) +
+        lightPool(lx + 33, 149, 21, 4, tint) +
+        lightBeam(lx, 88, 20, 146, { drift: 10, color: 'moonbeam', mode: 'night' })
+      );
+    })
+    .join('');
+
+  return `<svg class="px-scene px-monastery" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${back.svg()}${shelves}${windows}${aisle(146, 98, 28, 44)}
+    <rect class="px-night" x="0" y="0" width="${W}" height="${H}" style="fill:var(--px-dusk)"/>
+    ${beams}
+    ${motes(100, 90, 130, 50, rnd, 14)}
+    ${ladder(62, 12, 72, 140)}
+    ${door(296, 90, 20, 52)}
+    ${candelabrum(128, 150, 64)}${candelabrum(192, 150, 64)}
+    ${lectern(160, 154)}
+    ${glow(129, 73, 30)}${glow(193, 73, 30)}
+  </svg>`;
+}
+
+/** Escritorio: patas, tablero, atril inclinado con la hoja, tintero y vela o libros. */
+function writingDesk(x, bottom, { withCandle = true } = {}) {
+  const c = canvas();
+  const top = bottom - 30;
+  for (const lx of [x + 3, x + 57]) c.rect('ink', lx, top + 4, 4, 26);
+  c.rect('ink', x, top, 64, 5);
+  c.rect('ink', x + 6, top - 6, 30, 6);
+  for (const lx of [x + 3, x + 57]) c.rect('wood-d', lx + 1, top + 4, 2, 26);
+  c.rect('wood-d', x + 5, bottom - 8, 54, 2);
+  c.rect('wood', x + 1, top + 1, 62, 3);
+  c.rect('wood', x + 7, top - 5, 28, 4);
+  c.rect('wood-l', x + 1, top + 1, 62, 1);
+  const sheet = canvas();
+  sheet.rect('parch-d', x + 9, top - 13, 24, 8);
+  sheet.rect('parch', x + 10, top - 12, 22, 6);
+  for (const ly of [top - 11, top - 9, top - 7]) sheet.rect('text', x + 12, ly, 17, 1);
+  sheet.rect('red', x + 11, top - 11, 2, 2);
+  const stack = canvas();
+  stack.sprite(SHELF_OBJECTS[6], SHELF_PALETTE, x + 50, top - 6);
+  return (
+    c.svg() +
+    sheet.svg() +
+    inkwellWithQuill(x + 38, top - 15) +
+    (withCandle ? candle(x + 50, top - 14) : stack.svg())
+  );
+}
+
+/** Sillón de lectura: respaldo alto capitoné, brazos de madera, cojín y una manta encima. */
+function armchair(x, bottom) {
+  const c = canvas();
+  c.rect('ink', x + 4, bottom - 46, 36, 32);
+  c.rect('ink', x, bottom - 26, 8, 18);
+  c.rect('ink', x + 36, bottom - 26, 8, 18);
+  c.rect('ink', x + 4, bottom - 18, 36, 8);
+  for (const lx of [x + 3, x + 38]) c.rect('ink', lx, bottom - 10, 3, 10);
+  c.rect('red', x + 5, bottom - 45, 34, 29);
+  c.rect('red-d', x + 5, bottom - 45, 34, 2);
+  c.rect('red-l', x + 6, bottom - 43, 1, 26);
+  for (let by = bottom - 40; by < bottom - 18; by += 7)
+    for (let bx = x + 11; bx < x + 38; bx += 8) c.rect('gold-d', bx, by, 1, 1);
+  c.rect('wood', x + 1, bottom - 25, 6, 16);
+  c.rect('wood', x + 37, bottom - 25, 6, 16);
+  c.rect('wood-l', x + 1, bottom - 25, 6, 1);
+  c.rect('wood-l', x + 37, bottom - 25, 6, 1);
+  c.rect('red-l', x + 7, bottom - 17, 30, 3);
+  c.rect('red', x + 7, bottom - 14, 30, 3);
+  for (const lx of [x + 4, x + 39]) c.rect('wood-d', lx, bottom - 9, 1, 9);
+  // La manta, doblada sobre el brazo derecho.
+  const blanket = canvas();
+  blanket.rect('ink', x + 29, bottom - 30, 12, 20);
+  blanket.rect('green', x + 30, bottom - 29, 10, 18);
+  for (let sy = bottom - 27; sy < bottom - 12; sy += 4) blanket.rect('green-l', x + 30, sy, 10, 1);
+  blanket.rect('parch-d', x + 30, bottom - 12, 10, 1);
+  return c.svg() + blanket.svg();
+}
+
+/** Mesita redonda de un pie, con una vela. */
+function sideTable(x, bottom) {
+  const c = canvas();
+  c.rect('ink', x, bottom - 20, 14, 3);
+  c.rect('ink', x + 5, bottom - 17, 4, 15);
+  c.rect('ink', x + 2, bottom - 3, 10, 3);
+  c.rect('wood', x + 1, bottom - 19, 12, 1);
+  c.rect('wood-l', x + 1, bottom - 20, 12, 1);
+  c.rect('wood-d', x + 6, bottom - 17, 2, 15);
+  c.rect('wood', x + 3, bottom - 2, 8, 1);
+  return c.svg() + candle(x + 3, bottom - 34);
+}
+
+/** Alfombra en el suelo: campo rojo, cenefa dorada, medallón y flecos. */
+function rug(x, y, w, h) {
+  const c = canvas();
+  c.rect('ink', x, y, w, h);
+  c.rect('gold-d', x + 1, y + 1, w - 2, h - 2);
+  c.rect('red-d', x + 3, y + 2, w - 6, h - 4);
+  c.rect('red', x + 5, y + 3, w - 10, h - 6);
+  for (let px = x + 4; px < x + w - 4; px += 4) c.rect('gold', px, y + 1, 2, 1);
+  const cx = x + Math.floor(w / 2);
+  const cy = y + Math.floor(h / 2);
+  c.rect('gold', cx - 6, cy, 12, 1);
+  c.rect('gold', cx - 3, cy - 2, 6, 5);
+  c.rect('blue', cx - 1, cy - 1, 2, 3);
+  for (let px = x + 1; px < x + w - 1; px += 2) {
+    c.rect('parch-d', px, y - 1, 1, 1);
+    c.rect('parch-d', px, y + h, 1, 1);
+  }
+  return c.svg();
+}
+
+/** Tapiz colgado de su barra: cenefa dorada, un árbol de la vida y flecos. */
+function tapestry(x, y, w, h) {
+  const c = canvas();
+  c.rect('ink', x - 3, y - 2, w + 6, 3);
+  c.rect('ink', x, y + 1, w, h);
+  c.rect('gold-d', x - 2, y - 1, w + 4, 1);
+  c.rect('gold-d', x + 1, y + 2, w - 2, h - 2);
+  c.rect('blue-d', x + 3, y + 4, w - 6, h - 6);
+  c.rect('blue', x + 4, y + 5, w - 8, h - 8);
+  const cx = x + Math.floor(w / 2);
+  c.rect('wood-l', cx, y + 16, 1, h - 20);
+  for (const [dy, half, color] of [
+    [8, 4, 'green-l'],
+    [11, 7, 'green'],
+    [15, 9, 'green'],
+    [19, 6, 'green-l'],
+  ])
+    c.rect(color, cx - half, y + dy, half * 2 + 1, 2);
+  for (const [ax, ay] of [
+    [-5, 13],
+    [4, 10],
+    [6, 17],
+    [-7, 18],
+  ])
+    c.rect('red', cx + ax, y + ay, 1, 1);
+  c.rect('green-d', x + 4, y + h - 6, w - 8, 2);
+  for (let px = x + 1; px < x + w - 1; px += 2) c.rect('gold', px, y + h + 1, 1, 2);
+  return c.svg();
+}
+
+/** Arcón de madera con herrajes, cerradura dorada y, encima, el globo y dos libros. */
+function chest(x, bottom) {
+  const c = canvas();
+  c.rect('ink', x, bottom - 16, 40, 16);
+  c.rect('wood', x + 1, bottom - 15, 38, 14);
+  c.rect('wood-l', x + 1, bottom - 15, 38, 1);
+  c.rect('wood-d', x + 1, bottom - 9, 38, 1);
+  for (const bx of [x + 5, x + 33]) c.rect('lead', bx, bottom - 15, 2, 14);
+  c.rect('ink', x + 18, bottom - 11, 4, 4);
+  c.rect('gold', x + 19, bottom - 10, 2, 2);
+  const top = canvas();
+  top.sprite(SHELF_OBJECTS[2], SHELF_PALETTE, x + 26, bottom - 25);
+  top.sprite(SHELF_OBJECTS[6], SHELF_PALETTE, x + 6, bottom - 22);
+  return c.svg() + top.svg();
+}
+
+/**
+ * Tu estudio: el cuarto de un lector. Ventana al paisaje con el escritorio debajo, sillón
+ * de lectura con su mesita y vela, alfombra, tapiz, arcón con el globo y la puerta.
+ */
+function studyScene() {
+  const rnd = random(4242);
+  const back = canvas();
+  stoneWall(back, 0, 0, W, 150, rnd);
+  floor(back, 0, 150, W, H - 150, rnd);
+  // Viga del techo: un cuarto a escala de persona, no una nave.
+  back.rect('ink', 0, 4, W, 7);
+  back.rect('wood', 0, 5, W, 4);
+  back.rect('wood-l', 0, 5, W, 1);
+
+  // La repisa con tus libros (HTML) va en la pared entre la puerta y la ventana; el
+  // escritorio queda bajo la ventana, el arcón bajo la repisa y el sillón en el rincón.
+  const win = { x: 206, y: 28, w: 44, h: 62 };
+  return `<svg class="px-scene px-study" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${back.svg()}${tapestry(270, 26, 32, 48)}
+    <rect class="px-night" x="0" y="0" width="${W}" height="${H}" style="fill:var(--px-dusk)"/>
+    ${archWindow(win.x, win.y, win.w, win.h, sky(win.x, win.y, win.w, win.h, rnd) + landscape(win.x, win.y, win.w, win.h), 'px-study-window')}
+    ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 150, { drift: -44, color: 'beam', mode: 'day' })}
+    ${lightBeam(win.x + 6, win.y + win.h + 3, win.w - 12, 150, { drift: -40, color: 'moonbeam', mode: 'night' })}
+    ${rug(64, 157, 132, 13)}
+    ${motes(win.x - 44, win.y + win.h, 60, 50, rnd)}
+    ${door(8, 76, 30, 74)}
+    ${chest(92, 150)}
+    ${writingDesk(190, 150, { withCandle: false })}
+    ${sideTable(256, 150)}
+    ${armchair(272, 150)}
+    ${glow(263, 118, 40)}
+  </svg>`;
+}
+
 /** Búho solo, para acompañar en el índice o en la biblioteca. */
 function owlBadge() {
   return `<svg class="px-badge" viewBox="0 0 18 18" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${owl(1, 1)}</svg>`;
@@ -1046,4 +1490,14 @@ function quill() {
   return `<svg class="px-quill" viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
 }
 
-export const Pixel = { scriptoriumScene, workshop, owlBadge, fleuron, quill, canvas, random };
+export const Pixel = {
+  scriptoriumScene,
+  monasteryScene,
+  studyScene,
+  workshop,
+  owlBadge,
+  fleuron,
+  quill,
+  canvas,
+  random,
+};

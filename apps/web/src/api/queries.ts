@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi, useSession } from '../app/context';
 import type { components } from './schema';
 
@@ -40,5 +40,27 @@ export function useLibrary() {
     queryKey: keys.library(userId ?? ''),
     queryFn: () => api.get<BookSummary[]>('/api/v1/books'),
     enabled: userId !== null,
+    // Mientras el worker prepara algún libro, se consulta cada 2 s (frontend §7).
+    refetchInterval: (query) => (query.state.data?.some(isPreparing) ? 2000 : false),
+  });
+}
+
+/** El worker aún no termina de leer el EPUB. */
+export function isPreparing(book: BookSummary): boolean {
+  return book.status === 'pending' || book.status === 'processing';
+}
+
+/** Sube un EPUB (202: queda en pending) y refresca la biblioteca para que aparezca. */
+export function useUploadBook() {
+  const api = useApi();
+  const client = useQueryClient();
+  const userId = useUserId();
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append('file', file);
+      return api.post<Schemas['UploadResponseDto']>('/api/v1/books', form);
+    },
+    onSettled: () => client.invalidateQueries({ queryKey: keys.library(userId ?? '') }),
   });
 }

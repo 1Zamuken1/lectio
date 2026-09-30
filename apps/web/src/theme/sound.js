@@ -142,6 +142,29 @@ const SFX = {
       slide: -2,
     });
   },
+  /** Puerta de madera: el gozne cruje (dos quejidos filtrados) y la hoja golpea. */
+  door: (t) => {
+    tone({
+      note: 50,
+      start: t,
+      duration: 0.3,
+      type: 'sawtooth',
+      gain: 0.05,
+      slide: 6,
+      filter: 900,
+    });
+    tone({
+      note: 57,
+      start: t + 0.24,
+      duration: 0.22,
+      type: 'sawtooth',
+      gain: 0.04,
+      slide: -4,
+      filter: 750,
+    });
+    tone({ note: 36, start: t + 0.5, duration: 0.16, type: 'triangle', gain: 0.16 });
+    rustle(t + 0.5, 0.1, 0.05);
+  },
   /**
    * Campanita del taller: la voz nueva está lista. Parciales inarmónicos de campana
    * (1 · 2,76 · 5,40 del fundamental) que se apagan despacio, dos golpes.

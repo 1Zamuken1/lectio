@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import type { BookSummary } from '../api/queries';
+import { isPreparing, type BookSummary } from '../api/queries';
 import { ApiImage } from '../components/ApiImage';
 import { Icon, PixelArt } from '../components/art';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
+import { useRoomDoor } from './room-door';
 
 const SPINE_COLORS = ['red', 'blue', 'green', 'red-d', 'blue-d', 'gold-d'];
 
@@ -13,31 +14,54 @@ function hash(text: string): number {
   return value >>> 0;
 }
 
+export type Room = 'monastery' | 'study';
+
+const ROOMS: Record<Room, { title: string; scene: () => string }> = {
+  monastery: { title: 'La biblioteca del monasterio', scene: () => Pixel.monasteryScene() },
+  study: { title: 'Tu estudio', scene: () => Pixel.studyScene() },
+};
+
 /**
  * Una sala con su estantería (portado de la biblioteca de la CLI): la escena ocupa la
  * pantalla, la estantería está dentro y la ficha del libro flota encima (en el celular,
  * sube desde abajo), así que abrirla no mueve nada. Sabio, el búho, comenta la elección.
+ * La puerta dibujada en la escena lleva a la otra sala (`onDoor`); la barra tiene el
+ * mismo botón para el teclado y el celular, donde la puerta queda fuera del encuadre.
+ * `notice` hace hablar al búho (subidas, errores) y `focus` elige un libro desde afuera
+ * (por ejemplo, el que ya tenías al subirlo de nuevo); cada uno cambia con su `id`.
  */
 export function LibraryRoom({
+  room,
+  onDoor,
   books,
   loading,
   empty,
   hint,
   renderDetail,
+  notice = null,
+  focus = null,
+  tools,
   children,
 }: {
+  room: Room;
+  onDoor: () => void;
   books: BookSummary[] | undefined;
   loading: boolean;
   empty: ReactNode;
   hint: (book: BookSummary | null) => string;
   renderDetail: (book: BookSummary, close: () => void) => ReactNode;
+  notice?: { text: string; id: number } | null;
+  focus?: { bookId: string; id: number } | null;
+  /** Controles de la estantería (Añadir libro), sobre los estantes. */
+  tools?: ReactNode;
   children?: ReactNode;
 }) {
   const [selected, setSelected] = useState<string | null>(null);
   const owl = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
-  const scene = useMemo(() => Pixel.scriptoriumScene({ desk: false }), []);
+  const scene = useMemo(() => ROOMS[room].scene(), [room]);
   const owlSvg = useMemo(() => Pixel.owlBadge(), []);
+  const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
 
   useEffect(() => {
@@ -50,11 +74,24 @@ export function LibraryRoom({
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
+  // Sabio reacciona a cada aviso nuevo.
+  useEffect(() => {
+    if (notice) react();
+  }, [notice]);
+
+  useEffect(() => {
+    if (focus) setSelected(focus.bookId);
+  }, [focus]);
+
   function choose(id: string | null) {
     if (id === selected) return;
     setSelected(id);
     Sound.play(id ? 'select' : 'toggle');
-    // Sabio reacciona: la animación se reinicia quitando y poniendo la clase.
+    react();
+  }
+
+  /** El búho salta y el globo aparece: la animación se reinicia quitando y poniendo la clase. */
+  function react() {
     for (const element of [owl.current, hintRef.current]) {
       if (!element) continue;
       const className = element === owl.current ? 'hop' : 'pop';
@@ -65,18 +102,29 @@ export function LibraryRoom({
   }
 
   return (
-    <main className={`library${book ? ' has-selection' : ''}`}>
-      <div className="library-scene">
+    <main
+      className={`library${book ? ' has-selection' : ''}${doorOpen ? ' door-open' : ''}`}
+      data-room={room}
+    >
+      {/* Solo el clic en la puerta: el teclado usa el botón de la barra. */}
+      <div
+        className="library-scene"
+        onClick={(event) => {
+          if ((event.target as Element).closest('.px-door')) onDoor();
+        }}
+      >
         <PixelArt className="scene" svg={scene} />
       </div>
       <div className="library-floor">
+        <h1 className="room-title">{ROOMS[room].title}</h1>
         <section className="bookcase" aria-label="Estantería">
           <div ref={owl} className="shelf-owl companion-slot" aria-hidden="true">
             <PixelArt svg={owlSvg} />
           </div>
           <p ref={hintRef} className="shelf-hint" aria-live="polite">
-            {hint(book)}
+            {notice?.text ?? hint(book)}
           </p>
+          {tools}
           {loading ? (
             <div className="shelf empty">
               <p>Buscando los libros…</p>
@@ -124,11 +172,12 @@ function Spine({
   const chapters = book.progress?.totalChapters ?? 12 + (seed % 20);
   const width = Math.round(Math.min(78, 36 + Math.sqrt(chapters * 25) * 1.6));
   const height = 150 + (seed % 5) * 8;
-  const title = book.title ?? 'Sin título';
+  const preparing = isPreparing(book);
+  const title = preparing ? 'Preparando…' : (book.title ?? 'Sin título');
   return (
     <button
       type="button"
-      className="spine"
+      className={`spine${preparing ? ' is-preparing' : ''}`}
       style={
         {
           '--spine': `var(--px-${color})`,

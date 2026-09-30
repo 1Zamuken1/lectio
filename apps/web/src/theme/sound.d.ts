@@ -1,5 +1,5 @@
 export type SoundName =
-  'select' | 'toggle' | 'open' | 'confirm' | 'page' | 'start' | 'hoot' | 'bell';
+  'select' | 'toggle' | 'open' | 'confirm' | 'page' | 'start' | 'hoot' | 'bell' | 'door';
 
 /** Efectos y música chiptune con Web Audio (sound.js). */
 export declare const Sound: {

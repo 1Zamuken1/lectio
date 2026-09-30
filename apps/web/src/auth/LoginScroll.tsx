@@ -130,7 +130,7 @@ export function LoginScroll({
           </div>
 
           <h2 id={`${id}-title`} className="scroll-title">
-            {tab === 'login' ? 'Firma para entrar' : 'Abre tu celda de copista'}
+            {tab === 'login' ? 'Firma para entrar' : 'Abre tu estudio'}
           </h2>
           {reason && <p className="scroll-reason">{reason}</p>}
 
