@@ -85,9 +85,9 @@ export function narrateSections(
       for (const [start, end] of segmentSentences(analyzed, language)) {
         const narration = silent
           ? ''
-          : narrationFor(analyzed, start, end, rules, stats, vocabulary);
+          : narrationFor(analyzed, start, end, rules, stats, vocabulary, language);
         const voices = narration
-          ? voicesFor(analyzed, start, end, dialogue, rules, vocabulary)
+          ? voicesFor(analyzed, start, end, dialogue, rules, vocabulary, language)
           : undefined;
         sentences.push({
           index: sentences.length,
@@ -127,6 +127,7 @@ function narrationFor(
   rules: NarrationOptions,
   stats: NarrationStats,
   vocabulary: ReadonlySet<string>,
+  language: string,
 ): string {
   // N1: las marcas de llamada a nota ("¹", "[3]") no se leen.
   let text = '';
@@ -150,7 +151,7 @@ function narrationFor(
     text = result.text;
     stats[rule] += result.removed;
   }
-  return normalizeNarration(text, vocabulary);
+  return normalizeNarration(text, vocabulary, language);
 }
 
 /**
@@ -165,6 +166,7 @@ function voicesFor(
   dialogue: Array<[number, number]>,
   rules: NarrationOptions,
   vocabulary: ReadonlySet<string>,
+  language: string,
 ): VoicePart[] | undefined {
   if (!dialogue.some(([a, b]) => b > start && a < end)) return undefined;
   // "(Al decir esto, hizo un gesto…)": una oración entre paréntesis es del narrador.
@@ -178,6 +180,7 @@ function voicesFor(
       rules,
       emptyNarrationStats(),
       vocabulary,
+      language,
     );
     if (!text) continue;
     const last = parts.at(-1);

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { PIPELINE_VERSION } from '../../../packages/epub-pipeline/src/process.js';
 import { buildEpub } from '../../../packages/epub-pipeline/test/helpers/build-epub.js';
 import { PNG, sampleEpub } from './helpers/sample-epub.js';
 import { createTestApp, signUp, waitForBook, type TestApp } from './helpers/test-app.js';
@@ -43,7 +44,7 @@ describe('subir y procesar', () => {
       language: 'es',
       errorCode: null,
       coverUrl: `/api/v1/books/${id}/cover`,
-      pipelineVersion: 1,
+      pipelineVersion: PIPELINE_VERSION,
     });
     const chapters = book.chapters as Array<{
       title: string;
@@ -87,7 +88,10 @@ describe('subir y procesar', () => {
       .get(`/api/v1/books/${body.id}/report`)
       .set('Authorization', lectora)
       .expect(200);
-    expect(report.body).toMatchObject({ pipelineVersion: 1, chapters: { total: 2 } });
+    expect(report.body).toMatchObject({
+      pipelineVersion: PIPELINE_VERSION,
+      chapters: { total: 2 },
+    });
   });
 
   it('un EPUB con DRM queda en error con DRM_PROTECTED (y no se reintenta)', async () => {

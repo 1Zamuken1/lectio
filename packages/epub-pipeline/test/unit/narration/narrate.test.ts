@@ -83,6 +83,22 @@ describe('etapa 9: normalización', () => {
     expect(await narrationOf('<p>Con\u00ADver\u00ADsa\u200Bción.</p>')).toEqual(['Conversación.']);
   });
 
+  it('en español, quita la tilde antigua de las vocales sueltas ("á", "é", "ó")', async () => {
+    expect(
+      await narrationOf(
+        '<p>Á la mañana fue á casa de su papá, é hizo lo que dijo ó calló. Está aquí.</p>',
+      ),
+    ).toEqual(['A la mañana fue a casa de su papá, e hizo lo que dijo o calló.', 'Está aquí.']);
+  });
+
+  it('en portugués, "é" suelta es un verbo y se deja', async () => {
+    const [section] = await narrate({
+      metadata: { language: 'pt' },
+      chapters: [{ id: 'c', title: 'Cap', body: '<p>A casa é bonita.</p>' }],
+    });
+    expect(section!.sentences.find((s) => s.blockIndex === 0)!.narration).toBe('A casa é bonita.');
+  });
+
   it('une la división silábica solo si la palabra existe en el libro', async () => {
     expect(
       await narrationOf(

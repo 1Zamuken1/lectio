@@ -1,5 +1,5 @@
 # Accessible EPUB 3 — Matt Garrish
-idioma: en · índice: nav · pipeline v1
+idioma: en · índice: nav · pipeline v2
 
 ## Estructura
   0 front_matter       6  Cover  [semantic: epub:type=cover]

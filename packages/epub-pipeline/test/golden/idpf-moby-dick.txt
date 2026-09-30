@@ -1,5 +1,5 @@
 # Moby-Dick — Herman Melville
-idioma: en · índice: nav · pipeline v1
+idioma: en · índice: nav · pipeline v2
 
 ## Estructura
   0 front_matter      10  Moby-Dick  [landmark: landmark cover]

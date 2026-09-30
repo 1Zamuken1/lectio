@@ -8,8 +8,13 @@ const INVISIBLE = /[\u00AD\u200B-\u200D\u2060\uFEFF]/g;
 // eslint-disable-next-line no-control-regex -- se buscan justamente caracteres de control
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 
-export function normalizeNarration(text: string, vocabulary: ReadonlySet<string>): string {
-  const cleaned = text.normalize('NFC').replace(INVISIBLE, '').replace(CONTROL, '');
+export function normalizeNarration(
+  text: string,
+  vocabulary: ReadonlySet<string>,
+  language = '',
+): string {
+  let cleaned = text.normalize('NFC').replace(INVISIBLE, '').replace(CONTROL, '');
+  if (language.toLowerCase().startsWith('es')) cleaned = modernizeLoneVowels(cleaned);
   // Primero la división silábica ("conver- sión"): tiene la misma forma que un guion de inciso.
   const joined = softenDashes(joinHyphenation(cleaned, vocabulary));
   const collapsed = joined
@@ -18,6 +23,28 @@ export function normalizeNarration(text: string, vocabulary: ReadonlySet<string>
     .trim();
   // Una oración sin letras ni cifras ("* * *", "—") no tiene nada que narrar.
   return /[\p{L}\p{N}]/u.test(collapsed) ? collapsed : '';
+}
+
+/**
+ * Ortografía anterior a 1911 (Bécquer, ediciones de Gutenberg): la preposición "á" y las
+ * conjunciones "é", "ó", "ú" iban con tilde. Una vocal acentuada suelta, Edge la deletrea
+ * ("a con acento"); sin tilde se lee como la palabra que es. Solo en español: en
+ * portugués "é" es un verbo y se deja.
+ */
+const LONE_VOWEL = /(?<![\p{L}\p{N}])([ÁáÉéÓóÚú])(?![\p{L}\p{N}])/gu;
+const PLAIN: Record<string, string> = {
+  á: 'a',
+  Á: 'A',
+  é: 'e',
+  É: 'E',
+  ó: 'o',
+  Ó: 'O',
+  ú: 'u',
+  Ú: 'U',
+};
+
+function modernizeLoneVowels(text: string): string {
+  return text.replace(LONE_VOWEL, (vowel: string) => PLAIN[vowel] ?? vowel);
 }
 
 /** Raya, semirraya y barra horizontal: las que se usan para diálogos e incisos. */

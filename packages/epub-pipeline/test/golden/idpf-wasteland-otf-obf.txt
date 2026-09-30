@@ -1,5 +1,5 @@
 # The Waste Land — T.S. Eliot
-idioma: en · índice: nav · pipeline v1
+idioma: en · índice: nav · pipeline v2
 
 ## Estructura
   0 front_matter     212  The Waste Land  [semantic: epub:type=titlepage]
