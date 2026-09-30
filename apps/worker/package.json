@@ -9,6 +9,7 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
     "seed:public": "node --conditions=source --import @swc-node/register/esm-register src/seed-public.ts",
+    "reprocess:books": "node --conditions=source --import @swc-node/register/esm-register src/reprocess-books.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

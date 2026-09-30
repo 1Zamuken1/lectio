@@ -92,9 +92,19 @@ export class AudioStateDto {
   provider!: string | null;
 
   @ApiProperty({
-    description: 'El perfil de voz cambió desde que se generó; se puede pedir de nuevo.',
+    description:
+      'El perfil de voz o la narración del capítulo cambiaron desde que se generó; se puede pedir de nuevo. Mientras tanto se sigue pudiendo escuchar.',
   })
   outdated!: boolean;
+
+  @ApiProperty({
+    enum: ['voice', 'narration'],
+    nullable: true,
+    type: String,
+    description:
+      'voice: cambió el perfil de voz (regenerarlo se cobra). narration: el libro se reprocesó y cambió lo que se narra (regenerarlo es gratis).',
+  })
+  outdatedReason!: 'voice' | 'narration' | null;
 
   static from(state: AudioState): AudioStateDto {
     return { ...state, expiresAt: state.expiresAt?.toISOString() ?? null };

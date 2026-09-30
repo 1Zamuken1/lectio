@@ -665,8 +665,13 @@ export interface components {
             durationMs: number | null;
             /** @example edge */
             provider: string | null;
-            /** @description El perfil de voz cambió desde que se generó; se puede pedir de nuevo. */
+            /** @description El perfil de voz o la narración del capítulo cambiaron desde que se generó; se puede pedir de nuevo. Mientras tanto se sigue pudiendo escuchar. */
             outdated: boolean;
+            /**
+             * @description voice: cambió el perfil de voz (regenerarlo se cobra). narration: el libro se reprocesó y cambió lo que se narra (regenerarlo es gratis).
+             * @enum {string|null}
+             */
+            outdatedReason: "voice" | "narration" | null;
         };
         VoiceDto: {
             /** @example gonzalo */

@@ -1,5 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { buildVoiceUnits, type Sentence, type VoiceUnit } from '@lectio/epub-pipeline';
+import {
+  buildVoiceUnits,
+  narrationFingerprint,
+  type Sentence,
+  type VoiceUnit,
+} from '@lectio/epub-pipeline';
 import { renderUnits, resolveVoice } from '@lectio/tts';
 import { APP_CONFIG } from '../../../config/config.module.js';
 import type { AppConfig } from '../../../config/env.js';
@@ -40,10 +45,8 @@ export class GenerateAudioService {
     const voice = resolveVoice(segment.voiceId, language);
     const provider = this.providers.create(voice.prosody);
     try {
-      const units: VoiceUnit[] = buildVoiceUnits(
-        input.sentences as Sentence[],
-        provider.maxChunkChars,
-      );
+      const sentences = input.sentences as Sentence[];
+      const units: VoiceUnit[] = buildVoiceUnits(sentences, provider.maxChunkChars);
       await this.audio.updateProgress(segmentId, 0, units.length);
       let savedAt = Date.now();
       const { audio, alignment } = await renderUnits(units, {
@@ -71,6 +74,9 @@ export class GenerateAudioService {
         {
           provider: provider.name,
           prosodyKey: voice.prosodyKey,
+          // De las oraciones leídas al empezar: si el libro se reprocesa mientras tanto, el
+          // audio queda marcado obsoleto en vez de pasar por vigente.
+          narrationHash: narrationFingerprint(sentences),
           audioKey,
           alignmentKey,
           durationMs: alignment.durationMs,

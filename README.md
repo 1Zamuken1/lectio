@@ -87,6 +87,15 @@ pnpm seed:public --audio none                      # solo los libros
 
 El audio lo genera el worker en segundo plano (`pnpm dev`). Los libros públicos se leen y escuchan sin cuenta.
 
+Cuando cambian las reglas del pipeline (`PIPELINE_VERSION`), los libros ya procesados se ponen al día con:
+
+```bash
+pnpm reprocess:books --dry-run   # qué libros tienen una versión anterior
+pnpm reprocess:books             # encolarlos para el worker (--inline: procesarlos aquí mismo)
+```
+
+Los libros siguen disponibles mientras tanto, el progreso y el audio se conservan, y el audio cuya narración cambió queda marcado obsoleto: el usuario lo regenera gratis (el de los libros públicos se regenera solo).
+
 El worker genera el audio con Edge TTS. Para trabajar sin red (o sin gastar solicitudes), `TTS_PROVIDER=silent` en `.env` genera MP3 de silencio con una duración proporcional al texto: la cuota, la alineación y el reproductor funcionan igual. La cuota mensual y los límites de generación también se ajustan en `.env` (ver `.env.example`).
 
 ## Desarrollo

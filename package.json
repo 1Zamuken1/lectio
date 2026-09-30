@@ -21,7 +21,8 @@
     "test:integration": "turbo run test:integration",
     "db:migrate": "pnpm --filter @lectio/core db:migrate",
     "db:up": "docker compose up -d",
-    "seed:public": "pnpm --silent --filter @lectio/worker seed:public"
+    "seed:public": "pnpm --silent --filter @lectio/worker seed:public",
+    "reprocess:books": "pnpm --silent --filter @lectio/worker reprocess:books"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

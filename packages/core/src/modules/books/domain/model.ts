@@ -1,4 +1,5 @@
 import type { ProcessedBook } from '@lectio/epub-pipeline';
+import type { ChapterPlan, StoredChapter } from './reprocess.js';
 
 export type BookStatus = 'pending' | 'processing' | 'ready' | 'error';
 
@@ -51,3 +52,49 @@ export interface ProcessedBookData {
   book: ProcessedBook;
   coverKey: string | null;
 }
+
+/** Un libro listo tal como está guardado, para reprocesarlo con una versión nueva. */
+export interface ReprocessTarget {
+  id: string;
+  status: BookStatus;
+  isPublic: boolean;
+  sourceKey: string;
+  pipelineVersion: number | null;
+  chapters: Array<StoredChapter & { narrationHash: string | null; sentences: unknown }>;
+}
+
+/** Un libro procesado con una versión anterior del pipeline. */
+export interface StaleBook {
+  id: string;
+  title: string | null;
+  isPublic: boolean;
+  pipelineVersion: number | null;
+}
+
+/** Lo que el reprocesamiento guarda, en una sola transacción. */
+export interface ReprocessData extends ProcessedBookData {
+  /** La versión leída antes de correr el pipeline: si cambió, otro proceso ya lo hizo. */
+  expectedVersion: number | null;
+  plan: ChapterPlan;
+  /**
+   * Huella de la narración guardada de los capítulos que no la tenían (procesados antes
+   * de que existiera): se le asigna al audio que se generó con ella, para poder comparar.
+   */
+  legacyHashes: Map<string, string>;
+}
+
+export type ReprocessResult =
+  | {
+      status: 'saved';
+      kept: number;
+      created: number;
+      removed: number;
+      /** Progresos que estaban en un capítulo quitado y pasaron a otro. */
+      progressMoved: number;
+      /** Archivos del audio de los capítulos quitados, para borrarlos del storage. */
+      orphanedKeys: string[];
+    }
+  /** Ya no está listo o ya no tiene la versión esperada: otro proceso se adelantó. */
+  | { status: 'stale' }
+  /** Hay audio generándose en un capítulo que se quitaría: se intenta más tarde. */
+  | { status: 'busy' };

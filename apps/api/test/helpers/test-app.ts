@@ -27,6 +27,8 @@ export interface TestApp {
   app: INestApplication;
   http: ReturnType<typeof request>;
   prisma: PrismaService;
+  /** El contexto del worker (con `worker: true`), para usar sus servicios directamente. */
+  worker: INestApplicationContext | null;
   /** Deja la base vacía (entre tests), sin tocar las migraciones. */
   reset(): Promise<void>;
   close(): Promise<void>;
@@ -53,6 +55,7 @@ export async function createTestApp(
     app,
     http: request(app.getHttpServer()),
     prisma,
+    worker,
     async reset() {
       const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
         SELECT tablename FROM pg_tables

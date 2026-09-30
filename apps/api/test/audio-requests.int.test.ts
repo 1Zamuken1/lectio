@@ -174,6 +174,7 @@ describe('GET /chapters/:id/audio', () => {
       durationMs: null,
       provider: null,
       outdated: false,
+      outdatedReason: null,
     });
   });
 });

@@ -110,6 +110,9 @@ model Chapter {
   /// Caracteres de narración: lo que se envía a TTS y cuenta para la cuota.
   characterCount Int         @map("character_count")
   sentenceCount  Int         @map("sentence_count")
+  /// Huella de lo que se narra (narrationFingerprint): si cambia al reprocesar, el audio
+  /// generado con la narración anterior queda obsoleto. null = procesado antes de existir.
+  narrationHash  String?     @map("narration_hash")
   createdAt      DateTime    @default(now()) @map("created_at")
 
   book            Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
@@ -143,6 +146,10 @@ model AudioSegment {
   provider           String?
   /// Prosodia con que se generó: si el perfil cambia, este audio queda obsoleto.
   prosodyKey         String?     @map("prosody_key")
+  /// Huella de la narración con que se generó; distinta a la del capítulo = obsoleto.
+  narrationHash      String?     @map("narration_hash")
+  /// false = regeneración gratis porque cambió la narración (reprocesamiento): no se cobra.
+  billable           Boolean     @default(true)
   audioKey           String?     @map("audio_key")
   alignmentKey       String?     @map("alignment_key")
   durationMs         Int?        @map("duration_ms")
@@ -194,14 +201,15 @@ model ReadingProgress {
 model TtsUsageLog {
   id                  String   @id @default(uuid(7)) @db.Uuid
   userId              String   @map("user_id") @db.Uuid
-  chapterId           String   @map("chapter_id") @db.Uuid
+  /// null si el capítulo ya no existe (se borró el libro o se reprocesó): el consumo queda.
+  chapterId           String?  @map("chapter_id") @db.Uuid
   provider            String
   voiceId             String   @map("voice_id")
   charactersProcessed Int      @map("characters_processed")
   createdAt           DateTime @default(now()) @map("created_at")
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chapter Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
 
   @@index([userId, createdAt])
   @@map("tts_usage_logs")
