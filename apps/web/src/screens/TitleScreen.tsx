@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { usePublicBooks } from '../api/queries';
+import { useSession } from '../app/context';
 import { PixelArt } from '../components/art';
 import { ModeButton, SettingsButton } from '../components/ThemeTools';
 import { Pixel } from '../theme/pixel';
@@ -16,6 +17,7 @@ const number = new Intl.NumberFormat('es');
  */
 export function TitleScreen() {
   const navigate = useNavigate();
+  const { state } = useSession();
   const theme = useTheme();
   const books = usePublicBooks();
   const start = useRef<HTMLButtonElement>(null);
@@ -65,7 +67,8 @@ export function TitleScreen() {
           className="press-start"
           onClick={() => {
             Sound.play('start');
-            navigate('/biblioteca');
+            // Con sesión, a tu estudio; sin ella, al catálogo público (se lee sin cuenta).
+            navigate(state.status === 'authenticated' ? '/estudio' : '/biblioteca');
           }}
         >
           Pulsa para comenzar

@@ -1,29 +1,54 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import { isPreparing, type BookSummary } from '../api/queries';
 import { PixelArt } from '../components/art';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { useRoomDoor } from './room-door';
+import {
+  SORT_LABELS,
+  filterBooks,
+  packShelves,
+  sortBooks,
+  spineSize,
+  type ShelfSort,
+} from './shelves';
 
 const SPINE_COLORS = ['red', 'blue', 'green', 'red-d', 'blue-d', 'gold-d'];
 
-function hash(text: string): number {
-  let value = 2166136261;
-  for (const char of text) value = Math.imul(value ^ char.codePointAt(0)!, 16777619);
-  return value >>> 0;
-}
-
 export type Room = 'monastery' | 'study';
 
-const ROOMS: Record<Room, { title: string; scene: () => string }> = {
-  monastery: { title: 'La biblioteca del monasterio', scene: () => Pixel.monasteryScene() },
-  study: { title: 'Tu estudio', scene: () => Pixel.studyScene() },
+/** Cada sala: su título, su escena, cuántas filas caben a lo más y el orden inicial. */
+const ROOMS: Record<
+  Room,
+  { title: string; scene: () => string; maxRows: number; sort: ShelfSort }
+> = {
+  monastery: {
+    title: 'La biblioteca del monasterio',
+    scene: () => Pixel.monasteryScene(),
+    maxRows: 3,
+    sort: 'title',
+  },
+  study: { title: 'Tu estudio', scene: () => Pixel.studyScene(), maxRows: 2, sort: 'reading' },
 };
+
+/** Con más libros que esto aparecen buscar y ordenar. */
+const BROWSE_FROM = 7;
 
 /**
  * Una sala con su estantería (portado de la biblioteca de la CLI): la escena ocupa la
  * pantalla, la estantería está dentro y la ficha del libro se abre encima, en el atril
- * (Lectern.tsx; en el celular sube desde abajo), así que abrirla no mueve nada. Sabio, el búho, comenta la elección.
+ * (Lectern.tsx; en el celular sube desde abajo), así que abrirla no mueve nada. Sabio, el
+ * búho, comenta la elección. Con muchos libros, la estantería no crece: se reparte en
+ * estantes que se pasan con flechas, y arriba se busca y se ordena (shelves.ts).
  * La puerta dibujada en la escena lleva a la otra sala (`onDoor`); la barra tiene el
  * mismo botón para el teclado y el celular, donde la puerta queda fuera del encuadre.
  * `notice` hace hablar al búho (subidas, errores) y `focus` elige un libro desde afuera
@@ -62,6 +87,38 @@ export function LibraryRoom({
   const owlSvg = useMemo(() => Pixel.owlBadge(), []);
   const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
+
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<ShelfSort>(ROOMS[room].sort);
+  const [page, setPage] = useState(0);
+  const shelfRef = useRef<HTMLDivElement>(null);
+  const { width, rows } = useShelfFit(shelfRef, ROOMS[room].maxRows);
+  const browsing = (books?.length ?? 0) >= BROWSE_FROM;
+  const visible = useMemo(
+    () => sortBooks(filterBooks(books ?? [], query), sort),
+    [books, query, sort],
+  );
+  const shelves = useMemo(() => packShelves(visible, width, rows), [visible, width, rows]);
+  const current = Math.min(page, shelves.length - 1);
+
+  // Al cambiar la búsqueda o el orden, se vuelve al primer estante.
+  useEffect(() => setPage(0), [query, sort]);
+
+  // Si alguien elige un libro desde afuera (el que ya tenías), se va a su estante.
+  const focusedId = useRef<number | null>(null);
+  useEffect(() => {
+    if (!focus || focusedId.current === focus.id) return;
+    const at = shelves.findIndex((shelf) => shelf.some((b) => b.id === focus.bookId));
+    if (at >= 0) {
+      focusedId.current = focus.id;
+      setPage(at);
+    } else if (query) setQuery('');
+  }, [focus, shelves, query]);
+
+  function turn(to: number) {
+    setPage(to);
+    Sound.play('page');
+  }
 
   useEffect(() => {
     document.body.dataset.screen = 'library';
@@ -123,26 +180,88 @@ export function LibraryRoom({
           <p ref={hintRef} className="shelf-hint" aria-live="polite">
             {notice?.text ?? hint(book)}
           </p>
-          {tools}
+          {(browsing || tools) && (
+            <div className="shelf-tools">
+              {browsing && (
+                <>
+                  <label className="shelf-search">
+                    <span className="visually-hidden">Buscar por título o autor</span>
+                    <input
+                      type="search"
+                      placeholder="Buscar título o autor"
+                      value={query}
+                      onChange={(event) => setQuery(event.target.value)}
+                    />
+                  </label>
+                  <label className="shelf-sort">
+                    <span className="visually-hidden">Ordenar</span>
+                    <select
+                      value={sort}
+                      onChange={(event) => setSort(event.target.value as ShelfSort)}
+                    >
+                      {Object.entries(SORT_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
+              )}
+              {tools}
+            </div>
+          )}
           {loading ? (
             <div className="shelf empty">
               <p>Buscando los libros…</p>
             </div>
           ) : books && books.length > 0 ? (
-            <div className="shelf">
-              {books.map((b, i) => (
-                <div className="slot" key={b.id}>
-                  <Spine
-                    book={b}
-                    index={i}
-                    pressed={b.id === selected}
-                    onClick={() => choose(b.id === selected ? null : b.id)}
-                  />
-                </div>
-              ))}
+            <div
+              ref={shelfRef}
+              className="shelf"
+              // Con varios estantes, el alto es siempre el mismo: pasar no mueve la sala.
+              style={shelves.length > 1 ? { minHeight: `${rows * 13}rem` } : undefined}
+            >
+              {visible.length === 0 ? (
+                <p className="shelf-none">Ningún libro coincide con «{query.trim()}».</p>
+              ) : (
+                (shelves[current] ?? []).map((b, i) => (
+                  <div className="slot" key={b.id}>
+                    <Spine
+                      book={b}
+                      index={i}
+                      pressed={b.id === selected}
+                      onClick={() => choose(b.id === selected ? null : b.id)}
+                    />
+                  </div>
+                ))
+              )}
             </div>
           ) : (
             <div className="shelf empty">{empty}</div>
+          )}
+          {shelves.length > 1 && (
+            <nav className="shelf-pager" aria-label="Estantes">
+              <button
+                type="button"
+                aria-label="Estante anterior"
+                disabled={current === 0}
+                onClick={() => turn(current - 1)}
+              >
+                ‹
+              </button>
+              <span aria-live="polite">
+                Estante {current + 1} de {shelves.length}
+              </span>
+              <button
+                type="button"
+                aria-label="Estante siguiente"
+                disabled={current === shelves.length - 1}
+                onClick={() => turn(current + 1)}
+              >
+                ›
+              </button>
+            </nav>
           )}
           {children}
         </section>
@@ -165,12 +284,8 @@ function Spine({
   pressed: boolean;
   onClick: () => void;
 }) {
-  const seed = hash(book.id);
+  const { seed, width, height } = spineSize(book);
   const color = SPINE_COLORS[seed % SPINE_COLORS.length];
-  // Grosor según la extensión (capítulos, si se conocen); alto con algo de azar.
-  const chapters = book.progress?.totalChapters ?? 12 + (seed % 20);
-  const width = Math.round(Math.min(78, 36 + Math.sqrt(chapters * 25) * 1.6));
-  const height = 150 + (seed % 5) * 8;
   const preparing = isPreparing(book);
   const title = preparing ? 'Preparando…' : (book.title ?? 'Sin título');
   return (
@@ -194,4 +309,38 @@ function Spine({
       </span>
     </button>
   );
+}
+
+/** Lo que ocupa bajo los estantes: las flechas y el margen del suelo. */
+const BELOW_SHELF = 96;
+
+/**
+ * El ancho de la estantería y cuántas filas caben entre su borde de arriba y el final de
+ * la pantalla (entre 1 y `maxRows`): así la sala nunca crece ni la escena se estira.
+ */
+function useShelfFit(ref: RefObject<HTMLDivElement | null>, maxRows: number) {
+  const [fit, setFit] = useState({ width: 0, rows: maxRows });
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const measure = () => {
+      const rowHeight = parseFloat(getComputedStyle(document.documentElement).fontSize) * 13;
+      const top = element.getBoundingClientRect().top + window.scrollY;
+      const room = window.innerHeight - top - BELOW_SHELF;
+      const rows = Math.max(1, Math.min(maxRows, Math.floor(room / rowHeight)));
+      const width = element.clientWidth;
+      setFit((f) => (f.width === width && f.rows === rows ? f : { width, rows }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    // También la página: cambia con el alto de la ventana aunque la estantería no.
+    observer.observe(document.documentElement);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  });
+  return fit;
 }

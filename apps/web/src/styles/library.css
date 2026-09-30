@@ -1237,8 +1237,8 @@ body[data-screen='library'] #app {
   box-shadow: none;
 }
 
-[data-world='scriptorium'] .library[data-room='study'] .bookcase::before,
-[data-world='scriptorium'] .library[data-room='study'] .bookcase::after {
+[data-world='scriptorium'] .library[data-room='study'] .shelf::before,
+[data-world='scriptorium'] .library[data-room='study'] .shelf::after {
   content: '';
   position: absolute;
   bottom: -18px;
@@ -1253,12 +1253,12 @@ body[data-screen='library'] #app {
   pointer-events: none;
 }
 
-[data-world='scriptorium'] .library[data-room='study'] .bookcase::before {
+[data-world='scriptorium'] .library[data-room='study'] .shelf::before {
   left: 1rem;
   transform: scaleX(-1);
 }
 
-[data-world='scriptorium'] .library[data-room='study'] .bookcase::after {
+[data-world='scriptorium'] .library[data-room='study'] .shelf::after {
   right: 1rem;
 }
 
@@ -1287,8 +1287,105 @@ body[data-screen='library'] #app {
 
 .shelf-tools {
   display: flex;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
   margin: 0 0 0.6rem;
+}
+
+.shelf-tools .add-book {
+  margin-left: auto;
+}
+
+.shelf-search {
+  flex: 1 1 12rem;
+  max-width: 20rem;
+}
+
+.shelf-search input,
+.shelf-sort select {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+}
+
+[data-world='scriptorium'] .shelf-search input,
+[data-world='scriptorium'] .shelf-sort select {
+  font-family: var(--font-display);
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+  border-radius: 0;
+}
+
+.shelf-none {
+  align-self: center;
+  margin: auto;
+  color: var(--ink-soft);
+}
+
+[data-world='scriptorium'] .shelf-none {
+  padding: 0.4rem 0.7rem;
+  font-family: var(--font-display);
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+}
+
+/* Pasar de estante: flechas y "Estante 2 de 5" bajo la tabla. */
+.shelf-pager {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.shelf-pager button {
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.shelf-pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+[data-world='scriptorium'] .shelf-pager {
+  color: var(--chrome-ink);
+}
+
+[data-world='scriptorium'] .shelf-pager span {
+  padding: 0.2rem 0.6rem;
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+}
+
+[data-world='scriptorium'] .shelf-pager button {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  border-radius: 0;
+  box-shadow:
+    inset 2px 2px 0 rgb(255 255 255 / 18%),
+    inset -2px -2px 0 rgb(0 0 0 / 25%),
+    3px 3px 0 var(--chrome-dark);
 }
 
 .add-book {
@@ -1422,4 +1519,9 @@ body[data-screen='library'] #app {
   border: 4px solid var(--px-ink);
   border-radius: 0;
   box-shadow: 4px 4px 0 rgb(0 0 0 / 35%);
+}
+
+/* Las escuadras cuelgan de la tabla de la repisa, no del pie de la estantería. */
+[data-world='scriptorium'] .library[data-room='study'] .shelf {
+  position: relative;
 }
