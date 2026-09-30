@@ -115,6 +115,20 @@ La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el son
 
 Las imágenes de libros privados (portadas, ilustraciones) no se pueden pedir con un `<img src>`: el navegador no manda la cabecera `Authorization`. Se piden con el token y se muestran como blob; las de libros públicos van directo.
 
+## 2.4 PWA y sin conexión (fase 7, decidido el 30-09-2026)
+
+| Tema | Decisión |
+|---|---|
+| Descargar | **Manual**: botón por capítulo en la ficha del atril y "Descargar los próximos 3" por libro. Nada se baja solo. Se descarga la voz que está sonando (o la elegida para el libro). |
+| Qué se guarda | El JSON del capítulo, sus imágenes, el audio y la alineación (§6.3). |
+| Salas sin conexión | Se ven **todos** los libros de la última visita; los que no tienen nada descargado quedan **apagados** con "Sin conexión". Subir, generar audio y entrar se desactivan con una línea que explica por qué. |
+| Sin cuenta | **Se puede descargar** audio público sin cuenta; al entrar después, las descargas se conservan. |
+| Espacio | Panel **"Descargas"** desde la barra (en las dos salas, porque sin cuenta también se descarga): espacio usado y disponible, libros con sus capítulos, borrar por capítulo, por libro o todo. |
+| Instalar | Botón discreto **"Instalar"** junto a la llave, solo cuando el navegador lo ofrece (Android, escritorio). En iPhone, un globo del búho explica "Compartir → Añadir a inicio" **una sola vez**. |
+| Versión nueva | Aviso pequeño **"Nueva versión"** con "Actualizar". Nunca recarga sola (no corta el audio ni la lectura); si no se toca, se aplica en la próxima apertura. |
+| Ícono | Un **libro abierto en pixel art sobre azul tinta**, con los colores del Scriptorium; legible a 48 px. |
+| Prerender | `/`, `/biblioteca` y `/libros/:slug`. La página de un libro lleva en el HTML **la ficha (título, autor, portada, índice) y el texto del primer capítulo narrativo**; al cargar, React toma el control y se ve igual que hoy. |
+
 ## 3. Pantallas
 
 ```mermaid
@@ -333,4 +347,4 @@ Parte del público objetivo tiene fatiga o dificultad visual, así que la accesi
 |---|---|---|
 | Framework | React Router v7 (recomendado) / Next.js | Separación limpia frontend-backend vs. reconocimiento en el mercado laboral. |
 | Soporte iOS en el MVP | Garantizado / "mejor esfuerzo" | Resultado de la prueba en un iPhone real (§1.3). |
-| Descarga automática | Manual (recomendado) / próximos N capítulos automáticamente | Espacio en el dispositivo vs. comodidad. |
+| Descarga automática | Decidido: manual, con "los próximos 3" (§2.4). | — |

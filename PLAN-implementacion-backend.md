@@ -116,6 +116,16 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 - [x] `lectio serve` queda para uso sin conexión (la CLI sigue funcionando sola).
 - [x] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
 
+### Fase 7: PWA instalable y sin conexión
+
+Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por etapas:
+
+- [ ] 1. Base PWA: `vite-plugin-pwa` (manifest, app shell y fuentes precargados), ícono pixel, aviso "Nueva versión", botón "Instalar" y globo de iPhone, estado sin conexión (las salas con la última visita, lo no descargado apagado, subir y generar desactivados).
+- [ ] 2. Descargas: capítulo, imágenes, audio y alineación en Cache Storage por `audioSegmentId`, índice en IndexedDB, audio con `Range` (206) desde el Service Worker, `storage.persist()`, botones en el atril y panel "Descargas".
+- [ ] 3. Progreso sin conexión: cola en IndexedDB, al volver la red se envía solo el último por libro.
+- [ ] 4. Prerender de `/`, `/biblioteca` y `/libros/:slug` (ficha + primer capítulo) desde `GET /books/public` al hacer el build.
+- [ ] 5. Revisión: Playwright en modo `offline` (descargar, cortar la red, reproducir y adelantar) y prueba a mano en Android.
+
 ---
 
 ## Estado y cómo retomar (30-09-2026)
