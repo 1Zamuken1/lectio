@@ -105,7 +105,12 @@ export function narrateSections(
     // contiene: las secciones de front matter del grupo (tasa, erratas) no la "consumen".
     const parent = section.ancestors.at(-1) ?? null;
     const isNarrative = section.kind === 'narrative';
-    announce(section, sentences, isNarrative && parent !== previousParent ? parent : null);
+    announce(
+      section,
+      sentences,
+      isNarrative && parent !== previousParent ? parent : null,
+      language,
+    );
     if (isNarrative) previousParent = parent;
 
     for (const rule of Object.keys(stats) as NarrationRule[]) total[rule] += stats[rule];
@@ -201,8 +206,13 @@ function voicesFor(
  * principio, sin bloque (`blockIndex = -1`). Los encabezados que no coinciden (un
  * subtítulo propio) y los bloques cortos se siguen narrando.
  */
-function announce(section: CleanedSection, sentences: Sentence[], parent: string | null): void {
-  const announcement = announcementFor(section.title, parent);
+function announce(
+  section: CleanedSection,
+  sentences: Sentence[],
+  parent: string | null,
+  language: string,
+): void {
+  const announcement = announcementFor(section.title, parent, language);
   const references = [section.title, ...section.ancestors];
 
   const repeated = new Set<number>();

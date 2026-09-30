@@ -71,6 +71,6 @@ describe('buildEpub (helper de tests)', () => {
   });
 
   it('expone la versión del pipeline', () => {
-    expect(PIPELINE_VERSION).toBe(2);
+    expect(PIPELINE_VERSION).toBe(3);
   });
 });

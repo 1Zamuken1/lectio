@@ -14,7 +14,7 @@ export function normalizeNarration(
   language = '',
 ): string {
   let cleaned = text.normalize('NFC').replace(INVISIBLE, '').replace(CONTROL, '');
-  if (language.toLowerCase().startsWith('es')) cleaned = modernizeLoneVowels(cleaned);
+  if (isSpanish(language)) cleaned = modernizeLoneVowels(cleaned);
   // Primero la división silábica ("conver- sión"): tiene la misma forma que un guion de inciso.
   const joined = softenDashes(joinHyphenation(cleaned, vocabulary));
   const collapsed = joined
@@ -30,21 +30,23 @@ export function normalizeNarration(
  * conjunciones "é", "ó", "ú" iban con tilde. Una vocal acentuada suelta, Edge la deletrea
  * ("a con acento"); sin tilde se lee como la palabra que es. Solo en español: en
  * portugués "é" es un verbo y se deja.
+ *
+ * Desde la v3, cualquier tilde sobre una vocal suelta (también la grave, "à", que se
+ * cuela en ediciones viejas, y la "í"): en español ninguna es una palabra, así que
+ * quitarla nunca cambia el sentido y evita el deletreo.
  */
-const LONE_VOWEL = /(?<![\p{L}\p{N}])([ÁáÉéÓóÚú])(?![\p{L}\p{N}])/gu;
-const PLAIN: Record<string, string> = {
-  á: 'a',
-  Á: 'A',
-  é: 'e',
-  É: 'E',
-  ó: 'o',
-  Ó: 'O',
-  ú: 'u',
-  Ú: 'U',
-};
+const LONE_VOWEL = /(?<![\p{L}\p{M}\p{N}])([aeiouAEIOU][\u0300\u0301])(?![\p{L}\p{M}\p{N}])/gu;
+
+const isSpanish = (language: string) => language.toLowerCase().startsWith('es');
 
 function modernizeLoneVowels(text: string): string {
-  return text.replace(LONE_VOWEL, (vowel: string) => PLAIN[vowel] ?? vowel);
+  // Se busca en NFD (vocal + tilde combinante) y se vuelve a NFC: así caben todas las tildes.
+  // Las marcas cuentan como parte de la palabra: en "Soñó" o "averigüé" la vocal va tras
+  // la tilde de la ñ o la diéresis de la ü, y no está suelta.
+  return text
+    .normalize('NFD')
+    .replace(LONE_VOWEL, (match: string) => match[0]!)
+    .normalize('NFC');
 }
 
 /** Raya, semirraya y barra horizontal: las que se usan para diálogos e incisos. */
@@ -103,10 +105,13 @@ const NUMBERED_WORDS =
  *   pronombre inglés "I" no se tocan.
  * - Los títulos en mayúsculas se pasan a minúsculas con inicial mayúscula: algunos
  *   motores deletrean las palabras en mayúsculas como si fueran siglas.
+ * - En español, la tilde antigua de las vocales sueltas sale igual que en el cuerpo
+ *   ("Á manera de prólogo").
  */
-export function announcementFor(title: string, parent: string | null): string {
+export function announcementFor(title: string, parent: string | null, language = ''): string {
   const parts = [parent, title].filter((t): t is string => Boolean(t)).map(normalizeTitle);
-  return parts.map((p) => (/[.!?…:]$/.test(p) ? p : `${p}.`)).join(' ');
+  const announced = parts.map((p) => (/[.!?…:]$/.test(p) ? p : `${p}.`)).join(' ');
+  return isSpanish(language) ? modernizeLoneVowels(announced) : announced;
 }
 
 export function normalizeTitle(title: string): string {

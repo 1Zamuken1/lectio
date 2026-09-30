@@ -91,6 +91,37 @@ describe('etapa 9: normalización', () => {
     ).toEqual(['A la mañana fue a casa de su papá, e hizo lo que dijo o calló.', 'Está aquí.']);
   });
 
+  it('también la tilde grave ("à") y la "í" sueltas, y en mayúscula', async () => {
+    expect(await narrationOf('<p>Fue à casa, í luego À Madrid É Ú.</p>')).toEqual([
+      'Fue a casa, i luego A Madrid E U.',
+    ]);
+  });
+
+  it('las palabras con tilde no se tocan, aunque sean cortas o lleven guion', async () => {
+    expect(
+      await narrationOf('<p>Él dió fé; tú, sí; más té; soñó y averigüé. Á-la-par.</p>'),
+    ).toEqual(['Él dió fé; tú, sí; más té; soñó y averigüé.', 'A-la-par.']);
+  });
+
+  it('en los tramos de diálogo también se quita (es el texto que va a la voz)', async () => {
+    const [section] = await narrate({
+      metadata: { language: 'es' },
+      chapters: [{ id: 'c', title: 'Cap', body: '<p>—Vamos á casa —dijo él.</p>' }],
+    });
+    const sentence = section!.sentences.find((s) => s.blockIndex === 0)!;
+    expect(sentence.narration).toBe('Vamos a casa dijo él.');
+    expect(JSON.stringify(sentence.voices)).not.toMatch(/(^|[^\p{L}])á([^\p{L}]|$)/u);
+  });
+
+  it('también en el anuncio del capítulo ("Á manera de prólogo")', async () => {
+    const [section] = await narrate({
+      metadata: { language: 'es' },
+      chapters: [{ id: 'c', title: 'Á manera de prólogo', body: '<p>Texto.</p>' }],
+    });
+    expect(section!.sentences.map((s) => s.narration).join(' ')).not.toMatch(/Á/);
+    expect(section!.sentences.map((s) => s.narration).join(' ')).toContain('A manera de prólogo');
+  });
+
   it('en portugués, "é" suelta es un verbo y se deja', async () => {
     const [section] = await narrate({
       metadata: { language: 'pt' },

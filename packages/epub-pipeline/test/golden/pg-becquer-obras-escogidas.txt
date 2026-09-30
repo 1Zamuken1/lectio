@@ -1,5 +1,5 @@
 # Obras escogidas — Gustavo Adolfo Bécquer
-idioma: es · índice: nav · pipeline v2
+idioma: es · índice: nav · pipeline v3
 
 ## Estructura
   0 front_matter       8  "Cover"  [title: título ""Cover""]
@@ -38,7 +38,7 @@ narración: N1_noterefs=1 N2_dois=0 N3_urls=12 N4_citations=0 N5_legal=0
 warnings: ninguno
 
 ## Narración: Á MANERA DE PRÓLOGO (50 oraciones)
-[0·b0] ≠ Á manera de prólogo.
+[0·b0] ≠ A manera de prólogo.
 [1·b2] = Ciudad de Sevilla:
 [2·b3] ≠ Venimos siempre a ti, como a madre amorosa, a tomar luz para nuestro espíritu mirándote a los ojos, y a fortalecer nuestro corazón con tus recuerdos.
 [3·b3] ≠ Henos hoy aquí una vez más; sólo que esta vez, con la alegría de volver a verte, traemos también otra: la de haber cumplido el ofrecimiento que te hicimos ha poco más de un año.

@@ -1,5 +1,5 @@
 # Marianela — Benito Pérez Galdós
-idioma: es · índice: nav · pipeline v2
+idioma: es · índice: nav · pipeline v3
 
 ## Estructura
   0 front_matter       8  "Cover"  [title: título ""Cover""]

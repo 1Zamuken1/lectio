@@ -1,5 +1,5 @@
 # The Adventures of Sherlock Holmes — Arthur Conan Doyle
-idioma: en · índice: nav · pipeline v2
+idioma: en · índice: nav · pipeline v3
 
 ## Estructura
   0 front_matter      65  Titlepage  [semantic: epub:type=titlepage]
