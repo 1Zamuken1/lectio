@@ -8,13 +8,16 @@ import { NOT_AN_EPUB, looksLikeEpub, uploadErrorMessage } from './book-messages'
  * Subir libros al estudio: con el botón "Añadir libro" o soltando archivos en cualquier
  * parte de la sala. Cada resultado se cuenta con `notify` (lo dice el búho) y, si el libro
  * ya estaba, `focus` lo elige en la repisa (409 BOOK_ALREADY_EXISTS trae su id).
+ * `uploaded` recibe el id del libro nuevo (para que la cuadrilla lo traiga).
  */
 export function useBookUpload({
   notify,
   focus,
+  uploaded,
 }: {
   notify: (text: string) => void;
   focus: (bookId: string) => void;
+  uploaded?: (bookId: string) => void;
 }) {
   const mutation = useUploadBook();
   const [busy, setBusy] = useState(false);
@@ -30,8 +33,9 @@ export function useBookUpload({
         }
         notify(`Subiendo «${file.name}»…`);
         try {
-          await mutation.mutateAsync(file);
+          const book = await mutation.mutateAsync(file);
           Sound.play('confirm');
+          uploaded?.(book.id);
           notify('¡Recibido! Lo estoy preparando: en unos segundos estará en tu repisa.');
         } catch (error) {
           if (error instanceof ApiError && error.code === 'BOOK_ALREADY_EXISTS') {

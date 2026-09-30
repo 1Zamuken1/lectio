@@ -111,7 +111,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 - [ ] El lector y la biblioteca actuales pasan a consumir la API: login y registro, subir EPUB desde la biblioteca, capítulos por demanda, audio y progreso del servidor. El taller de copistas usa el progreso real del job. Diseño decidido en `docs/lectio-frontend.md` §2.3. Por etapas:
   - [x] 1. Base: `apps/web` (React, React Router, TanStack Query), tipos generados del OpenAPI, sesión coordinada entre pestañas (Web Locks + BroadcastChannel, con tests), temas portados, pantalla de título, biblioteca pública, celda y pergamino de entrada.
-  - [ ] 2. Las salas: biblioteca del monasterio y tu estudio con su arte, puerta con fundido, ficha en el atril, subir y soltar, la cuadrilla que trae el libro y el libro que arde y renace.
+  - [x] 2. Las salas: biblioteca del monasterio y tu estudio con su arte, puerta con fundido, ficha en el atril, subir y soltar, estantes que se pasan con búsqueda y orden, la cuadrilla que trae el libro y el libro que arde y renace.
   - [ ] 3. Lector y reproductor sobre la API: capítulos, imágenes, audio con voces, costo, taller con progreso real y progreso de lectura.
 - [ ] `lectio serve` queda para uso sin conexión (la CLI sigue funcionando sola).
 - [ ] Revisión de extremo a extremo: cuenta nueva → subir un EPUB → leer → escuchar con dos voces → retomar en otra pestaña.
@@ -120,7 +120,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 ## Estado y cómo retomar (30-09-2026)
 
-Hechas las fases 0 a 5 y la etapa 1 de la fase 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
+Hechas las fases 0 a 5 y las etapas 1 y 2 de la fase 6. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales).
 
 **Levantar el entorno**
 
@@ -130,7 +130,7 @@ pnpm dev                         # app :5173, API :3000/api/v1 (OpenAPI en /api/
 pnpm seed:public --audio none    # biblioteca pública desde el corpus (pnpm corpus:download)
 ```
 
-En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`), que se borra al cerrar la fase 6.
+En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cuenta de prueba `prueba-web@example.com` (contraseña de `apps/api/test/helpers/test-app.ts`) con cuatro libros subidos (Bécquer, con progreso en "Los ojos verdes"; Don Quijote, Moby-Dick y Sherlock Holmes). Se borra al cerrar la fase 6.
 
 **Dónde está cada cosa**
 
@@ -142,16 +142,9 @@ En la base de desarrollo hay: Marianela publicada (`/libros/marianela`) y la cue
 | Backend (módulos hexagonales)                                     | `packages/core/src/modules/*`                                                                                               |
 | La app                                                            | `apps/web/src`: `api/` (sesión y cliente), `app/`, `auth/`, `library/`, `screens/`, `theme/` (portado de la CLI), `styles/` |
 
-**Siguiente: fase 6, etapa 2 (las salas)**, según `docs/lectio-frontend.md` §2.3:
+**Hecho en la etapa 2** (decisiones en `docs/lectio-frontend.md` §2.3): la nave con vitrales y tu estudio (`pixel.js`: `monasteryScene`, `studyScene`), la puerta con fundido (`library/room-door.tsx`), la ficha como libro abierto en el atril (`library/Lectern.tsx`), subir con botón, libro en blanco y soltar (`library/upload.tsx`), estantes que se pasan con búsqueda y orden (`library/shelves.ts`, con tests), la cuadrilla que trae el libro (`library/BookCrew.tsx`) y el libro que arde y renace como tarjeta con "Quitar" y deshacer (`library/FailedBook.tsx`). `/leer/:id` y `/libros/:slug` ya cargan el libro y el capítulo (`?capitulo=`) en una página provisional (`screens/ReaderSoon.tsx`).
 
-1. Arte propio de cada sala en `apps/web/src/theme/pixel.js`: la gran biblioteca del monasterio (estanterías altas, vitrales, atril) y la celda de copista (estante propio, escritorio, ventana). Hoy ambas usan `scriptoriumScene({ desk: false })` en `library/LibraryRoom.tsx`.
-2. Puerta con fundido entre salas (hoy es un botón de la barra, "Mi celda" / "Biblioteca").
-3. Ficha en el atril (hoy es la ficha flotante de la CLI, `DetailCard`), con capítulos y "Continuar" / "Empezar". La ruta `/libros/:slug` (pública) y `/leer/:id` aún no existen: el enlace de la ficha da 404.
-4. Subir: botón "Añadir libro" y soltar el archivo en la sala (`POST /books`, 409 `BOOK_ALREADY_EXISTS` lleva al existente). Libro en blanco "Añade tu primer libro" en la celda vacía.
-5. Libro procesándose: la cuadrilla del taller trae un libro gigante (polling de `GET /books/:id` hasta ready o error).
-6. Libro con error: arde o se desvanece y renace como tarjeta con el mensaje según `errorCode` y el botón de borrar.
-
-**Después: etapa 3 (lector y reproductor)**: portar `apps/cli/assets/preview/preview.js` (lector, reproductor de dos filas, voces, taller) sobre `GET /chapters/:id` (ETag), las imágenes (`/books/:id/resources`, con token → blob, como `components/ApiImage.tsx`), el audio (`POST`/`GET /chapters/:id/audio`, URL firmadas) y el progreso (`PUT /books/:id/progress` con `clientUpdatedAt`). Confirmar el costo solo si el capítulo pasa del 5 % de la cuota. Luego la revisión de extremo a extremo de la fase 6 y la fase 7 (PWA y sin conexión, prerender de la biblioteca pública).
+**Siguiente: etapa 3 (lector y reproductor)**: reemplazar `screens/ReaderSoon.tsx` portando `apps/cli/assets/preview/preview.js` (lector, reproductor de dos filas, voces, taller) sobre `GET /chapters/:id` (ETag), las imágenes (`/books/:id/resources`, con token → blob, como `components/ApiImage.tsx`), el audio (`POST`/`GET /chapters/:id/audio`, URL firmadas) y el progreso (`PUT /books/:id/progress` con `clientUpdatedAt`). Confirmar el costo solo si el capítulo pasa del 5 % de la cuota. De paso: "Cap. 7 de 29" cuenta también los capítulos no narrativos (`totalChapters` del backend cuenta todos); y el botón Entrar/Salir no tiene ícono en el celular. Luego la revisión de extremo a extremo de la fase 6 y la fase 7 (PWA y sin conexión, prerender de la biblioteca pública).
 
 **Pendientes sueltos**: la prueba de escucha de la fase 9 del plan del pipeline (después se borra `PLAN-implementacion-pipeline.md`).
 

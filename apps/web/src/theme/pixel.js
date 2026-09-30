@@ -1466,6 +1466,72 @@ function studyScene() {
   </svg>`;
 }
 
+// ------------------------------------------------------------ la cuadrilla y el fuego
+//
+// Al subir un libro, el maestro y dos aprendices del taller lo traen por la repisa: un
+// libro gigante sobre las cabezas (gigante para ellos: son del tamaño del búho). Al
+// fallar, el lomo arde y renace como tarjeta. Las poses se alternan con las mismas clases
+// del taller (.ws-toggle .ws-a / .ws-b), y el recorrido lo anima la página.
+
+/** Cargando con los brazos arriba: el festejo, con las piernas del paso. */
+const CARRY = {
+  a: CREW.cheer,
+  b: [...CREW.cheer.slice(0, -1), '.oo...oo.'],
+};
+
+/** El libro gigante, acostado: lomo rojo, cabezadas doradas y nervios. */
+const GIANT_BOOK = [
+  '.ooooooooooooooooooooooooooooooooooo.',
+  'ogrrrrrrgrrrrrrrrrrrrrrrrrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrwwwwwwwwwwwwrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrwkkkkkkkkkkwrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrwwwwwwwwwwwwrrrgrrrrrrgo',
+  'ogdddddddddddddddddddddddddddddddddgo',
+  '.ooooooooooooooooooooooooooooooooooo.',
+];
+
+/**
+ * La cuadrilla que trae un libro: el maestro atrás, señalando, y dos aprendices con el
+ * libro en alto (el segundo tropieza a mitad de camino: .crew-tripper).
+ */
+function bookCrew() {
+  const book = canvas();
+  book.sprite(
+    GIANT_BOOK,
+    { o: 'ink', r: 'red', d: 'red-d', g: 'gold', w: 'parch', k: 'ink' },
+    11,
+    5,
+  );
+  const monk = actor({ a: CREW.monk, b: CREW.monkPoint }, 0, 24, {
+    className: 'ws-toggle',
+    style: '--dur:0.6s',
+  });
+  const first = actor(CARRY, 13, 24, { className: 'ws-toggle', style: '--dur:0.3s' });
+  const second = actor(CARRY, 36, 24, {
+    className: 'ws-toggle',
+    style: '--dur:0.3s;animation-delay:-0.15s',
+  });
+  return `<svg class="px-workshop px-crew" data-voice="gonzalo" viewBox="0 0 48 24" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${monk}
+    <g class="crew-load"><g class="crew-book">${book.svg()}</g>${first}<g class="crew-tripper">${second}</g></g>
+  </svg>`;
+}
+
+/** Llamas en pixel art (tres fotogramas que alterna el CSS), para el libro que arde. */
+function flames() {
+  const FRAMES = [
+    ['..y...y...', '.yfy.yfy..', '.yffyffy.y', 'yfrffrffyf', 'frrfrrffrf', 'rrrrrrrrrr'],
+    ['....y...y.', '..yfy.yfy.', 'y.yffyffy.', 'fyffrffrfy', 'frffrrfrrf', 'rrrrrrrrrr'],
+    ['.y....y...', 'yfy..yfy..', 'yffy.yffyy', 'ffrffffrff', 'frrffrrfrf', 'rrrrrrrrrr'],
+  ];
+  const frames = FRAMES.map((rows, i) => {
+    const c = canvas();
+    c.sprite(rows, { y: 'flame-core', f: 'flame', r: 'red' }, 0, 0);
+    return `<g class="px-fire px-fire-${i}">${c.svg()}</g>`;
+  });
+  return `<svg class="px-flames" viewBox="0 0 10 6" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${frames.join('')}</svg>`;
+}
+
 /**
  * El pie del atril donde se abre la ficha del libro: tablero inclinado con su moldura,
  * columna torneada con nudo dorado y base en cruz. El libro (HTML) se apoya encima.
@@ -1518,6 +1584,8 @@ export const Pixel = {
   monasteryScene,
   studyScene,
   lecternStand,
+  bookCrew,
+  flames,
   workshop,
   owlBadge,
   fleuron,

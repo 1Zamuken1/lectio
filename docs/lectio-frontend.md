@@ -94,9 +94,12 @@ La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el son
 | Sesión | El refresh es **invisible y coordinado entre pestañas**: Web Locks lo serializa (dos pestañas con la misma cookie parecerían una reutilización y la API revocaría la familia) y BroadcastChannel reparte el token nuevo, el login y el logout. Si el refresh falla, el pergamino aparece encima **sin cortar el audio ni perder la posición**. |
 | Subir un EPUB | Botón "Añadir libro" y, además, **soltar el archivo en cualquier parte de la sala**. |
 | Estudio vacío | La repisa con un **libro en blanco** "Añade tu primer libro" y una línea sobre EPUB sin DRM; el búho lo señala. |
-| Libro procesándose | La cuadrilla del taller (el monje y sus aprendices) **va a buscar un libro gigante y lo trae** a su hueco, en tono ligeramente cómico; la tarjeta dice "Preparando…". |
-| Libro con error | El libro **se quema o se desvanece** y **renace de las cenizas con magia** convertido en una tarjeta con el mensaje en lenguaje simple (por `errorCode`: DRM, archivo dañado…) y el botón de borrar. |
-| Abrir un libro | Su **ficha en el atril**: portada, autor, capítulos, progreso y "Continuar" / "Empezar". |
+| Libro procesándose | El maestro y dos aprendices **traen un libro gigante** por la tabla de la repisa, desde el lado de la puerta; uno tropieza. Dura al menos ~3 s; si el worker tarda más, esperan junto al hueco. Al quedar listo, el lomo aparece y suena la campanita. En Clásico, "Preparando…" con una barra fina. |
+| Libro con error | La primera vez que se ve (se recuerda en el navegador), el libro **arde, queda en cenizas y renace** con chispas convertido en una tarjeta con el mensaje en lenguaje simple (por `errorCode`: DRM, archivo dañado…) y "Quitar de mi estudio". En Clásico se desvanece y aparece la tarjeta. |
+| Quitar un libro | **Sin confirmar**: desaparece al instante y el búho ofrece "Deshacer" durante 6 s; luego se borra en el servidor. |
+| Muchos libros | La estantería tiene **alto fijo** (las filas que caben: hasta 2 en el estudio y 3 en la biblioteca) y la escena no se estira; los demás van en **estantes que se pasan** con flechas. Desde 7 libros, **buscar** (título o autor, sin tildes) y **ordenar** (En curso, Recientes, Título). |
+| Qué ve cada sala | La biblioteca es el catálogo público (con tu progreso); tu estudio, tus libros y los públicos que empezaste. Con sesión, la pantalla de título lleva a tu estudio. |
+| Abrir un libro | Su **ficha en el atril**: un libro abierto sobre un atril de pixel art; a la izquierda portada, autor, progreso y "Continuar" / "Empezar"; a la derecha los capítulos narrativos por sección, con una cinta en el actual y la marca de los que tienen audio. |
 | Lector y reproductor | **Se portan tal cual** del preview (reproductor de dos filas, voces, velocidad, taller); solo cambia de dónde salen los datos. |
 | Progreso del audio | El taller llena el pergamino con el **done/total real** del worker. |
 | Costo del audio | Se genera directo; **solo si el capítulo gasta más de ~5 % de la cuota del mes**, se confirma antes. La cuota se muestra **junto al botón de generar**. |

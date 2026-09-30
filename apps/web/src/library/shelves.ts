@@ -35,6 +35,14 @@ export function spineSize(book: Pick<BookSummary, 'id' | 'progress'>) {
   };
 }
 
+/** Ancho de la tarjeta de un libro que no se pudo preparar (va en la repisa como uno más). */
+export const CARD_WIDTH = 150;
+
+/** Lo que ocupa cada libro en la fila: su lomo, o la tarjeta si falló. */
+export function slotWidth(book: Pick<BookSummary, 'id' | 'progress'> & { status?: string }) {
+  return book.status === 'error' ? CARD_WIDTH : spineSize(book).width;
+}
+
 /** Para buscar sin que importen mayúsculas ni tildes ("becquer" encuentra "Bécquer"). */
 function fold(text: string): string {
   return text
@@ -68,7 +76,7 @@ export function sortBooks(books: BookSummary[], sort: ShelfSort): BookSummary[] 
  * Reparte los libros en estantes de `rows` filas de `width` px. Si aún no se conoce el
  * ancho (0), todo va en uno.
  */
-export function packShelves<T extends Pick<BookSummary, 'id' | 'progress'>>(
+export function packShelves<T extends Pick<BookSummary, 'id' | 'progress' | 'status'>>(
   books: T[],
   width: number,
   rows: number,
@@ -79,7 +87,7 @@ export function packShelves<T extends Pick<BookSummary, 'id' | 'progress'>>(
   let row = 0;
   let used = 0;
   for (const book of books) {
-    const w = spineSize(book).width;
+    const w = slotWidth(book);
     const needed = used === 0 ? w : used + SPINE_GAP + w;
     if (needed <= width || used === 0) {
       used = needed;

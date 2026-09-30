@@ -64,6 +64,8 @@ export function LibraryRoom({
   renderDetail,
   notice = null,
   focus = null,
+  hiddenIds,
+  renderBook,
   tools,
   children,
 }: {
@@ -74,8 +76,13 @@ export function LibraryRoom({
   empty: ReactNode;
   hint: (book: BookSummary | null) => string;
   renderDetail: (book: BookSummary, close: () => void) => ReactNode;
-  notice?: { text: string; id: number } | null;
-  focus?: { bookId: string; id: number } | null;
+  notice?: { text: string; id: number; action?: { label: string; run: () => void } } | null;
+  /** `open: false` solo lleva a su estante, sin abrir la ficha. */
+  focus?: { bookId: string; id: number; open?: boolean } | null;
+  /** Libros que aún no se muestran (la cuadrilla los está trayendo): guardan su hueco. */
+  hiddenIds?: ReadonlySet<string>;
+  /** Para dibujar un libro distinto de un lomo (la tarjeta del que falló). */
+  renderBook?: (book: BookSummary) => ReactNode | undefined;
   /** Controles de la estantería (Añadir libro), sobre los estantes. */
   tools?: ReactNode;
   children?: ReactNode;
@@ -136,7 +143,7 @@ export function LibraryRoom({
   }, [notice]);
 
   useEffect(() => {
-    if (focus) setSelected(focus.bookId);
+    if (focus && focus.open !== false) setSelected(focus.bookId);
   }, [focus]);
 
   function choose(id: string | null) {
@@ -179,6 +186,11 @@ export function LibraryRoom({
           </div>
           <p ref={hintRef} className="shelf-hint" aria-live="polite">
             {notice?.text ?? hint(book)}
+            {notice?.action && (
+              <button type="button" className="hint-action" onClick={notice.action.run}>
+                {notice.action.label}
+              </button>
+            )}
           </p>
           {(browsing || tools) && (
             <div className="shelf-tools">
@@ -226,13 +238,16 @@ export function LibraryRoom({
                 <p className="shelf-none">Ningún libro coincide con «{query.trim()}».</p>
               ) : (
                 (shelves[current] ?? []).map((b, i) => (
-                  <div className="slot" key={b.id}>
-                    <Spine
-                      book={b}
-                      index={i}
-                      pressed={b.id === selected}
-                      onClick={() => choose(b.id === selected ? null : b.id)}
-                    />
+                  <div className="slot" key={b.id} data-book-id={b.id}>
+                    {renderBook?.(b) ?? (
+                      <Spine
+                        book={b}
+                        index={i}
+                        hidden={hiddenIds?.has(b.id) ?? false}
+                        pressed={b.id === selected}
+                        onClick={() => choose(b.id === selected ? null : b.id)}
+                      />
+                    )}
                   </div>
                 ))
               )}
@@ -276,11 +291,13 @@ export function LibraryRoom({
 function Spine({
   book,
   index,
+  hidden,
   pressed,
   onClick,
 }: {
   book: BookSummary;
   index: number;
+  hidden: boolean;
   pressed: boolean;
   onClick: () => void;
 }) {
@@ -291,7 +308,7 @@ function Spine({
   return (
     <button
       type="button"
-      className={`spine${preparing ? ' is-preparing' : ''}`}
+      className={`spine${preparing ? ' is-preparing' : ''}${hidden ? ' is-awaited' : ''}`}
       style={
         {
           '--spine': `var(--px-${color})`,
@@ -307,6 +324,7 @@ function Spine({
       <span className="spine-title" aria-hidden="true">
         {title}
       </span>
+      {preparing && <span className="spine-progress" aria-hidden="true" />}
     </button>
   );
 }

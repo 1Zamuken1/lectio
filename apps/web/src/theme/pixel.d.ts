@@ -13,6 +13,10 @@ export declare const Pixel: {
   studyScene(): string;
   /** El pie del atril bajo la ficha del libro. */
   lecternStand(): string;
+  /** La cuadrilla que trae un libro recién subido por la repisa. */
+  bookCrew(): string;
+  /** Llamas para el libro que no se pudo preparar. */
+  flames(): string;
   /** El taller de copistas; `voice` elige la cuadrilla. */
   workshop(voice: string): string;
   owlBadge(): string;

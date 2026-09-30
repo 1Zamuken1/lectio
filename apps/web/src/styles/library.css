@@ -1525,3 +1525,399 @@ body[data-screen='library'] #app {
 [data-world='scriptorium'] .library[data-room='study'] .shelf {
   position: relative;
 }
+
+/* ---------------------------------------------------------------- La cuadrilla */
+/* Traen el libro recién subido por la tabla de la repisa (BookCrew.tsx): el recorrido lo
+   anima la página; aquí, el tropiezo a mitad de camino y el libro que se ladea. */
+
+.book-crew {
+  position: absolute;
+  left: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.book-crew svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.book-crew .crew-tripper,
+.book-crew .crew-book {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.book-crew.is-walking .crew-tripper {
+  animation: crew-trip var(--walk) steps(28) forwards;
+}
+
+.book-crew.is-walking .crew-book {
+  animation: crew-tilt var(--walk) steps(28) forwards;
+}
+
+/* Al dejarlo: el libro ya está en su hueco y los brazos en alto son el festejo. */
+.book-crew.is-placed .crew-book,
+.book-crew.is-leaving .crew-book {
+  display: none;
+}
+
+@keyframes crew-trip {
+  0%,
+  44% {
+    transform: none;
+  }
+  46%,
+  56% {
+    transform: translateY(1px) rotate(-28deg);
+  }
+  58%,
+  100% {
+    transform: none;
+  }
+}
+
+@keyframes crew-tilt {
+  0%,
+  44% {
+    transform: none;
+  }
+  46%,
+  56% {
+    transform: rotate(9deg);
+  }
+  58%,
+  100% {
+    transform: none;
+  }
+}
+
+/* El hueco del libro que traen: ocupa su lugar, todavía sin lomo. */
+.spine.is-awaited {
+  visibility: hidden;
+}
+
+/* Clásico: una barra fina e indeterminada en el lomo mientras se prepara. */
+.spine-progress {
+  position: absolute;
+  right: 4px;
+  bottom: 22px;
+  left: 4px;
+  height: 3px;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor 25%, transparent);
+  border-radius: 2px;
+}
+
+.spine-progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: currentColor;
+  border-radius: 2px;
+  animation: spine-progress 1.2s ease-in-out infinite;
+}
+
+@keyframes spine-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+[data-world='scriptorium'] .spine-progress {
+  display: none;
+}
+
+/* El botón del globo del búho ("Deshacer"). */
+.hint-action {
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+[data-world='scriptorium'] .hint-action {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------- El libro que arde */
+/* FailedBook.tsx: arde (1,3 s), cenizas (0,6 s) y renace como tarjeta (0,7 s). En
+   Clásico, el lomo se desvanece y aparece la tarjeta. */
+
+.failed-book {
+  position: relative;
+  width: var(--card-w);
+  height: 100%;
+}
+
+.burning-spine {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - var(--spine-w) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--spine-w);
+  height: var(--spine-h);
+  padding: 1.4rem 0.2rem;
+  color: #f7ecd2;
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  animation: spine-char 1.3s steps(8) forwards;
+}
+
+.burning-spine .spine-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  overflow: hidden;
+  max-height: 100%;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+}
+
+.failed-book.is-ash .burning-spine {
+  transform-origin: 50% 100%;
+  animation: spine-crumble 0.6s steps(5) forwards;
+}
+
+.burn-fire {
+  position: absolute;
+  right: -6px;
+  bottom: 0;
+  left: -6px;
+  height: 0;
+  animation: fire-climb 1.3s steps(8) forwards;
+}
+
+.burn-fire .px-flames {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.px-fire-1,
+.px-fire-2 {
+  opacity: 0;
+}
+
+.px-fire-0 {
+  animation: fire-frame 0.36s steps(1) infinite;
+}
+
+.px-fire-1 {
+  animation: fire-frame 0.36s steps(1) -0.12s infinite;
+}
+
+.px-fire-2 {
+  animation: fire-frame 0.36s steps(1) -0.24s infinite;
+}
+
+.failed-book.is-ash .burn-fire {
+  animation: fire-out 0.6s steps(4) forwards;
+}
+
+.burn-ash {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - var(--spine-w) / 2 - 10px);
+  width: calc(var(--spine-w) + 20px);
+  height: 10px;
+  background: radial-gradient(ellipse at 50% 100%, #4a443e 0 45%, #2a2622 46% 70%, transparent 71%);
+}
+
+.failed-book.is-reborn .burn-ash {
+  animation: fire-out 0.7s steps(5) forwards;
+}
+
+/* Chispas doradas que suben de las cenizas. */
+.burn-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.burn-sparks span {
+  position: absolute;
+  bottom: 6px;
+  left: calc(50% - 30px + var(--i) * 7px);
+  width: 4px;
+  height: 4px;
+  background: var(--px-gold);
+  box-shadow: 0 0 6px var(--px-flame-core);
+  animation: spark-rise 0.7s steps(7) forwards;
+  animation-delay: calc(var(--i) * 0.04s);
+}
+
+.burn-sparks span:nth-child(odd) {
+  background: var(--px-flame-core);
+}
+
+@keyframes spine-char {
+  60% {
+    filter: brightness(0.55) sepia(0.6);
+  }
+  100% {
+    filter: brightness(0.12);
+  }
+}
+
+@keyframes spine-crumble {
+  from {
+    filter: brightness(0.12);
+  }
+  to {
+    opacity: 0;
+    filter: brightness(0.12);
+    transform: scaleY(0.05);
+  }
+}
+
+@keyframes fire-climb {
+  to {
+    height: calc(var(--spine-h) + 18px);
+  }
+}
+
+@keyframes fire-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fire-frame {
+  0%,
+  33% {
+    opacity: 1;
+  }
+  34%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes spark-rise {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-120px);
+  }
+}
+
+/* La tarjeta que renace: pergamino con los bordes chamuscados. */
+.failed-card {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: var(--card-w);
+  min-height: 10.5rem;
+  padding: 0.6rem 0.6rem 0.7rem;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+}
+
+.failed-card h3 {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.failed-card p {
+  flex: 1;
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.failed-card button {
+  padding: 0.3rem 0.4rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border: 0;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.failed-book.is-reborn .failed-card {
+  transform-origin: 50% 100%;
+  animation: card-reborn 0.7s steps(7) backwards;
+}
+
+@keyframes card-reborn {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+[data-world='scriptorium'] .failed-card {
+  color: var(--px-ink);
+  background: var(--px-parch);
+  border: 3px solid var(--px-ink);
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--px-parch-d),
+    inset 0 0 18px rgb(90 50 20 / 55%),
+    3px 3px 0 rgb(0 0 0 / 35%);
+}
+
+[data-world='scriptorium'] .failed-card p {
+  color: var(--px-ink);
+}
+
+[data-world='scriptorium'] .failed-card button {
+  color: var(--chrome-ink);
+  background: var(--px-red);
+  border: 2px solid var(--px-red-d);
+  border-radius: 0;
+}
+
+/* Clásico: sin fuego ni chispas; el lomo se desvanece y la tarjeta aparece. */
+:root:not([data-world='scriptorium']) .burn-fire,
+:root:not([data-world='scriptorium']) .burn-ash,
+:root:not([data-world='scriptorium']) .burn-sparks {
+  display: none;
+}
+
+:root:not([data-world='scriptorium']) .burning-spine {
+  background: var(--muted);
+  border-color: var(--line);
+  animation: fire-out 1.3s ease-in forwards;
+}
+
+:root:not([data-world='scriptorium']) .failed-book.is-reborn .failed-card {
+  animation: stage-fade 0.7s ease-out backwards;
+}
+
+/* La cuadrilla se dibuja dentro de la repisa (BookCrew.tsx). */
+.shelf {
+  position: relative;
+}

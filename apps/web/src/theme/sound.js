@@ -142,6 +142,16 @@ const SFX = {
       slide: -2,
     });
   },
+  /** El libro arde: chasquidos de ruido y un soplo grave. */
+  burn: (t) => {
+    for (let i = 0; i < 7; i++) rustle(t + i * 0.13 + Math.random() * 0.05, 0.07, 0.05);
+    tone({ note: 40, start: t, duration: 0.9, type: 'sawtooth', gain: 0.03, filter: 400 });
+  },
+  /** Renace de las cenizas: un arpegio que sube y brilla. */
+  reborn: (t) =>
+    [72, 76, 79, 83, 88, 91].forEach((n, i) =>
+      tone({ note: n, start: t + i * 0.06, duration: 0.25, type: 'triangle', gain: 0.06 }),
+    ),
   /** Puerta de madera: el gozne cruje (dos quejidos filtrados) y la hoja golpea. */
   door: (t) => {
     tone({
