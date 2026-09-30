@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // El Service Worker no tiene DOM: sus tipos son los de un worker.
+    "lib": ["ES2024", "WebWorker"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": [],
+    "declaration": false,
+    "sourceMap": false,
+    "noEmit": true
+  },
+  "include": ["src/sw"]
+}

@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 import { LoginScroll } from '../auth/LoginScroll';
@@ -5,6 +6,7 @@ import { useAuthPrompt } from '../auth/auth-prompt';
 import { RoomFade } from '../library/room-door';
 import { ConfirmDialog } from '../player/ConfirmDialog';
 import { MiniPlayer } from '../player/MiniPlayer';
+import { UpdateNotice } from '../pwa/UpdateNotice';
 import { usePlayer, useSession } from './context';
 
 /**
@@ -16,13 +18,19 @@ export function Layout() {
   const { state, session } = useSession();
   const prompt = useAuthPrompt();
   const player = usePlayer();
+  const client = useQueryClient();
 
-  // Al cerrar sesión, deja de sonar un libro tuyo (los públicos siguen).
+  // Al cerrar sesión, deja de sonar un libro tuyo (los públicos siguen), y lo tuyo sale de
+  // la caché guardada en el dispositivo: la próxima persona no lo ve ni sin conexión.
   useEffect(() => {
     if (state.status !== 'anonymous') return;
     const loaded = player.state.loaded;
     if (loaded && !player.state.books[loaded.bookId]?.isPublic) player.stop();
-  }, [state.status, player]);
+    client.removeQueries({
+      predicate: ({ queryKey: [kind, scope, userId] }) =>
+        (kind === 'books' && scope === 'mine') || (kind === 'book' && userId != null),
+    });
+  }, [state.status, player, client]);
 
   useEffect(() => {
     void session.restore();
@@ -39,6 +47,7 @@ export function Layout() {
       <Outlet />
       <MiniPlayer />
       <ConfirmDialog />
+      <UpdateNotice />
       <RoomFade />
       {expired && (
         <LoginScroll

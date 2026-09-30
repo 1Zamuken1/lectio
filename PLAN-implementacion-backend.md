@@ -120,7 +120,7 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 
 Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por etapas:
 
-- [ ] 1. Base PWA: `vite-plugin-pwa` (manifest, app shell y fuentes precargados), ícono pixel, aviso "Nueva versión", botón "Instalar" y globo de iPhone, estado sin conexión (las salas con la última visita, lo no descargado apagado, subir y generar desactivados).
+- [x] 1. Base PWA: `vite-plugin-pwa` (manifest, app shell y fuentes precargados), ícono pixel, aviso "Nueva versión", botón "Instalar" y globo de iPhone, estado sin conexión (las salas con la última visita, lo no descargado apagado, subir y generar desactivados).
 - [ ] 2. Descargas: capítulo, imágenes, audio y alineación en Cache Storage por `audioSegmentId`, índice en IndexedDB, audio con `Range` (206) desde el Service Worker, `storage.persist()`, botones en el atril y panel "Descargas".
 - [ ] 3. Progreso sin conexión: cola en IndexedDB, al volver la red se envía solo el último por libro.
 - [ ] 4. Prerender de `/`, `/biblioteca` y `/libros/:slug` (ficha + primer capítulo) desde `GET /books/public` al hacer el build.
@@ -156,7 +156,7 @@ La base de desarrollo quedó limpia al cerrar la fase 6: sin cuentas de prueba, 
 
 **Pipeline v2**: en español, la vocal acentuada suelta de la ortografía antigua ("á", "é", "ó") se narra sin tilde (Edge la deletreaba). Los libros ya guardados siguen con la narración de la v1 hasta que exista el reprocesamiento (se trabaja aparte).
 
-**Siguiente**: la fase 7 (PWA instalable y sin conexión, prerender de la biblioteca pública; `docs/lectio-frontend.md` §6.3, §6.4 y §2.1).
+**Siguiente**: la fase 7, etapa 2 (descargas). La etapa 1 dejó la base PWA: Service Worker propio (`apps/web/src/sw/sw.ts`, Workbox con `injectManifest`), manifest e íconos (`pnpm --filter @lectio/web icons`), `src/pwa/` (conexión, instalar, aviso de versión nueva y la caché de las salas en IndexedDB) y la sesión que sin red sigue con la cuenta de este navegador. El Service Worker solo existe en el build: se prueba con `pnpm --filter @lectio/web preview:pwa` (:4174, con la API por proxy). En el panel del navegador de Claude no se puede cortar la red: se detiene el servidor y se simula con `dispatchEvent(new Event('offline'))`.
 
 **Probar a mano (con el entorno arriba)**: el panel del navegador de Claude no pinta ni corre animaciones si está oculto y frena los temporizadores de la página (a 1 s o más): los tiempos medidos ahí no sirven; hay que mirar en vivo.
 

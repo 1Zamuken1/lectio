@@ -7,6 +7,7 @@ import { Lectern } from '../library/Lectern';
 import { LibraryRoom } from '../library/LibraryRoom';
 import { readerHref } from '../library/progress';
 import { useGoThroughDoor } from '../library/room-door';
+import { useOnline } from '../pwa/online';
 
 /**
  * La gran biblioteca del monasterio: el catálogo público. Se lee y se escucha sin cuenta;
@@ -17,9 +18,11 @@ export function PublicLibrary() {
   const go = useGoThroughDoor();
   const { state } = useSession();
   const ask = useAuthPrompt((s) => s.ask);
+  const online = useOnline();
 
+  // Sin conexión no se puede entrar: el estudio lo explica en vez de abrir el pergamino.
   const goToStudy = () => {
-    if (state.status === 'authenticated') go('/estudio');
+    if (state.status === 'authenticated' || !online) go('/estudio');
     else
       ask({
         reason: 'Tu estudio guarda tus libros y por dónde vas. Entra o crea una cuenta.',

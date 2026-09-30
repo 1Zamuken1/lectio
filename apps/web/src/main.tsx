@@ -21,6 +21,14 @@ import { NotFound } from './screens/NotFound';
 import { PublicLibrary } from './screens/PublicLibrary';
 import { Reader } from './screens/Reader';
 import { TitleScreen } from './screens/TitleScreen';
+import { listenForInstall } from './pwa/install';
+import { watchConnection } from './pwa/online';
+import { registerServiceWorker } from './pwa/UpdateNotice';
+
+// La PWA (frontend §2.4): antes que React, porque la oferta de instalación llega pronto.
+watchConnection();
+listenForInstall();
+registerServiceWorker();
 
 const router = createBrowserRouter([
   {

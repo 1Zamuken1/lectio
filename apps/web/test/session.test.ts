@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { ApiClient } from '../src/api/client';
-import { Session, userFromToken } from '../src/api/session';
+import { Session, userFromToken, type RememberedUser, type SessionUser } from '../src/api/session';
 
 /** Un JWT sin firma válida: el cliente solo lee sub y email del payload. */
 function jwt(sub: string, email: string, n: number): string {
@@ -74,6 +74,12 @@ function fakeLocks() {
       return run;
     },
   };
+}
+
+/** La cuenta recordada, en memoria (en la app va a localStorage). */
+function memory(initial: SessionUser | null): RememberedUser {
+  let user = initial;
+  return { load: () => user, save: (next) => void (user = next) };
 }
 
 const channels: BroadcastChannel[] = [];
@@ -167,6 +173,52 @@ describe('Session', () => {
     await a.logout();
     await until(() => b.state.status === 'anonymous');
     expect(seen).toEqual(['authenticated', 'anonymous']);
+  });
+
+  it('sin red al abrir: sigue la cuenta de este navegador y, al volver la red, renueva', async () => {
+    const server = new FakeAuthServer();
+    const remember = memory({ id: 'u1', email: 'ana@example.com' });
+    let online = false;
+    const fetcher: typeof fetch = (input, init) =>
+      online ? server.fetch(input, init) : Promise.reject(new TypeError('Failed to fetch'));
+    const session = new Session({ fetch: fetcher, remember });
+
+    expect(await session.restore()).toEqual({
+      status: 'authenticated',
+      user: { id: 'u1', email: 'ana@example.com' },
+    });
+    expect(await session.accessToken()).toBeNull(); // sin red no hay token, pero no se cierra
+    expect(session.state.status).toBe('authenticated');
+
+    online = true;
+    expect(await session.accessToken()).toMatch(/^h\./);
+  });
+
+  it('sin red y sin cuenta recordada: anónimo', async () => {
+    const session = new Session({
+      fetch: () => Promise.reject(new TypeError('Failed to fetch')),
+      remember: memory(null),
+    });
+    expect((await session.restore()).status).toBe('anonymous');
+  });
+
+  it('con red, un refresh rechazado olvida la cuenta: no se abre sin conexión después', async () => {
+    const server = new FakeAuthServer();
+    server.cookie = null;
+    const remember = memory({ id: 'u1', email: 'ana@example.com' });
+    const session = new Session({ fetch: server.fetch, remember });
+    expect((await session.restore()).status).toBe('anonymous');
+    expect(remember.load()).toBeNull();
+  });
+
+  it('entrar recuerda la cuenta y salir la olvida', async () => {
+    const server = new FakeAuthServer();
+    const remember = memory(null);
+    const session = new Session({ fetch: server.fetch, remember });
+    await session.login('ana@example.com', 'x');
+    expect(remember.load()).toEqual({ id: 'u1', email: 'ana@example.com' });
+    await session.logout();
+    expect(remember.load()).toBeNull();
   });
 
   it('userFromToken lee correos con tildes', () => {

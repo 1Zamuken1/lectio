@@ -27,6 +27,11 @@ export default defineConfig(
     files: ['apps/web/src/**/*.{js,ts,tsx}', 'apps/web/test/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },
   },
+  // El Service Worker de la app.
+  {
+    files: ['apps/web/src/sw/**/*.ts'],
+    languageOptions: { globals: globals.serviceworker },
+  },
   // Cliente del preview: corre en el navegador, no en Node.
   {
     files: ['apps/cli/assets/**/*.js'],

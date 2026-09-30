@@ -1,3 +1,4 @@
+import { PIPELINE_VERSION } from '@lectio/epub-pipeline';
 import { describe, expect, it } from 'vitest';
 import { createProgram } from '../src/program.js';
 
@@ -6,6 +7,6 @@ describe('CLI', () => {
     const program = createProgram();
 
     expect(program.name()).toBe('lectio');
-    expect(program.version()).toBe('pipeline v1');
+    expect(program.version()).toBe(`pipeline v${PIPELINE_VERSION}`);
   });
 });

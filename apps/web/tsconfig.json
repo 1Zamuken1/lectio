@@ -14,5 +14,7 @@
     "sourceMap": false,
     "noEmit": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  // El Service Worker tiene sus propios tipos (tsconfig.sw.json).
+  "exclude": ["src/sw"]
 }

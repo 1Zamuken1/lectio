@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useBookDetail, type BookSummary, type ChapterSummary } from '../api/queries';
 import { ApiImage } from '../components/ApiImage';
 import { Icon, PixelArt } from '../components/art';
+import { useAvailableOffline, useOnline } from '../pwa/online';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { progressLabel } from './progress';
@@ -17,7 +18,7 @@ import { progressLabel } from './progress';
  */
 export function Lectern({
   book,
-  href,
+  href: link,
   onClose,
   facts = [],
   status,
@@ -33,6 +34,11 @@ export function Lectern({
   const heading = useRef<HTMLHeadingElement>(null);
   const stand = useMemo(() => Pixel.lecternStand(), []);
   const detail = useBookDetail(book);
+  const online = useOnline();
+  const availableOffline = useAvailableOffline();
+  const reachable = online || availableOffline(book.id);
+  // Sin conexión y sin descargas, la ficha se ve (con lo guardado) pero no se abre el lector.
+  const href = reachable ? link : null;
   useEffect(() => heading.current?.focus({ preventScroll: true }), [book.id]);
 
   const title = book.title ?? 'Sin título';
@@ -94,8 +100,15 @@ export function Lectern({
           {status ?? (
             <>
               <h3>Capítulos</h3>
+              {!reachable && (
+                <p className="lectern-note">
+                  Sin conexión: este libro no está descargado en este dispositivo.
+                </p>
+              )}
               {detail.isPending ? (
-                <p className="lectern-note">Buscando los capítulos…</p>
+                !online ? null : (
+                  <p className="lectern-note">Buscando los capítulos…</p>
+                )
               ) : detail.isError ? (
                 <p className="lectern-note">No pude traer los capítulos. Inténtalo otra vez.</p>
               ) : (

@@ -1,7 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
 import { ApiClient, ApiError } from '../api/client';
-import { Session, type SessionState } from '../api/session';
+import { Session, rememberInBrowser, type SessionState } from '../api/session';
+import { persistOptions } from '../pwa/persist';
 import { PlayerController, type PlayerState } from '../player/controller';
 import { ProgressSync } from '../reader/position';
 import { useStore } from 'zustand';
@@ -23,7 +25,12 @@ export function createServices(): AppServices {
   const locks = navigator.locks
     ? { request: <T,>(name: string, run: () => Promise<T>) => navigator.locks.request(name, run) }
     : undefined;
-  const session = new Session({ fetch: (...args) => fetch(...args), locks, channel });
+  const session = new Session({
+    fetch: (...args) => fetch(...args),
+    locks,
+    channel,
+    remember: rememberInBrowser,
+  });
   const api = new ApiClient(session);
   const authenticated = () => session.state.status === 'authenticated';
   const progress = new ProgressSync(api, queryClient, authenticated);
@@ -45,6 +52,9 @@ export const queryClient = new QueryClient({
   },
 });
 
+/** Lo de la última visita, en IndexedDB: sin conexión, las salas se ven igual (persist.ts). */
+const persisted = persistOptions();
+
 export function AppProvider({
   services,
   children,
@@ -54,7 +64,13 @@ export function AppProvider({
 }) {
   return (
     <AppContext.Provider value={services}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      {persisted ? (
+        <PersistQueryClientProvider client={queryClient} persistOptions={persisted}>
+          {children}
+        </PersistQueryClientProvider>
+      ) : (
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      )}
     </AppContext.Provider>
   );
 }

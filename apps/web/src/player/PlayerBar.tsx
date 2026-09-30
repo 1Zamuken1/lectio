@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode }
 import type { ChapterSummary } from '../api/queries';
 import { usePlayer, usePlayerState, useSession } from '../app/context';
 import { Icon } from '../components/art';
+import { useOnline } from '../pwa/online';
 import { Pixel } from '../theme/pixel';
 import { formatNumber } from '../reader/text';
 import { Sound } from '../theme/sound';
@@ -304,27 +305,29 @@ function GenerateButton({
   voice: string | null;
 }) {
   const player = usePlayer();
+  const online = useOnline();
   const usage = useQuery(player.usageQuery());
   const remaining = usage.data?.remaining;
   const short = remaining !== undefined && chapter.characterCount > remaining;
-  const line: ReactNode =
-    remaining === undefined ? null : short ? (
-      <>
-        Te faltan {formatNumber(chapter.characterCount - remaining)} caracteres. Tu cuota se
-        reinicia el {resetDate(usage.data?.resetsAt)}.
-      </>
-    ) : (
-      <>
-        Usa {formatNumber(chapter.characterCount)} de tus {formatNumber(remaining)} caracteres de
-        este mes
-      </>
-    );
+  const line: ReactNode = !online ? (
+    'Sin conexión: para generar el audio hace falta internet.'
+  ) : remaining === undefined ? null : short ? (
+    <>
+      Te faltan {formatNumber(chapter.characterCount - remaining)} caracteres. Tu cuota se reinicia
+      el {resetDate(usage.data?.resetsAt)}.
+    </>
+  ) : (
+    <>
+      Usa {formatNumber(chapter.characterCount)} de tus {formatNumber(remaining)} caracteres de este
+      mes
+    </>
+  );
   return (
     <div className="generate-wrap">
       <button
         type="button"
         className="generate"
-        disabled={short || !voice}
+        disabled={short || !voice || !online}
         onClick={() => {
           Sound.play('start');
           void player.generateFromHere(book.id, chapter.id);
@@ -340,6 +343,7 @@ function GenerateButton({
 /** Estado de la generación del capítulo con la voz elegida, bajo el reproductor. */
 function VoiceStatus({ book, chapter }: { book: PlayerBook; chapter: ChapterSummary }) {
   const player = usePlayer();
+  const online = useOnline();
   const voice = usePlayerState((s) => s.voice);
   const notice = usePlayerState((s) => s.notice);
   const loaded = usePlayerState((s) => s.loaded);
@@ -361,6 +365,7 @@ function VoiceStatus({ book, chapter }: { book: PlayerBook; chapter: ChapterSumm
         <button
           type="button"
           className="link"
+          disabled={!online}
           onClick={() => void player.generate(book.id, chapter.id, { prefetch: false })}
         >
           Reintentar

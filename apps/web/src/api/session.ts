@@ -41,8 +41,36 @@ export interface SessionDeps {
   /** Web Locks: serializa el refresh entre pestañas. Sin él (tests, navegadores viejos), solo en esta. */
   locks?: Locks;
   channel?: Channel;
+  /** Quién tenía la sesión en este navegador: sin red, la app sigue con esa cuenta. */
+  remember?: RememberedUser;
   now?: () => number;
 }
+
+export interface RememberedUser {
+  load(): SessionUser | null;
+  save(user: SessionUser | null): void;
+}
+
+/** El último usuario en localStorage (solo su id y correo; nunca un token). */
+export const rememberInBrowser: RememberedUser = {
+  load() {
+    try {
+      const value = localStorage.getItem(USER_KEY);
+      const user = value ? (JSON.parse(value) as SessionUser) : null;
+      return user && typeof user.id === 'string' ? user : null;
+    } catch {
+      return null;
+    }
+  },
+  save(user) {
+    try {
+      if (user) localStorage.setItem(USER_KEY, JSON.stringify({ id: user.id, email: user.email }));
+      else localStorage.removeItem(USER_KEY);
+    } catch {
+      /* navegación privada: sin red, se abrirá como anónimo */
+    }
+  },
+};
 
 export type SessionState =
   | { status: 'unknown' }
@@ -54,6 +82,7 @@ export type SessionState =
 /** Se renueva un poco antes de que venza, para no mandar un token que muere en el camino. */
 const MARGIN_MS = 30_000;
 const LOCK = 'lectio:refresh';
+const USER_KEY = 'lectio:user';
 
 /**
  * La sesión del navegador (docs/lectio-arquitectura-api.md §1.9). El access token vive
@@ -68,8 +97,10 @@ export class Session {
   #token: { value: string; expiresAt: number } | null = null;
   #state: SessionState = { status: 'unknown' };
   #refreshing: Promise<boolean> | null = null;
+  /** El último refresh no llegó a la API (sin red), a diferencia de uno rechazado. */
+  #unreachable = false;
   readonly #listeners = new Set<(state: SessionState) => void>();
-  readonly #deps: Required<Omit<SessionDeps, 'locks' | 'channel'>> & SessionDeps;
+  readonly #deps: Required<Omit<SessionDeps, 'locks' | 'channel' | 'remember'>> & SessionDeps;
 
   constructor(deps: SessionDeps) {
     this.#deps = { now: () => Date.now(), ...deps };
@@ -80,6 +111,7 @@ export class Session {
       } else {
         this.#token = null;
         this.#set({ status: 'anonymous' });
+        this.#deps.remember?.save(null);
       }
     });
   }
@@ -93,10 +125,18 @@ export class Session {
     return () => this.#listeners.delete(listener);
   }
 
-  /** Al abrir la app: si la cookie sigue viva, se recupera la sesión sin pedir la contraseña. */
+  /**
+   * Al abrir la app: si la cookie sigue viva, se recupera la sesión sin pedir la contraseña.
+   * Sin red, se sigue con la cuenta que había en este navegador (las salas muestran lo
+   * guardado): el token se pide al volver la conexión y, si la cookie venció, aparece el
+   * pergamino como en cualquier sesión vencida.
+   */
   async restore(): Promise<SessionState> {
     const ok = await this.refresh();
-    if (!ok && this.#state.status === 'unknown') this.#set({ status: 'anonymous' });
+    if (!ok && this.#state.status === 'unknown') {
+      const user = this.#unreachable ? (this.#deps.remember?.load() ?? null) : null;
+      this.#set(user ? { status: 'authenticated', user } : { status: 'anonymous' });
+    }
     return this.#state;
   }
 
@@ -129,6 +169,7 @@ export class Session {
       .catch(() => undefined); // sin red, la sesión local se cierra igual
     this.#token = null;
     this.#set({ status: 'anonymous' });
+    this.#deps.remember?.save(null);
     this.#deps.channel?.postMessage({ type: 'logout' });
   }
 
@@ -172,10 +213,13 @@ export class Session {
         credentials: 'same-origin',
       });
     } catch {
+      this.#unreachable = true;
       return false; // sin red: se reintenta en la próxima petición, sin cerrar la sesión
     }
+    this.#unreachable = false;
     if (!response.ok) {
       this.#token = null;
+      this.#deps.remember?.save(null);
       const previous = this.#state;
       this.#set(
         previous.status === 'authenticated' || previous.status === 'expired'
@@ -197,6 +241,7 @@ export class Session {
     const expiresAt = this.#deps.now() + expiresIn * 1000;
     this.#token = { value: accessToken, expiresAt };
     this.#set({ status: 'authenticated', user });
+    this.#deps.remember?.save(user);
     this.#deps.channel?.postMessage({ type: 'token', accessToken, expiresAt, user });
   }
 

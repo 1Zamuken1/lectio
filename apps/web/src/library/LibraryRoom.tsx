@@ -10,6 +10,8 @@ import {
 } from 'react';
 import { isPreparing, type BookSummary } from '../api/queries';
 import { PixelArt } from '../components/art';
+import { takeIosInstallHint } from '../pwa/install';
+import { useAvailableOffline, useOnline } from '../pwa/online';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { useRoomDoor } from './room-door';
@@ -94,6 +96,11 @@ export function LibraryRoom({
   const owlSvg = useMemo(() => Pixel.owlBadge(), []);
   const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
+  const online = useOnline();
+  const availableOffline = useAvailableOffline();
+  const dimmed = (b: BookSummary) => !online && !availableOffline(b.id);
+  // En iPhone, la primera vez, el búho cuenta cómo instalar (no hay botón: es desde Compartir).
+  const [iosHint, setIosHint] = useState(() => takeIosInstallHint());
 
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<ShelfSort>(ROOMS[room].sort);
@@ -148,6 +155,7 @@ export function LibraryRoom({
 
   function choose(id: string | null) {
     if (id === selected) return;
+    setIosHint(false);
     setSelected(id);
     Sound.play(id ? 'select' : 'toggle');
     react();
@@ -185,11 +193,24 @@ export function LibraryRoom({
             <PixelArt svg={owlSvg} />
           </div>
           <p ref={hintRef} className="shelf-hint" aria-live="polite">
-            {notice?.text ?? hint(book)}
-            {notice?.action && (
+            {notice?.text ??
+              (iosHint
+                ? 'Para tener Lectio en tu iPhone: toca Compartir y luego «Añadir a pantalla de inicio».'
+                : !online && !book
+                  ? books?.length
+                    ? 'Sin conexión: te muestro los libros de tu última visita.'
+                    : 'Sin conexión por ahora.'
+                  : hint(book))}
+            {notice?.action ? (
               <button type="button" className="hint-action" onClick={notice.action.run}>
                 {notice.action.label}
               </button>
+            ) : (
+              iosHint && (
+                <button type="button" className="hint-action" onClick={() => setIosHint(false)}>
+                  Entendido
+                </button>
+              )
             )}
           </p>
           {(browsing || tools) && (
@@ -225,7 +246,11 @@ export function LibraryRoom({
           )}
           {loading ? (
             <div className="shelf empty">
-              <p>Buscando los libros…</p>
+              <p>
+                {online
+                  ? 'Buscando los libros…'
+                  : 'Sin conexión, y aún no hay libros guardados en este dispositivo.'}
+              </p>
             </div>
           ) : books && books.length > 0 ? (
             <div
@@ -244,6 +269,7 @@ export function LibraryRoom({
                         book={b}
                         index={i}
                         hidden={hiddenIds?.has(b.id) ?? false}
+                        dimmed={dimmed(b)}
                         pressed={b.id === selected}
                         onClick={() => choose(b.id === selected ? null : b.id)}
                       />
@@ -292,12 +318,15 @@ function Spine({
   book,
   index,
   hidden,
+  dimmed,
   pressed,
   onClick,
 }: {
   book: BookSummary;
   index: number;
   hidden: boolean;
+  /** Sin conexión y sin nada descargado: se ve apagado, pero su ficha se abre igual. */
+  dimmed: boolean;
   pressed: boolean;
   onClick: () => void;
 }) {
@@ -308,7 +337,7 @@ function Spine({
   return (
     <button
       type="button"
-      className={`spine${preparing ? ' is-preparing' : ''}${hidden ? ' is-awaited' : ''}`}
+      className={`spine${preparing ? ' is-preparing' : ''}${hidden ? ' is-awaited' : ''}${dimmed ? ' is-offline' : ''}`}
       style={
         {
           '--spine': `var(--px-${color})`,
@@ -318,7 +347,7 @@ function Spine({
         } as CSSProperties
       }
       aria-pressed={pressed}
-      aria-label={`${title}${book.author ? `, de ${book.author}` : ''}`}
+      aria-label={`${title}${book.author ? `, de ${book.author}` : ''}${dimmed ? ' (sin conexión)' : ''}`}
       onClick={onClick}
     >
       <span className="spine-title" aria-hidden="true">

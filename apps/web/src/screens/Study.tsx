@@ -13,6 +13,7 @@ import { Lectern } from '../library/Lectern';
 import { LibraryRoom } from '../library/LibraryRoom';
 import { progressLabel, readerHref } from '../library/progress';
 import { useGoThroughDoor } from '../library/room-door';
+import { useOnline } from '../pwa/online';
 import { BlankBook, DropVeil, useBookUpload, useFileDrop, useFilePicker } from '../library/upload';
 import { Sound } from '../theme/sound';
 
@@ -34,6 +35,8 @@ export function Study() {
   const ask = useAuthPrompt((s) => s.ask);
   const books = useLibrary();
   const signedIn = state.status === 'authenticated';
+  // Sin conexión no se sube ni se quita nada: la sala muestra lo de la última visita.
+  const online = useOnline();
 
   const [notice, setNotice] = useState<Notice | null>(null);
   const [focus, setFocus] = useState<{ bookId: string; id: number; open?: boolean } | null>(null);
@@ -53,16 +56,16 @@ export function Study() {
     },
   });
   const picker = useFilePicker((files) => void upload(files));
-  const dragging = useFileDrop(signedIn, (files) => void upload(files));
+  const dragging = useFileDrop(signedIn && online, (files) => void upload(files));
 
   const burnt = useBurntBooks();
   const removal = useUndoableRemoval(notify);
 
   useEffect(() => {
-    if (state.status === 'anonymous') {
+    if (state.status === 'anonymous' && online) {
       ask({ reason: 'Tu estudio guarda tus libros y por dónde vas. Entra o crea una cuenta.' });
     }
-  }, [state.status, ask]);
+  }, [state.status, ask, online]);
 
   const announce = useReadyAnnouncements(books.data, notify, crew?.bookId ?? null);
   const shown = useMemo(
@@ -108,16 +111,26 @@ export function Study() {
           signedIn &&
           shown &&
           shown.length > 0 && (
-            <button type="button" className="add-book" onClick={picker.open} disabled={busy}>
+            <button
+              type="button"
+              className="add-book"
+              onClick={picker.open}
+              disabled={busy || !online}
+              title={online ? undefined : 'Sin conexión: para subir un libro hace falta internet'}
+            >
               {busy ? 'Subiendo…' : '+ Añadir libro'}
             </button>
           )
         }
         empty={
           signedIn ? (
-            <BlankBook onClick={picker.open} busy={busy} />
+            <BlankBook onClick={picker.open} busy={busy || !online} />
           ) : (
-            <p>Entra para ver tu estudio.</p>
+            <p>
+              {online
+                ? 'Entra para ver tu estudio.'
+                : 'Sin conexión: podrás entrar cuando vuelva internet.'}
+            </p>
           )
         }
         hint={(book) =>
@@ -151,6 +164,8 @@ export function Study() {
               <button
                 type="button"
                 className={book.status === 'error' ? 'open-book' : 'lectern-remove'}
+                disabled={!online}
+                title={online ? undefined : 'Sin conexión: para quitarlo hace falta internet'}
                 onClick={() => {
                   close();
                   removal.remove(book);

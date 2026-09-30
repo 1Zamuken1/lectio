@@ -304,6 +304,25 @@ const ILLUMINATED = {
     '................',
   ],
   // La cuenta (Entrar / Salir): una llave antigua, como la puerta de las salas.
+  // Instalar: la flecha baja a la bandeja (el dispositivo).
+  install: [
+    '................',
+    '......kkkk......',
+    '......krwk......',
+    '......krrk......',
+    '......krrk......',
+    '......krrk......',
+    '...kkkkrrkkkk...',
+    '....krrrrrrk....',
+    '.....krrrrk.....',
+    '......krrk......',
+    '.kk....kk....kk.',
+    '.kgk........kgk.',
+    '.kgkkkkkkkkkkgk.',
+    '.kggggggggggggk.',
+    '..kkkkkkkkkkkk..',
+    '................',
+  ],
   key: [
     '................',
     '................',
@@ -362,6 +381,7 @@ const LINE = {
   voice:
     '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  install: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 15v4h16v-4"/>',
   key: '<circle cx="7" cy="12" r="4"/><path d="M11 12h10M17 12v3.5M20 12v4.5"/>',
   // El volumen son barras que suben (el parlante ya es el ícono de la voz).
   volume: '<path d="M5 19v-2M10 19v-5M15 19v-8M20 19V5" stroke-width="3"/>',
