@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
   FILE_STORAGE,
+  GenerateAudioService,
   ReprocessBookService,
   SystemAudioService,
   type FileStorage,
@@ -158,6 +159,7 @@ describe('reprocesar libros', () => {
     });
 
     // Regenerarlo es gratis: ni reserva ni cobro.
+    const old = await t.prisma.audioSegment.findFirstOrThrow({ where: { chapterId: first.id } });
     const spent = await usage();
     const logs = await t.prisma.ttsUsageLog.count();
     const request = await t.http
@@ -174,9 +176,41 @@ describe('reprocesar libros', () => {
     });
     expect(await t.prisma.ttsUsageLog.count()).toBe(logs);
 
+    // La grabación nueva tiene otra clave (no pisa a la que podía estar sonando), y los
+    // archivos de la anterior se borran.
+    const fresh = await t.prisma.audioSegment.findFirstOrThrow({ where: { chapterId: first.id } });
+    expect(fresh.audioKey).not.toBe(old.audioKey);
+    expect(fresh.alignmentKey).not.toBe(old.alignmentKey);
+    const storage = t.worker!.get<FileStorage>(FILE_STORAGE);
+    expect(await storage.get(old.audioKey!)).toBeNull();
+    expect(await storage.get(fresh.audioKey!)).not.toBeNull();
+
     // Ya está al día: una segunda corrida no hace nada.
     expect(await reprocess.reprocess(book.id)).toEqual({ status: 'skipped', reason: 'up-to-date' });
     expect(await reprocess.listStale()).toEqual([]);
+  });
+
+  it('si la regeneración falla, sigue la grabación anterior (desactualizada) en vez de perderse', async () => {
+    const book = await uploadBook();
+    const chapter = book.chapters[0]!;
+    await generate(chapter.id);
+    await makeStale(book.id, [chapter.id]);
+    await reprocess.reprocess(book.id);
+    const old = await t.prisma.audioSegment.findFirstOrThrow({ where: { chapterId: chapter.id } });
+
+    // Como si el worker la hubiera tomado y agotado sus reintentos.
+    await t.prisma.audioSegment.update({ where: { id: old.id }, data: { status: 'processing' } });
+    await t.worker!.get(GenerateAudioService).giveUp(old.id, new Error('Edge no respondió'));
+
+    const state = (await audioState(chapter.id)).body;
+    expect(state).toMatchObject({
+      status: 'ready',
+      outdated: true,
+      outdatedReason: 'narration',
+      audioUrl: expect.any(String),
+    });
+    const after = await t.prisma.audioSegment.findUniqueOrThrow({ where: { id: old.id } });
+    expect(after).toMatchObject({ audioKey: old.audioKey, reservedCharacters: 0 });
   });
 
   it('el audio que ya existía sin huella y cuya narración no cambió sigue vigente y se cobra al regenerar por voz', async () => {

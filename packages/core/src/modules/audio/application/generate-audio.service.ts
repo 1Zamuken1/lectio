@@ -63,33 +63,63 @@ export class GenerateAudioService {
         },
       });
 
-      // Archivos primero y base después: el segmento nunca queda ready sin su audio.
-      const version = voiceVersion(voice);
+      // De las oraciones leídas al empezar: si el libro se reprocesa mientras tanto, el
+      // audio queda marcado obsoleto en vez de pasar por vigente.
+      const narrationHash = narrationFingerprint(sentences);
+      // Cada grabación tiene su propia clave (la voz y el momento, en hexadecimal: es lo que
+      // acepta /media): al regenerar un audio desactualizado, el nuevo no pisa al que puede
+      // estar sonando (en Windows, reemplazar un archivo abierto falla) y ninguna caché
+      // sirve el viejo con la URL del nuevo.
+      const version = `${voiceVersion(voice)}${Date.now().toString(16)}`;
       const audioKey = storageKeys.audio(bookId, segment.chapterId, voice.id, version);
       const alignmentKey = storageKeys.alignment(bookId, segment.chapterId, voice.id, version);
+      // Archivos primero y base después: el segmento nunca queda ready sin su audio.
       await this.storage.put(audioKey, audio);
       await this.storage.put(alignmentKey, Buffer.from(`${JSON.stringify(alignment)}\n`));
-      await this.audio.complete(
+      const completed = await this.audio.complete(
         segmentId,
         {
           provider: provider.name,
           prosodyKey: voice.prosodyKey,
-          // De las oraciones leídas al empezar: si el libro se reprocesa mientras tanto, el
-          // audio queda marcado obsoleto en vez de pasar por vigente.
-          narrationHash: narrationFingerprint(sentences),
+          narrationHash,
           audioKey,
           alignmentKey,
           durationMs: alignment.durationMs,
         },
         input.characterCount,
       );
+      if (completed) await this.#removeReplaced(segment, audioKey, alignmentKey);
       return { status: 'ready', durationMs: alignment.durationMs, units: units.length };
     } finally {
       provider.close();
     }
   }
 
-  /** Último intento fallido: el segmento queda en error y su reserva deja de contar. */
+  /**
+   * Los archivos de la grabación anterior, si esta la reemplazó. Si no se pueden borrar
+   * (alguien los está escuchando), quedan huérfanos: no rompen nada.
+   */
+  async #removeReplaced(
+    previous: { audioKey: string | null; alignmentKey: string | null },
+    audioKey: string,
+    alignmentKey: string,
+  ): Promise<void> {
+    for (const [old, current] of [
+      [previous.audioKey, audioKey],
+      [previous.alignmentKey, alignmentKey],
+    ] as const) {
+      if (!old || old === current) continue;
+      await this.storage.delete(old).catch((error: unknown) => {
+        this.logger.warn(`No se pudo borrar ${old}: ${String(error)}`);
+      });
+    }
+  }
+
+  /**
+   * Último intento fallido: su reserva deja de contar. Si era una regeneración, el segmento
+   * vuelve a la grabación anterior (sigue desactualizado y se puede reintentar); si no,
+   * queda en error.
+   */
   async giveUp(segmentId: string, error: unknown): Promise<void> {
     const message = error instanceof Error ? error.message : String(error);
     await this.audio.fail(segmentId, message);

@@ -27,7 +27,13 @@ export class LocalFileStorage implements FileStorage {
     await mkdir(dirname(path), { recursive: true });
     const temporary = `${path}.${process.pid}.tmp`;
     await writeFile(temporary, data);
-    await rename(temporary, path);
+    try {
+      await rename(temporary, path);
+    } catch (error) {
+      // Si no se pudo reemplazar (en Windows, un archivo abierto), no queda el temporal.
+      await rm(temporary, { force: true });
+      throw error;
+    }
   }
 
   async get(key: string): Promise<Buffer | null> {

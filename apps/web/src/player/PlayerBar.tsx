@@ -352,6 +352,14 @@ function VoiceStatus({ book, chapter }: { book: PlayerBook; chapter: ChapterSumm
   const name = player.voiceName(voice);
   const playingOther =
     loaded?.chapterId === chapter.id && loaded.voiceId !== voice ? loaded.voiceId : null;
+  // El audio que suena en este capítulo quedó desactualizado (o se está regrabando).
+  const here = loaded?.chapterId === chapter.id ? loaded : null;
+  const outdated = here?.outdated ?? null;
+  const regrabbing = here ? player.jobFor(chapter.id, here.voiceId) : null;
+  const refreshing =
+    regrabbing?.refresh && regrabbing.status !== 'ready' && regrabbing.status !== 'error'
+      ? regrabbing
+      : null;
 
   let content: ReactNode = null;
   if (notice) {
@@ -366,10 +374,45 @@ function VoiceStatus({ book, chapter }: { book: PlayerBook; chapter: ChapterSumm
           type="button"
           className="link"
           disabled={!online}
-          onClick={() => void player.generate(book.id, chapter.id, { prefetch: false })}
+          onClick={() =>
+            void (job.refresh
+              ? player.regenerate()
+              : player.generate(book.id, chapter.id, { prefetch: false }))
+          }
         >
           Reintentar
         </button>
+      </>
+    );
+  } else if (regrabbing?.refresh && regrabbing.status === 'error') {
+    content = (
+      <>
+        <span className="voice-error">
+          No se pudo volver a grabar con {player.voiceName(regrabbing.voiceId)}: {regrabbing.error}.
+          Sigue sonando la grabación anterior.
+        </span>
+        <button
+          type="button"
+          className="link"
+          disabled={!online}
+          onClick={() => void player.regenerate()}
+        >
+          Reintentar
+        </button>
+      </>
+    );
+  } else if (refreshing) {
+    const percent = refreshing.total ? Math.round((100 * refreshing.done) / refreshing.total) : 0;
+    const refreshName = player.voiceName(refreshing.voiceId);
+    content = (
+      <>
+        <span>
+          {refreshing.status === 'pending' && refreshing.total === 0
+            ? `En cola: ${refreshName}, con el texto al día…`
+            : `Volviendo a grabar con ${refreshName} · ${percent} %`}
+          {' · mientras, suena la grabación anterior'}
+        </span>
+        <progress max={100} value={percent} aria-hidden="true" />
       </>
     );
   } else if (job && job.status !== 'ready') {
@@ -383,6 +426,30 @@ function VoiceStatus({ book, chapter }: { book: PlayerBook; chapter: ChapterSumm
           {playingOther ? ` · mientras, suena ${player.voiceName(playingOther)}` : ''}
         </span>
         <progress max={100} value={percent} aria-hidden="true" />
+      </>
+    );
+  } else if (outdated && regrabbing?.status !== 'ready' && player.canGenerate(book)) {
+    // (listo y a la espera de la oración siguiente para cambiar: no se ofrece de nuevo)
+    const free = outdated === 'narration';
+    content = (
+      <>
+        <span>
+          {free
+            ? `La grabación con ${player.voiceName(loaded!.voiceId)} es de una versión anterior del texto.`
+            : `La voz de ${player.voiceName(loaded!.voiceId)} cambió desde que se grabó este capítulo.`}
+        </span>
+        <button
+          type="button"
+          className="link"
+          disabled={!online}
+          title={online ? undefined : 'Sin conexión: para grabarlo hace falta internet'}
+          onClick={() => {
+            Sound.play('start');
+            void player.regenerate();
+          }}
+        >
+          {free ? 'Regenerar gratis' : 'Volver a grabar'}
+        </button>
       </>
     );
   }

@@ -510,7 +510,7 @@ Cada voz es un audio distinto (`AudioSegment` por capítulo y voz): cambiar a un
 - `outdatedReason: "voice"`: cambió el perfil de voz. Regenerarlo se cobra como cualquier solicitud.
 - `outdatedReason: "narration"`: el libro se reprocesó y cambió lo que se narra en el capítulo. Es una corrección de Lectio, no consumo del usuario: regenerarlo es **gratis** (`quota.remaining` no baja, no hay `TtsUsageLog`), aunque cuenta para el límite de concurrencia. Si cambiaron las dos cosas, manda `narration`.
 
-Mientras no se regenera, el audio obsoleto se sigue pudiendo escuchar. Si el reprocesamiento cambió la segmentación de oraciones, el resaltado puede no coincidir del todo; con correcciones de narración (como la de la tilde) coincide.
+Mientras no se regenera, el audio obsoleto se sigue pudiendo escuchar. Cada grabación se guarda con su propia clave (la versión de la voz más el momento, en hexadecimal): la nueva nunca pisa a la que puede estar sonando, y al quedar lista se borran los archivos de la anterior. Si la regeneración falla, el segmento vuelve a la grabación anterior (`ready`, todavía `outdated`) en vez de quedar en `error`. Si el reprocesamiento cambió la segmentación de oraciones, el resaltado puede no coincidir del todo; con correcciones de narración (como la de la tilde) coincide.
 
 Errores:
 ```json
@@ -563,7 +563,7 @@ Errores:
 // defecto). El vencimiento se redondea a ventanas de 10 min: consultar el estado varias veces
 // devuelve la misma URL, así el navegador y el Service Worker la pueden cachear.
 // Admite Range: 206 Partial Content con Content-Range; 416 si el tramo cae fuera del archivo.
-// La clave incluye la versión de la voz: su contenido nunca cambia (Cache-Control: immutable).
+// La clave es única por grabación (versión de la voz + momento): su contenido nunca cambia (Cache-Control: immutable).
 // Errores: 403 MEDIA_URL_INVALID (firma alterada u otra clave) o MEDIA_URL_EXPIRED
 ```
 

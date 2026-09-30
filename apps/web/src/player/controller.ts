@@ -39,6 +39,11 @@ export interface LoadedAudio {
   expiresAt: number;
   alignment: Alignment;
   durationMs: number;
+  /**
+   * Se grabó antes de un cambio: `narration` si el libro se reprocesó y cambió lo que se
+   * narra (regenerarlo es gratis), `voice` si cambió el perfil de la voz (se cobra).
+   */
+  outdated: 'narration' | 'voice' | null;
 }
 
 /** Una generación en marcha (o fallida) de un capítulo con una voz. */
@@ -51,6 +56,8 @@ export interface Job {
   total: number;
   /** Pedida por adelantado (el taller no la muestra). */
   prefetch: boolean;
+  /** Vuelve a grabar un audio desactualizado: mientras, sigue sonando el anterior. */
+  refresh?: boolean;
   error?: string;
 }
 
@@ -264,7 +271,8 @@ export class PlayerController {
   readyVoices(chapter: ChapterSummary): string[] {
     const ready = new Set(chapter.audio.filter((a) => a.status === 'ready').map((a) => a.voiceId));
     for (const job of Object.values(this.state.jobs)) {
-      if (job.chapterId === chapter.id && job.status === 'ready') ready.add(job.voiceId);
+      if (job.chapterId !== chapter.id) continue;
+      if (job.status === 'ready' || (job.refresh && job.status !== 'error')) ready.add(job.voiceId);
     }
     return [...ready];
   }
@@ -323,6 +331,7 @@ export class PlayerController {
       expiresAt: state.expiresAt ? Date.parse(state.expiresAt) : Infinity,
       alignment,
       durationMs: state.durationMs ?? alignment.durationMs,
+      outdated: state.outdated ? (state.outdatedReason ?? 'voice') : null,
     };
   }
 
@@ -525,11 +534,12 @@ export class PlayerController {
    * Cambia el audio del capítulo que suena por el de la voz elegida. Si está sonando, no
    * corta a mitad de oración: espera a que empiece la siguiente y sigue desde ahí.
    */
-  #switchSource(): void {
+  #switchSource(force = false): void {
     const loaded = this.state.loaded;
     const chapter = loaded && this.#chapter(loaded.bookId, loaded.chapterId);
     const voice = chapter && this.effectiveVoice(chapter);
-    if (!loaded || !voice || voice === loaded.voiceId) return;
+    // `force`: la misma voz, recién regenerada (el archivo nuevo reemplaza al que suena).
+    if (!loaded || !voice || (!force && voice === loaded.voiceId)) return;
     if (!this.audio.paused && this.state.sentence >= 0) {
       this.#pendingSwitch = true;
       return;
@@ -642,6 +652,74 @@ export class PlayerController {
     return true;
   }
 
+  /**
+   * Vuelve a grabar el capítulo que suena, con su misma voz, porque quedó desactualizado.
+   * Si cambió el texto (el libro se reprocesó), es gratis y no pregunta; si cambió la voz,
+   * cuesta como generarlo de nuevo. Mientras, sigue sonando el audio anterior y, al quedar
+   * listo, se pasa al nuevo al empezar la oración siguiente.
+   */
+  async regenerate(): Promise<boolean> {
+    const loaded = this.state.loaded;
+    const book = loaded && this.state.books[loaded.bookId];
+    const chapter = loaded && this.#chapter(loaded.bookId, loaded.chapterId);
+    if (!loaded?.outdated || !book || !chapter || !this.canGenerate(book)) return false;
+    const running = this.jobFor(chapter.id, loaded.voiceId);
+    if (running && running.status !== 'error') return true;
+    const voice = loaded.voiceId;
+    if (loaded.outdated === 'voice') {
+      let usage: Usage;
+      try {
+        usage = await this.usage();
+      } catch (error) {
+        this.#set({ notice: audioErrorMessage(error) });
+        return false;
+      }
+      if (chapter.characterCount > usage.remaining) {
+        const missing = formatNumber(chapter.characterCount - usage.remaining);
+        this.#set({
+          notice: `Tu cuota del mes no alcanza para volver a grabar «${chapter.title}» (faltan ${missing} caracteres).`,
+        });
+        return false;
+      }
+      if (needsConfirmation(chapter.characterCount, usage.quota)) {
+        const ok = await this.ask({
+          title: `¿Volver a grabar «${chapter.title}» con ${this.voiceName(voice)}?`,
+          body: `Usa ${formatNumber(chapter.characterCount)} de los ${formatNumber(usage.remaining)} caracteres que te quedan este mes.`,
+          confirm: 'Volver a grabar',
+          cancel: 'Ahora no',
+        });
+        if (!ok) return false;
+      }
+    }
+
+    const job: Job = {
+      bookId: book.id,
+      chapterId: chapter.id,
+      voiceId: voice,
+      status: 'pending',
+      done: 0,
+      total: 0,
+      prefetch: false,
+      refresh: true,
+    };
+    this.#updateJob(job);
+    try {
+      await this.api.post(`/api/v1/chapters/${chapter.id}/audio`, { voiceId: voice });
+    } catch (error) {
+      this.#dropJob(chapter.id, voice);
+      // Ya estaba al día (otra pestaña lo regeneró): se carga el nuevo.
+      if (error instanceof ApiError && error.code === 'AUDIO_ALREADY_EXISTS') {
+        this.#onGenerated({ ...job, status: 'ready' });
+        return true;
+      }
+      this.#set({ notice: audioErrorMessage(error) });
+      return false;
+    }
+    void this.queryClient.invalidateQueries({ queryKey: ['usage'] });
+    this.#schedulePoll(0);
+    return true;
+  }
+
   /** La consulta del consumo del mes (la comparten el botón de generar y el controlador). */
   usageQuery() {
     return {
@@ -685,7 +763,14 @@ export class PlayerController {
             `/api/v1/chapters/${job.chapterId}/audio?voice=${encodeURIComponent(job.voiceId)}`,
           );
           const latest = this.jobFor(job.chapterId, job.voiceId) ?? job;
-          if (state.status === 'ready') {
+          // Una regeneración que falla deja la grabación anterior (lista, pero desactualizada).
+          if (latest.refresh && state.status === 'ready' && state.outdated) {
+            this.#updateJob({
+              ...latest,
+              status: 'error',
+              error: 'el servicio de voz no respondió',
+            });
+          } else if (state.status === 'ready') {
             this.#updateJob({
               ...latest,
               status: 'ready',
@@ -720,8 +805,12 @@ export class PlayerController {
   #onGenerated(job: Job) {
     this.#refreshBooks();
     void this.queryClient.invalidateQueries({ queryKey: ['usage'] });
+    // Un audio regenerado trae otros tiempos: la alineación guardada ya no sirve.
+    this.#alignments.delete(jobKey(job.chapterId, job.voiceId));
     const loaded = this.state.loaded;
-    if (this.#pendingPlay === job.chapterId && job.voiceId === this.state.voice) {
+    if (job.refresh && loaded?.chapterId === job.chapterId && loaded.voiceId === job.voiceId) {
+      this.#switchSource(true);
+    } else if (this.#pendingPlay === job.chapterId && job.voiceId === this.state.voice) {
       this.#pendingPlay = null;
       void this.load(job.bookId, job.chapterId, { play: true, sentence: 0 });
     } else if (loaded?.chapterId === job.chapterId && job.voiceId === this.state.voice) {

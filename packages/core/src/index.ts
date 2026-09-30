@@ -52,3 +52,4 @@ export {
   type ReprocessOutcome,
 } from './modules/books/application/reprocess-book.service.js';
 export { SystemAudioService } from './modules/audio/application/system-audio.service.js';
+export { GenerateAudioService } from './modules/audio/application/generate-audio.service.js';

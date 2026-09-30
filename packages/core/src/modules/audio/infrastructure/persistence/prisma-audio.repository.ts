@@ -260,9 +260,21 @@ export class PrismaAudioRepository implements AudioRepository {
   }
 
   async fail(segmentId: string, message: string): Promise<void> {
+    const errorMessage = message.slice(0, 500);
+    // Una regeneración que falla no se lleva la grabación que ya había: vuelve a estar lista
+    // (con su huella vieja, así que sigue desactualizada).
+    await this.prisma.audioSegment.updateMany({
+      where: {
+        id: segmentId,
+        status: { in: [...ACTIVE] },
+        audioKey: { not: null },
+        alignmentKey: { not: null },
+      },
+      data: { status: 'ready', reservedCharacters: 0, errorMessage },
+    });
     await this.prisma.audioSegment.updateMany({
       where: { id: segmentId, status: { in: [...ACTIVE] } },
-      data: { status: 'error', reservedCharacters: 0, errorMessage: message.slice(0, 500) },
+      data: { status: 'error', reservedCharacters: 0, errorMessage },
     });
   }
 

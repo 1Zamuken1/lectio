@@ -110,6 +110,7 @@ La app vive en `apps/web`. Reutiliza el motor de pixel art, los íconos y el son
 | Cuenta | El botón Entrar / Salir lleva una **llave** (en el celular es lo único que se ve). |
 | Progreso del audio | El taller llena el pergamino con el **done/total real** del worker. |
 | Costo del audio | Se genera directo; **solo si el capítulo gasta más de ~5 % de la cuota del mes**, se confirma antes. La cuota se muestra **junto al botón de generar**. |
+| Audio desactualizado | Si lo que suena se grabó con un texto anterior (el libro se reprocesó), bajo el reproductor: "La grabación con Gonzalo es de una versión anterior del texto · **Regenerar gratis**". Si cambió la voz, "Volver a grabar" (se cobra y confirma como generar). Mientras se regraba sigue sonando la grabación anterior y, al quedar lista, se pasa a la nueva al empezar la oración siguiente. Si falla, lo dice y sigue la anterior, con "Reintentar". |
 | Temas | Scriptorium y Clásico. Bosque y Solarpunk llegan después sobre la misma base. |
 | Alcance | La app en línea completa. La PWA instalable y el modo sin conexión (§6.3, §6.4) quedan para la fase 7. |
 
