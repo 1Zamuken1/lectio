@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import type { BookSummary } from '../api/queries';
 import { PixelArt } from '../components/art';
-import { Pixel } from '../theme/pixel';
+import { useTheme } from '../theme/theme';
+import { flamesArt } from '../theme/world-art';
 import { Sound } from '../theme/sound';
 import { bookErrorMessage } from './book-messages';
 import { CARD_WIDTH, spineSize } from './shelves';
@@ -31,7 +32,8 @@ export function FailedBook({
   onRemove: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>(burn ? 'burning' : 'card');
-  const fire = useMemo(() => Pixel.flames(), []);
+  const { world } = useTheme();
+  const fire = useMemo(() => flamesArt(world), [world]);
   const { width, height } = spineSize(book);
 
   useEffect(() => {

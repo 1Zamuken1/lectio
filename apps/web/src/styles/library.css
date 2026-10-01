@@ -2041,20 +2041,21 @@ button.lectern-download-next:disabled {
   border-radius: 0;
 }
 
-/* Clásico: sin fuego ni chispas; el lomo se desvanece y la tarjeta aparece. */
-:root:not([data-world='scriptorium']) .burn-fire,
-:root:not([data-world='scriptorium']) .burn-ash,
-:root:not([data-world='scriptorium']) .burn-sparks {
+/* Clásico (y todo mundo sin su gente animada): sin fuego ni chispas; el lomo se desvanece
+   y la tarjeta aparece. El Bosque lo marchita (bosque.css). */
+:root:not([data-world='scriptorium'], [data-world='bosque']) .burn-fire,
+:root:not([data-world='scriptorium'], [data-world='bosque']) .burn-ash,
+:root:not([data-world='scriptorium'], [data-world='bosque']) .burn-sparks {
   display: none;
 }
 
-:root:not([data-world='scriptorium']) .burning-spine {
+:root:not([data-world='scriptorium'], [data-world='bosque']) .burning-spine {
   background: var(--muted);
   border-color: var(--line);
   animation: fire-out 1.3s ease-in forwards;
 }
 
-:root:not([data-world='scriptorium']) .failed-book.is-reborn .failed-card {
+:root:not([data-world='scriptorium'], [data-world='bosque']) .failed-book.is-reborn .failed-card {
   animation: stage-fade 0.7s ease-out backwards;
 }
 

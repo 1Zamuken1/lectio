@@ -8,4 +8,10 @@ export declare const Bosque: {
   lumen(): string;
   /** El taller del tapiz; `voice` elige el color de las capas. */
   workshop(voice: string): string;
+  /** La cuadrilla que trae un libro subido (48 × 24, como la del Scriptorium). */
+  bookCrew(): string;
+  /** La canasta del ascensor en la que llega la cuadrilla. */
+  crewLift(): string;
+  /** Las hojas secas del libro que se marchita (en lugar de las llamas). */
+  wither(): string;
 };

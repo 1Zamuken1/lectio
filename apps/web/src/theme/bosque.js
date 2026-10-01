@@ -108,167 +108,232 @@ function lumen() {
 // dormilón, el festejo): la mecánica y los tiempos son los mismos; cambia el arte. Los
 // aprendices visten la capa de la voz (data-voice en el <svg>; ver bosque.css).
 
-/** Un elfo con capucha del color de la voz y las orejas puntiagudas. */
+/**
+ * Los elfos, al estilo de El Señor de los Anillos: altos y delgados, pelo largo y lacio que
+ * cae por los hombros, orejas puntiagudas, diadema de oro, broche de hoja y túnica larga
+ * del color de la voz. El color del pelo va por elfo (--px-hair: dorado, plateado o
+ * castaño oscuro).
+ */
 const ELF = {
   stand: [
     '...ooo...',
-    '..orrro..',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrro.',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orrrrro.',
-    '.orrrrrso',
-    '.orbbbro.',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '..oo.oo..',
   ],
   walk: [
     '...ooo...',
-    '..orrro..',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrro.',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orrrrro.',
-    '.orrrrrso',
-    '.orbbbro.',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '.oo...oo.',
   ],
   weaveA: [
     '...ooo...',
-    '..orrro..',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrss',
+    '.orrgrrkk',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orrrrrss',
-    '.orrrrrkk',
-    '.orbbbro.',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '..oo.oo..',
   ],
   weaveB: [
     '...ooo...',
-    '..orrro..',
-    '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orrrrro.',
-    '.orrrrrso',
-    '.orbbbrkk',
-    '.orrrrro.',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrros',
+    '.orrrrrkk',
+    '.orrdrro.',
     '.ordrdro.',
     '..oo.oo..',
   ],
   carry: [
     '...ooo...',
-    '..orrro..',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hryyrrh.',
+    '.hyyyyrso',
+    '.orrgrro.',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orryyro.',
-    '.oryyyyso',
-    '.orbyybro',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '..oo.oo..',
   ],
   carryWalk: [
     '...ooo...',
-    '..orrro..',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hryyrrh.',
+    '.hyyyyrso',
+    '.orrgrro.',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orryyro.',
-    '.oryyyyso',
-    '.orbyybro',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '.oo...oo.',
   ],
   cheer: [
     's..ooo..s',
-    'so.rrr.os',
+    'so.hhh.os',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrro.',
     '.orrrrro.',
-    '.orsssro.',
-    'sosososos',
-    '.oosssoo.',
-    '.orrrrro.',
-    '.orrrrro.',
-    '.orbbbro.',
-    '.orrrrro.',
+    '.orrdrro.',
     '.ordrdro.',
     '..oo.oo..',
   ],
+  lift: [
+    's..ooo..s',
+    'so.hhh.os',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrro.',
+    '.orrrrro.',
+    '.orrdrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  liftWalk: [
+    's..ooo..s',
+    'so.hhh.os',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohosohos',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
+    '.hrrrrrh.',
+    '.orrgrro.',
+    '.orrrrro.',
+    '.orrdrro.',
+    '.ordrdro.',
+    '.oo...oo.',
+  ],
   sleep: [
     '...ooo...',
-    '..orrro..',
-    '.orrrrro.',
-    '.orsssro.',
-    'sossssos.',
-    '.oosssoo.',
-    '.orrrrro.',
+    '..ohhho..',
+    '.ohgggho.',
+    '.ohsssho.',
+    'sohsssohs',
+    '.ohsssho.',
+    '.hhosohh.',
+    '.hrrrrrh.',
+    '.hrrbrrh.',
   ],
   maestra: [
     '....ooo....',
     '...ohhho...',
-    '..ohgggho..',
-    '..ohssssh..',
-    '.sohsosos..',
-    '..ohssssh..',
-    '..hmmmmmh..',
+    '..ohgwgho..',
+    '..ohsssho..',
+    '.sohososhs.',
+    '..ohsssho..',
+    '..hhosohh..',
+    '.hhmmmmmhh.',
+    '.hhmmgmmhh.',
     '.hommmmmoh.',
     '.hommmmmmo.',
-    '.ommmmmmso.',
-    '.ogggggggo.',
+    '..ogggggo..',
     '.ommmmmmmo.',
     '.ommnmmmmo.',
     '.ommnmmmmo.',
-    '.ommnmmmmo.',
+    '.ommnmnmmo.',
     '..ooo.ooo..',
   ],
   maestraPoint: [
     '....ooo....',
     '...ohhho...',
-    '..ohgggho..',
-    '..ohssssh..',
-    '.sohsosos..',
-    '..ohssssh..',
-    '..hmmmmmhss',
-    '.hommmmmoh.',
+    '..ohgwgho..',
+    '..ohsssho..',
+    '.sohososhs.',
+    '..ohsssho..',
+    '..hhosohh..',
+    '.hhmmmmmhh.',
+    '.hhmmgmmhh.',
+    '.hommmmmoss',
     '.hommmmmmo.',
+    '..ogggggo..',
     '.ommmmmmmo.',
-    '.ogggggggo.',
-    '.ommmmmmmo.',
     '.ommnmmmmo.',
     '.ommnmmmmo.',
-    '.ommnmmmmo.',
+    '.ommnmnmmo.',
     '..ooo.ooo..',
   ],
   maestraCheer: [
     's...ooo...s',
     'so.ohhho.os',
-    '..ohgggho..',
-    '..ohssssh..',
-    '.sohsosos..',
-    '..ohssssh..',
-    '..hmmmmmh..',
+    '..ohgwgho..',
+    '..ohsssho..',
+    '.sohososhs.',
+    '..ohsssho..',
+    '..hhosohh..',
+    '.hhmmmmmhh.',
+    '.hhmmgmmhh.',
     '.hommmmmoh.',
     '.hommmmmmo.',
+    '..ogggggo..',
     '.ommmmmmmo.',
-    '.ogggggggo.',
-    '.ommmmmmmo.',
     '.ommnmmmmo.',
     '.ommnmmmmo.',
-    '.ommnmmmmo.',
+    '.ommnmnmmo.',
     '..ooo.ooo..',
   ],
 };
@@ -278,7 +343,7 @@ const ELF_PALETTE = {
   r: 'robe',
   d: 'robe-d',
   s: 'skin',
-  b: 'gold',
+  b: 'leaf',
   k: 'wood-m',
   y: 'yarn',
   m: 'maestra',
@@ -289,14 +354,14 @@ const ELF_PALETTE = {
 const flip = (rows) => rows.map((row) => [...row].reverse().join(''));
 
 /** Un elfo con sus poses (cada una en su grupo, las alterna el CSS del taller). */
-function elf(poses, x, bottom, { className = '', style = '', mirror = false } = {}) {
+function elf(poses, x, bottom, { className = '', style = '', mirror = false, hair = 'gold' } = {}) {
   const groups = Object.entries(poses).map(([pose, rows]) => {
     const c = canvas();
     const sprite = mirror ? flip(rows) : rows;
     c.sprite(sprite, ELF_PALETTE, x, bottom - sprite.length);
     return `<g class="ws-${pose}">${c.svg()}</g>`;
   });
-  return `<g class="ws-actor ${className}" style="${style}">${groups.join('')}</g>`;
+  return `<g class="ws-actor ${className}" style="${style};--px-hair:var(--px-hair-${hair})">${groups.join('')}</g>`;
 }
 
 const TW = 200;
@@ -474,9 +539,13 @@ function loomWorkshop(voice) {
     elf({ a: ELF.maestra, b: ELF.maestraPoint, cheer: ELF.maestraCheer }, 22, GROUND, {
       className: 'ws-toggle ws-master',
       style: '--dur:2.4s',
+      hair: 'silver',
     }),
     // Dormido en la hamaca (sus zetas suben).
-    elf({ a: ELF.sleep, cheer: ELF.cheer.slice(0, 7) }, 7, 21, { className: 'ws-sleeper' }),
+    elf({ a: ELF.sleep, cheer: ELF.cheer.slice(0, 9) }, 7, 21, {
+      className: 'ws-sleeper',
+      hair: 'silver',
+    }),
     // Tejiendo en el telar, uno a cada lado, pasando la lanzadera.
     elf(weaveP, LOOM.x - 2, GROUND, {
       className: 'ws-toggle ws-jump ws-hand-off',
@@ -486,16 +555,31 @@ function loomWorkshop(voice) {
       className: 'ws-toggle ws-jump',
       style: '--dur:0.6s;animation-delay:-0.2s',
       mirror: true,
+      hair: 'dark',
     }),
     // Hilando en la rueca.
-    elf(weaveP, 112, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.8s', mirror: true }),
+    elf(weaveP, 112, GROUND, {
+      className: 'ws-toggle ws-jump',
+      style: '--dur:0.8s',
+      mirror: true,
+      hair: 'dark',
+    }),
     // Devanando ovillos.
-    elf(weaveP, 142, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.45s' }),
+    elf(weaveP, 142, GROUND, {
+      className: 'ws-toggle ws-jump',
+      style: '--dur:0.45s',
+      hair: 'gold',
+    }),
     // Traen ovillos, de ida y vuelta; uno se enreda con su hilo y cae.
-    `<g class="ws-walker" style="--dist:16px;--dur:7s">${elf(carryP, 120, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s' })}</g>`,
-    `<g class="ws-walker ws-trips" style="--dist:14px;--dur:9s">${elf(carryP, 162, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s' })}</g>`,
+    `<g class="ws-walker" style="--dist:16px;--dur:7s">${elf(carryP, 120, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s', hair: 'silver' })}</g>`,
+    `<g class="ws-walker ws-trips" style="--dist:14px;--dur:9s">${elf(carryP, 162, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s', hair: 'dark' })}</g>`,
     // Removiendo el caldero de tinte.
-    elf(weaveP, 156, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.7s', mirror: true }),
+    elf(weaveP, 156, GROUND, {
+      className: 'ws-toggle ws-jump',
+      style: '--dur:0.7s',
+      mirror: true,
+      hair: 'gold',
+    }),
   ];
 
   // Los que llevan el tapiz enrollado al ascensor (aparecen al terminar).
@@ -535,4 +619,95 @@ function loomWorkshop(voice) {
   </svg>`;
 }
 
-export const Bosque = { firefly, lecternStand, lumen, workshop: loomWorkshop };
+// ------------------------------------------------------------ la cuadrilla y el libro que se marchita
+//
+// Al subir un libro, sube en la canasta del ascensor de lianas con dos elfos que lo cargan
+// en alto hasta su hueco (el segundo tropieza con una raíz, .crew-tripper); Lumen va
+// adelante alumbrando. Las mismas medidas que la cuadrilla del Scriptorium (48 × 24), así
+// que BookCrew.tsx la lleva igual. Al fallar, el lomo se marchita: caen hojas secas (los
+// cuadros .px-fire-*, como las llamas) y renace con un brote.
+
+/** El libro gigante, acostado: tapas de hoja, cantos de oro y la hoja grabada en la tapa. */
+const LEAF_BOOK = [
+  '.ooooooooooooooooooooooooooooooooooo.',
+  'ogrrrrrrgrrrrrrrrrrrrrrrrrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrrwwwwwwwwwwwrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrrwwbbbbbbbwwrrrgrrrrrrgo',
+  'ogrrrrrrgrrrrrwwwwwwwwwwwrrrgrrrrrrgo',
+  'ogdddddddddddddddddddddddddddddddddgo',
+  '.ooooooooooooooooooooooooooooooooooo.',
+];
+
+function bookCrew() {
+  const book = canvas();
+  book.sprite(
+    LEAF_BOOK,
+    { o: 'elf-o', r: 'tap-leaf', d: 'tap-leaf-d', g: 'gold', w: 'tap-warp', b: 'tap-leaf-d' },
+    11,
+    2,
+  );
+  const carry = { a: ELF.lift, b: ELF.liftWalk };
+  const first = elf(carry, 13, 24, { className: 'ws-toggle', style: '--dur:0.3s', hair: 'gold' });
+  const second = elf(carry, 36, 24, {
+    className: 'ws-toggle',
+    style: '--dur:0.3s;animation-delay:-0.15s',
+    hair: 'dark',
+  });
+  const guide = lumen().replace(
+    '<svg class="px-badge px-lumen"',
+    '<svg x="0" y="9" width="10" height="7" class="px-badge px-lumen"',
+  );
+  return `<svg class="px-workshop px-crew" data-voice="gonzalo" viewBox="0 0 48 24" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${guide}
+    <g class="crew-load"><g class="crew-book">${book.svg()}</g>${first}<g class="crew-tripper">${second}</g></g>
+  </svg>`;
+}
+
+/** La canasta del ascensor de lianas en la que llega la cuadrilla (20 × 40; cuerdas arriba). */
+function crewLift() {
+  const c = canvas();
+  for (const rx of [2, 17]) c.rect('rope', rx, 0, 1, 33);
+  for (let y = 4; y < 33; y += 7) {
+    c.rect('leaf', 1, y, 1, 2);
+    c.rect('leaf-l', 18, y + 3, 1, 2);
+  }
+  c.sprite(
+    [
+      'oooooooooooooooooooo',
+      'owwwwwwwwwwwwwwwwwwo',
+      'owggggggggggggggggwo',
+      'owmwmwmwmwmwmwmwmwwo',
+      '.owwwwwwwwwwwwwwwwo.',
+      '..oooooooooooooooo..',
+    ],
+    { o: 'elf-o', w: 'wood-m', m: 'wood-l', g: 'gold' },
+    0,
+    33,
+  );
+  return `<svg class="px-crew-lift" viewBox="0 0 20 39" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
+}
+
+/** El lomo que se marchita: hojas secas que caen, en tres cuadros (como las llamas). */
+function wither() {
+  const FRAMES = [
+    ['..l...d...', '.lw..dl...', '..l.l..d.l', 'd..lw..dl.', '.d..l.l..d', 'dldldldldl'],
+    ['....l...d.', '...lw.ldl.', 'l.d..l...d', '.dl..dlw..', 'l..d..l.d.', 'ldldldldld'],
+    ['.d....l...', 'dl...lw..l', '..d.l..d..', 'l..dl..lw.', '..l.d..d.l', 'dldldldldl'],
+  ];
+  const frames = FRAMES.map((rows, i) => {
+    const c = canvas();
+    c.sprite(rows, { l: 'wither-l', d: 'wither-d', w: 'wither' }, 0, 0);
+    return `<g class="px-fire px-fire-${i}">${c.svg()}</g>`;
+  });
+  return `<svg class="px-flames" viewBox="0 0 10 6" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${frames.join('')}</svg>`;
+}
+
+export const Bosque = {
+  firefly,
+  lecternStand,
+  lumen,
+  workshop: loomWorkshop,
+  bookCrew,
+  crewLift,
+  wither,
+};

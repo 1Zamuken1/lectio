@@ -54,7 +54,7 @@ export const WORLDS: World[] = [
     tagline: 'Luminoso y noble',
     ready: false,
     scenes: true,
-    crew: ['workshop'],
+    crew: ['workshop', 'bookCrew'],
     companion: 'Lumen, el espíritu de luz',
     companionCaption: 'Lumen brilla contigo mientras lees.',
     rooms: { monastery: 'La biblioteca del gran árbol', study: 'Tu hueco en el árbol' },

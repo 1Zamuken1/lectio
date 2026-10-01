@@ -70,3 +70,17 @@ const WORKSHOPS: Partial<Record<WorldId, (voice: string) => string>> = {
 export function workshopArt(world: WorldId, voice: string): string {
   return WORKSHOPS[world]?.(voice) ?? '';
 }
+
+/**
+ * La cuadrilla que trae un libro subido, y la canasta en la que llega si el mundo la tiene
+ * (el Bosque: sube por el ascensor de lianas, siempre desde la punta derecha de la repisa).
+ */
+export function crewArt(world: WorldId): { svg: string; lift: string | null } {
+  if (world === 'bosque') return { svg: Bosque.bookCrew(), lift: Bosque.crewLift() };
+  return { svg: Pixel.bookCrew(), lift: null };
+}
+
+/** Lo que consume al libro que no se pudo preparar: llamas o, en el Bosque, hojas secas. */
+export function flamesArt(world: WorldId): string {
+  return world === 'bosque' ? Bosque.wither() : Pixel.flames();
+}
