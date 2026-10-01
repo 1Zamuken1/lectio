@@ -27,7 +27,9 @@
           }
         }
         var world = read('world', null);
-        if (world !== 'scriptorium' && world !== 'clasico') {
+        // Los mundos que se pueden elegir (worlds.ts): los escribe el build (vite.config.ts).
+        var worlds = __LECTIO_WORLDS__;
+        if (worlds.indexOf(world) < 0) {
           // La portada abre el Scriptorium en la primera visita (TitleScreen).
           world = world === null && location.pathname === '/' ? 'scriptorium' : 'clasico';
         }

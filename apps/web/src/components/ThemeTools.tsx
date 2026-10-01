@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Sound } from '../theme/sound';
-import { Theme, WORLDS, useTheme } from '../theme/theme';
+import { Theme, WORLDS, isSelectable, useTheme } from '../theme/theme';
 import { Icon } from './art';
 
 /** Botón día/noche de la barra superior. */
@@ -51,6 +51,7 @@ export function SettingsButton() {
 
 function SettingsPanel({ anchor, onClose }: { anchor: HTMLElement | null; onClose: () => void }) {
   const theme = useTheme();
+  const companion = WORLDS.find((w) => w.id === theme.world && w.scenes)?.companion;
   const panel = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; right: number }>();
 
@@ -112,14 +113,20 @@ function SettingsPanel({ anchor, onClose }: { anchor: HTMLElement | null; onClos
             type="button"
             className="world-option"
             aria-pressed={theme.world === world.id}
-            disabled={!world.ready}
+            disabled={!isSelectable(world.id)}
             onClick={() => {
               Sound.play('select');
               Theme.set('world', world.id);
             }}
           >
             <strong>{world.name}</strong>
-            <small>{world.ready ? world.tagline : 'Próximamente'}</small>
+            <small>
+              {world.ready
+                ? world.tagline
+                : isSelectable(world.id)
+                  ? 'En desarrollo'
+                  : 'Próximamente'}
+            </small>
           </button>
         ))}
       </div>
@@ -140,8 +147,12 @@ function SettingsPanel({ anchor, onClose }: { anchor: HTMLElement | null; onClos
           onChange={(event) => Theme.set('volume', Number(event.target.value))}
         />
       </label>
-      <h2>Compañía</h2>
-      {option('companion', 'Mostrar compañero', 'El búho del scriptorium')}
+      {companion && (
+        <>
+          <h2>Compañía</h2>
+          {option('companion', 'Mostrar compañero', companion)}
+        </>
+      )}
     </div>
   );
 }

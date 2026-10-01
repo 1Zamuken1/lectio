@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { WORLDS, selectableWorlds, type WorldId } from './worlds';
 
 /**
  * Sistema de temas (docs/lectio-temas.md §4). Dos ejes independientes, como atributos en
@@ -7,15 +8,16 @@ import { useSyncExternalStore } from 'react';
  * de apps/cli/assets/theme/theme.js, con la misma API para los módulos portados.
  */
 
-export type WorldId = 'scriptorium' | 'bosque' | 'solarpunk' | 'clasico';
+export { WORLDS, hasScenes, type World, type WorldId } from './worlds';
 export type Mode = 'system' | 'day' | 'night';
 
-export const WORLDS: Array<{ id: WorldId; name: string; tagline: string; ready: boolean }> = [
-  { id: 'scriptorium', name: 'Scriptorium', tagline: 'Monasterio de copistas', ready: true },
-  { id: 'bosque', name: 'Bosque élfico', tagline: 'Luminoso y noble', ready: false },
-  { id: 'solarpunk', name: 'Solarpunk', tagline: 'Cielo, sol y jardines', ready: false },
-  { id: 'clasico', name: 'Clásico', tagline: 'Sobrio, sin ambientación', ready: true },
-];
+/** En desarrollo se eligen también los mundos a medio hacer (para verlos mientras tanto). */
+const SELECTABLE = new Set(selectableWorlds(import.meta.env.DEV));
+
+/** ¿Se puede elegir este mundo? (terminado o, en desarrollo, cualquiera) */
+export function isSelectable(world: WorldId): boolean {
+  return SELECTABLE.has(world);
+}
 
 interface Preferences {
   /** null = todavía no eligió mundo (la pantalla de título se lo pregunta). */
@@ -68,7 +70,7 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const isNight = () => state.mode === 'night' || (state.mode === 'system' && systemDark.matches);
 const activeWorld = (): WorldId =>
-  WORLDS.find((w) => w.id === state.world && w.ready)?.id ?? 'clasico';
+  state.world !== null && SELECTABLE.has(state.world) ? state.world : 'clasico';
 
 let current = compute();
 

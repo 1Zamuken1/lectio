@@ -639,10 +639,6 @@
   bottom: 10px;
 }
 
-:root:not([data-world='scriptorium']) .page-corner {
-  display: none;
-}
-
 /* Inicial iluminada: solo la primera letra del primer párrafo del capítulo. */
 [data-world='scriptorium'] .prose .illuminated::first-letter {
   float: left;

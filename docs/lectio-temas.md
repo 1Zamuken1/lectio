@@ -135,3 +135,36 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 - Día y noche de cada escena (qué cambia de noche).
 - Sonidos y motivo musical de cada mundo.
 - ¿La copia de la CLI (`apps/cli/assets/theme/`) también recibe los mundos nuevos, o solo la app?
+
+### 7.5 Decisiones (01-10-2026)
+
+**Generales**
+
+- **Primero el Bosque élfico**; después Solarpunk, con lo aprendido.
+- **Solo la app** (`apps/web`) recibe los mundos nuevos; la CLI (`apps/cli/assets/theme/`) se queda con el Scriptorium y el Clásico por ahora.
+- Compañero del Solarpunk: **el dron jardinero** (nombre y personalidad, cuando toque ese mundo).
+
+**Bosque élfico**
+
+| Pieza | Decisión |
+|---|---|
+| Referencia de estilo | **Demacia (League of Legends) en la arquitectura y los detalles**: piedra blanca, arcos altos y ojivales, alas y filigrana de oro en el salón, el HUD y los esquineros. La paleta **no** suma el azul real: el bosque es el protagonista. |
+| Tono de día | Luminoso y plateado: verdes claros, oro, plata y corteza clara. |
+| Noche | Todo a la vez: luciérnagas (como el polvo en el haz), linternas colgantes encendidas (como los candelabros), luna plateada y estrellas por las ventanas, y hongos y plantas que brillan suave. |
+| HUD | Madera plateada tallada con filete de plata y detalles de oro (estilo Demacia), hojas en los esquineros, botones como hojas lisas, el activo en verde esmeralda. |
+| Barra de progreso | Una enredadera que crece, con una hoja en la punta (en lugar de la pluma). |
+| Sala pública | **Salón élfico de piedra blanca**: columnas finas como troncos, arcos ojivales con hojas talladas, vitrales de hojas; hace el papel de la nave del monasterio. |
+| Sala propia | **Refugio en la copa del árbol**: ventana redonda a las hojas, escritorio de rama, sillón de musgo con mesita y linterna, alfombra tejida, tapiz de hojas, cofre y puerta (las mismas piezas que el estudio). |
+| Puerta | **Arco de ramas que se aparta** hacia los lados, con luz verde dorada; suena un susurro de hojas. Mismo fundido y tiempos. |
+| Compañero | **Lumen, el espíritu de luz**: curioso y juguetón; revolotea, se asoma a la página, habla corto y con entusiasmo; brilla más mientras suena el libro (contrasta con la solemnidad de Sabio). |
+| Taller | **Tejedores de un tapiz**: una maestra élfica y 9 aprendices tejen en un gran telar un tapiz que se llena de abajo hacia arriba con el avance real; al terminar lo enrollan, se lo llevan por el arco y suena una campanilla de cristal. |
+| Voces en el taller | Color de la capa, una por voz (como los hábitos). |
+| Libro fallido | Se marchita (hojas secas que caen, queda gris) y, al reintentar, rebrota con destellos verdes. |
+| Descargas en escena | Un aprendiz por capítulo guarda un rollito de tela en un **cofre de raíz** que se cierra con un golpe de madera. |
+| Panel "Descargas" | El espacio es un **frasco de luciérnagas** que se va apagando (en lugar de la vela). |
+| Sonidos y música | Arpa y flauta: arpegios de arpa en select y open, flauta en la música, campanilla de cristal en lugar de la campana, y un tintineo de Lumen en lugar del ulular. |
+
+### 7.6 Avance del Bosque élfico
+
+- **Base (01-10-2026)**: el registro de mundos (`theme/worlds.ts`: `ready`, `scenes`, `companion`) reemplaza las comprobaciones `world === 'scriptorium'` (`hasScenes()`); en `pnpm dev` se eligen también los mundos a medio hacer ("En desarrollo") y el build los deja fuera hasta que estén `ready` (el script de `index.html` recibe la lista desde `vite.config.ts`). Las piezas de pixel art que comparte todo HUD (esquinero de la página y perilla del progreso) se piden por mundo en `theme/world-art.ts`.
+- **Entrega 1 (01-10-2026)**: paleta, tokens día y noche, talla del HUD (madera plateada, filetes de plata y oro, emblema de alas, botones como hojas lisas, medallón de oro), enredadera del progreso con su brote, barras de desplazamiento, índice con marcador de hoja, paneles, página (filetes de oro y hoja, ramitas en las esquinas, inicial esmeralda con zarcillos) y los 22 íconos. Archivos: `styles/bosque.css`, `theme/icons-bosque.js`, `theme/bosque.js`. Sin escenas todavía: la portada y las salas se ven como en el Clásico con la paleta del Bosque.

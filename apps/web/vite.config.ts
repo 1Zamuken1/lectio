@@ -1,7 +1,9 @@
 import react from '@vitejs/plugin-react';
+import type { Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
 import { prerender } from './build/prerender.js';
+import { selectableWorlds } from './src/theme/worlds.js';
 
 /** La API por el mismo origen (proxy a :3000), en desarrollo y en `vite preview`. */
 const api = { '/api': { target: 'http://localhost:3000', changeOrigin: false } };
@@ -18,9 +20,26 @@ const api = { '/api': { target: 'http://localhost:3000', changeOrigin: false } }
  * El prerender (build/prerender.ts) escribe las páginas públicas con su contenido al
  * terminar el build, leyendo el catálogo de la API (LECTIO_API_URL).
  */
+/**
+ * El script de index.html que aplica el tema antes de pintar acepta los mismos mundos que
+ * theme.ts: los terminados y, en `pnpm dev`, también los que están a medio hacer.
+ */
+function worlds(): Plugin {
+  let dev = false;
+  return {
+    name: 'lectio-worlds',
+    configResolved(config) {
+      dev = config.command === 'serve' && !config.isProduction;
+    },
+    transformIndexHtml: (html) =>
+      html.replace('__LECTIO_WORLDS__', JSON.stringify(selectableWorlds(dev))),
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
+    worlds(),
     prerender(),
     VitePWA({
       strategies: 'injectManifest',

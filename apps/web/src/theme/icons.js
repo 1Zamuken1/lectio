@@ -5,6 +5,8 @@
 //   CSS (--ic-ink, --ic-red, --ic-gold, --ic-light), así que el tema los recolorea: sobre
 //   un botón activo, por ejemplo, el bermellón pasa a oro. Se diseñaron con
 //   apps/cli/.scratch/icons16.mjs, que imprime cada cuadrícula para revisarla.
+// - Bosque élfico: su propio set con la misma cuadrícula y las mismas tintas
+//   (icons-bosque.js).
 // - Clásico (y los mundos sin set propio): íconos de línea con currentColor.
 //
 //   LectioIcons.icon('play')  → <span class="icon" data-icon="play"> con el SVG del mundo
@@ -12,6 +14,7 @@
 //
 // Al cambiar de mundo se vuelven a dibujar todos.
 // Portado de apps/cli/assets/theme/icons.js como módulo ES (la CLI conserva su copia).
+import { SYLVAN } from './icons-bosque';
 import { Theme } from './theme';
 
 const ILLUMINATED = {
@@ -472,15 +475,11 @@ function lineSvg(body) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
 }
 
+/** El set de píxeles de cada mundo; los que no tienen usan los íconos de línea. */
+const PIXEL_SETS = { scriptorium: ILLUMINATED, bosque: SYLVAN };
+
 function draw(element) {
-  const name = element.dataset.icon;
-  const illuminated = document.documentElement.dataset.world === 'scriptorium';
-  element.innerHTML =
-    illuminated && ILLUMINATED[name]
-      ? illuminatedSvg(ILLUMINATED[name])
-      : LINE[name]
-        ? lineSvg(LINE[name])
-        : '';
+  element.innerHTML = markup(element.dataset.icon);
 }
 
 function icon(name, className = '') {
@@ -494,12 +493,8 @@ function icon(name, className = '') {
 
 /** El SVG de un ícono en el mundo activo, para los componentes de React. */
 function markup(name) {
-  const illuminated = document.documentElement.dataset.world === 'scriptorium';
-  return illuminated && ILLUMINATED[name]
-    ? illuminatedSvg(ILLUMINATED[name])
-    : LINE[name]
-      ? lineSvg(LINE[name])
-      : '';
+  const grid = PIXEL_SETS[document.documentElement.dataset.world]?.[name];
+  return grid ? illuminatedSvg(grid) : LINE[name] ? lineSvg(LINE[name]) : '';
 }
 
 function set(element, name) {

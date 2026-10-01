@@ -8,6 +8,7 @@ import '@fontsource-variable/pixelify-sans/index.css';
 import './styles/reader.css';
 import './styles/library.css';
 import './styles/scriptorium.css';
+import './styles/bosque.css';
 import './styles/app.css';
 
 import { StrictMode } from 'react';

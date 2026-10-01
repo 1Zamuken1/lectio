@@ -1,0 +1,855 @@
+/*
+ * Lectio · tema Bosque élfico (docs/lectio-temas.md §7.5). La adaptación del Scriptorium
+ * (scriptorium.css): las mismas secciones y la misma mecánica, con otro arte. Luminoso y
+ * plateado: hoja clara, madera plateada, oro y plata; la arquitectura y los detalles toman
+ * de Demacia la piedra blanca, las alas y la filigrana de oro. Noche: plata y azul.
+ * Contrastes verificados: tinta/papel 15,3:1 (día) y 13,2:1 (noche) (AAA); resaltado de
+ * la oración 12,9:1 (día) y 9,6:1 (noche); textos secundarios ≥ 6,1:1; acentos ≥ 6,8:1.
+ */
+
+/* ---------------------------------------------------------------- Paleta de pixel art */
+/*
+ * Los mismos nombres que la paleta del Scriptorium (el motor de pixel.js los usa), más los
+ * de este mundo: hoja, plata, corteza y piedra blanca.
+ */
+
+:root[data-world='bosque'] {
+  --px-ink: #1b2a21;
+  --px-parch: #eef2e4;
+  --px-parch-d: #cdd9bd;
+  --px-gold: #d9b54a;
+  --px-gold-d: #8a6d1c;
+  --px-gold-l: #f2dc8c;
+  --px-leaf-l: #86c474;
+  --px-leaf: #4f9a50;
+  --px-leaf-d: #2f6b3a;
+  --px-emerald: #1d5e3f;
+  --px-emerald-d: #123f2a;
+  --px-silver-l: #f4f7f2;
+  --px-silver: #c9d2cc;
+  --px-silver-d: #8d9a93;
+  --px-bark-l: #e4dfcf;
+  --px-bark: #b6aa8b;
+  --px-bark-d: #7c7058;
+  --px-stone-l: #fbfaf5;
+  --px-stone: #eceade;
+  --px-stone-d: #cbc6b4;
+}
+
+:root[data-world='bosque'][data-mode='night'] {
+  --px-ink: #0b1216;
+  --px-parch: #dfe6dc;
+  --px-parch-d: #a9b6ad;
+  --px-gold: #e3c46a;
+  --px-gold-d: #7a6020;
+  --px-gold-l: #f4e2a2;
+  --px-leaf-l: #b5e3bf;
+  --px-leaf: #7cc08a;
+  --px-leaf-d: #3f7a52;
+  --px-emerald: #2f7a57;
+  --px-emerald-d: #1b4a35;
+  --px-silver-l: #dfe8ee;
+  --px-silver: #8a9cab;
+  --px-silver-d: #4f5f6c;
+  --px-bark-l: #7e8a8c;
+  --px-bark: #556266;
+  --px-bark-d: #333e42;
+  --px-stone-l: #b8c3cc;
+  --px-stone: #8996a3;
+  --px-stone-d: #5b6774;
+}
+
+/* ---------------------------------------------------------------- Tokens de la interfaz */
+
+:root[data-world='bosque'] {
+  --paper: #eef2e4;
+  --paper-raised: #f7f9ef;
+  --paper-sunken: #dde6d0;
+  --ink: #13241a;
+  --ink-soft: #2c4234;
+  --muted: #415747;
+  --line: #b9c7ab;
+  --accent: #1d5e3f;
+  --accent-soft: #e6e9b9;
+  --accent-contrast: #f7f9ef;
+  --focus: #1d5e3f;
+  --warn: #6e4a0a;
+  --warn-soft: #efe3bf;
+  --shadow: 0 2px 0 rgb(27 42 33 / 18%), 0 10px 24px rgb(27 42 33 / 14%);
+  --gold: #665214;
+
+  /* Madera plateada de la talla: barra, índice y reproductor. */
+  --chrome: #d3dbd2;
+  --chrome-dark: #5f6f66;
+  --chrome-light: #e9eee8;
+  --chrome-ink: #13241a;
+  --chrome-muted: #3c5045;
+
+  --font-display:
+    'Pixelify Sans Variable', 'Pixelify Sans', 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+
+:root[data-world='bosque'][data-mode='night'] {
+  --paper: #121b1f;
+  --paper-raised: #18242a;
+  --paper-sunken: #0d1418;
+  --ink: #e4ece6;
+  --ink-soft: #c8d5cc;
+  --muted: #9fb0a6;
+  --line: #34464a;
+  --accent: #9fd9b2;
+  --accent-soft: #2b3d35;
+  --accent-contrast: #121b1f;
+  --focus: #9fd9b2;
+  --warn: #f0c88a;
+  --warn-soft: #2d2a1c;
+  --shadow: 0 2px 0 rgb(0 0 0 / 45%), 0 10px 24px rgb(0 0 0 / 40%);
+  --gold: #e3c46a;
+  --chrome: #1f2c33;
+  --chrome-dark: #0c1316;
+  --chrome-light: #2d3d45;
+  --chrome-ink: #e4ece6;
+  --chrome-muted: #adbdb4;
+}
+
+/* ---------------------------------------------------------------- Talla (HUD) */
+/*
+ * La interfaz como un portal élfico: madera plateada con veta, filetes de plata y oro y,
+ * en los extremos, un emblema de alas (Demacia); los botones son hojas lisas (dos esquinas
+ * redondeadas) y el ▶, un medallón de oro con aro de plata. Los íconos (icons-bosque.js)
+ * usan las cuatro tintas: --ic-ink corteza, --ic-red hoja, --ic-gold oro y --ic-light plata.
+ */
+
+:root[data-world='bosque'] {
+  --ic-ink: var(--px-ink);
+  --ic-red: var(--px-leaf-d);
+  --ic-gold: var(--px-gold);
+  --ic-light: var(--px-silver-l);
+  /* Veta de la madera: solo alfa, sirve para cualquier color de fondo. */
+  --wood-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='1' y='1' width='5' height='1' fill='%23000' fill-opacity='.07'/%3E%3Crect x='3' y='3' width='2' height='1' fill='%23fff' fill-opacity='.18'/%3E%3Crect x='0' y='5' width='4' height='1' fill='%23000' fill-opacity='.07'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23000' fill-opacity='.07'/%3E%3Crect x='5' y='7' width='2' height='1' fill='%23fff' fill-opacity='.18'/%3E%3C/svg%3E");
+  --wings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='7' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='1' fill='%23d9b54a'/%3E%3Crect x='11' y='0' width='2' height='1' fill='%23d9b54a'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='1' y='1' width='3' height='1' fill='%23d9b54a'/%3E%3Crect x='9' y='1' width='3' height='1' fill='%23d9b54a'/%3E%3Crect x='12' y='1' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='2' y='2' width='3' height='1' fill='%23d9b54a'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23f4f7f2'/%3E%3Crect x='8' y='2' width='3' height='1' fill='%23d9b54a'/%3E%3Crect x='11' y='2' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='2' y='3' width='2' height='1' fill='%238a6d1c'/%3E%3Crect x='4' y='3' width='2' height='1' fill='%23d9b54a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23f4f7f2'/%3E%3Crect x='7' y='3' width='2' height='1' fill='%23d9b54a'/%3E%3Crect x='9' y='3' width='2' height='1' fill='%238a6d1c'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23d9b54a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%233f8a4a'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23d9b54a'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%233f8a4a'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%238a6d1c'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%238a6d1c'/%3E%3C/svg%3E");
+  --vine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' shape-rendering='crispEdges'%3E%3Crect x='1' y='0' width='2' height='1' fill='%2386c474'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%2386c474'/%3E%3Crect x='1' y='1' width='2' height='1' fill='%234f9a50'/%3E%3Crect x='0' y='2' width='10' height='1' fill='%232f6b3a'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%234f9a50'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%2386c474'/%3E%3Crect x='5' y='4' width='2' height='1' fill='%2386c474'/%3E%3C/svg%3E");
+  --tendril: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' shape-rendering='crispEdges'%3E%3Crect x='1' y='0' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23fff' fill-opacity='.22'/%3E%3C/svg%3E");
+  /* Brillo de plata que recorre la hoja al pasar el mouse. */
+  --silver-sheen: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgb(255 255 255 / 70%) 48%,
+    rgb(255 255 255 / 0%) 60%
+  );
+  /* Hoja lisa: dos esquinas redondeadas, en diagonal. */
+  --leaf-radius: 9px 0;
+}
+
+:root[data-world='bosque'][data-mode='night'] {
+  --wings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='7' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='2' height='1' fill='%23e3c46a'/%3E%3Crect x='11' y='0' width='2' height='1' fill='%23e3c46a'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%237a6020'/%3E%3Crect x='1' y='1' width='3' height='1' fill='%23e3c46a'/%3E%3Crect x='9' y='1' width='3' height='1' fill='%23e3c46a'/%3E%3Crect x='12' y='1' width='1' height='1' fill='%237a6020'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%237a6020'/%3E%3Crect x='2' y='2' width='3' height='1' fill='%23e3c46a'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23dfe8ee'/%3E%3Crect x='8' y='2' width='3' height='1' fill='%23e3c46a'/%3E%3Crect x='11' y='2' width='1' height='1' fill='%237a6020'/%3E%3Crect x='2' y='3' width='2' height='1' fill='%237a6020'/%3E%3Crect x='4' y='3' width='2' height='1' fill='%23e3c46a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23dfe8ee'/%3E%3Crect x='7' y='3' width='2' height='1' fill='%23e3c46a'/%3E%3Crect x='9' y='3' width='2' height='1' fill='%237a6020'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%237a6020'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23e3c46a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%236fb582'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23e3c46a'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%237a6020'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%237a6020'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%236fb582'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%237a6020'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%237a6020'/%3E%3C/svg%3E");
+  --vine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' shape-rendering='crispEdges'%3E%3Crect x='1' y='0' width='2' height='1' fill='%23b5e3bf'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%23b5e3bf'/%3E%3Crect x='1' y='1' width='2' height='1' fill='%237cc08a'/%3E%3Crect x='0' y='2' width='10' height='1' fill='%235f9c70'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%237cc08a'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23b5e3bf'/%3E%3Crect x='5' y='4' width='2' height='1' fill='%23b5e3bf'/%3E%3C/svg%3E");
+  --silver-sheen: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgb(223 232 238 / 22%) 48%,
+    rgb(223 232 238 / 0%) 60%
+  );
+}
+
+[data-world='bosque'] .topbar,
+[data-world='bosque'] .player {
+  background-color: var(--chrome);
+  background-image: var(--wood-grain);
+  color: var(--chrome-ink);
+  border-color: var(--chrome-dark);
+  backdrop-filter: none;
+}
+
+/* Filete de plata y oro a lo largo del borde que da a la página. */
+[data-world='bosque'] .topbar {
+  box-shadow:
+    inset 0 -1px 0 var(--chrome-dark),
+    inset 0 -3px 0 var(--px-silver-l),
+    inset 0 -4px 0 var(--px-gold-d),
+    inset 0 -5px 0 var(--px-gold),
+    inset 0 -6px 0 var(--chrome-dark),
+    0 3px 0 rgb(0 0 0 / 12%);
+  padding-bottom: calc(0.6rem + 6px);
+}
+
+[data-world='bosque'] .player {
+  box-shadow:
+    inset 0 1px 0 var(--chrome-dark),
+    inset 0 3px 0 var(--px-silver-l),
+    inset 0 4px 0 var(--px-gold-d),
+    inset 0 5px 0 var(--px-gold),
+    inset 0 6px 0 var(--chrome-dark),
+    0 -3px 0 rgb(0 0 0 / 10%);
+  padding-top: calc(0.7rem + 6px);
+}
+
+/* Esquineros: el emblema de alas de oro en los extremos del filete. */
+[data-world='bosque'] .topbar::before,
+[data-world='bosque'] .topbar::after,
+[data-world='bosque'] .player::before,
+[data-world='bosque'] .player::after {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 14px;
+  background: var(--wings) center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+[data-world='bosque'] .topbar::before,
+[data-world='bosque'] .topbar::after {
+  bottom: -6px;
+}
+
+/* En el reproductor, el emblema mira hacia arriba (hacia la página). */
+[data-world='bosque'] .player::before,
+[data-world='bosque'] .player::after {
+  top: -8px;
+  transform: scaleY(-1);
+}
+
+[data-world='bosque'] .topbar::before,
+[data-world='bosque'] .player::before {
+  left: 8px;
+}
+
+[data-world='bosque'] .topbar::after,
+[data-world='bosque'] .player::after {
+  right: 8px;
+}
+
+[data-world='bosque'] .brand {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-shadow: 1px 1px 0 var(--px-silver-l);
+}
+
+[data-world='bosque'][data-mode='night'] .brand {
+  color: var(--px-gold);
+  text-shadow: 2px 2px 0 var(--chrome-dark);
+}
+
+[data-world='bosque'] .brand small {
+  color: var(--chrome-muted);
+  text-shadow: none;
+}
+
+/* Pestañas: dos hojas; la activa, clara con el borde de oro y la nervadura esmeralda. */
+[data-world='bosque'] .tabs {
+  background: var(--chrome-dark);
+  border-radius: var(--leaf-radius);
+  box-shadow:
+    inset 0 2px 0 rgb(0 0 0 / 25%),
+    0 0 0 1px var(--px-gold-d);
+}
+
+[data-world='bosque'] .tabs button {
+  border-radius: var(--leaf-radius);
+  color: var(--px-silver);
+  font-family: var(--font-display);
+}
+
+[data-world='bosque'] .tabs button:hover {
+  color: var(--px-gold-l);
+}
+
+[data-world='bosque'] .tabs button[aria-selected='true'] {
+  background: var(--px-parch);
+  color: #13241a;
+  box-shadow:
+    inset 0 0 0 2px var(--px-gold-d),
+    inset 0 -4px 0 var(--px-emerald);
+}
+
+/* Botones: hojas lisas de plata con borde de oro; se hunden al presionar. */
+[data-world='bosque'] .tool {
+  border: 2px solid var(--px-gold-d);
+  border-radius: var(--leaf-radius);
+  background-color: var(--px-silver-l);
+  background-image: var(--silver-sheen);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  background-repeat: no-repeat;
+  color: #13241a;
+  box-shadow:
+    inset 0 0 0 1px var(--px-gold),
+    inset 2px 2px 0 1px rgb(255 255 255 / 45%),
+    inset -2px -2px 0 1px rgb(0 0 0 / 8%),
+    0 2px 0 var(--chrome-dark);
+  transition:
+    transform 0.05s steps(1),
+    background-position 0.45s steps(6);
+}
+
+[data-world='bosque'] .tool:hover {
+  border-color: var(--px-gold);
+  background-position: -30% 0;
+}
+
+[data-world='bosque'] .tool:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 0 0 1px var(--px-gold),
+    inset 2px 2px 0 1px rgb(0 0 0 / 12%);
+}
+
+/* Activo (modo revisión, ajustes abiertos…): hoja esmeralda; la hoja del ícono pasa a oro. */
+[data-world='bosque'] .tool[aria-pressed='true'],
+[data-world='bosque'] .tool[aria-expanded='true'] {
+  --ic-red: var(--px-gold);
+  --ic-gold: var(--px-gold-l);
+  --ic-light: var(--px-gold-l);
+  background-color: var(--px-emerald);
+  border-color: var(--px-gold);
+  color: #f7f9ef;
+}
+
+[data-world='bosque'] .tool:disabled {
+  --ic-red: var(--px-silver-d);
+  --ic-gold: var(--px-silver-d);
+  background-position: 120% 0;
+  opacity: 0.55;
+}
+
+[data-world='bosque'] .tool .label {
+  font-family: var(--font-display);
+}
+
+/* ▶ como medallón: disco de oro en píxeles con aro de plata y el ícono grabado. */
+[data-world='bosque'] .player .play {
+  --ic-gold: var(--px-emerald-d);
+  --ic-red: var(--px-emerald);
+  --ic-light: var(--px-gold-l);
+  position: relative;
+  width: 4.25rem;
+  height: 4.25rem;
+  margin: -0.5rem 0.2rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--px-silver-d);
+  box-shadow: none;
+  clip-path: var(--pixel-disc);
+}
+
+[data-world='bosque'] .player .play::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background-color: var(--px-gold);
+  background-image:
+    var(--silver-sheen),
+    linear-gradient(to bottom, transparent 0 10%, rgb(255 248 214 / 55%) 10% 17%, transparent 17%),
+    linear-gradient(135deg, var(--px-gold-l) 0%, var(--px-gold) 45%, var(--px-gold-d) 100%);
+  background-size:
+    250% 100%,
+    100% 100%,
+    100% 100%;
+  background-position:
+    120% 0,
+    0 0,
+    0 0;
+  background-repeat: no-repeat;
+  clip-path: var(--pixel-disc);
+  transition: background-position 0.5s steps(7);
+}
+
+[data-world='bosque'] .player .play:hover::before {
+  background-position:
+    -30% 0,
+    0 0,
+    0 0;
+}
+
+[data-world='bosque'] .player .play .icon {
+  position: relative;
+}
+
+[data-world='bosque'] .player .play:active {
+  transform: translateY(2px);
+}
+
+:root[data-world='bosque'] {
+  /* El mismo disco en píxeles que el Scriptorium (14 unidades escalonadas). */
+  --pixel-disc: polygon(
+    28.6% 0,
+    71.4% 0,
+    71.4% 7.1%,
+    85.7% 7.1%,
+    85.7% 14.3%,
+    92.9% 14.3%,
+    92.9% 28.6%,
+    100% 28.6%,
+    100% 71.4%,
+    92.9% 71.4%,
+    92.9% 85.7%,
+    85.7% 85.7%,
+    85.7% 92.9%,
+    71.4% 92.9%,
+    71.4% 100%,
+    28.6% 100%,
+    28.6% 92.9%,
+    14.3% 92.9%,
+    14.3% 85.7%,
+    7.1% 85.7%,
+    7.1% 71.4%,
+    0 71.4%,
+    0 28.6%,
+    7.1% 28.6%,
+    7.1% 14.3%,
+    14.3% 14.3%,
+    14.3% 7.1%,
+    28.6% 7.1%
+  );
+}
+
+[data-world='bosque'] .player-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+[data-world='bosque'] .player-time,
+[data-world='bosque'] .player-book {
+  color: var(--chrome-muted);
+}
+
+/* Como en el Scriptorium, el 15 va dentro del ícono (la rama curva). */
+[data-world='bosque'] .skip small {
+  display: none;
+}
+
+[data-world='bosque'] .player .speed,
+[data-world='bosque'] .voice-button {
+  font-family: var(--font-display);
+}
+
+/* Progreso: una enredadera que crece por la tira; el brote va en la punta. */
+[data-world='bosque'] .progress {
+  height: 2rem;
+}
+
+[data-world='bosque'] .progress-track {
+  height: 14px;
+  background: var(--px-silver-l);
+  border: 2px solid var(--chrome-dark);
+  border-radius: var(--leaf-radius);
+  box-shadow: inset 0 2px 0 var(--px-silver);
+  overflow: hidden;
+}
+
+[data-world='bosque'][data-mode='night'] .progress-track {
+  background: var(--paper-sunken);
+  box-shadow: inset 0 2px 0 rgb(0 0 0 / 40%);
+}
+
+[data-world='bosque'] .progress-fill {
+  background-color: color-mix(in srgb, var(--px-leaf-l) 30%, transparent);
+  background-image: var(--vine);
+  background-size: 20px 10px;
+  background-repeat: repeat-x;
+  background-position: 0 50%;
+  image-rendering: pixelated;
+}
+
+[data-world='bosque'] .progress-thumb {
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  /* El pie del brote (abajo a la izquierda del sprite) sigue el tallo de la enredadera. */
+  transform: translate(-3px, -82%);
+  filter: drop-shadow(1px 1px 0 rgb(0 0 0 / 30%));
+}
+
+[data-world='bosque'] .progress-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 100%;
+}
+
+/* Mientras suena, el brote se mece (en el Scriptorium, la pluma escribe). */
+:root[data-world='bosque'][data-motion='full'][data-playing='true'] .progress-thumb svg {
+  animation: sprout-sway 1.2s steps(2) infinite;
+}
+
+@keyframes sprout-sway {
+  50% {
+    transform: rotate(-6deg);
+  }
+}
+
+[data-world='bosque'] .progress:has(.player-progress:focus-visible) .progress-thumb {
+  outline: 2px solid var(--focus);
+}
+
+/* Barras de desplazamiento: carril de rama y perilla de plata. */
+:root[data-world='bosque'] {
+  --scroll-size: 12px;
+  --scroll-track: var(--chrome);
+  --scroll-thumb: var(--px-silver-d);
+  --scroll-thumb-hover: var(--px-leaf-d);
+  --scroll-radius: 6px 0;
+  --scroll-gap: 2px;
+  --scroll-bevel: inset 2px 2px 0 rgb(255 255 255 / 30%), inset -2px -2px 0 rgb(0 0 0 / 20%);
+}
+
+/* Índice: hoja hundida, con los títulos de grupo en fuente pixel. */
+[data-world='bosque'] .sidebar {
+  background: var(--paper-sunken);
+}
+
+[data-world='bosque'] .toc-group {
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+[data-world='bosque'] .toc button {
+  border-radius: var(--leaf-radius);
+}
+
+[data-world='bosque'] .kind {
+  border-radius: var(--leaf-radius);
+}
+
+[data-world='bosque'] .book-card img {
+  border-radius: 0;
+  box-shadow:
+    0 0 0 2px var(--chrome-dark),
+    0 0 0 3px var(--px-gold),
+    3px 3px 0 3px rgb(0 0 0 / 18%);
+}
+
+[data-world='bosque'] .book-card h1,
+[data-world='bosque'] .report h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- Página de lectura */
+
+/*
+ * Página temática sutil: el texto no cambia (Literata, tamaño e interlineado del
+ * usuario); solo la hoja clara, un doble filete de oro y hoja y ramitas en las esquinas.
+ */
+[data-world='bosque'] .chapter {
+  position: relative;
+  padding: 2.5rem clamp(1rem, 4vw, 3.5rem) 3rem;
+  background: var(--paper-raised);
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 0 0 5px var(--paper-raised),
+    0 0 0 6px var(--px-gold),
+    0 0 0 8px var(--paper-raised),
+    0 0 0 9px var(--px-leaf-d),
+    var(--shadow);
+}
+
+[data-world='bosque'] .chapter-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+[data-world='bosque'] .chapter-ancestors {
+  font-family: var(--font-display);
+  color: var(--gold);
+}
+
+/* El esquinero está dibujado para arriba a la izquierda: en las otras, se refleja. */
+[data-world='bosque'] .page-corner {
+  width: 27px;
+  height: 27px;
+}
+
+[data-world='bosque'] .page-corner.tr svg {
+  transform: scaleX(-1);
+}
+
+[data-world='bosque'] .page-corner.bl svg {
+  transform: scaleY(-1);
+}
+
+[data-world='bosque'] .page-corner.br svg {
+  transform: scale(-1);
+}
+
+/* Inicial con enredadera: la primera letra sobre una hoja esmeralda con zarcillos. */
+[data-world='bosque'] .prose .illuminated::first-letter {
+  float: left;
+  margin: 0.08em 0.12em 0 0;
+  padding: 0.05em 0.14em 0;
+  font-family: var(--font-read);
+  font-size: 3.1em;
+  font-weight: 600;
+  line-height: 0.95;
+  color: var(--accent-contrast);
+  background-color: var(--accent);
+  background-image: var(--tendril);
+  background-size: 16px 16px;
+  border-radius: 0.28em 0;
+  box-shadow:
+    0 0 0 2px var(--px-gold),
+    3px 3px 0 var(--line);
+}
+
+/* Oración que suena: luz dorada entre hojas (de noche, el claro de luna). */
+[data-world='bosque'] ::highlight(lectio-current) {
+  background-color: var(--accent-soft);
+}
+
+/* ---------------------------------------------------------------- Menús del reproductor */
+
+[data-world='bosque'] .speed-head {
+  font-family: var(--font-display);
+}
+
+[data-world='bosque'] .speed-presets button,
+[data-world='bosque'] .voice-pick,
+[data-world='bosque'] .voice-sample,
+[data-world='bosque'] .generate {
+  border-radius: var(--leaf-radius);
+}
+
+[data-world='bosque'] .voice-pick strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+/* Textos sobre la madera del reproductor. */
+[data-world='bosque'] .voice-status,
+[data-world='bosque'] .player-empty {
+  color: var(--chrome-ink);
+}
+
+[data-world='bosque'] .voice-error,
+[data-world='bosque'] .player .link {
+  color: var(--accent);
+}
+
+[data-world='bosque'] .generate {
+  color: #f7f9ef;
+  background: var(--px-emerald);
+  border: 2px solid var(--px-emerald-d);
+  box-shadow: 2px 2px 0 var(--chrome-dark);
+}
+
+[data-world='bosque'] .voice-status progress {
+  accent-color: var(--px-leaf);
+}
+
+/* ---------------------------------------------------------------- Ajustes */
+
+[data-world='bosque'] .world-option {
+  border-radius: var(--leaf-radius);
+}
+
+/* ---------------------------------------------------------------- Talla de los paneles */
+/*
+ * Menús, ajustes, notas, el inspector y los diálogos: hoja clara con marco de madera
+ * plateada y filetes de oro por dentro, títulos en fuente pixel y las mismas hojas de los
+ * botones.
+ */
+
+[data-world='bosque'] .speed-menu,
+[data-world='bosque'] .settings-panel,
+[data-world='bosque'] .note-popover,
+[data-world='bosque'] .inspector,
+[data-world='bosque'] dialog.confirm,
+[data-world='bosque'] .listen-chip {
+  background: var(--paper-raised);
+  border: 3px solid var(--chrome-dark);
+  border-radius: 12px 0;
+  box-shadow:
+    inset 0 0 0 2px var(--chrome),
+    inset 0 0 0 3px var(--px-gold),
+    inset 0 0 0 4px var(--px-gold-d),
+    5px 5px 0 rgb(0 0 0 / 18%);
+}
+
+[data-world='bosque'] .speed-head,
+[data-world='bosque'] .settings-panel h2,
+[data-world='bosque'] dialog.confirm h2,
+[data-world='bosque'] .inspector header,
+[data-world='bosque'] .note-popover .note-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+/* Hojas de plata con borde de oro dentro de los paneles. */
+[data-world='bosque'] .speed-presets button,
+[data-world='bosque'] .voice-pick,
+[data-world='bosque'] .voice-sample,
+[data-world='bosque'] .world-option,
+[data-world='bosque'] .confirm-actions button,
+[data-world='bosque'] .chapter-nav button,
+[data-world='bosque'] .toc-toggle,
+[data-world='bosque'] .follow-return {
+  border: 2px solid var(--px-gold-d);
+  border-radius: var(--leaf-radius);
+  background-color: var(--px-silver-l);
+  background-image: var(--silver-sheen);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  background-repeat: no-repeat;
+  color: #13241a;
+  box-shadow:
+    inset 0 0 0 1px var(--px-gold),
+    2px 2px 0 rgb(0 0 0 / 14%);
+  transition: background-position 0.45s steps(6);
+}
+
+[data-world='bosque'] .speed-presets button:hover,
+[data-world='bosque'] .voice-pick:hover:not(:disabled),
+[data-world='bosque'] .voice-sample:hover,
+[data-world='bosque'] .world-option:hover:not(:disabled),
+[data-world='bosque'] .confirm-actions button:hover,
+[data-world='bosque'] .chapter-nav button:hover,
+[data-world='bosque'] .toc-toggle:hover,
+[data-world='bosque'] .follow-return:hover {
+  border-color: var(--px-gold);
+  background-position: -30% 0;
+}
+
+[data-world='bosque'] .speed-presets button[aria-pressed='true'],
+[data-world='bosque'] .world-option[aria-pressed='true'],
+[data-world='bosque'] .confirm-actions .primary {
+  background-color: var(--px-emerald);
+  border-color: var(--px-gold);
+  color: #f7f9ef;
+}
+
+[data-world='bosque'] .voice-pick[aria-pressed='true'] {
+  border-color: var(--px-emerald);
+  box-shadow:
+    inset 0 0 0 2px var(--px-emerald),
+    2px 2px 0 rgb(0 0 0 / 14%);
+}
+
+[data-world='bosque'] .voice-pick small,
+[data-world='bosque'] .world-option small {
+  color: #415747;
+}
+
+[data-world='bosque'] .voice-state.ready {
+  color: var(--px-emerald);
+}
+
+[data-world='bosque'] .world-option[aria-pressed='true'] small,
+[data-world='bosque'] .speed-presets button[aria-pressed='true'] small {
+  color: #e2f0dc;
+}
+
+/* El índice: un borde de madera plateada con filete de oro a la derecha; el capítulo
+   actual lleva una hoja esmeralda de marcador. */
+[data-world='bosque'] .sidebar {
+  border-right: 0;
+  box-shadow:
+    inset -2px 0 0 var(--chrome-dark),
+    inset -8px 0 0 var(--chrome),
+    inset -9px 0 0 var(--px-gold),
+    inset -10px 0 0 var(--px-gold-d),
+    inset -11px 0 0 var(--chrome-dark);
+}
+
+[data-world='bosque'] .toc button[aria-current='page'] {
+  position: relative;
+  background: var(--paper-raised);
+  border-left: 0;
+  box-shadow: inset 0 0 0 1px var(--px-gold-d);
+}
+
+[data-world='bosque'] .toc button[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 9px;
+  height: 14px;
+  translate: 0 -50%;
+  background: var(--px-emerald);
+  border-radius: 9px 0;
+  box-shadow: inset 2px 2px 0 var(--px-leaf);
+}
+
+[data-world='bosque'] .toc button[aria-current='page'] .toc-title {
+  padding-left: 0.6rem;
+}
+
+/* Reporte: fichas con borde de oro y tablas con cabecera de madera plateada. */
+[data-world='bosque'] .stat {
+  border: 2px solid var(--px-gold-d);
+  border-radius: var(--leaf-radius);
+  box-shadow: inset 0 0 0 1px var(--px-gold);
+}
+
+[data-world='bosque'] .stat strong {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--accent);
+}
+
+[data-world='bosque'] .report th {
+  background-color: var(--chrome);
+  background-image: var(--wood-grain);
+  color: var(--chrome-ink);
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
+[data-world='bosque'] .report table {
+  border: 2px solid var(--chrome-dark);
+  border-radius: 0;
+}
+
+[data-world='bosque'] .announcement,
+[data-world='bosque'] .legend span {
+  border-radius: var(--leaf-radius);
+}
+
+[data-world='bosque'] .announcement {
+  border: 1px solid var(--px-gold-d);
+  box-shadow: inset 3px 0 0 var(--px-emerald);
+}
+
+/* ---------------------------------------------------------------- El resto del HUD */
+/* Las piezas de app.css y reader.css que el Scriptorium también viste. */
+
+:root[data-world='bosque'] .icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+:root[data-world='bosque'] .icon.big svg {
+  width: 48px;
+  height: 48px;
+}
+
+[data-world='bosque'] .mini-player {
+  padding-top: calc(0.5rem + 6px);
+}
+
+[data-world='bosque'] .mini-player .play {
+  width: 2.9rem;
+  height: 2.9rem;
+  margin: 0;
+}
+
+[data-world='bosque'] .mini-progress span {
+  background: var(--px-leaf);
+}
+
+[data-world='bosque'] .volume-button {
+  font-family: var(--font-display);
+}

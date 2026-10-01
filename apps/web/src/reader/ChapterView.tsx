@@ -6,7 +6,8 @@ import type { Chapter, ChapterSummary } from '../api/queries';
 import { useApi } from '../app/context';
 import { resourceUrl } from '../pwa/cache-keys';
 import { downloads, isUnreachable } from '../pwa/downloads';
-import { Pixel } from '../theme/pixel';
+import { useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 import { useListening } from './listening';
 import {
   KIND_LABEL,
@@ -58,7 +59,8 @@ export function ChapterView({
   const [note, setNote] = useState<NotePopover | null>(null);
   const built = useMemo(() => buildProse(chapter.contentHtml, chapter.title), [chapter]);
   const firstByBlock = useMemo(() => firstSentenceByBlock(chapter.sentences), [chapter]);
-  const corners = useMemo(() => Pixel.fleuron(), []);
+  const { world } = useTheme();
+  const corners = useMemo(() => worldArt(world, 'pageCorner'), [world]);
   useChapterImages(prose, chapter.id, bookId, isPublic);
   const listening = useListening({ prose, chapter, summary, bookId, ready: built });
 
@@ -195,14 +197,15 @@ export function ChapterView({
 
   return (
     <article className={`chapter${review ? ' review' : ''}`}>
-      {['tl', 'tr', 'bl', 'br'].map((corner) => (
-        <span
-          key={corner}
-          className={`page-corner ${corner}`}
-          aria-hidden="true"
-          dangerouslySetInnerHTML={{ __html: corners }}
-        />
-      ))}
+      {corners &&
+        ['tl', 'tr', 'bl', 'br'].map((corner) => (
+          <span
+            key={corner}
+            className={`page-corner ${corner}`}
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: corners }}
+          />
+        ))}
       <header className="chapter-header">
         {chapter.ancestors.length > 0 && (
           <div className="chapter-ancestors">{chapter.ancestors.join(' › ')}</div>

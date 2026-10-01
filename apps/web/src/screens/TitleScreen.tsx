@@ -6,7 +6,7 @@ import { PixelArt } from '../components/art';
 import { ModeButton, SettingsButton } from '../components/ThemeTools';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
-import { Theme, WORLDS, useTheme } from '../theme/theme';
+import { Theme, WORLDS, isSelectable, useTheme } from '../theme/theme';
 
 const number = new Intl.NumberFormat('es');
 
@@ -47,7 +47,7 @@ export function TitleScreen() {
               type="button"
               className="world-slot"
               aria-pressed={theme.world === world.id}
-              disabled={!world.ready}
+              disabled={!isSelectable(world.id)}
               onClick={() => {
                 Sound.play('select');
                 Theme.set('world', world.id);
@@ -57,7 +57,13 @@ export function TitleScreen() {
                 0{index + 1}
               </span>
               <strong>{world.name}</strong>
-              <small>{world.ready ? world.tagline : 'Próximamente'}</small>
+              <small>
+                {world.ready
+                  ? world.tagline
+                  : isSelectable(world.id)
+                    ? 'En desarrollo'
+                    : 'Próximamente'}
+              </small>
             </button>
           ))}
         </div>

@@ -4,9 +4,10 @@ import type { ChapterSummary } from '../api/queries';
 import { usePlayer, usePlayerState, useSession } from '../app/context';
 import { Icon } from '../components/art';
 import { useOnline } from '../pwa/online';
-import { Pixel } from '../theme/pixel';
 import { formatNumber } from '../reader/text';
 import { Sound } from '../theme/sound';
+import { useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 import {
   MAX_SPEED,
   MIN_SPEED,
@@ -95,7 +96,8 @@ function Deck({
   const speed = usePlayerState((s) => s.speed);
   const here = loaded?.chapterId === chapter.id;
   const duration = here ? loaded.durationMs : 0;
-  const quill = useMemo(() => Pixel.quill(), []);
+  const { world } = useTheme();
+  const quill = useMemo(() => worldArt(world, 'progressThumb'), [world]);
   const current = useRef<HTMLSpanElement>(null);
   const progress = useRef<HTMLInputElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
