@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject }
 import { createPortal } from 'react-dom';
 import { PixelArt } from '../components/art';
 import { downloads, useDownloads } from '../pwa/downloads';
-import { Pixel } from '../theme/pixel';
+import { downloadArt } from '../theme/world-art';
 import { Sound } from '../theme/sound';
 import { hasCrew, useTheme } from '../theme/theme';
 
@@ -161,7 +161,7 @@ export function DownloadCrew({
     return () => window.clearTimeout(timer);
   }, [staged, front]);
 
-  const chestSvg = useMemo(() => Pixel.downloadChest(), []);
+  const art = useMemo(() => downloadArt(world), [world]);
   if (!visible || (!chestShown && workers.length === 0)) return null;
 
   // Coordenadas en el escenario: la fila empieza a la izquierda del pie (o del borde, en
@@ -181,7 +181,7 @@ export function DownloadCrew({
         className={`dl-chest${open ? ' is-open' : ''}${busy ? '' : ' is-leaving'}`}
         style={{ left: chestX, width: CHEST_W, height: CHEST_H }}
       >
-        <PixelArt svg={chestSvg} />
+        <PixelArt svg={art.chest} />
       </div>
       {workers.map((worker, index) => {
         const x =
@@ -191,6 +191,8 @@ export function DownloadCrew({
         return (
           <Carrier
             key={worker.chapterId}
+            draw={art.carrier}
+            height={art.carrierHeight * SCALE}
             voice={worker.voice}
             phase={index === 0 ? worker.phase : 'line'}
             walking={index === 0 && worker.phase === 'line' && worker.startedAt !== null}
@@ -205,23 +207,27 @@ export function DownloadCrew({
 }
 
 function Carrier({
+  draw,
+  height,
   voice,
   phase,
   walking,
   x,
   hidden,
 }: {
+  draw: (voice: string) => string;
+  height: number;
   voice: string;
   phase: Phase;
   walking: boolean;
   x: number;
   hidden: boolean;
 }) {
-  const svg = useMemo(() => Pixel.scrollCarrier(voice), [voice]);
+  const svg = useMemo(() => draw(voice), [draw, voice]);
   return (
     <div
       className={`dl-carrier is-${phase}${walking ? ' is-walking' : ''}${hidden ? ' is-hidden' : ''}`}
-      style={{ transform: `translateX(${x}px)`, width: CARRIER, height: CARRIER }}
+      style={{ transform: `translateX(${x}px)`, width: CARRIER, height }}
     >
       <PixelArt svg={svg} />
     </div>

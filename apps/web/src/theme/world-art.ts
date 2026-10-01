@@ -84,3 +84,17 @@ export function crewArt(world: WorldId): { svg: string; lift: string | null } {
 export function flamesArt(world: WorldId): string {
   return world === 'bosque' ? Bosque.wither() : Pixel.flames();
 }
+
+/**
+ * Las descargas en escena: quién lleva cada capítulo (y cuánto mide de alto, en píxeles de
+ * arte: el elfo es más alto que el aprendiz) y dónde lo guarda (el arcón, el cofre de raíz).
+ */
+export function downloadArt(world: WorldId): {
+  carrier: (voice: string) => string;
+  carrierHeight: number;
+  chest: string;
+} {
+  if (world === 'bosque')
+    return { carrier: Bosque.clothCarrier, carrierHeight: 15, chest: Bosque.rootChest() };
+  return { carrier: Pixel.scrollCarrier, carrierHeight: 12, chest: Pixel.downloadChest() };
+}

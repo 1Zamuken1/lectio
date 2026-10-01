@@ -702,6 +702,117 @@ function wither() {
   return `<svg class="px-flames" viewBox="0 0 10 6" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${frames.join('')}</svg>`;
 }
 
+// ------------------------------------------------------------ las descargas en escena
+//
+// Al descargar, un elfo por capítulo lleva su rollito de tela hasta el cofre de raíz al
+// pie del atril (DownloadCrew.tsx): camina según el avance real y, al llegar, el cofre se
+// abre, lo guarda y se cierra. Visten la túnica de la voz que se descarga (data-voice).
+// Las mismas clases que el arcón del Scriptorium (dl-walker, dl-cheer, dl-lid-*).
+
+/** El elfo con su rollito de tela, de pie y caminando (12 × 15). */
+const CLOTH_CARRY = {
+  a: ELF.stand.map(
+    (row, i) =>
+      row +
+      [
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        'oto',
+        'oto',
+        'ogo',
+        'oto',
+        'oto',
+        '...',
+        '...',
+        '...',
+      ][i],
+  ),
+  b: ELF.walk.map(
+    (row, i) =>
+      row +
+      [
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        '...',
+        'oto',
+        'oto',
+        'ogo',
+        'oto',
+        'oto',
+        '...',
+        '...',
+        '...',
+      ][i],
+  ),
+};
+
+function clothCarrier(voice = '') {
+  const walker = elf(
+    {
+      a: CLOTH_CARRY.a.map((r) => r.replace(/t/g, 'y')),
+      b: CLOTH_CARRY.b.map((r) => r.replace(/t/g, 'y')),
+    },
+    0,
+    15,
+    { className: 'ws-toggle', style: '--dur:0.3s', hair: voice.length % 2 ? 'gold' : 'silver' },
+  );
+  const cheer = elf({ a: ELF.cheer }, 1, 15, { hair: voice.length % 2 ? 'gold' : 'silver' });
+  return `<svg class="px-workshop px-dl-carrier" data-voice="${voice}" viewBox="0 0 12 15" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    <g class="dl-walker">${walker}</g><g class="dl-cheer">${cheer}</g>
+  </svg>`;
+}
+
+/**
+ * El cofre de raíz (20 × 16): madera clara abrazada por raíces, con la cerradura de oro y
+ * una hojita. Cerrado, la tapa abombada; abierto, la tapa atrás y los rollitos adentro.
+ */
+function rootChest() {
+  const body = canvas();
+  body.rect('elf-o', 0, 7, 20, 9);
+  body.rect('wood-m', 1, 8, 18, 7);
+  body.rect('wood-l', 1, 8, 18, 1);
+  body.rect('wood-d', 1, 14, 18, 1);
+  // Las raíces que lo abrazan y se abren en el suelo.
+  for (const x of [3, 15]) {
+    body.rect('tap-bark', x, 7, 2, 9);
+    body.rect('tap-bark', x - 1, 15, 4, 1);
+  }
+  body.rect('tap-bark', 0, 15, 2, 1);
+  body.rect('tap-bark', 18, 15, 2, 1);
+  const closed = canvas();
+  closed.rect('elf-o', 1, 3, 18, 5);
+  closed.rect('elf-o', 0, 5, 20, 3);
+  closed.rect('wood-m', 2, 4, 16, 3);
+  closed.rect('wood-m', 1, 6, 18, 1);
+  closed.rect('wood-l', 2, 4, 16, 1);
+  for (const x of [3, 15]) closed.rect('tap-bark', x, 4, 2, 3);
+  closed.rect('elf-o', 8, 6, 4, 4);
+  closed.rect('gold', 9, 7, 2, 2);
+  closed.rect('leaf', 6, 2, 2, 1);
+  closed.rect('leaf-l', 7, 1, 1, 1);
+  const open = canvas();
+  open.rect('elf-o', 1, 0, 18, 8);
+  open.rect('wood-d', 2, 1, 16, 5);
+  open.rect('wood-m', 2, 1, 16, 1);
+  for (const x of [3, 15]) open.rect('tap-bark', x, 1, 2, 5);
+  open.rect('elf-o', 1, 6, 18, 2);
+  open.rect('yarn', 4, 6, 3, 1);
+  open.rect('robe', 8, 6, 3, 1);
+  open.rect('gold', 12, 6, 2, 1);
+  return `<svg class="px-dl-chest" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${body.svg()}<g class="dl-lid-closed">${closed.svg()}</g><g class="dl-lid-open">${open.svg()}</g>
+  </svg>`;
+}
+
 export const Bosque = {
   firefly,
   lecternStand,
@@ -710,4 +821,6 @@ export const Bosque = {
   bookCrew,
   crewLift,
   wither,
+  clothCarrier,
+  rootChest,
 };

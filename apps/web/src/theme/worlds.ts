@@ -30,6 +30,8 @@ export interface World {
   companion?: string;
   /** Lo que dice el índice del lector junto al compañero. */
   companionCaption?: string;
+  /** Dónde se guardan las descargas, para el panel ("El arcón está vacío"). */
+  downloadsVessel: string;
   /** El título de cada sala (lo lee el lector de pantalla; en el Clásico se ve). */
   rooms: { monastery: string; study: string };
 }
@@ -46,6 +48,7 @@ export const WORLDS: World[] = [
     crew: ['workshop', 'bookCrew', 'downloads'],
     companion: 'Sabio, el búho del scriptorium',
     companionCaption: 'Sabio, el búho, vela tu lectura.',
+    downloadsVessel: 'El arcón',
     rooms: CLASSIC_ROOMS,
   },
   {
@@ -54,9 +57,10 @@ export const WORLDS: World[] = [
     tagline: 'Luminoso y noble',
     ready: false,
     scenes: true,
-    crew: ['workshop', 'bookCrew'],
+    crew: ['workshop', 'bookCrew', 'downloads'],
     companion: 'Lumen, el espíritu de luz',
     companionCaption: 'Lumen brilla contigo mientras lees.',
+    downloadsVessel: 'El cofre',
     rooms: { monastery: 'La biblioteca del gran árbol', study: 'Tu hueco en el árbol' },
   },
   {
@@ -66,6 +70,7 @@ export const WORLDS: World[] = [
     ready: false,
     scenes: false,
     crew: [],
+    downloadsVessel: 'El arcón',
     rooms: CLASSIC_ROOMS,
   },
   {
@@ -75,6 +80,7 @@ export const WORLDS: World[] = [
     ready: true,
     scenes: false,
     crew: [],
+    downloadsVessel: 'El arcón',
     rooms: CLASSIC_ROOMS,
   },
 ];

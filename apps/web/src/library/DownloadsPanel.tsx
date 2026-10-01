@@ -4,6 +4,7 @@ import { Icon } from '../components/art';
 import type { DownloadRecord } from '../pwa/db';
 import { downloads, useDownloads, type StorageUse } from '../pwa/downloads';
 import { Sound } from '../theme/sound';
+import { WORLDS, useTheme } from '../theme/theme';
 
 /** Cuánto dura el "Deshacer" antes de borrar de verdad. */
 const UNDO_MS = 6000;
@@ -59,6 +60,8 @@ type Pending = { kind: 'chapter' | 'book'; id: string; text: string };
  * "Borrar todo" (pregunta antes).
  */
 function DownloadsPanel({ onClose }: { onClose: () => void }) {
+  const { world } = useTheme();
+  const vessel = WORLDS.find((w) => w.id === world)?.downloadsVessel ?? 'El arcón';
   const player = usePlayer();
   const dialog = useRef<HTMLDialogElement>(null);
   const chapters = useDownloads((s) => s.chapters);
@@ -234,7 +237,7 @@ function DownloadsPanel({ onClose }: { onClose: () => void }) {
       <div className="downloads-list">
         {groups.length === 0 ? (
           <div className="downloads-empty">
-            <p>El arcón está vacío.</p>
+            <p>{vessel} está vacío.</p>
             <p>
               Descarga capítulos desde la ficha de un libro para leerlos y escucharlos sin conexión.
             </p>

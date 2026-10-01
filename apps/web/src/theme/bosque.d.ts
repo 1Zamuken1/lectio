@@ -14,4 +14,8 @@ export declare const Bosque: {
   crewLift(): string;
   /** Las hojas secas del libro que se marchita (en lugar de las llamas). */
   wither(): string;
+  /** El elfo que lleva un capítulo descargado al cofre (12 × 15). */
+  clothCarrier(voice?: string): string;
+  /** El cofre de raíz de las descargas (20 × 16). */
+  rootChest(): string;
 };
