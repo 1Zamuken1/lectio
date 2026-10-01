@@ -121,16 +121,16 @@ Cada fase termina con `pnpm check` en verde (más `pnpm test:integration` desde 
 Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por etapas:
 
 - [x] 1. Base PWA: `vite-plugin-pwa` (manifest, app shell y fuentes precargados), ícono pixel, aviso "Nueva versión", botón "Instalar" y globo de iPhone, estado sin conexión (las salas con la última visita, lo no descargado apagado, subir y generar desactivados).
-- [ ] 2. Descargas: capítulo, imágenes, audio y alineación en Cache Storage por `audioSegmentId`, índice en IndexedDB, audio con `Range` (206) desde el Service Worker, `storage.persist()`, botones en el atril y panel "Descargas".
-- [ ] 3. Progreso sin conexión: cola en IndexedDB, al volver la red se envía solo el último por libro.
-- [ ] 4. Prerender de `/`, `/biblioteca` y `/libros/:slug` (ficha + primer capítulo) desde `GET /books/public` al hacer el build.
-- [ ] 5. Revisión: Playwright en modo `offline` (descargar, cortar la red, reproducir y adelantar) y prueba a mano en Android.
+- [x] 2. Descargas: capítulo, imágenes, audio y alineación en Cache Storage (por la clave del storage), índice en IndexedDB, audio con `Range` (206) desde el Service Worker, `storage.persist()`, botones en el atril y panel "Descargas".
+- [x] 3. Progreso sin conexión: cola en IndexedDB, al volver la red se envía solo el último por libro.
+- [x] 4. Prerender de `/`, `/biblioteca` y `/libros/:slug` (ficha + primer capítulo) desde `GET /books/public` al hacer el build.
+- [ ] 5. Revisión: Playwright en modo `offline` (hecho, solo en local: `pnpm test:e2e`) y prueba a mano en Android (pendiente: `docs/lectio-prueba-android.md`).
 
 ---
 
 ## Estado y cómo retomar (01-10-2026)
 
-Hechas las fases 0 a 6 y las **etapas 1 a 4 de la fase 7** (base PWA, descargas, progreso sin conexión y prerender); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
+Hechas las fases 0 a 6 y la **fase 7** salvo la prueba en un Android real (base PWA, descargas, progreso sin conexión, prerender y Playwright sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
 
 **Levantar el entorno**
 
@@ -184,7 +184,9 @@ Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y cel
 
 **Hecho el 01-10 (fase 7, etapa 4: prerender)**: `build/prerender.ts` (plugin de Vite) escribe `/`, `/biblioteca` y `/libros/:slug` con su contenido, etiquetas para buscadores y para compartir, `robots.txt`, `sitemap.xml` y `_redirects` (frontend §2.1). Sin hidratación: React reemplaza el HTML al cargar. El tema se aplica antes de pintar (script en `index.html`) y el Service Worker usa `shell.html` para toda navegación. Variables: `LECTIO_API_URL`, `LECTIO_SITE_URL` y `LECTIO_PRERENDER=required`. `headingMatchesTitle` pasó a `reader/heading.ts` (sin dependencias: la usa el build). Tests en `test/prerender.test.ts`; probado en `preview:pwa`: sin JS se ve como el lector, y React toma el control con el mismo capítulo.
 
-**Siguiente: fase 7, etapa 5**: Playwright sin conexión (descargar, cortar la red, leer y escuchar, progreso que vuelve) y la prueba en un Android real (instalación, sin conexión de verdad, pantalla bloqueada). Antes de Playwright, ver si conviene en CI o solo local.
+**Hecho el 01-10 (fase 7, etapa 5, Playwright)**: `apps/web/e2e/` con `playwright.config.ts`, **solo en local** (no en CI): `pnpm test:e2e` hace el build, lo sirve en `:4175` y corre las pruebas en escritorio y en celular (Pixel 7) contra la API de desarrollo (hace falta `pnpm db:up` y `pnpm dev`, y la biblioteca pública). Prueban que la app abre sin red con la última visita, que un capítulo descargado se lee sin red y uno que no lo está lo explica, y que el progreso hecho sin red llega al servidor al volver. La de audio se salta si la biblioteca pública no tiene audio (hoy no tiene). Crean cuentas `e2e-…@lectio.test` y el teardown las borra por SQL (`docker exec`). Ojo: la API limita a 5 por minuto el registro y el login; correr la suite dos veces seguidas puede chocar con eso.
+
+**Siguiente: la prueba en un Android real**, a mano, con la lista de `docs/lectio-prueba-android.md` (reenvío de puertos de `chrome://inspect`: el celular abre `localhost:4174`). Con eso se cierra la fase 7. Después, lo que queda fuera del plan (despliegue, Kokoro, temas Bosque y Solarpunk; ver el alcance arriba).
 
 **Limitaciones conocidas (para decidir más adelante)**
 

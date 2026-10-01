@@ -6,5 +6,5 @@
     // El prerender arma las páginas con jsdom: usa los tipos del DOM.
     "lib": ["ES2024", "DOM", "DOM.Iterable"]
   },
-  "include": ["vite.config.ts", "build"]
+  "include": ["vite.config.ts", "build", "e2e", "playwright.config.ts"]
 }

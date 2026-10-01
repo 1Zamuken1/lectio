@@ -22,7 +22,8 @@
     "db:migrate": "pnpm --filter @lectio/core db:migrate",
     "db:up": "docker compose up -d",
     "seed:public": "pnpm --silent --filter @lectio/worker seed:public",
-    "reprocess:books": "pnpm --silent --filter @lectio/worker reprocess:books"
+    "reprocess:books": "pnpm --silent --filter @lectio/worker reprocess:books",
+    "test:e2e": "pnpm --filter @lectio/web test:e2e"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -32,3 +32,7 @@ Thumbs.db
 
 # Archivos subidos y generados por la API en desarrollo (storage local)
 /storage/
+
+# Playwright (pruebas de punta a punta, solo en local)
+test-results/
+playwright-report/
