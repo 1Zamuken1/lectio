@@ -44,6 +44,8 @@ export interface SessionDeps {
   /** Quién tenía la sesión en este navegador: sin red, la app sigue con esa cuenta. */
   remember?: RememberedUser;
   now?: () => number;
+  /** Para los reintentos de `restore` (los tests lo reemplazan). */
+  setTimeout?: (run: () => void, ms: number) => ReturnType<typeof setTimeout>;
 }
 
 export interface RememberedUser {
@@ -82,6 +84,8 @@ export type SessionState =
 /** Se renueva un poco antes de que venza, para no mandar un token que muere en el camino. */
 const MARGIN_MS = 30_000;
 const LOCK = 'lectio:refresh';
+/** Si la API no responde al abrir (sin red, o todavía arrancando), se reintenta así. */
+const RETRY_MS = [1_000, 2_000, 4_000, 8_000, 15_000];
 const USER_KEY = 'lectio:user';
 
 /**
@@ -97,13 +101,14 @@ export class Session {
   #token: { value: string; expiresAt: number } | null = null;
   #state: SessionState = { status: 'unknown' };
   #refreshing: Promise<boolean> | null = null;
-  /** El último refresh no llegó a la API (sin red), a diferencia de uno rechazado. */
+  /** El último refresh no llegó a la API (sin red, o la API caída), a diferencia de uno rechazado. */
   #unreachable = false;
+  #retry: ReturnType<typeof setTimeout> | null = null;
   readonly #listeners = new Set<(state: SessionState) => void>();
   readonly #deps: Required<Omit<SessionDeps, 'locks' | 'channel' | 'remember'>> & SessionDeps;
 
   constructor(deps: SessionDeps) {
-    this.#deps = { now: () => Date.now(), ...deps };
+    this.#deps = { now: () => Date.now(), setTimeout: (run, ms) => setTimeout(run, ms), ...deps };
     deps.channel?.addEventListener('message', ({ data }) => {
       if (data.type === 'token') {
         this.#token = { value: data.accessToken, expiresAt: data.expiresAt };
@@ -129,7 +134,9 @@ export class Session {
    * Al abrir la app: si la cookie sigue viva, se recupera la sesión sin pedir la contraseña.
    * Sin red, se sigue con la cuenta que había en este navegador (las salas muestran lo
    * guardado): el token se pide al volver la conexión y, si la cookie venció, aparece el
-   * pergamino como en cualquier sesión vencida.
+   * pergamino como en cualquier sesión vencida. Lo mismo si la API no responde (por
+   * ejemplo, todavía está arrancando): se reintenta sola, cada vez más espaciado, hasta que
+   * conteste.
    */
   async restore(): Promise<SessionState> {
     const ok = await this.refresh();
@@ -137,7 +144,23 @@ export class Session {
       const user = this.#unreachable ? (this.#deps.remember?.load() ?? null) : null;
       this.#set(user ? { status: 'authenticated', user } : { status: 'anonymous' });
     }
+    if (!ok && this.#unreachable) this.#retryRestore(0);
     return this.#state;
+  }
+
+  #retryRestore(attempt: number): void {
+    if (this.#retry) clearTimeout(this.#retry);
+    this.#retry = this.#deps.setTimeout(
+      () => {
+        this.#retry = null;
+        // Mientras tanto pudo entrar o renovarse por otro lado (salir cancela el reintento).
+        if (this.#fresh() || this.#state.status === 'expired') return;
+        void this.refresh().then((ok) => {
+          if (!ok && this.#unreachable) this.#retryRestore(attempt + 1);
+        });
+      },
+      RETRY_MS[Math.min(attempt, RETRY_MS.length - 1)]!,
+    );
   }
 
   async login(email: string, password: string): Promise<SessionUser> {
@@ -164,6 +187,8 @@ export class Session {
   }
 
   async logout(): Promise<void> {
+    if (this.#retry) clearTimeout(this.#retry);
+    this.#retry = null;
     await this.#deps
       .fetch('/api/v1/auth/logout', { method: 'POST', credentials: 'same-origin' })
       .catch(() => undefined); // sin red, la sesión local se cierra igual
@@ -214,7 +239,13 @@ export class Session {
       });
     } catch {
       this.#unreachable = true;
-      return false; // sin red: se reintenta en la próxima petición, sin cerrar la sesión
+      return false; // sin red: se reintenta después, sin cerrar la sesión
+    }
+    // Un 5xx (502 del proxy con la API caída, 503 mientras arranca) tampoco es un "no":
+    // la cookie puede seguir viva, así que la sesión no se cierra.
+    if (response.status >= 500) {
+      this.#unreachable = true;
+      return false;
     }
     this.#unreachable = false;
     if (!response.ok) {

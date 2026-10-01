@@ -36,6 +36,13 @@ export function Layout() {
     void session.restore();
   }, [session]);
 
+  // Con un token nuevo (al entrar, o cuando la API vuelve a contestar tras estar caída o
+  // arrancando), se vuelve a pedir lo que falló mientras tanto.
+  useEffect(() => {
+    if (state.status !== 'authenticated') return;
+    void client.invalidateQueries({ predicate: (query) => query.state.status === 'error' });
+  }, [state, client]);
+
   // Al entrar desde otra pestaña, el pergamino de esta ya no hace falta.
   useEffect(() => {
     if (state.status === 'authenticated' && prompt.open && !prompt.open.then) prompt.close();

@@ -22,6 +22,9 @@ function describe(error: unknown, tab: Tab): string {
     case 'TOO_MANY_REQUESTS':
       return 'Demasiados intentos seguidos. Espera un minuto y vuelve a probar.';
     default:
+      // 502/503: la API no contesta (caída o todavía arrancando); no es la contraseña.
+      if (error.status >= 500)
+        return 'Lectio no responde en este momento. Espera unos segundos e inténtalo de nuevo.';
       return tab === 'login'
         ? 'No se pudo entrar. Inténtalo de nuevo.'
         : 'No se pudo crear la cuenta.';

@@ -194,6 +194,61 @@ describe('Session', () => {
     expect(await session.accessToken()).toMatch(/^h\./);
   });
 
+  it('la API caída o arrancando (502) al abrir: sigue la cuenta y se reintenta sola', async () => {
+    const server = new FakeAuthServer();
+    const remember = memory({ id: 'u1', email: 'ana@example.com' });
+    let up = false;
+    const fetcher: typeof fetch = (input, init) =>
+      up ? server.fetch(input, init) : Promise.resolve(json(502, {}));
+    const retries: Array<() => void> = [];
+    const session = new Session({
+      fetch: fetcher,
+      remember,
+      setTimeout: (run) => {
+        retries.push(run);
+        return 0 as unknown as ReturnType<typeof setTimeout>;
+      },
+    });
+
+    // Sin el pergamino de login: la cookie puede seguir viva.
+    expect(await session.restore()).toEqual({
+      status: 'authenticated',
+      user: { id: 'u1', email: 'ana@example.com' },
+    });
+    expect(remember.load()).not.toBeNull();
+
+    // Sigue caída: el reintento programa otro.
+    retries.shift()!();
+    await until(() => retries.length === 1);
+    expect(server.refreshCalls).toBe(0);
+
+    // La API ya contesta: el reintento trae el token, sin pedir la contraseña.
+    up = true;
+    retries.shift()!();
+    await until(() => server.refreshCalls === 1);
+    expect(await session.accessToken()).toMatch(/^h\./);
+    expect(retries).toHaveLength(0);
+  });
+
+  it('un 503 en plena sesión no la cierra', async () => {
+    const server = new FakeAuthServer();
+    let now = 0;
+    let down = false;
+    const fetcher: typeof fetch = (input, init) =>
+      down ? Promise.resolve(json(503, {})) : server.fetch(input, init);
+    const session = new Session({ fetch: fetcher, now: () => now, remember: memory(null) });
+    await session.restore();
+    expect(session.state.status).toBe('authenticated');
+
+    now += 20 * 60_000; // el access token venció
+    down = true;
+    expect(await session.accessToken()).toBeNull();
+    expect(session.state.status).toBe('authenticated');
+
+    down = false;
+    expect(await session.accessToken()).toMatch(/^h\./);
+  });
+
   it('sin red y sin cuenta recordada: anónimo', async () => {
     const session = new Session({
       fetch: () => Promise.reject(new TypeError('Failed to fetch')),
