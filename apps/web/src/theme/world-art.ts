@@ -8,7 +8,16 @@ import type { WorldId } from './worlds';
  * dibuja su versión de la misma pieza. Un mundo sin esa pieza (el Clásico) da ''.
  */
 export type ArtPiece =
-  'pageCorner' | 'progressThumb' | 'title' | 'monastery' | 'study' | 'lecternStand';
+  | 'pageCorner'
+  | 'progressThumb'
+  | 'title'
+  | 'monastery'
+  | 'study'
+  | 'lecternStand'
+  /** El compañero en las salas y en el índice del lector. */
+  | 'companion'
+  /** El compañero suelto, fuera de las escenas (junto al título, asomado a la página). */
+  | 'companionFree';
 
 const NONE = () => '';
 
@@ -20,6 +29,9 @@ const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
     monastery: Pixel.monasteryScene,
     study: Pixel.studyScene,
     lecternStand: Pixel.lecternStand,
+    companion: Pixel.owlBadge,
+    // Sabio vive dentro de las escenas (la portada lo dibuja en el escritorio).
+    companionFree: NONE,
   },
   // Las escenas del Bosque son de lienzo (rasterScene); la página no lleva esquineros.
   bosque: {
@@ -29,6 +41,8 @@ const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
     monastery: NONE,
     study: NONE,
     lecternStand: Bosque.lecternStand,
+    companion: Bosque.lumen,
+    companionFree: Bosque.lumen,
   },
 };
 

@@ -4,4 +4,6 @@ export declare const Bosque: {
   firefly(): string;
   /** El pie del atril bajo la ficha del libro. */
   lecternStand(): string;
+  /** Lumen, el espíritu de luz (el compañero). */
+  lumen(): string;
 };

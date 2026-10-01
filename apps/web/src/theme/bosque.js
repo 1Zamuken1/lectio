@@ -46,4 +46,56 @@ function lecternStand() {
   return `<svg class="px-lectern" viewBox="0 0 96 38" shape-rendering="crispEdges" aria-hidden="true" focusable="false">${c.svg()}</svg>`;
 }
 
-export const Bosque = { firefly, lecternStand };
+/**
+ * Lumen, el espíritu de luz (el compañero del Bosque): una bolita de luz con carita y dos
+ * hojitas como alas. Dos juegos de ojos (parpadea) y dos de alas (aletea): los alterna el
+ * CSS, como al búho del Scriptorium.
+ */
+const LUMEN = {
+  body: [
+    '.....oooo.....',
+    '...oolllloo...',
+    '..olwwlllllo..',
+    '.olwwlllllllo.',
+    '.ollllllllllo.',
+    null,
+    null,
+    '.ollllllllllo.',
+    '.olcllllllclo.',
+    '..ollmllmllo..',
+    '...ollmmllo...',
+    '....oooooo....',
+  ],
+  open: ['.ollellllello.', '.ollellllello.'],
+  closed: ['.ollllllllllo.', '.olleelleello.'],
+  wingsUp: ['gGG............GGg', '.gGG..........GGg.', '..gGg........gGg..', '...gg........gg...'],
+  wingsDown: [
+    '...gg........gg...',
+    '..gGg........gGg..',
+    '.gGG..........GGg.',
+    'gGG............GGg',
+  ],
+};
+
+function lumen() {
+  const palette = {
+    o: 'lumen-o',
+    l: 'lumen',
+    w: 'lumen-l',
+    e: 'lumen-eye',
+    c: 'lumen-cheek',
+    m: 'lumen-eye',
+  };
+  const withEyes = (eyes) => LUMEN.body.map((row, i) => row ?? eyes[i - 5]);
+  const open = canvas();
+  open.sprite(withEyes(LUMEN.open), palette, 2, 1);
+  const closed = canvas();
+  closed.sprite(withEyes(LUMEN.closed), palette, 2, 1);
+  const up = canvas();
+  up.sprite(LUMEN.wingsUp, { g: 'leaf-l', G: 'leaf' }, 0, 1);
+  const down = canvas();
+  down.sprite(LUMEN.wingsDown, { g: 'leaf-l', G: 'leaf' }, 0, 5);
+  return `<svg class="px-badge px-lumen" viewBox="0 0 18 13" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><g class="lumen-wings-up">${up.svg()}</g><g class="lumen-wings-down">${down.svg()}</g><g class="lumen-body"><g class="lumen-eyes-open">${open.svg()}</g><g class="lumen-eyes-closed">${closed.svg()}</g></g></svg>`;
+}
+
+export const Bosque = { firefly, lecternStand, lumen };

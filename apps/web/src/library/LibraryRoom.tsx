@@ -13,11 +13,11 @@ import { PixelArt } from '../components/art';
 import { RasterArt } from '../components/RasterArt';
 import { takeIosInstallHint } from '../pwa/install';
 import { useAvailableOffline, useOnline } from '../pwa/online';
-import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { roomTitle, useTheme } from '../theme/theme';
 import type { RasterScene, SceneRect } from '../theme/bosque-scenes';
 import { rasterScene, worldArt } from '../theme/world-art';
+import { companionLine } from './companion-voice';
 import { useRoomDoor } from './room-door';
 import {
   SORT_LABELS,
@@ -94,7 +94,7 @@ export function LibraryRoom({
   const raster = rasterScene(world, room);
   const roomRef = useRef<HTMLElement>(null);
   const layout = useSceneLayout(roomRef, raster);
-  const owlSvg = useMemo(() => Pixel.owlBadge(), []);
+  const owlSvg = useMemo(() => worldArt(world, 'companion'), [world]);
   const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
   const online = useOnline();
@@ -173,6 +173,18 @@ export function LibraryRoom({
     }
   }
 
+  const line = companionLine(
+    world,
+    notice?.text ??
+      (iosHint
+        ? 'Para tener Lectio en tu iPhone: toca Compartir y luego «Añadir a pantalla de inicio».'
+        : !online && !book
+          ? books?.length
+            ? 'Sin conexión: te muestro los libros de tu última visita.'
+            : 'Sin conexión por ahora.'
+          : hint(book)),
+  );
+
   return (
     <main
       ref={roomRef}
@@ -198,18 +210,17 @@ export function LibraryRoom({
       <div className="library-floor">
         <h1 className="room-title">{roomTitle(world, room)}</h1>
         <section className="bookcase" aria-label="Estantería">
-          <div ref={owl} className="shelf-owl companion-slot" aria-hidden="true">
-            <PixelArt svg={owlSvg} />
-          </div>
+          {owlSvg && (
+            <div
+              ref={owl}
+              className={`shelf-owl companion-slot${line.mood === 'error' ? ' is-sad' : ''}`}
+              aria-hidden="true"
+            >
+              <PixelArt svg={owlSvg} />
+            </div>
+          )}
           <p ref={hintRef} className="shelf-hint" aria-live="polite">
-            {notice?.text ??
-              (iosHint
-                ? 'Para tener Lectio en tu iPhone: toca Compartir y luego «Añadir a pantalla de inicio».'
-                : !online && !book
-                  ? books?.length
-                    ? 'Sin conexión: te muestro los libros de tu última visita.'
-                    : 'Sin conexión por ahora.'
-                  : hint(book))}
+            {line.text}
             {notice?.action ? (
               <button type="button" className="hint-action" onClick={notice.action.run}>
                 {notice.action.label}

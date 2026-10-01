@@ -24,6 +24,8 @@ export interface World {
   crew: boolean;
   /** El compañero, para el interruptor de los ajustes (sin compañero, no hay interruptor). */
   companion?: string;
+  /** Lo que dice el índice del lector junto al compañero. */
+  companionCaption?: string;
   /** El título de cada sala (lo lee el lector de pantalla; en el Clásico se ve). */
   rooms: { monastery: string; study: string };
 }
@@ -39,6 +41,7 @@ export const WORLDS: World[] = [
     scenes: true,
     crew: true,
     companion: 'Sabio, el búho del scriptorium',
+    companionCaption: 'Sabio, el búho, vela tu lectura.',
     rooms: CLASSIC_ROOMS,
   },
   {
@@ -48,7 +51,9 @@ export const WORLDS: World[] = [
     ready: false,
     scenes: true,
     crew: false,
-    rooms: { monastery: 'El salón élfico', study: 'Tu refugio' },
+    companion: 'Lumen, el espíritu de luz',
+    companionCaption: 'Lumen brilla contigo mientras lees.',
+    rooms: { monastery: 'La biblioteca del gran árbol', study: 'Tu hueco en el árbol' },
   },
   {
     id: 'solarpunk',

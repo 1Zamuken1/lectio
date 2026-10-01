@@ -1085,3 +1085,286 @@
   font-family: var(--font-display);
   font-size: 1.3rem;
 }
+
+/* ---------------------------------------------------------------- Lumen, el compañero */
+/*
+ * Una bolita de luz con carita y alitas de hoja (bosque.js): flota, parpadea y aletea.
+ * En las salas flota junto a la estantería y habla en su globo; cuando pasa algo da una
+ * voltereta con chispas (ante un error, se encoge y su luz baja). En el índice brilla
+ * mientras suena el libro, y se asoma a la página al empezar cada párrafo.
+ */
+
+:root[data-world='bosque'] {
+  --px-lumen-o: #e9a83c;
+  --px-lumen: #ffd98a;
+  --px-lumen-l: #fff6d6;
+  --px-lumen-eye: #5a3208;
+  --px-lumen-cheek: #f7a8b8;
+  --lumen-glow: rgb(255 200 100 / 75%);
+}
+
+:root[data-world='bosque'][data-mode='night'] {
+  --px-lumen-o: #ffbf55;
+  --px-lumen: #ffe29a;
+  --lumen-glow: rgb(255 210 120 / 95%);
+}
+
+.px-lumen {
+  overflow: visible;
+  filter: drop-shadow(0 0 3px var(--lumen-glow));
+}
+
+.px-lumen .lumen-wings-down,
+.px-lumen .lumen-eyes-closed {
+  opacity: 0;
+}
+
+:root[data-motion='full'] .px-lumen .lumen-wings-up {
+  animation: lumen-flap 0.5s steps(1) infinite;
+}
+
+:root[data-motion='full'] .px-lumen .lumen-wings-down {
+  animation: lumen-flap 0.5s steps(1) infinite reverse;
+}
+
+:root[data-motion='full'] .px-lumen .lumen-eyes-open {
+  animation: px-blink-open 4.6s steps(1) infinite;
+}
+
+:root[data-motion='full'] .px-lumen .lumen-eyes-closed {
+  animation: px-blink-closed 4.6s steps(1) infinite;
+}
+
+@keyframes lumen-flap {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Flota: sube y baja en pasos. */
+:root[data-motion='full'] .shelf-owl .px-lumen,
+:root[data-motion='full'] .title-companion .px-lumen {
+  animation: lumen-float 2.4s steps(4) infinite;
+}
+
+@keyframes lumen-float {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* En las salas: junto a la estantería, con el globo al lado. */
+.library[data-layout='scene'] .shelf-owl {
+  position: absolute;
+  left: calc(100% + 0.3rem);
+  top: -0.9rem;
+  display: block;
+  width: 46px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.library[data-layout='scene'] .shelf-owl .px-badge {
+  width: 100%;
+  height: auto;
+}
+
+.library[data-layout='scene'] .shelf-owl ~ .shelf-hint {
+  left: calc(100% + 3.6rem);
+}
+
+/* La colita del globo, en escalón, hacia Lumen. */
+.library[data-layout='scene'] .shelf-owl ~ .shelf-hint::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0.9rem;
+  width: 8px;
+  height: 8px;
+  background: var(--panel-edge);
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+/* Voltereta con chispas (en vez del saltito del búho). */
+:root[data-motion='full'] .library[data-layout='scene'] .shelf-owl.hop {
+  animation: none;
+}
+
+:root[data-motion='full'] .shelf-owl.hop .px-lumen {
+  animation: lumen-flip 0.6s steps(8);
+}
+
+:root[data-motion='full'] .shelf-owl.hop::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  background: var(--px-lumen-l);
+  box-shadow:
+    -14px -10px 0 var(--px-lumen),
+    12px -14px 0 var(--px-lumen-l),
+    16px 6px 0 var(--px-lumen),
+    -12px 12px 0 var(--px-lumen-l),
+    0 -18px 0 var(--px-lumen);
+  animation: lumen-sparks 0.7s steps(5) forwards;
+}
+
+@keyframes lumen-flip {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  40% {
+    transform: translateY(-10px) rotate(180deg);
+  }
+  100% {
+    transform: translateY(0) rotate(360deg);
+  }
+}
+
+@keyframes lumen-sparks {
+  from {
+    opacity: 1;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+/* Ante un error, se encoge y su luz baja un momento (sin voltereta ni chispas). */
+:root[data-motion='full'] .shelf-owl.is-sad.hop .px-lumen {
+  animation: lumen-sad 1.4s steps(6);
+}
+
+:root[data-motion='full'] .shelf-owl.is-sad.hop::after {
+  display: none;
+}
+
+@keyframes lumen-sad {
+  20%,
+  80% {
+    transform: translateY(4px) scale(0.78);
+    filter: brightness(0.6) drop-shadow(0 0 1px var(--lumen-glow));
+  }
+}
+
+@media (max-width: 700px) {
+  .library[data-layout='scene'] .shelf-owl {
+    position: fixed;
+    left: 0.9rem;
+    top: auto;
+    bottom: calc(var(--mini-height, 0px) + 4.6rem + env(safe-area-inset-bottom));
+    width: 40px;
+    z-index: 2;
+  }
+
+  .library[data-layout='scene'] .shelf-owl ~ .shelf-hint {
+    left: 0.75rem;
+  }
+
+  .library[data-layout='scene'] .shelf-owl ~ .shelf-hint::before {
+    display: none;
+  }
+}
+
+/* En el índice del lector: brilla más mientras suena el libro y se adormece en pausa. */
+[data-world='bosque'] .sidebar .companion-slot .px-lumen {
+  filter: drop-shadow(0 0 2px var(--lumen-glow)) brightness(0.85);
+}
+
+:root[data-world='bosque'][data-motion='full'][data-playing='true']
+  .sidebar
+  .companion-slot
+  .px-lumen {
+  animation: lumen-bright 1.2s steps(3) infinite;
+}
+
+@keyframes lumen-bright {
+  50% {
+    filter: drop-shadow(0 0 6px var(--lumen-glow)) brightness(1.15);
+  }
+}
+
+/* Asomado a la página: aparece en el margen a la altura del párrafo y se va. */
+.companion-peek {
+  position: absolute;
+  left: 0.35rem;
+  z-index: 1;
+  width: 30px;
+  pointer-events: none;
+}
+
+.companion-peek .px-badge {
+  width: 100%;
+  height: auto;
+}
+
+:root[data-motion='full'] .companion-peek {
+  animation: lumen-peek 2.2s steps(11) forwards;
+}
+
+:root[data-motion='reduced'] .companion-peek {
+  display: none;
+}
+
+@keyframes lumen-peek {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  20%,
+  75% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+/* Junto al título de la portada: revolotea alrededor del logo. */
+.title-banner {
+  position: relative;
+}
+
+.title-companion {
+  position: absolute;
+  left: -2.6rem;
+  top: -0.6rem;
+  width: 48px;
+  pointer-events: none;
+}
+
+.title-companion .px-badge {
+  width: 100%;
+  height: auto;
+}
+
+:root[data-motion='full'] .title-companion {
+  animation: lumen-wander 9s steps(36) infinite;
+}
+
+@keyframes lumen-wander {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(1.5rem, -1rem);
+  }
+  50% {
+    transform: translate(0.6rem, 1.2rem);
+  }
+  75% {
+    transform: translate(-0.8rem, 0.2rem);
+  }
+}

@@ -1,9 +1,17 @@
 import { useQueryClient } from '@tanstack/react-query';
 import DOMPurify from 'dompurify';
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+  type RefObject,
+} from 'react';
 import { createPortal } from 'react-dom';
 import type { Chapter, ChapterSummary } from '../api/queries';
-import { useApi } from '../app/context';
+import { useApi, usePlayerState } from '../app/context';
 import { resourceUrl } from '../pwa/cache-keys';
 import { downloads, isUnreachable } from '../pwa/downloads';
 import { useTheme } from '../theme/theme';
@@ -61,6 +69,7 @@ export function ChapterView({
   const firstByBlock = useMemo(() => firstSentenceByBlock(chapter.sentences), [chapter]);
   const { world } = useTheme();
   const corners = useMemo(() => worldArt(world, 'pageCorner'), [world]);
+  const peeker = useMemo(() => worldArt(world, 'companionFree'), [world]);
   useChapterImages(prose, chapter.id, bookId, isPublic);
   const listening = useListening({ prose, chapter, summary, bookId, ready: built });
 
@@ -197,6 +206,7 @@ export function ChapterView({
 
   return (
     <article className={`chapter${review ? ' review' : ''}`}>
+      {peeker && <CompanionPeek prose={prose} chapter={chapter} svg={peeker} />}
       {corners &&
         ['tl', 'tr', 'bl', 'br'].map((corner) => (
           <span
@@ -350,4 +360,50 @@ function useChapterImages(
       active = false;
     };
   }, [prose, chapterId, bookId, isPublic, api, client]);
+}
+
+/**
+ * El compañero que se asoma a la página (Lumen, en el Bosque): mientras suena el libro, al
+ * empezar cada párrafo aparece un momento en el margen, a su altura, y se va.
+ */
+function CompanionPeek({
+  prose,
+  chapter,
+  svg,
+}: {
+  prose: RefObject<HTMLDivElement | null>;
+  chapter: Chapter;
+  svg: string;
+}) {
+  const here = usePlayerState((s) => s.loaded?.chapterId === chapter.id);
+  const sentence = usePlayerState((s) => s.sentence);
+  const playing = usePlayerState((s) => s.playing);
+  const block = here && sentence >= 0 ? (chapter.sentences[sentence]?.blockIndex ?? -1) : -1;
+  const [peek, setPeek] = useState<{ top: number; id: number } | null>(null);
+
+  useEffect(() => {
+    if (!playing || block < 0) return;
+    const element = prose.current?.querySelectorAll('[data-b]')[block];
+    const article = prose.current?.closest('.chapter');
+    if (!element || !article) return;
+    const top = element.getBoundingClientRect().top - article.getBoundingClientRect().top;
+    setPeek((p) => ({ top, id: (p?.id ?? 0) + 1 }));
+  }, [block, playing, prose]);
+
+  useEffect(() => {
+    if (!peek) return;
+    const timer = window.setTimeout(() => setPeek(null), 2200);
+    return () => window.clearTimeout(timer);
+  }, [peek]);
+
+  if (!peek) return null;
+  return (
+    <span
+      key={peek.id}
+      className="companion-peek px-companion"
+      style={{ top: peek.top }}
+      aria-hidden="true"
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
 }

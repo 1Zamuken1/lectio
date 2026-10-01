@@ -875,10 +875,6 @@
   height: 48px;
 }
 
-:root:not([data-world='scriptorium']) .companion-slot {
-  display: none;
-}
-
 /* ---------------------------------------------------------------- Menús del reproductor */
 
 /* Velocidad y voz: pergamino con marco de madera, esquinas rectas como el resto del HUD. */

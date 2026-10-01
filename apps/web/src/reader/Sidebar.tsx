@@ -1,7 +1,8 @@
 import { useMemo, type ReactNode } from 'react';
 import type { BookDetail, ChapterSummary } from '../api/queries';
 import { ApiImage } from '../components/ApiImage';
-import { Pixel } from '../theme/pixel';
+import { WORLDS, useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 import { KIND_LABEL, estimatedMinutes, formatDuration } from './text';
 
 /** ¿Hay audio listo en alguna voz? */
@@ -31,7 +32,9 @@ export function ReaderSidebar({
   onToggleAux: () => void;
   onGo: (orderIndex: number) => void;
 }) {
-  const owl = useMemo(() => Pixel.owlBadge(), []);
+  const { world } = useTheme();
+  const owl = useMemo(() => worldArt(world, 'companion'), [world]);
+  const caption = WORLDS.find((w) => w.id === world)?.companionCaption;
   const auxCount = book.chapters.filter((c) => c.kind !== 'narrative').length;
 
   const items: ReactNode[] = [];
@@ -88,10 +91,12 @@ export function ReaderSidebar({
         </div>
       </div>
       <ul className="toc">{items}</ul>
-      <div className="companion-slot" aria-hidden="true">
-        <span style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: owl }} />
-        <span>Sabio, el búho, vela tu lectura.</span>
-      </div>
+      {owl && (
+        <div className="companion-slot" aria-hidden="true">
+          <span style={{ display: 'contents' }} dangerouslySetInnerHTML={{ __html: owl }} />
+          <span>{caption}</span>
+        </div>
+      )}
       {auxCount > 0 && (
         <button type="button" className="toc-toggle" onClick={onToggleAux}>
           {hideAux

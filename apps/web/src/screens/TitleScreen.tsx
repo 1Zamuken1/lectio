@@ -24,6 +24,8 @@ export function TitleScreen() {
   const start = useRef<HTMLButtonElement>(null);
   const scene = useMemo(() => worldArt(theme.world, 'title'), [theme.world]);
   const raster = rasterScene(theme.world, 'title');
+  // El compañero que no vive dentro de la escena (Lumen) revolotea junto al título.
+  const companion = useMemo(() => worldArt(theme.world, 'companionFree'), [theme.world]);
 
   useEffect(() => {
     // Primera visita: la portada muestra el Scriptorium; se cambia desde los mundos.
@@ -41,6 +43,13 @@ export function TitleScreen() {
         <PixelArt className="scene" svg={scene} />
       )}
       <div className="title-banner">
+        {companion && (
+          <span
+            className="title-companion px-companion"
+            aria-hidden="true"
+            dangerouslySetInnerHTML={{ __html: companion }}
+          />
+        )}
         <h1 className="logo">Lectio</h1>
         <p className="tagline">Tu biblioteca, leída en voz alta</p>
       </div>
