@@ -70,7 +70,7 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 
 ## 7. Bosque élfico y Solarpunk: adaptar desde el Scriptorium
 
-_Lo siguiente (decidido el 01-10-2026). El despliegue y Kokoro quedan para más adelante._
+_El Bosque élfico quedó completo el 01-10-2026; lo siguiente es Solarpunk (§7.7). El despliegue y Kokoro quedan para más adelante._
 
 **El principio** (corregido el 01-10-2026): el Scriptorium está **completo** y no se toca. Bosque élfico y Solarpunk son **mundos propios**: cada uno tiene su composición, su HUD, sus lugares y su arte, y no reutiliza la estructura visual del Scriptorium (marcos, esquineros, la sala con estanterías a los lados y la ventana al centro). Lo que comparten es **la mecánica**: las mismas piezas (portada, dos salas y el paso entre ellas, compañero, taller, cuadrilla, libro fallido, descargas en escena, panel y sonidos), lo que cada una muestra (el avance real, los mismos estados y tiempos) y el mismo comportamiento con movimiento reducido y en el celular. La primera versión del Bosque (entregas 1 y 2, `2203f79` y `850b576`) era un Scriptorium con otra paleta y se rehace (§7.6).
 
@@ -106,6 +106,8 @@ Las equivalencias de las columnas de Bosque y Solarpunk son **propuestas para co
 Clásico no cambia: es el tema sin ambientación y la referencia de accesibilidad.
 
 ### 7.2 Dónde el código supone el Scriptorium
+
+_Resuelto con el Bosque (01-10-2026): todo esto pasó al registro de mundos y a `world-art.ts`; para un mundo nuevo, ver la tabla de §7.7. Se deja como historia._
 
 Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 
@@ -186,3 +188,45 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 - **Descargas (01-10-2026)**: `Bosque.clothCarrier(voz)` y `Bosque.rootChest()` en `bosque.js`; `world-art.ts` los da con `downloadArt()` y `DownloadCrew.tsx` los usa con las mismas clases que el arcón. Cada mundo dice cómo se llama su recipiente (`downloadsVessel` en `worlds.ts`: "El arcón", "El cofre"). El frasco de luciérnagas del panel es solo CSS en `bosque.css`.
 - **Sonido (01-10-2026)**: `theme/sound-bosque.js` con los efectos (`SFX`) y la música (`startMusic`, `scheduleMusic`); `sound.js` los elige cuando el mundo es el Bosque y les pasa el contexto y los buses. Efecto nuevo `sad` (Lumen se encoge; el búho no tiene). Con esto el Bosque élfico tiene todas sus piezas; falta marcarlo `ready` tras una revisión completa.
 - **Controles (01-10-2026)**: nada del sistema a la vista. Los botones de texto son tablillas de madera pálida con vetas y esquinas en escalón; el principal lleva una hojita y filete de oro, el que borra una hoja seca. Las casillas son capullos que se abren en flor; el volumen, una rama con una luciérnaga por perilla. Entrar: campos como hendiduras en la madera y una rama con hojas arriba; subir: el libro en blanco de corteza con un brote y, al arrastrar, un marco de ramas. La barra y el reproductor dibujan su panel en una capa de atrás (`::before`): el recorte en escalón en el propio elemento cortaba los menús de adentro (la rueda de ajustes no se veía).
+
+- **Estado al cerrar el 01-10-2026**: el Bosque tiene **todas** sus piezas (commits `3f57008` a `5eaddd5`). Sigue con `ready: false` en `theme/worlds.ts` hasta que el usuario lo revise completo; al aprobarlo se cambia a `ready: true` (con eso el build ya lo deja elegir). Pendiente menor: ver en pantalla la subida con sesión iniciada (el libro en blanco y el velo de arrastre del Bosque solo se revisaron en el CSS) y los menús del reproductor (velocidad, volumen, voz) tras mover el panel de la barra a una capa de atrás.
+
+### 7.7 Solarpunk: cómo empezar (lo aprendido con el Bosque)
+
+Solarpunk es el último mundo. Hoy está en el registro con `scenes: false` y `crew: []`, así que se ve como el Clásico. Se hace como el Bosque: **preguntas de diseño primero** (§7.4 y las de abajo), una **maqueta** del estilo que el usuario apruebe antes de pasarla a la app, y después pieza por pieza, con commit al cerrar cada una.
+
+**Lo que ya está listo para un mundo nuevo (la mecánica no se toca):**
+
+| Para | Dónde se enchufa | Cómo lo hizo el Bosque |
+|---|---|---|
+| Registro del mundo | `theme/worlds.ts`: `ready`, `scenes`, `crew` (`workshop`, `bookCrew`, `downloads`), `companion`, `companionCaption`, `downloadsVessel`, `rooms` | `scenes: true`, las tres piezas, "Lumen, el espíritu de luz", "El cofre" y títulos de sala propios |
+| Escenas (portada, dos salas, el paso) | `theme/world-art.ts`: `rasterScene()` (lienzo) o `worldArt()` con `title`, `monastery`, `study` (SVG) | `theme/bosque-scenes.js`: `SCENES` con `title`, `monastery`, `study` y `trunk`. Cada sala dice en sus coordenadas (320 × 180) dónde van la estantería real (`shelf`) y la puerta (`door`), y `LibraryRoom` las ubica sola. El paso entre salas usa la escena `trunk` si existe (`RoomPassage`) |
+| Piezas del HUD | `worldArt()` con `pageCorner`, `progressThumb`, `lecternStand`, `companion`, `companionFree` | `theme/bosque.js` (`Bosque.firefly`, `lecternStand`, `lumen`) |
+| Íconos | `theme/icons.js`: `PIXEL_SETS` | `theme/icons-bosque.js` (`SYLVAN`, 22 íconos) |
+| Taller | `workshopArt(mundo, voz)` en `world-art.ts`, con las mismas clases `.ws-*` y los mismos tiempos que el Scriptorium | `Bosque.workshop(voz)`: el tapiz, 200 × 40 |
+| Cuadrilla y libro fallido | `crewArt(mundo)` (con `lift` opcional: un vehículo fijo en la punta de la repisa) y `flamesArt(mundo)` | `Bosque.bookCrew()`, `crewLift()`, `wither()` |
+| Descargas en escena | `downloadArt(mundo)`: `carrier(voz)`, `carrierHeight` y `chest` (grupos `dl-walker`/`dl-cheer` y `dl-lid-closed`/`dl-lid-open`) | `Bosque.clothCarrier`, `Bosque.rootChest` |
+| Voz del compañero | `library/companion-voice.ts`: `VOICES[mundo]` (reglas aviso → frase; los errores lo encogen) | `LUMEN` |
+| Sonido | `theme/sound.js` elige por mundo; el mundo trae `SFX` (los nombres de `sound.d.ts`; `sad` es opcional), `startMusic` y `scheduleMusic(audio, noche)` | `theme/sound-bosque.js` |
+| CSS | una hoja propia (`styles/solarpunk.css`, importada en `main.tsx`) con las mismas secciones que `bosque.css` | `styles/bosque.css`: tokens de día y noche, paneles, barra, reproductor, página, escenas, portada, entrar, compañero, taller, cuadrilla, descargas, botones y controles |
+
+**Trampas que ya se pagaron (no repetirlas):**
+
+- **El estilo se aprueba con una maqueta.** La primera versión del Bosque copiaba la estructura del Scriptorium con otra paleta y hubo que rehacerla. El usuario quiere un mundo **propio** (composición, lugares, HUD), no un reskin.
+- El pixel art del Bosque es nítido, estilo Stardew/Terraria: 320 × 180, colores sólidos, contornos de color (nunca negros), objetos grandes y legibles, sin brumas ni tramas. Las hojas tienen que parecer hojas (no círculos) y la escala de cada objeto, coherente con la de los demás.
+- Un `clip-path` en un elemento recorta **todo lo de adentro**. Los paneles con menús (la barra, el reproductor) dibujan su forma en un `::before` detrás; así se arregló la rueda de ajustes del Bosque.
+- `:is(…)` pesa como su argumento más específico, así que una regla posterior más simple puede perder: en el Bosque, `.danger` necesitó `:root`.
+- Ningún control del sistema a la vista: botones de texto, casillas, deslizadores, los campos de entrar y la subida llevan la forma del mundo (el usuario lo notó en el Bosque).
+- Las escenas de lienzo se dibujan una vez por modo (caché) y lo que se mueve se repinta en pasos de 125 ms; con movimiento reducido o la pestaña oculta, quedan quietas. Cada cuadro tiene que costar poco: la maqueta del Bosque tardaba 180 ms hasta que se cacheó la base.
+- El panel del navegador oculto no corre animaciones. Para revisarlas, `document.getAnimations().forEach(a => a.finish())` o pausarlas en un punto; el reproductor se simula con `window.lectio.player.store.setState`.
+- Antes de cada commit, `pnpm check` desde la raíz, y confirmar que sale con código 0.
+
+**Preguntas de diseño para el Solarpunk** (además de las de §7.4):
+
+- Estilo: ¿el mismo pixel art de 320 × 180 del Bosque u otro (más limpio, isométrico, con más resolución)?
+- Portada y salas: ¿una ciudad jardín con torres verdes, un invernadero bajo una cúpula, una azotea con paneles? ¿Qué es la sala propia, y cómo se pasa de una a otra (ascensor de cristal, tranvía, puente)?
+- El dron jardinero: nombre, personalidad, cómo reacciona (alegría, error) y dónde aparece (sala, índice, página, portada).
+- El taller: quiénes trabajan (robots, jardineros o ambos), cuál es el trabajo que llena el progreso y los colores por voz.
+- La cuadrilla, el libro fallido (cortocircuito y reinicio), las descargas (contenedor o batería) y el medidor del panel.
+- HUD: forma de los paneles, el botón de reproducir, la barra de progreso, los íconos y la fuente de los títulos.
+- Sonido: sintetizadores luminosos; el motivo musical, el ambiente de día y de noche y el sonido del dron.
