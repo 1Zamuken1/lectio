@@ -6,4 +6,6 @@ export declare const Bosque: {
   lecternStand(): string;
   /** Lumen, el espíritu de luz (el compañero). */
   lumen(): string;
+  /** El taller del tapiz; `voice` elige el color de las capas. */
+  workshop(voice: string): string;
 };

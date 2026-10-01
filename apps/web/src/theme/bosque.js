@@ -98,4 +98,441 @@ function lumen() {
   return `<svg class="px-badge px-lumen" viewBox="0 0 18 13" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><g class="lumen-wings-up">${up.svg()}</g><g class="lumen-wings-down">${down.svg()}</g><g class="lumen-body"><g class="lumen-eyes-open">${open.svg()}</g><g class="lumen-eyes-closed">${closed.svg()}</g></g></svg>`;
 }
 
-export const Bosque = { firefly, lecternStand, lumen };
+// ------------------------------------------------------------ el taller del tapiz
+//
+// Mientras se genera una voz, una maestra élfica y nueve aprendices la tejen: el tapiz del
+// gran árbol se llena fila a fila, de abajo hacia arriba, con el progreso real. Al
+// terminar lo enrollan, dos aprendices lo llevan a la canasta del ascensor de lianas, la
+// canasta sube, suena la campanilla de cristal y Lumen da una voltereta. Las mismas
+// clases que el taller del Scriptorium (.ws-*: poses, idas y vueltas, el que tropieza, el
+// dormilón, el festejo): la mecánica y los tiempos son los mismos; cambia el arte. Los
+// aprendices visten la capa de la voz (data-voice en el <svg>; ver bosque.css).
+
+/** Un elfo con capucha del color de la voz y las orejas puntiagudas. */
+const ELF = {
+  stand: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orrrrro.',
+    '.orrrrrso',
+    '.orbbbro.',
+    '.orrrrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  walk: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orrrrro.',
+    '.orrrrrso',
+    '.orbbbro.',
+    '.orrrrro.',
+    '.ordrdro.',
+    '.oo...oo.',
+  ],
+  weaveA: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orrrrrss',
+    '.orrrrrkk',
+    '.orbbbro.',
+    '.orrrrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  weaveB: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orrrrro.',
+    '.orrrrrso',
+    '.orbbbrkk',
+    '.orrrrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  carry: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orryyro.',
+    '.oryyyyso',
+    '.orbyybro',
+    '.orrrrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  carryWalk: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orryyro.',
+    '.oryyyyso',
+    '.orbyybro',
+    '.orrrrro.',
+    '.ordrdro.',
+    '.oo...oo.',
+  ],
+  cheer: [
+    's..ooo..s',
+    'so.rrr.os',
+    '.orrrrro.',
+    '.orsssro.',
+    'sosososos',
+    '.oosssoo.',
+    '.orrrrro.',
+    '.orrrrro.',
+    '.orbbbro.',
+    '.orrrrro.',
+    '.ordrdro.',
+    '..oo.oo..',
+  ],
+  sleep: [
+    '...ooo...',
+    '..orrro..',
+    '.orrrrro.',
+    '.orsssro.',
+    'sossssos.',
+    '.oosssoo.',
+    '.orrrrro.',
+  ],
+  maestra: [
+    '....ooo....',
+    '...ohhho...',
+    '..ohgggho..',
+    '..ohssssh..',
+    '.sohsosos..',
+    '..ohssssh..',
+    '..hmmmmmh..',
+    '.hommmmmoh.',
+    '.hommmmmmo.',
+    '.ommmmmmso.',
+    '.ogggggggo.',
+    '.ommmmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '..ooo.ooo..',
+  ],
+  maestraPoint: [
+    '....ooo....',
+    '...ohhho...',
+    '..ohgggho..',
+    '..ohssssh..',
+    '.sohsosos..',
+    '..ohssssh..',
+    '..hmmmmmhss',
+    '.hommmmmoh.',
+    '.hommmmmmo.',
+    '.ommmmmmmo.',
+    '.ogggggggo.',
+    '.ommmmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '..ooo.ooo..',
+  ],
+  maestraCheer: [
+    's...ooo...s',
+    'so.ohhho.os',
+    '..ohgggho..',
+    '..ohssssh..',
+    '.sohsosos..',
+    '..ohssssh..',
+    '..hmmmmmh..',
+    '.hommmmmoh.',
+    '.hommmmmmo.',
+    '.ommmmmmmo.',
+    '.ogggggggo.',
+    '.ommmmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '.ommnmmmmo.',
+    '..ooo.ooo..',
+  ],
+};
+
+const ELF_PALETTE = {
+  o: 'elf-o',
+  r: 'robe',
+  d: 'robe-d',
+  s: 'skin',
+  b: 'gold',
+  k: 'wood-m',
+  y: 'yarn',
+  m: 'maestra',
+  n: 'maestra-d',
+  h: 'hair',
+  g: 'gold',
+};
+const flip = (rows) => rows.map((row) => [...row].reverse().join(''));
+
+/** Un elfo con sus poses (cada una en su grupo, las alterna el CSS del taller). */
+function elf(poses, x, bottom, { className = '', style = '', mirror = false } = {}) {
+  const groups = Object.entries(poses).map(([pose, rows]) => {
+    const c = canvas();
+    const sprite = mirror ? flip(rows) : rows;
+    c.sprite(sprite, ELF_PALETTE, x, bottom - sprite.length);
+    return `<g class="ws-${pose}">${c.svg()}</g>`;
+  });
+  return `<g class="ws-actor ${className}" style="${style}">${groups.join('')}</g>`;
+}
+
+const TW = 200;
+const TH = 40;
+const GROUND = 38;
+const LOOM = { x: 36, y: 5, w: 58, h: 28 };
+const WEFT = 9;
+let loomCount = 0;
+
+/** El tapiz del gran árbol: el lago abajo, el tronco, la copa con la biblioteca arriba. */
+function tapestry(c) {
+  const { x, y, w, h } = LOOM;
+  const cx = x + Math.floor(w / 2);
+  c.rect('tap-warp', x, y, w, h);
+  for (let px = x + 1; px < x + w; px += 2) c.rect('tap-warp-d', px, y, 1, h);
+  // Cielo y el sol de la tarde.
+  c.rect('tap-sky', x + 2, y + 2, w - 4, 15);
+  c.rect('tap-sun', x + 8, y + 5, 4, 4);
+  // El lago al pie, con su reflejo.
+  c.rect('tap-water', x + 2, y + h - 7, w - 4, 5);
+  for (let px = x + 4; px < x + w - 4; px += 6) c.rect('tap-warp', px, y + h - 5, 3, 1);
+  // El tronco y las raíces.
+  c.rect('tap-bark', cx - 3, y + 12, 6, h - 17);
+  c.rect('tap-bark', cx - 6, y + h - 8, 3, 2);
+  c.rect('tap-bark', cx + 3, y + h - 8, 3, 2);
+  // La copa, en tres capas, y la biblioteca en la cima.
+  c.rect('tap-leaf-d', x + 10, y + 9, w - 20, 7);
+  c.rect('tap-leaf', x + 13, y + 6, w - 26, 6);
+  c.rect('tap-leaf', x + 8, y + 11, 8, 4);
+  c.rect('tap-leaf', x + w - 16, y + 11, 8, 4);
+  c.rect('gold', cx - 5, y + 3, 10, 1);
+  c.rect('tap-warp', cx - 3, y + 4, 6, 2);
+  c.rect('gold', cx - 1, y + 2, 2, 1);
+  // La guarda de oro.
+  c.rect('gold', x, y, w, 1);
+  c.rect('gold', x, y, 1, h);
+  c.rect('gold', x + w - 1, y, 1, h);
+  c.rect('gold', x, y + h - 1, w, 1);
+  for (let px = x + 2; px < x + w - 2; px += 4) c.rect('tap-leaf', px, y + h - 2, 2, 1);
+}
+
+/** Una rueca en dos poses (la rueda gira): las alterna el CSS como a los elfos. */
+function spinningWheel(x, bottom) {
+  const frame = canvas();
+  frame.rect('elf-o', x + 2, bottom - 4, 9, 2);
+  frame.rect('wood-m', x + 3, bottom - 4, 7, 1);
+  frame.rect('elf-o', x + 5, bottom - 12, 1, 8);
+  const wheel = (spokes) => {
+    const c = canvas();
+    for (let a = 0; a < 12; a++) {
+      const t = (a / 12) * Math.PI * 2;
+      c.rect(
+        'wood-l',
+        Math.round(x + 5 + Math.cos(t) * 4),
+        Math.round(bottom - 12 + Math.sin(t) * 4),
+        1,
+        1,
+      );
+    }
+    for (const [dx, dy] of spokes) c.rect('wood-m', x + 5 + dx, bottom - 12 + dy, 1, 1);
+    c.rect('gold', x + 5, bottom - 12, 1, 1);
+    return c.svg();
+  };
+  const plus = [
+    [0, -2],
+    [0, -1],
+    [0, 1],
+    [0, 2],
+    [-2, 0],
+    [-1, 0],
+    [1, 0],
+    [2, 0],
+  ];
+  const cross = [
+    [-1, -1],
+    [-2, -2],
+    [1, 1],
+    [2, 2],
+    [1, -1],
+    [2, -2],
+    [-1, 1],
+    [-2, 2],
+  ];
+  return `${frame.svg()}<g class="ws-actor ws-toggle" style="--dur:0.4s"><g class="ws-a">${wheel(plus)}</g><g class="ws-b">${wheel(cross)}</g></g>`;
+}
+
+/** El caldero de tinte del color de la voz, con su vapor. */
+function cauldron(x, bottom) {
+  const c = canvas();
+  c.sprite(
+    ['.oooooo.', 'orrrrrro', 'oddddddo', 'oddddddo', '.oddddo.', 'oo....oo'],
+    { o: 'elf-o', r: 'robe', d: 'stone-d' },
+    x,
+    bottom - 6,
+  );
+  return c.svg();
+}
+
+function loomWorkshop(voice) {
+  const uid = `bw${++loomCount}`;
+  const set = canvas();
+  // El suelo: tablas de madera clara, y una rama arriba a la izquierda (para la hamaca).
+  set.rect('elf-o', 0, GROUND, TW, 2);
+  set.rect('wood-l', 0, GROUND, TW, 1);
+  set.rect('elf-o', 0, 3, 24, 3);
+  set.rect('wood-l', 0, 3, 23, 1);
+  set.rect('leaf', 2, 6, 3, 2);
+  set.rect('leaf-l', 14, 6, 3, 2);
+  // La hamaca colgada de la rama.
+  const hammock = canvas();
+  for (const hx of [3, 19]) hammock.rect('rope', hx, 6, 1, 12);
+  for (let hx = 3; hx <= 19; hx++)
+    hammock.rect('rope', hx, 18 + Math.round(Math.sin(((hx - 3) / 16) * Math.PI) * 4), 1, 1);
+  // El telar: dos postes, el travesaño de arriba y el rodillo de abajo.
+  for (const lx of [LOOM.x - 3, LOOM.x + LOOM.w + 1]) {
+    set.rect('elf-o', lx, LOOM.y - 3, 2, GROUND - LOOM.y + 3);
+    set.rect('wood-l', lx, LOOM.y - 2, 1, GROUND - LOOM.y + 2);
+  }
+  const beam = (by) => {
+    const r = canvas();
+    r.rect('elf-o', LOOM.x - 4, by, LOOM.w + 8, 3);
+    r.rect('wood-l', LOOM.x - 3, by + 1, LOOM.w + 6, 1);
+    r.rect('gold', LOOM.x - 5, by, 2, 3);
+    r.rect('gold', LOOM.x + LOOM.w + 3, by, 2, 3);
+    return r.svg();
+  };
+  // El tapiz, y las filas que la página descubre (de abajo hacia arriba).
+  const weave = canvas();
+  tapestry(weave);
+  const clips = [];
+  const rowH = Math.ceil(LOOM.h / WEFT);
+  for (let i = 0; i < WEFT; i++) {
+    const ry = LOOM.y + LOOM.h - rowH * (i + 1);
+    clips.push(
+      `<rect class="ws-row" data-from="${LOOM.x}" data-to="${LOOM.x + LOOM.w}" x="${LOOM.x}" y="${Math.max(LOOM.y, ry)}" width="0" height="${rowH}"/>`,
+    );
+  }
+  const warp = canvas();
+  warp.rect('tap-warp-d', LOOM.x, LOOM.y, LOOM.w, LOOM.h);
+  for (let px = LOOM.x + 1; px < LOOM.x + LOOM.w; px += 3)
+    warp.rect('tap-warp', px, LOOM.y, 1, LOOM.h);
+  // Utilería: el cesto de ovillos y la devanadera.
+  const props = canvas();
+  props.sprite(
+    ['.oooooo.', 'oyyyyyyo', 'oyyoyyyo', '.oooooo.'],
+    { o: 'elf-o', y: 'yarn' },
+    126,
+    GROUND - 4,
+  );
+  props.rect('elf-o', 140, GROUND - 10, 1, 10);
+  props.rect('wood-l', 137, GROUND - 10, 7, 1);
+  // El ascensor de lianas a la derecha: cuerdas, la canasta (abajo y, al terminar, subida).
+  const lift = canvas();
+  lift.rect('elf-o', 180, 0, 20, 2);
+  lift.rect('wood-l', 180, 0, 20, 1);
+  for (const rx of [184, 196]) lift.rect('rope', rx, 2, 1, GROUND - 2);
+  const basket = canvas();
+  basket.sprite(
+    ['oooooooooooooo', 'owwwwwwwwwwwwo', 'owgggggggggggo', '.owwwwwwwwwwo.', '..oooooooooo..'],
+    { o: 'elf-o', w: 'wood-m', g: 'gold' },
+    183,
+    GROUND - 5,
+  );
+  const raised = canvas();
+  raised.sprite(['..oooooooooo..', '.owwwwwwwwwwo.'], { o: 'elf-o', w: 'wood-m' }, 183, 3);
+  // La campanilla de cristal, colgada del travesaño del ascensor.
+  const bell = canvas();
+  bell.rect('rope', 190, 2, 1, 4);
+  bell.sprite(['.cc.', 'cwwc', 'cwwc', '.c..'], { c: 'crystal', w: 'crystal-l' }, 189, 6);
+
+  const weaveP = { a: ELF.weaveA, b: ELF.weaveB, cheer: ELF.cheer };
+  const carryP = { a: ELF.carry, b: ELF.carryWalk, cheer: ELF.cheer };
+  const crew = [
+    // La maestra, señalando el tapiz.
+    elf({ a: ELF.maestra, b: ELF.maestraPoint, cheer: ELF.maestraCheer }, 22, GROUND, {
+      className: 'ws-toggle ws-master',
+      style: '--dur:2.4s',
+    }),
+    // Dormido en la hamaca (sus zetas suben).
+    elf({ a: ELF.sleep, cheer: ELF.cheer.slice(0, 7) }, 7, 21, { className: 'ws-sleeper' }),
+    // Tejiendo en el telar, uno a cada lado, pasando la lanzadera.
+    elf(weaveP, LOOM.x - 2, GROUND, {
+      className: 'ws-toggle ws-jump ws-hand-off',
+      style: '--dur:0.5s',
+    }),
+    elf(weaveP, LOOM.x + LOOM.w - 6, GROUND, {
+      className: 'ws-toggle ws-jump',
+      style: '--dur:0.6s;animation-delay:-0.2s',
+      mirror: true,
+    }),
+    // Hilando en la rueca.
+    elf(weaveP, 112, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.8s', mirror: true }),
+    // Devanando ovillos.
+    elf(weaveP, 142, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.45s' }),
+    // Traen ovillos, de ida y vuelta; uno se enreda con su hilo y cae.
+    `<g class="ws-walker" style="--dist:16px;--dur:7s">${elf(carryP, 120, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s' })}</g>`,
+    `<g class="ws-walker ws-trips" style="--dist:14px;--dur:9s">${elf(carryP, 162, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.35s' })}</g>`,
+    // Removiendo el caldero de tinte.
+    elf(weaveP, 156, GROUND, { className: 'ws-toggle ws-jump', style: '--dur:0.7s', mirror: true }),
+  ];
+
+  // Los que llevan el tapiz enrollado al ascensor (aparecen al terminar).
+  const roll = canvas();
+  roll.sprite(
+    ['.oooooooooooooooo.', 'gttttttttttttttttg', '.oooooooooooooooo.'],
+    { o: 'elf-o', t: 'tap-leaf', g: 'gold' },
+    60,
+    22,
+  );
+  const carriers =
+    elf({ a: ELF.cheer, b: ELF.cheer }, 60, GROUND, {
+      className: 'ws-toggle',
+      style: '--dur:0.3s',
+    }) +
+    elf({ a: ELF.cheer, b: ELF.cheer }, 69, GROUND, {
+      className: 'ws-toggle',
+      style: '--dur:0.3s;animation-delay:-0.15s',
+    });
+
+  const zzz = `<g class="ws-zzz" style="fill:var(--px-wood-l)"><path d="M16 9h2v1h-2zM17 8h1v1h-1z"/><path d="M19 5h2v1h-2zM20 4h1v1h-1z"/></g>`;
+  const lumenSvg = lumen().replace(
+    '<svg class="px-badge px-lumen"',
+    `<svg x="${LOOM.x + LOOM.w / 2 - 6}" y="-2" width="12" height="9" class="px-badge px-lumen ws-lumen"`,
+  );
+
+  return `<svg class="px-workshop px-loom" data-voice="${voice}" viewBox="0 0 ${TW} ${TH}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    <defs><clipPath id="${uid}-weave">${clips.join('')}</clipPath></defs>
+    ${set.svg()}${hammock.svg()}${lift.svg()}
+    <g class="ws-door-closed">${basket.svg()}</g><g class="ws-door-open">${raised.svg()}</g>
+    <g class="ws-bell">${bell.svg()}</g>
+    ${props.svg()}${spinningWheel(100, GROUND)}${cauldron(146, GROUND)}
+    <g class="ws-sheet">${warp.svg()}<g clip-path="url(#${uid}-weave)">${weave.svg()}</g></g>
+    <g class="ws-roller-top">${beam(LOOM.y - 3)}</g><g class="ws-roller-bottom">${beam(LOOM.y + LOOM.h)}</g>
+    ${crew.join('')}${zzz}${lumenSvg}
+    <g class="ws-carrier" style="--to:118px">${roll.svg()}${carriers}</g>
+  </svg>`;
+}
+
+export const Bosque = { firefly, lecternStand, lumen, workshop: loomWorkshop };

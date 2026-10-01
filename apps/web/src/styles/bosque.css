@@ -1368,3 +1368,104 @@
     transform: translate(-0.8rem, 0.2rem);
   }
 }
+
+/* ---------------------------------------------------------------- El taller del tapiz */
+/*
+ * Mientras se genera una voz (Workshop.tsx, bosque.js: workshop): la maestra y nueve
+ * aprendices tejen el tapiz del gran árbol con el progreso real. Usa las clases y los
+ * tiempos del taller del Scriptorium (scriptorium.css, "Taller de copistas"); aquí, la
+ * paleta, las capas de cada voz y dónde va (sobre el reproductor flotante).
+ */
+
+:root[data-world='bosque'] {
+  --px-elf-o: #4a3423;
+  --px-skin: #f2c9a0;
+  --px-hair: #f4e2a2;
+  --px-maestra: #fbf1dc;
+  --px-maestra-d: #c8b288;
+  --px-yarn: #e9b44c;
+  --px-rope: #a8875a;
+  --px-crystal: #9fd3e8;
+  --px-crystal-l: #f2fbff;
+  --px-stone-d: #6e6a60;
+  --px-tap-warp: #f1e2c2;
+  --px-tap-warp-d: #d9c294;
+  --px-tap-sky: #8fb3b0;
+  --px-tap-sun: #fff1c4;
+  --px-tap-water: #4fa3c7;
+  --px-tap-bark: #8e6644;
+  --px-tap-leaf: #5a9444;
+  --px-tap-leaf-d: #3d6b3a;
+  --px-robe: #3f9a8c;
+  --px-robe-d: #2a6e64;
+}
+
+:root[data-world='bosque'][data-mode='night'] {
+  --px-elf-o: #121820;
+  --px-skin: #c9a684;
+  --px-hair: #dfe6f0;
+  --px-maestra: #d8d4c4;
+  --px-maestra-d: #95a2b8;
+  --px-yarn: #c9a24a;
+  --px-rope: #6b6a72;
+  --px-crystal: #7fb3d8;
+  --px-crystal-l: #e8f6ff;
+  --px-stone-d: #3a4252;
+  --px-tap-warp: #8e9ab0;
+  --px-tap-warp-d: #6b788f;
+  --px-tap-sky: #2b467a;
+  --px-tap-sun: #eef2f8;
+  --px-tap-water: #1f4c72;
+  --px-tap-bark: #4a566c;
+  --px-tap-leaf: #2d5c6c;
+  --px-tap-leaf-d: #1f4253;
+}
+
+/* Cada voz tiene su capa (y el tinte del caldero). */
+[data-world='bosque'] .px-workshop[data-voice='gonzalo'] {
+  --px-robe: #3f9a8c;
+  --px-robe-d: #2a6e64;
+}
+
+[data-world='bosque'] .px-workshop[data-voice='jorge'] {
+  --px-robe: #6f8f3a;
+  --px-robe-d: #4f6b28;
+}
+
+[data-world='bosque'] .px-workshop[data-voice='salome'] {
+  --px-robe: #e0a03a;
+  --px-robe-d: #a8701f;
+}
+
+[data-world='bosque'] .px-workshop[data-voice='salome-grave'] {
+  --px-robe: #a08ac8;
+  --px-robe-d: #6e5a96;
+}
+
+[data-world='bosque'][data-mode='night'] .px-workshop {
+  filter: brightness(0.92);
+}
+
+/* Sobre el reproductor flotante, al centro (en el Scriptorium, pegado a la derecha). */
+[data-world='bosque'] .workshop {
+  right: auto;
+  left: 50%;
+  bottom: calc(var(--player-height, 7.5rem) + 0.4rem);
+  width: min(640px, calc(100vw - 1.2rem));
+  translate: -50% 0;
+}
+
+/* Al terminar, Lumen da una voltereta cuando suena la campanilla. */
+.px-loom .ws-lumen {
+  overflow: visible;
+}
+
+:root[data-motion='full'] .px-loom.ws-done .ws-lumen {
+  transform-origin: center;
+  animation: lumen-flip 0.6s steps(8) 2.6s 2;
+}
+
+/* La canasta sube: aparece arriba cuando la de abajo se va (ws-door-closed / open). */
+.px-loom .ws-door-open {
+  opacity: 0;
+}

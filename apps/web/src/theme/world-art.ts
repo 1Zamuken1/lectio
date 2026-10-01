@@ -60,3 +60,13 @@ const RASTER: Partial<Record<WorldId, Partial<Record<ScenePiece, RasterScene>>>>
 export function rasterScene(world: WorldId, piece: ScenePiece): RasterScene | null {
   return RASTER[world]?.[piece] ?? null;
 }
+
+/** El taller que graba una voz (el de copistas, el del tapiz); `voice` viste a la cuadrilla. */
+const WORKSHOPS: Partial<Record<WorldId, (voice: string) => string>> = {
+  scriptorium: Pixel.workshop,
+  bosque: Bosque.workshop,
+};
+
+export function workshopArt(world: WorldId, voice: string): string {
+  return WORKSHOPS[world]?.(voice) ?? '';
+}

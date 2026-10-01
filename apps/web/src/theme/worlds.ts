@@ -6,6 +6,9 @@
 
 export type WorldId = 'scriptorium' | 'bosque' | 'solarpunk' | 'clasico';
 
+/** Las piezas de la gente animada de un mundo. */
+export type CrewPiece = 'workshop' | 'bookCrew' | 'downloads';
+
 export interface World {
   id: WorldId;
   name: string;
@@ -18,10 +21,11 @@ export interface World {
    */
   scenes: boolean;
   /**
-   * Tiene su gente animada: el taller que graba la voz, la cuadrilla que trae un libro, el
-   * libro que no se pudo preparar y las descargas en escena. Sin ella, todo eso es directo.
+   * Su gente animada, pieza por pieza: el taller que graba la voz (`workshop`), la
+   * cuadrilla que trae un libro y el libro que no se pudo preparar (`bookCrew`) y las
+   * descargas en escena (`downloads`). Lo que falta se hace directo, sin animación.
    */
-  crew: boolean;
+  crew: CrewPiece[];
   /** El compañero, para el interruptor de los ajustes (sin compañero, no hay interruptor). */
   companion?: string;
   /** Lo que dice el índice del lector junto al compañero. */
@@ -39,7 +43,7 @@ export const WORLDS: World[] = [
     tagline: 'Monasterio de copistas',
     ready: true,
     scenes: true,
-    crew: true,
+    crew: ['workshop', 'bookCrew', 'downloads'],
     companion: 'Sabio, el búho del scriptorium',
     companionCaption: 'Sabio, el búho, vela tu lectura.',
     rooms: CLASSIC_ROOMS,
@@ -50,7 +54,7 @@ export const WORLDS: World[] = [
     tagline: 'Luminoso y noble',
     ready: false,
     scenes: true,
-    crew: false,
+    crew: ['workshop'],
     companion: 'Lumen, el espíritu de luz',
     companionCaption: 'Lumen brilla contigo mientras lees.',
     rooms: { monastery: 'La biblioteca del gran árbol', study: 'Tu hueco en el árbol' },
@@ -61,7 +65,7 @@ export const WORLDS: World[] = [
     tagline: 'Cielo, sol y jardines',
     ready: false,
     scenes: false,
-    crew: false,
+    crew: [],
     rooms: CLASSIC_ROOMS,
   },
   {
@@ -70,7 +74,7 @@ export const WORLDS: World[] = [
     tagline: 'Sobrio, sin ambientación',
     ready: true,
     scenes: false,
-    crew: false,
+    crew: [],
     rooms: CLASSIC_ROOMS,
   },
 ];
@@ -90,9 +94,9 @@ export function hasScenes(world: string | undefined): boolean {
   return byId(world)?.scenes ?? false;
 }
 
-/** ¿El mundo tiene su gente animada (taller, cuadrilla, fuego, arcón)? */
-export function hasCrew(world: string | undefined): boolean {
-  return byId(world)?.crew ?? false;
+/** ¿El mundo tiene esa pieza de su gente animada (el taller, la cuadrilla, el arcón)? */
+export function hasCrew(world: string | undefined, piece: CrewPiece): boolean {
+  return byId(world)?.crew.includes(piece) ?? false;
 }
 
 /** El título de una sala en el mundo. */

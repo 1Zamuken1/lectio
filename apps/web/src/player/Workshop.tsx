@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { usePlayerState } from '../app/context';
-import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { hasCrew, useTheme } from '../theme/theme';
+import { workshopArt } from '../theme/world-art';
 import type { Job } from './controller';
 
 const jobId = (job: Job) => `${job.chapterId}:${job.voiceId}`;
@@ -20,7 +20,7 @@ export function Workshop({ bookId }: { bookId: string }) {
   const [finishing, setFinishing] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const host = useRef<HTMLDivElement>(null);
-  const available = hasCrew(world);
+  const available = hasCrew(world, 'workshop');
 
   const tracked = shown ? Object.values(jobs).find((j) => jobId(j) === shown.id) : undefined;
   const active = Object.values(jobs).find(
@@ -52,9 +52,13 @@ export function Workshop({ bookId }: { bookId: string }) {
     }
     if (shown?.id !== jobId(active)) {
       setLeaving(false);
-      setShown({ id: jobId(active), voice: active.voiceId, svg: Pixel.workshop(active.voiceId) });
+      setShown({
+        id: jobId(active),
+        voice: active.voiceId,
+        svg: workshopArt(world, active.voiceId),
+      });
     }
-  }, [available, finishing, shown, tracked?.status, active]);
+  }, [available, finishing, shown, tracked?.status, active, world]);
 
   // El festejo: pergamino completo, lo llevan a la puerta, campana y se van.
   useEffect(() => {

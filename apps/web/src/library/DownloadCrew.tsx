@@ -58,7 +58,7 @@ export function DownloadCrew({
   scene: RefObject<HTMLDivElement | null>;
 }) {
   const { world, reducedMotion } = useTheme();
-  const animated = hasCrew(world) && !reducedMotion;
+  const animated = hasCrew(world, 'downloads') && !reducedMotion;
   const active = useDownloads((s) => s.active);
   const ids = useMemo(() => new Set(chapterIds), [chapterIds]);
   const [workers, setWorkers] = useState<Worker[]>([]);

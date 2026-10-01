@@ -199,7 +199,7 @@ export function Study() {
 /** La cuadrilla y el fuego solo en un mundo con su gente y con movimiento; si no, directo. */
 function animated(): boolean {
   const root = document.documentElement.dataset;
-  return hasCrew(root.world) && root.motion === 'full';
+  return hasCrew(root.world, 'bookCrew') && root.motion === 'full';
 }
 
 /**
