@@ -66,3 +66,72 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 - **El libro que arde (app):** un libro que no se pudo preparar arde con llamas de tres fotogramas (`Pixel.flames()`), queda en cenizas y renace con chispas como tarjeta de pergamino chamuscado. Solo la primera vez. En Clásico se desvanece. `apps/web/src/library/FailedBook.tsx`.
 - Código: `apps/cli/assets/theme/` (theme.js, icons.js, pixel.js, sound.js, scriptorium.css) y `apps/cli/assets/library/`.
 - Pendiente: Bosque élfico y Solarpunk (con sus talleres); más efectos de sonido en los botones; afinar la música tras escucharla.
+- **En la app (`apps/web`, fases 6 y 7):** el Scriptorium quedó completo también en la app: las dos salas (biblioteca del monasterio y tu estudio) con su puerta, el atril, el lector y el reproductor, el taller, la cuadrilla, el libro que arde, y las descargas (aprendices que llevan los capítulos a un arcón, panel "Descargas" con forma de arcón y vela). El código de la app vive en `apps/web/src/theme/` y `apps/web/src/styles/`; la copia de la CLI (`apps/cli/assets/theme/`) quedó en lo que tenía al portarse.
+
+## 7. Bosque élfico y Solarpunk: adaptar desde el Scriptorium
+
+_Lo siguiente (decidido el 01-10-2026). El despliegue y Kokoro quedan para más adelante._
+
+**El principio:** el Scriptorium está **completo y es la referencia**. No se rediseña ni se rehace. Bosque élfico y Solarpunk son **adaptaciones**: cada pieza del Scriptorium tiene su equivalente en cada mundo, con **la misma estructura, la misma mecánica y los mismos tiempos** (qué aparece, cuándo, cuánto dura, qué progreso refleja), y cambian el arte, la paleta, los personajes y los sonidos. Si una animación del Scriptorium muestra el avance real, la del otro mundo muestra el mismo avance; si respeta el movimiento reducido o se esconde en el celular, la adaptación hace lo mismo.
+
+Antes de dibujar, **preguntas de diseño** (como en cada etapa visual): ver la lista al final de esta sección.
+
+### 7.1 Inventario: lo que hay que adaptar
+
+Las equivalencias de las columnas de Bosque y Solarpunk son **propuestas para conversar**, no decisiones.
+
+| Pieza | Scriptorium (dónde está) | Bosque élfico (propuesta) | Solarpunk (propuesta) |
+|---|---|---|---|
+| Paleta de pixel art (~130 tokens `--px-*`) | `styles/scriptorium.css`, "Paleta de pixel art" | Verdes claros, oro, plata, corteza clara; noche plata y azul | Celeste, blanco, amarillo solar; verde solo en plantas; noche luces cálidas |
+| Tokens de la interfaz, día y noche (contrastes AAA verificados) | `scriptorium.css`, "Tokens de la interfaz" | Hoja clara / noche plateada | Panel blanco / noche cálida |
+| HUD: marcos de cuero con filete de oro, esquineros, pestañas de cinta, botones como placas de pergamino, botón activo bermellón | `scriptorium.css`, "Encuadernación (HUD)" y "Encuadernación de paneles" | Madera plateada tallada, hojas en los esquineros | Paneles con bisel limpio, detalles de cobre o solar |
+| Barra de progreso con pluma que escribe | `scriptorium.css` ("Progreso") y `Pixel.quill()` | Una enredadera que crece / una hoja que avanza | Un rayo de sol o un panel que se carga |
+| Barras de desplazamiento (madera y latón) | `scriptorium.css` | Rama y gema | Riel y perilla de cristal |
+| Página de lectura: pergamino con esquineros, inicial iluminada, oración que suena (oro pálido / ámbar) | `scriptorium.css`, "Página de lectura" | Hoja clara con borde de hojas; inicial con enredadera | Panel claro; inicial con motivo solar |
+| Íconos de 16×16 en cuatro tintas (22: play, pause, prev, next, rewind, forward, sun, moon, settings, review, menu, home, door, voice, volume, volume-off, install, key, download, downloaded, chest, close) | `theme/icons.js` (`ILLUMINATED`; los mundos sin set usan los de línea) | Un set propio con la misma cuadrícula y las mismas tintas como variables | Ídem |
+| Pantalla de título: escena con muros, ventanal con paisaje, sol o luna, vela, polvo en el haz, nubes, bandada; logo y "Pulsa para comenzar" | `Pixel.scriptoriumScene()`, `screens/TitleScreen.tsx` | Claro del bosque con árboles plateados, luz filtrada; noche linternas y luciérnagas | Ciudad jardín con paneles y torres verdes; noche ventanas cálidas |
+| Sala pública: la gran biblioteca del monasterio (nave, tres vitrales, estanterías hasta el techo, escalera, atril, candelabros de noche) | `Pixel.monasteryScene()`, `library/LibraryRoom.tsx` (`ROOMS`) | Biblioteca dentro de un gran árbol / salón élfico | Biblioteca jardín bajo una cúpula de cristal |
+| Sala propia: tu estudio (ventana, escritorio, sillón con mesita y vela, alfombra, tapiz, arcón con globo, puerta) | `Pixel.studyScene()` | Refugio en el árbol | Departamento luminoso con plantas |
+| Puerta entre salas (se abre con luz cálida, fundido a negro, crujido) | `door()` en `pixel.js`, `library/room-door.tsx`, sonido `door` | Arco de ramas / velo de hojas | Puerta corredera, luz de sol |
+| Estantería y lomos de libros (con paginación de estantes) | `bookshelf()`, `SPINES`, `library/shelves.ts` | Repisas de rama | Repisas modulares |
+| Atril bajo la ficha (libro abierto) | `Pixel.lecternStand()`, `library/Lectern.tsx` | Atril de raíz o tocón | Atril de metal claro |
+| Compañero: Sabio, el búho (globos, saltitos, lee mientras suena el libro) | `owl()`, `Pixel.owlBadge()`, `scriptorium.css` "Escena y compañero" | Espíritu de luz | Dron jardinero |
+| Taller de copistas (espera de la voz): maestro y 9 aprendices escriben un pergamino gigante con el avance real; hábito por voz; al terminar lo enrollan, sale por la puerta, campana | `Pixel.workshop(voice)`, `player/Workshop.tsx`, `scriptorium.css` "Taller de copistas", sonido `bell` | Elfos tejiendo un tapiz o un canto de luz | Robots y jardineros armando un módulo |
+| Cuadrilla que trae un libro subido (dos aprendices con el libro en alto, uno tropieza) | `Pixel.bookCrew()`, `library/BookCrew.tsx` | Elfos lo traen flotando / sobre una hoja | Drones lo traen |
+| Libro que no se pudo preparar: arde, cenizas, renace con chispas | `Pixel.flames()`, `library/FailedBook.tsx`, sonidos `burn` y `reborn` | Se marchita y rebrota | Se apaga en cortocircuito y se reinicia |
+| Descargas en escena: un aprendiz por capítulo lleva su pergamino a un arcón al pie del atril (o en una franja en el celular); el arcón se cierra con un "clonc" | `Pixel.scrollCarrier()`, `Pixel.downloadChest()`, `library/DownloadCrew.tsx`, sonido `chest` | Lo guardan en un cofre de raíz / una semilla | Lo suben a un contenedor o batería |
+| Panel "Descargas": arcón abierto con vela que se consume | `library/DownloadsPanel.tsx`, `styles/library.css` (bloque Scriptorium) | Cofre de raíz, vela → luciérnaga o savia | Contenedor, vela → batería |
+| Sonidos (select, toggle, open, confirm, page, start, hoot, bell, door, burn, reborn, chest) y música chiptune | `theme/sound.js` | Arpa y flauta | Sintetizadores luminosos |
+
+Clásico no cambia: es el tema sin ambientación y la referencia de accesibilidad.
+
+### 7.2 Dónde el código supone el Scriptorium
+
+Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
+
+- `theme/theme.ts`: `WORLDS` (los dos nuevos tienen `ready: false`).
+- `apps/web/index.html`: el script que aplica el tema antes de pintar acepta solo `scriptorium` y `clasico`; hay que sumar los nuevos (con la misma regla que `theme.ts`).
+- Comprobaciones `world === 'scriptorium'`: `player/Workshop.tsx` (el taller), `library/DownloadCrew.tsx` (el arcón), `screens/Study.tsx` (`animated()`: cuadrilla y fuego) y `screens/TitleScreen.tsx` (la escena y el mundo de la primera visita). Conviene reemplazarlas por una sola pregunta al registro de temas ("¿este mundo tiene escenas?") en vez de sumar más comparaciones.
+- `theme/icons.js`: `ILLUMINATED` es el set del Scriptorium; los demás caen a los íconos de línea.
+- `theme/pixel.js`: las escenas, los sprites y la paleta del taller (`CREW_PALETTE`) son del Scriptorium; el motor (`canvas`, `actor`, `random`) se reutiliza tal cual.
+- CSS: unos 270 selectores `[data-world='scriptorium']` (`scriptorium.css` 133, `library.css` 110, `app.css` 24, `reader.css` 2). Cada mundo nuevo, su hoja (`bosque.css`, `solarpunk.css`) con las mismas secciones que `scriptorium.css`.
+- Los hábitos por voz del taller (`.px-workshop[data-voice=…]` en `scriptorium.css`): cada mundo decide cómo se distinguen las cuatro voces.
+- `components/ThemeTools.tsx`: el texto del interruptor del compañero ("El búho del scriptorium").
+- El prerender (`apps/web/build/prerender.ts`) no depende del mundo: sus páginas usan las clases del lector.
+
+### 7.3 Cómo se trabaja
+
+- Un mundo completo primero (como se hizo con el Scriptorium), por entregas con capturas y una pausa en cada una, y commit al cerrar el mundo. Orden sugerido: (1) paleta, HUD, página e íconos; (2) pantalla de título y las dos salas con su puerta; (3) compañero; (4) taller, cuadrilla, libro fallido y descargas en escena; (5) sonidos y música. Luego el otro mundo, con lo aprendido.
+- En cada pieza, partir del código del Scriptorium (su función de `pixel.js`, su sección de CSS, su componente) y cambiar arte y paleta sin tocar la mecánica.
+- Verificar contrastes (AAA en el texto, AA en la interfaz) en día y noche, el movimiento reducido y el celular, como en el Scriptorium.
+
+### 7.4 Preguntas de diseño para empezar
+
+- ¿Qué mundo va primero?
+- Compañeros: nombre y personalidad del espíritu de luz y del dron jardinero.
+- Equivalencias de cada sala (sala pública y sala propia) y de la puerta entre ellas.
+- Quiénes trabajan en el taller de cada mundo, cuál es "el trabajo" que llena el progreso y cómo se distinguen las cuatro voces.
+- Cómo se ve el arcón de descargas y la vela del panel en cada mundo.
+- Día y noche de cada escena (qué cambia de noche).
+- Sonidos y motivo musical de cada mundo.
+- ¿La copia de la CLI (`apps/cli/assets/theme/`) también recibe los mundos nuevos, o solo la app?
