@@ -10,8 +10,9 @@ import { usePlayer } from '../app/context';
 import { ApiImage } from '../components/ApiImage';
 import { Icon, PixelArt } from '../components/art';
 import { useAvailableOffline, useOnline } from '../pwa/online';
-import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
+import { useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 import { DownloadCrew } from './DownloadCrew';
 import { ChapterDownload, DownloadNext } from './LecternDownloads';
 import { progressLabel } from './progress';
@@ -41,7 +42,8 @@ export function Lectern({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const scene = useRef<HTMLDivElement>(null);
-  const stand = useMemo(() => Pixel.lecternStand(), []);
+  const { world } = useTheme();
+  const stand = useMemo(() => worldArt(world, 'lecternStand'), [world]);
   const detail = useBookDetail(book);
   const online = useOnline();
   const availableOffline = useAvailableOffline();

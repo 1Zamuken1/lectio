@@ -69,6 +69,8 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  /* La "fi" de Pixelify Sans (la fuente pixel) es una ligadura rota: solo la prosa las usa. */
+  font-variant-ligatures: no-common-ligatures;
 }
 
 :focus-visible {
@@ -357,6 +359,7 @@ button {
   line-height: 1.65;
   hyphens: auto;
   font-variant-numeric: oldstyle-nums proportional-nums;
+  font-variant-ligatures: common-ligatures;
 }
 
 .prose p {

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { WORLDS, selectableWorlds, type WorldId } from './worlds';
+import { WORLDS, hasScenes, selectableWorlds, type WorldId } from './worlds';
 
 /**
  * Sistema de temas (docs/lectio-temas.md §4). Dos ejes independientes, como atributos en
@@ -8,7 +8,7 @@ import { WORLDS, selectableWorlds, type WorldId } from './worlds';
  * de apps/cli/assets/theme/theme.js, con la misma API para los módulos portados.
  */
 
-export { WORLDS, hasScenes, type World, type WorldId } from './worlds';
+export { WORLDS, hasCrew, hasScenes, roomTitle, type World, type WorldId } from './worlds';
 export type Mode = 'system' | 'day' | 'night';
 
 /** En desarrollo se eligen también los mundos a medio hacer (para verlos mientras tanto). */
@@ -88,6 +88,7 @@ function apply(): void {
   current = compute();
   const root = document.documentElement;
   root.dataset.world = current.world;
+  root.dataset.scenes = hasScenes(current.world) ? 'on' : 'off';
   root.dataset.mode = current.night ? 'night' : 'day';
   root.dataset.companion = state.companion ? 'on' : 'off';
   root.dataset.motion = current.reducedMotion ? 'reduced' : 'full';

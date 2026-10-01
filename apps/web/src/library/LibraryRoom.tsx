@@ -14,6 +14,8 @@ import { takeIosInstallHint } from '../pwa/install';
 import { useAvailableOffline, useOnline } from '../pwa/online';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
+import { roomTitle, useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 import { useRoomDoor } from './room-door';
 import {
   SORT_LABELS,
@@ -28,18 +30,10 @@ const SPINE_COLORS = ['red', 'blue', 'green', 'red-d', 'blue-d', 'gold-d'];
 
 export type Room = 'monastery' | 'study';
 
-/** Cada sala: su título, su escena, cuántas filas caben a lo más y el orden inicial. */
-const ROOMS: Record<
-  Room,
-  { title: string; scene: () => string; maxRows: number; sort: ShelfSort }
-> = {
-  monastery: {
-    title: 'La biblioteca del monasterio',
-    scene: () => Pixel.monasteryScene(),
-    maxRows: 3,
-    sort: 'title',
-  },
-  study: { title: 'Tu estudio', scene: () => Pixel.studyScene(), maxRows: 2, sort: 'reading' },
+/** Cada sala: cuántas filas caben a lo más y el orden inicial (el título y la escena, del mundo). */
+const ROOMS: Record<Room, { maxRows: number; sort: ShelfSort }> = {
+  monastery: { maxRows: 3, sort: 'title' },
+  study: { maxRows: 2, sort: 'reading' },
 };
 
 /** Con más libros que esto aparecen buscar y ordenar. */
@@ -92,7 +86,8 @@ export function LibraryRoom({
   const [selected, setSelected] = useState<string | null>(null);
   const owl = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
-  const scene = useMemo(() => ROOMS[room].scene(), [room]);
+  const { world } = useTheme();
+  const scene = useMemo(() => worldArt(world, room), [world, room]);
   const owlSvg = useMemo(() => Pixel.owlBadge(), []);
   const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
@@ -187,7 +182,7 @@ export function LibraryRoom({
         <PixelArt className="scene" svg={scene} />
       </div>
       <div className="library-floor">
-        <h1 className="room-title">{ROOMS[room].title}</h1>
+        <h1 className="room-title">{roomTitle(world, room)}</h1>
         <section className="bookcase" aria-label="Estantería">
           <div ref={owl} className="shelf-owl companion-slot" aria-hidden="true">
             <PixelArt svg={owlSvg} />

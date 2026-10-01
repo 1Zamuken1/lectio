@@ -16,7 +16,7 @@ import { useGoThroughDoor } from '../library/room-door';
 import { useOnline } from '../pwa/online';
 import { BlankBook, DropVeil, useBookUpload, useFileDrop, useFilePicker } from '../library/upload';
 import { Sound } from '../theme/sound';
-import { hasScenes } from '../theme/worlds';
+import { hasCrew } from '../theme/worlds';
 
 type Notice = { text: string; id: number; action?: { label: string; run: () => void } };
 
@@ -196,10 +196,10 @@ export function Study() {
   );
 }
 
-/** La cuadrilla y el fuego solo en un mundo con escenas y con movimiento; si no, directo. */
+/** La cuadrilla y el fuego solo en un mundo con su gente y con movimiento; si no, directo. */
 function animated(): boolean {
   const root = document.documentElement.dataset;
-  return hasScenes(root.world) && root.motion === 'full';
+  return hasCrew(root.world) && root.motion === 'full';
 }
 
 /**

@@ -4,9 +4,9 @@ import { usePublicBooks } from '../api/queries';
 import { useSession } from '../app/context';
 import { PixelArt } from '../components/art';
 import { ModeButton, SettingsButton } from '../components/ThemeTools';
-import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { Theme, WORLDS, isSelectable, useTheme } from '../theme/theme';
+import { worldArt } from '../theme/world-art';
 
 const number = new Intl.NumberFormat('es');
 
@@ -21,7 +21,7 @@ export function TitleScreen() {
   const theme = useTheme();
   const books = usePublicBooks();
   const start = useRef<HTMLButtonElement>(null);
-  const scene = useMemo(() => Pixel.scriptoriumScene({ desk: true }), []);
+  const scene = useMemo(() => worldArt(theme.world, 'title'), [theme.world]);
 
   useEffect(() => {
     // Primera visita: la portada muestra el Scriptorium; se cambia desde los mundos.

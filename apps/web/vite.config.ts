@@ -3,7 +3,7 @@ import type { Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vitest/config';
 import { prerender } from './build/prerender.js';
-import { selectableWorlds } from './src/theme/worlds.js';
+import { SCENE_WORLDS, selectableWorlds } from './src/theme/worlds.js';
 
 /** La API por el mismo origen (proxy a :3000), en desarrollo y en `vite preview`. */
 const api = { '/api': { target: 'http://localhost:3000', changeOrigin: false } };
@@ -32,7 +32,9 @@ function worlds(): Plugin {
       dev = config.command === 'serve' && !config.isProduction;
     },
     transformIndexHtml: (html) =>
-      html.replace('__LECTIO_WORLDS__', JSON.stringify(selectableWorlds(dev))),
+      html
+        .replace('__LECTIO_WORLDS__', JSON.stringify(selectableWorlds(dev)))
+        .replace('__LECTIO_SCENE_WORLDS__', JSON.stringify(SCENE_WORLDS)),
   };
 }
 

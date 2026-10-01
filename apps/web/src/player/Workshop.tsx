@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { usePlayerState } from '../app/context';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
-import { hasScenes, useTheme } from '../theme/theme';
+import { hasCrew, useTheme } from '../theme/theme';
 import type { Job } from './controller';
 
 const jobId = (job: Job) => `${job.chapterId}:${job.voiceId}`;
@@ -20,7 +20,7 @@ export function Workshop({ bookId }: { bookId: string }) {
   const [finishing, setFinishing] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const host = useRef<HTMLDivElement>(null);
-  const available = hasScenes(world);
+  const available = hasCrew(world);
 
   const tracked = shown ? Object.values(jobs).find((j) => jobId(j) === shown.id) : undefined;
   const active = Object.values(jobs).find(

@@ -37,6 +37,7 @@
         var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         root.dataset.world = world;
+        root.dataset.scenes = __LECTIO_SCENE_WORLDS__.indexOf(world) < 0 ? 'off' : 'on';
         root.dataset.mode = mode === 'night' || (mode === 'system' && dark) ? 'night' : 'day';
         root.dataset.companion = read('companion', true) ? 'on' : 'off';
         root.dataset.motion = reduced ? 'reduced' : 'full';

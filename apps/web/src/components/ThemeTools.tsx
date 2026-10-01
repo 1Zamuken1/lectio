@@ -51,7 +51,7 @@ export function SettingsButton() {
 
 function SettingsPanel({ anchor, onClose }: { anchor: HTMLElement | null; onClose: () => void }) {
   const theme = useTheme();
-  const companion = WORLDS.find((w) => w.id === theme.world && w.scenes)?.companion;
+  const companion = WORLDS.find((w) => w.id === theme.world)?.companion;
   const panel = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<{ top: number; right: number }>();
 

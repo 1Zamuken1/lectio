@@ -4,7 +4,7 @@ import { PixelArt } from '../components/art';
 import { downloads, useDownloads } from '../pwa/downloads';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
-import { hasScenes, useTheme } from '../theme/theme';
+import { hasCrew, useTheme } from '../theme/theme';
 
 /** Los sprites se dibujan a 3×, como el pie del atril (96 px de arte → 288 px). */
 const SCALE = 3;
@@ -58,7 +58,7 @@ export function DownloadCrew({
   scene: RefObject<HTMLDivElement | null>;
 }) {
   const { world, reducedMotion } = useTheme();
-  const animated = hasScenes(world) && !reducedMotion;
+  const animated = hasCrew(world) && !reducedMotion;
   const active = useDownloads((s) => s.active);
   const ids = useMemo(() => new Set(chapterIds), [chapterIds]);
   const [workers, setWorkers] = useState<Worker[]>([]);

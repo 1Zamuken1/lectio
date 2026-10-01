@@ -24,7 +24,7 @@ body {
   image-rendering: pixelated;
 }
 
-:root:not([data-world='scriptorium']) .scene {
+:root:not([data-scenes='on']) .scene {
   display: none;
 }
 
@@ -921,7 +921,7 @@ button.lectern-download-next:disabled {
 
 /* ---------------------------------------------------------------- Scriptorium */
 
-[data-world='scriptorium'] .title-screen {
+[data-scenes='on'] .title-screen {
   background: var(--px-ink);
 }
 
@@ -1010,12 +1010,13 @@ button.lectern-download-next:disabled {
 }
 
 /* Biblioteca: toda la sala de fondo (ventanal, estanterías, polvo en el haz de luz) y la
-   estantería de Lectio al pie, como un mueble más de la escena. */
-[data-world='scriptorium'] .library {
+   estantería de Lectio al pie, como un mueble más de la escena. La disposición vale para
+   todo mundo con escenas (data-scenes): todos dejan los mismos huecos. */
+[data-scenes='on'] .library {
   background: var(--px-ink);
 }
 
-[data-world='scriptorium'] .library-scene {
+[data-scenes='on'] .library-scene {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -1033,7 +1034,7 @@ button.lectern-download-next:disabled {
   pointer-events: none;
 }
 
-[data-world='scriptorium'] .library-floor {
+[data-scenes='on'] .library-floor {
   margin: auto 0 0;
   padding: clamp(9rem, 30vh, 20rem) 1rem 2.5rem;
 }
@@ -1216,7 +1217,7 @@ button.lectern-download-next:disabled {
 }
 
 @media (max-width: 700px) {
-  [data-world='scriptorium'] .library-floor {
+  [data-scenes='on'] .library-floor {
     padding-top: clamp(7rem, 26vh, 12rem);
   }
 
@@ -1251,7 +1252,7 @@ button.lectern-download-next:disabled {
 /* La biblioteca del monasterio (catálogo público) y tu estudio. Se pasa de una a otra por
    la puerta de la escena o por el botón de la barra, con un fundido (room-door.tsx). */
 
-/* En el Clásico el título se ve; en el Scriptorium lo cuenta la escena. */
+/* En el Clásico el título se ve; en un mundo con escenas lo cuenta la escena. */
 .room-title {
   margin: 0 0 1rem;
   font-family: var(--font-display);
@@ -1260,7 +1261,7 @@ button.lectern-download-next:disabled {
   color: var(--ink);
 }
 
-[data-world='scriptorium'] .room-title {
+[data-scenes='on'] .room-title {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -1275,20 +1276,20 @@ button.lectern-download-next:disabled {
 }
 
 /* Tono de cada sala en el Clásico: el estudio, un papel algo más cálido. */
-:root:not([data-world='scriptorium']) .library[data-room='study'] {
+:root:not([data-scenes='on']) .library[data-room='study'] {
   background: var(--paper-sunken);
 }
 
 /* La escena recibe el clic de la puerta: el suelo solo lo toman sus muebles. */
-[data-world='scriptorium'] .library-floor {
+[data-scenes='on'] .library-floor {
   pointer-events: none;
 }
 
-[data-world='scriptorium'] .library-floor > * {
+[data-scenes='on'] .library-floor > * {
   pointer-events: auto;
 }
 
-[data-world='scriptorium'] .library {
+[data-scenes='on'] .library {
   isolation: isolate;
 }
 
@@ -1309,7 +1310,7 @@ button.lectern-download-next:disabled {
   filter: brightness(1.25);
 }
 
-/* El fundido entre salas: a tinta en el Scriptorium, a papel en el Clásico. */
+/* El fundido entre salas: a la tinta del mundo si tiene escenas, a papel en el Clásico. */
 .room-fade {
   position: fixed;
   inset: 0;
@@ -1318,7 +1319,7 @@ button.lectern-download-next:disabled {
   pointer-events: none;
 }
 
-[data-world='scriptorium'] .room-fade {
+[data-scenes='on'] .room-fade {
   background: var(--px-ink);
 }
 
@@ -1330,11 +1331,11 @@ button.lectern-download-next:disabled {
   animation: room-fade-in 0.4s ease-out forwards;
 }
 
-[data-world='scriptorium'] .room-fade.out {
+[data-scenes='on'] .room-fade.out {
   animation-timing-function: steps(6);
 }
 
-[data-world='scriptorium'] .room-fade.in {
+[data-scenes='on'] .room-fade.in {
   animation-timing-function: steps(6);
 }
 
@@ -1359,18 +1360,18 @@ button.lectern-download-next:disabled {
 /* El estudio: tus libros en una repisa de pared con escuadras de hierro, no en un mueble.
    Cuelga entre la puerta y la ventana (la escena deja ese muro libre) y crece hacia abajo. */
 @media (min-width: 701px) {
-  [data-world='scriptorium'] .library[data-room='study'] .library-floor {
+  [data-scenes='on'] .library[data-room='study'] .library-floor {
     align-items: flex-start;
     margin: 0;
     padding: clamp(5rem, 20vh, 11rem) 0 2.5rem 12vw;
   }
 
-  [data-world='scriptorium'] .library[data-room='study'] .bookcase {
+  [data-scenes='on'] .library[data-room='study'] .bookcase {
     width: 48vw;
   }
 }
 
-[data-world='scriptorium'] .library[data-room='study'] .bookcase {
+[data-scenes='on'] .library[data-room='study'] .bookcase {
   padding: 1rem 1.5rem 0;
   background: none;
   border: 0;
@@ -1412,7 +1413,7 @@ button.lectern-download-next:disabled {
 /* En el celular, el estudio se encuadra en la ventana y el escritorio (x ≈ 228 de 320), no
    en el muro de la repisa. */
 @media (max-width: 700px) {
-  [data-world='scriptorium'] .library[data-room='study'] .scene .px-scene {
+  [data-scenes='on'] .library[data-room='study'] .scene .px-scene {
     position: absolute;
     top: 0;
     left: 50%;
