@@ -183,6 +183,31 @@
   backdrop-filter: none;
 }
 
+/*
+ * La barra y el reproductor tienen menús adentro (ajustes, velocidad, volumen, voz): el
+ * recorte en escalón no puede ir en ellos, porque cortaría los menús. Su panel se dibuja en
+ * una capa de atrás que sí se recorta.
+ */
+[data-world='bosque'] .topbar,
+[data-world='bosque'] .player {
+  background: none;
+  clip-path: none;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+[data-world='bosque'] .topbar::before,
+[data-world='bosque'] .player::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--chrome);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+  pointer-events: none;
+}
+
 [data-world='bosque'] .topbar {
   top: 0.6rem;
   margin: 0.6rem 0.6rem 0;
@@ -1671,4 +1696,483 @@
 [data-world='bosque'] .downloads-head h2 {
   font-family: var(--font-display);
   font-weight: 500;
+}
+
+/* ---------------------------------------------------------------- Botones y controles */
+/*
+ * Nada del sistema a la vista. Los botones de texto son tablillas de madera pálida (la de la
+ * plataforma) con esquinas en escalón, vetas y un canto de luz arriba y de sombra abajo; el
+ * principal lleva una hojita y el filete de oro. Las casillas son capullos que se abren en
+ * flor y el volumen, una rama con una luciérnaga por perilla.
+ */
+
+:root[data-world='bosque'] {
+  --step-small: polygon(
+    0 4px,
+    2px 4px,
+    2px 2px,
+    4px 2px,
+    4px 0,
+    calc(100% - 4px) 0,
+    calc(100% - 4px) 2px,
+    calc(100% - 2px) 2px,
+    calc(100% - 2px) 4px,
+    100% 4px,
+    100% calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 4px),
+    calc(100% - 2px) calc(100% - 2px),
+    calc(100% - 4px) calc(100% - 2px),
+    calc(100% - 4px) 100%,
+    4px 100%,
+    4px calc(100% - 2px),
+    2px calc(100% - 2px),
+    2px calc(100% - 4px),
+    0 calc(100% - 4px)
+  );
+  --plank: #f1dcae;
+  --plank-hi: #fff4d8;
+  --plank-lo: #c9a36a;
+  --plank-edge: #a8701f;
+  --plank-grain: rgb(168 112 31 / 18%);
+  --plank-ink: #3b2610;
+  --plank-gold: #c78a2a;
+  --plank-main-ink: #1d4a42;
+  --plank-danger-ink: #7a2e14;
+  --field: #fff8e6;
+  --field-ink: #2a1d0e;
+  --leaf: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%207%206'%20shape-rendering='crispEdges'%3E%3Crect%20x='4'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='5'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='6'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='2'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='3'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='4'%20y='1'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='5'%20y='1'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='1'%20y='2'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='2'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='3'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='4'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='1'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='2'%20y='3'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='3'%20y='3'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='0'%20y='4'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='1'%20y='4'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='0'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3C/svg%3E");
+  --leaf-dry: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%207%206'%20shape-rendering='crispEdges'%3E%3Crect%20x='4'%20y='0'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='5'%20y='0'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='6'%20y='0'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='2'%20y='1'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='3'%20y='1'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='4'%20y='1'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='5'%20y='1'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='1'%20y='2'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='2'%20y='2'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='3'%20y='2'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='4'%20y='2'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='1'%20y='3'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='2'%20y='3'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='3'%20y='3'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='0'%20y='4'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='1'%20y='4'%20width='1'%20height='1'%20fill='%23d08a4a'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%238a4a1e'/%3E%3Crect%20x='0'%20y='5'%20width='1'%20height='1'%20fill='%236a3a14'/%3E%3C/svg%3E");
+  --bud: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Crect%20x='0'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='2'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='3'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='4'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='5'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='6'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='7'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='8'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='9'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='10'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='1'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='1'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='2'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='6'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='2'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='3'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='5'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='6'%20y='3'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='7'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='3'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='4'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='4'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='5'%20y='4'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='6'%20y='4'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='7'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='4'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='5'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='5'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='5'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='6'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='6'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='3'%20y='6'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='4'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='6'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='6'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='8'%20y='6'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='9'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='6'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='7'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='7'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='4'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='7'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='7'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='8'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='7'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='8'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='8'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='8'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='9'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='6'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='9'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='2'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='3'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='4'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='5'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='6'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='7'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='8'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='9'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='10'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3C/svg%3E");
+  --flower: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Crect%20x='0'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='2'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='3'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='4'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='5'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='6'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='7'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='8'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='9'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='10'%20y='0'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='1'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='1'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='1'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='1'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='2'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='2'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='3'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='2'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='6'%20y='2'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='7'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='2'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='9'%20y='2'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='2'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='3'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='3'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='5'%20y='3'%20width='1'%20height='1'%20fill='%23e9b44c'/%3E%3Crect%20x='6'%20y='3'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='7'%20y='3'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='8'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='3'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='3'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='4'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='4'%20y='4'%20width='1'%20height='1'%20fill='%23e9b44c'/%3E%3Crect%20x='5'%20y='4'%20width='1'%20height='1'%20fill='%23fff1c4'/%3E%3Crect%20x='6'%20y='4'%20width='1'%20height='1'%20fill='%23e9b44c'/%3E%3Crect%20x='7'%20y='4'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='8'%20y='4'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='9'%20y='4'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='4'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='5'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='5'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='4'%20y='5'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='5'%20y='5'%20width='1'%20height='1'%20fill='%23e9b44c'/%3E%3Crect%20x='6'%20y='5'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='7'%20y='5'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='8'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='5'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='5'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='6'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='6'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='3'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='6'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='5'%20y='6'%20width='1'%20height='1'%20fill='%23ffd6de'/%3E%3Crect%20x='6'%20y='6'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='7'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='6'%20width='1'%20height='1'%20fill='%23d77a92'/%3E%3Crect%20x='9'%20y='6'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='6'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='7'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='7'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='7'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='7'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='8'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='8'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='4'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='8'%20width='1'%20height='1'%20fill='%235e8a3a'/%3E%3Crect%20x='6'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='8'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='8'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='8'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='8'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='9'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='2'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='3'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='4'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='5'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='6'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='7'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='8'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='9'%20y='9'%20width='1'%20height='1'%20fill='%23fff4d8'/%3E%3Crect%20x='10'%20y='9'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='0'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='1'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='2'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='3'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='4'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='5'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='6'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='7'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='8'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='9'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3Crect%20x='10'%20y='10'%20width='1'%20height='1'%20fill='%23a8701f'/%3E%3C/svg%3E");
+  --firefly-knob: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2010%208'%20shape-rendering='crispEdges'%3E%3Crect%20x='1'%20y='0'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='2'%20y='0'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='7'%20y='0'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='8'%20y='0'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='0'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='1'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='2'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='3'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='7'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='8'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='9'%20y='1'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='1'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='2'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='3'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='4'%20y='2'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='6'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='7'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='8'%20y='2'%20width='1'%20height='1'%20fill='%23dfeef0'/%3E%3Crect%20x='3'%20y='3'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='5'%20y='3'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='6'%20y='3'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='4'%20y='4'%20width='1'%20height='1'%20fill='%23fff6d6'/%3E%3Crect%20x='5'%20y='4'%20width='1'%20height='1'%20fill='%23fff6d6'/%3E%3Crect%20x='6'%20y='4'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='7'%20y='4'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='2'%20y='5'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='3'%20y='5'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='4'%20y='5'%20width='1'%20height='1'%20fill='%23fff6d6'/%3E%3Crect%20x='5'%20y='5'%20width='1'%20height='1'%20fill='%23fff6d6'/%3E%3Crect%20x='6'%20y='5'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='7'%20y='5'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='3'%20y='6'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='4'%20y='6'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='5'%20y='6'%20width='1'%20height='1'%20fill='%23ffd98a'/%3E%3Crect%20x='6'%20y='6'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='4'%20y='7'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3Crect%20x='5'%20y='7'%20width='1'%20height='1'%20fill='%23c78a2a'/%3E%3C/svg%3E");
+  --branch: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2012'%20shape-rendering='crispEdges'%3E%3Crect%20x='8'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='9'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='10'%20y='0'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='6'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='7'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='8'%20y='1'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='9'%20y='1'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='10'%20y='1'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='5'%20y='2'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='6'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='7'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='8'%20y='2'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='9'%20y='2'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='4'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='5'%20y='3'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='6'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='7'%20y='3'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='0'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='1'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='2'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='3'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='4'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='5'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='6'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='7'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='8'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='9'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='10'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='11'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='12'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='13'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='14'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='15'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='16'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='17'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='18'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='19'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='20'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='21'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='22'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='23'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='24'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='25'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='26'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='27'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='28'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='29'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='30'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='31'%20y='4'%20width='1'%20height='1'%20fill='%23c08a50'/%3E%3Crect%20x='0'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='1'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='2'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='3'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='4'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='5'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='6'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='7'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='8'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='9'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='10'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='11'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='12'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='13'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='14'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='15'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='16'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='17'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='18'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='19'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='20'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='21'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='22'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='23'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='24'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='25'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='26'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='27'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='28'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='29'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='30'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='31'%20y='5'%20width='1'%20height='1'%20fill='%238a5a2b'/%3E%3Crect%20x='0'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='1'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='2'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='3'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='4'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='5'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='6'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='7'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='8'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='9'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='10'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='11'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='12'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='13'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='14'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='15'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='16'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='17'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='18'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='19'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='20'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='21'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='22'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='23'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='24'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='25'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='26'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='27'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='28'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='29'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='30'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='31'%20y='6'%20width='1'%20height='1'%20fill='%235e3a1a'/%3E%3Crect%20x='20'%20y='7'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='21'%20y='7'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='22'%20y='7'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='23'%20y='7'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='21'%20y='8'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='22'%20y='8'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='23'%20y='8'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='24'%20y='8'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='25'%20y='8'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='22'%20y='9'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='23'%20y='9'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='24'%20y='9'%20width='1'%20height='1'%20fill='%2386c474'/%3E%3Crect%20x='25'%20y='9'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='26'%20y='9'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='24'%20y='10'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='25'%20y='10'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3Crect%20x='26'%20y='10'%20width='1'%20height='1'%20fill='%233f7a4a'/%3E%3C/svg%3E");
+}
+
+/* De noche, la madera a la luz de la luna. */
+:root[data-world='bosque'][data-mode='night'] {
+  --plank: #cdbf9f;
+  --plank-hi: #ece2c8;
+  --plank-lo: #8f8062;
+  --plank-edge: #6a5a3a;
+  --plank-grain: rgb(60 48 24 / 20%);
+  --plank-ink: #1c170e;
+  --plank-gold: #e0b45a;
+  --plank-main-ink: #163a34;
+  --plank-danger-ink: #6a2410;
+  --field: #0f1528;
+  --field-ink: #f3e8d2;
+}
+
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .confirm-actions button,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .seal,
+  [data-world='bosque'] .password-field .reveal,
+  [data-world='bosque'] .hint-action,
+  [data-world='bosque'] .app-toast-action,
+  [data-world='bosque'] .player-empty-actions button,
+  [data-world='bosque'] .lectern-download-next,
+  [data-world='bosque'] .failed-card button,
+  [data-world='bosque'] .shelf-pager button,
+  [data-world='bosque'] .chapter-nav button,
+  [data-world='bosque'] .speed-presets button,
+  [data-world='bosque'] .voice-sample,
+  [data-world='bosque'] .follow-return,
+  [data-world='bosque'] .toc-toggle,
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book,
+  [data-world='bosque'] .open-book,
+  [data-world='bosque'] .press-start
+) {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-shadow: none;
+  color: var(--plank-ink);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px), var(--plank);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px var(--plank-edge),
+    inset 0 4px 0 var(--plank-hi),
+    inset 0 -5px 0 var(--plank-lo);
+  transition: none;
+}
+
+/* El principal y lo elegido: filete de oro y la hojita delante. */
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .confirm-actions .primary,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .seal[aria-selected='true'],
+  [data-world='bosque'] .speed-presets button[aria-pressed='true'],
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book,
+  [data-world='bosque'] .open-book,
+  [data-world='bosque'] .press-start
+) {
+  color: var(--plank-main-ink);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px),
+    var(--plank-hi);
+  box-shadow:
+    inset 0 0 0 2px var(--plank-gold),
+    inset 0 0 0 3px var(--plank-edge),
+    inset 0 5px 0 rgb(255 255 255 / 45%),
+    inset 0 -5px 0 var(--plank-lo);
+}
+
+/* Los de los diálogos, con cuerpo de tablilla. */
+:is(
+  [data-world='bosque'] .confirm-actions button,
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .app-toast-action
+) {
+  min-height: 2.4rem;
+  padding: 0.35rem 1.1rem;
+  font-size: 1.2rem;
+}
+
+/* La hojita, pegada al texto (seca en lo que borra). */
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .seal[aria-selected='true'],
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book,
+  [data-world='bosque'] .open-book,
+  [data-world='bosque'] .press-start
+)::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 12px;
+  margin-right: 0.45em;
+  vertical-align: -1px;
+  background: var(--leaf) center / 100% 100%;
+  image-rendering: pixelated;
+}
+
+:root[data-world='bosque'] .danger::before {
+  background-image: var(--leaf-dry);
+}
+
+/* Lo elegido entre varios (pestañas, velocidades): hundido. */
+:is(
+  [data-world='bosque'] .seal[aria-selected='true'],
+  [data-world='bosque'] .speed-presets button[aria-pressed='true']
+) {
+  box-shadow:
+    inset 0 0 0 2px var(--plank-gold),
+    inset 0 0 0 3px var(--plank-edge),
+    inset 0 5px 0 var(--plank-lo),
+    inset 0 -3px 0 rgb(255 255 255 / 45%);
+}
+
+/* :root para ganarle a la tablilla común (su :is pesa como tres clases). */
+:root[data-world='bosque'] .danger {
+  color: var(--plank-danger-ink);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px), var(--plank);
+}
+
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .confirm-actions button,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .seal,
+  [data-world='bosque'] .password-field .reveal,
+  [data-world='bosque'] .hint-action,
+  [data-world='bosque'] .app-toast-action,
+  [data-world='bosque'] .player-empty-actions button,
+  [data-world='bosque'] .lectern-download-next,
+  [data-world='bosque'] .failed-card button,
+  [data-world='bosque'] .shelf-pager button,
+  [data-world='bosque'] .chapter-nav button,
+  [data-world='bosque'] .speed-presets button,
+  [data-world='bosque'] .voice-sample,
+  [data-world='bosque'] .follow-return,
+  [data-world='bosque'] .toc-toggle,
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book,
+  [data-world='bosque'] .open-book,
+  [data-world='bosque'] .press-start
+):where(:hover:not(:disabled), :focus-visible) {
+  filter: brightness(1.06);
+  translate: 0 -1px;
+}
+
+:is(
+    [data-world='bosque'] .primary,
+    [data-world='bosque'] .danger,
+    [data-world='bosque'] .confirm-actions button,
+    [data-world='bosque'] .scroll-submit,
+    [data-world='bosque'] .seal,
+    [data-world='bosque'] .password-field .reveal,
+    [data-world='bosque'] .hint-action,
+    [data-world='bosque'] .app-toast-action,
+    [data-world='bosque'] .player-empty-actions button,
+    [data-world='bosque'] .lectern-download-next,
+    [data-world='bosque'] .failed-card button,
+    [data-world='bosque'] .shelf-pager button,
+    [data-world='bosque'] .chapter-nav button,
+    [data-world='bosque'] .speed-presets button,
+    [data-world='bosque'] .voice-sample,
+    [data-world='bosque'] .follow-return,
+    [data-world='bosque'] .toc-toggle,
+    [data-world='bosque'] .generate,
+    [data-world='bosque'] .add-book,
+    [data-world='bosque'] .open-book,
+    [data-world='bosque'] .press-start
+  ):active:not(:disabled) {
+  translate: 0 1px;
+  filter: brightness(0.96);
+}
+
+/* El recorte en escalón se comería el contorno del foco: va por dentro, en verde. */
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .confirm-actions button,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .seal,
+  [data-world='bosque'] .password-field .reveal,
+  [data-world='bosque'] .hint-action,
+  [data-world='bosque'] .app-toast-action,
+  [data-world='bosque'] .player-empty-actions button,
+  [data-world='bosque'] .lectern-download-next,
+  [data-world='bosque'] .failed-card button,
+  [data-world='bosque'] .shelf-pager button,
+  [data-world='bosque'] .chapter-nav button,
+  [data-world='bosque'] .speed-presets button,
+  [data-world='bosque'] .voice-sample,
+  [data-world='bosque'] .follow-return,
+  [data-world='bosque'] .toc-toggle,
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book,
+  [data-world='bosque'] .open-book,
+  [data-world='bosque'] .press-start
+):focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--accent),
+    inset 0 0 0 5px var(--plank-hi);
+}
+
+:is(
+  [data-world='bosque'] .primary,
+  [data-world='bosque'] .danger,
+  [data-world='bosque'] .confirm-actions button,
+  [data-world='bosque'] .scroll-submit,
+  [data-world='bosque'] .lectern-download-next,
+  [data-world='bosque'] .generate,
+  [data-world='bosque'] .add-book
+):disabled {
+  filter: saturate(0.4);
+  opacity: 0.7;
+}
+
+/* Las casillas: un capullo cerrado; marcadas, una flor abierta. */
+[data-world='bosque'] input[type='checkbox'] {
+  appearance: none;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 0;
+  background: var(--bud) center / 100% 100%;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
+[data-world='bosque'] input[type='checkbox']:checked {
+  background-image: var(--flower);
+}
+
+:root[data-world='bosque'][data-motion='full'] input[type='checkbox']:checked {
+  animation: bloom 0.3s steps(3);
+}
+
+@keyframes bloom {
+  from {
+    scale: 0.7;
+  }
+}
+
+[data-world='bosque'] input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* El volumen: una rama con hojas y una luciérnaga que se desliza. */
+[data-world='bosque'] input[type='range'] {
+  appearance: none;
+  height: 26px;
+  background: transparent;
+  cursor: pointer;
+}
+
+[data-world='bosque'] input[type='range']::-webkit-slider-runnable-track {
+  height: 24px;
+  background: var(--branch) repeat-x 0 50% / 64px 24px;
+  image-rendering: pixelated;
+}
+
+[data-world='bosque'] input[type='range']::-moz-range-track {
+  height: 24px;
+  background: var(--branch) repeat-x 0 50% / 64px 24px;
+  image-rendering: pixelated;
+}
+
+[data-world='bosque'] input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 30px;
+  height: 24px;
+  margin-top: 0;
+  border: 0;
+  background: var(--firefly-knob) center / 100% 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 4px rgb(255 210 120 / 85%));
+}
+
+[data-world='bosque'] input[type='range']::-moz-range-thumb {
+  width: 30px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: var(--firefly-knob) center / 100% 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 4px rgb(255 210 120 / 85%));
+}
+
+[data-world='bosque'] input[type='range']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- Entrar y subir */
+
+/* Los campos: una hendidura en la madera, con el texto legible de siempre. */
+[data-world='bosque'] .scroll-form input {
+  border: 0;
+  border-radius: 0;
+  color: var(--field-ink);
+  background: var(--field);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px var(--plank-edge),
+    inset 0 4px 0 rgb(0 0 0 / 9%);
+}
+
+[data-world='bosque'] .scroll-form input:focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--accent),
+    inset 0 5px 0 rgb(0 0 0 / 9%);
+}
+
+[data-world='bosque'] .scroll-form label {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+[data-world='bosque'] .scroll-dismiss {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--chrome-ink);
+  text-decoration-style: dotted;
+}
+
+/* Una rama con hojas cruza el panel de entrar por arriba. */
+[data-world='bosque'] .scroll-sheet {
+  position: relative;
+  padding-top: 2.4rem;
+}
+
+[data-world='bosque'] .scroll-sheet::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  height: 24px;
+  background: var(--branch) repeat-x 0 0 / 64px 24px;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* El libro en blanco de la repisa vacía: corteza clara con un brote que late. */
+:root[data-world='bosque'] .spine.blank-book {
+  --spine: var(--plank);
+  color: var(--plank-ink);
+  border: 0;
+  background:
+    var(--leaf) no-repeat 50% 12px / 14px 12px,
+    repeating-linear-gradient(90deg, transparent 0 5px, var(--plank-grain) 5px 6px),
+    var(--plank);
+  box-shadow:
+    inset 0 0 0 2px var(--plank-edge),
+    inset 3px 0 0 var(--plank-hi),
+    inset -4px 0 0 var(--plank-lo);
+}
+
+[data-world='bosque'] .blank-shelf p,
+[data-world='bosque'] .drop-veil p {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-display);
+  color: var(--chrome-ink);
+  background: var(--chrome);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='bosque'] .blank-shelf p {
+  padding: 0.5rem 0.8rem;
+  font-size: 1.05rem;
+}
+
+/* Al arrastrar un EPUB: la sala se apaga y un marco de hojas espera el libro. */
+[data-world='bosque'] .drop-veil {
+  background: rgb(12 24 20 / 55%);
+  border: 0;
+  box-shadow:
+    inset 0 0 0 10px transparent,
+    inset 0 0 0 14px var(--plank-gold);
+}
+
+[data-world='bosque'] .drop-veil::before,
+[data-world='bosque'] .drop-veil::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  height: 24px;
+  background: var(--branch) repeat-x 0 0 / 64px 24px;
+  image-rendering: pixelated;
+}
+
+[data-world='bosque'] .drop-veil::before {
+  top: 24px;
+}
+
+[data-world='bosque'] .drop-veil::after {
+  bottom: 24px;
+}
+
+[data-world='bosque'] .drop-veil p {
+  padding: 1rem 1.4rem 1rem 2.8rem;
+  font-size: 1.4rem;
+  background:
+    var(--leaf) no-repeat 1.1rem 50% / 21px 18px,
+    var(--chrome);
 }
