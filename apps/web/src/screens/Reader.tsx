@@ -114,8 +114,10 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
   // Dónde abrir: se decide una vez, cuando se sabe la posición guardada.
   const restore = useRef<{ chapterId: string; sentenceIndex: number } | null>(null);
   const [resolved, setResolved] = useState(false);
+  // Sin red, la consulta queda en pausa: se abre con la posición de este navegador.
   const waiting =
-    state.status === 'unknown' || (state.status === 'authenticated' && server.isPending);
+    state.status === 'unknown' ||
+    (state.status === 'authenticated' && server.isPending && server.fetchStatus !== 'paused');
   useEffect(() => {
     if (resolved || waiting) return;
     const fromServer = server.data?.chapterId ? server.data : null;

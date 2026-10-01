@@ -3,6 +3,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react';
 import { ApiClient, ApiError } from '../api/client';
 import { Session, rememberInBrowser, type SessionState } from '../api/session';
+import { downloads } from '../pwa/downloads';
 import { persistOptions } from '../pwa/persist';
 import { PlayerController, type PlayerState } from '../player/controller';
 import { ProgressSync } from '../reader/position';
@@ -37,7 +38,9 @@ export function createServices(): AppServices {
   progress.install();
   const player = new PlayerController(api, queryClient, progress, authenticated);
   // En desarrollo, a mano desde la consola: window.lectio.player.state
-  if (import.meta.env.DEV) Object.assign(window, { lectio: { player, progress, session } });
+  if (import.meta.env.DEV) {
+    Object.assign(window, { lectio: { player, progress, session, api, downloads } });
+  }
   return { session, api, progress, player };
 }
 

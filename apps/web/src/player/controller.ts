@@ -1,7 +1,9 @@
-import type { QueryClient } from '@tanstack/react-query';
+import { onlineManager, type QueryClient } from '@tanstack/react-query';
 import { createStore } from 'zustand/vanilla';
 import { ApiError, type ApiClient } from '../api/client';
 import type { BookDetail, ChapterSummary, Schemas } from '../api/queries';
+import { downloads, isUnreachable } from '../pwa/downloads';
+import type { DownloadedVoice } from '../pwa/db';
 import type { ProgressSync } from '../reader/position';
 import { formatNumber } from '../reader/text';
 import { Sound } from '../theme/sound';
@@ -277,9 +279,16 @@ export class PlayerController {
     return [...ready];
   }
 
-  /** La voz que suena en un capítulo: la elegida si ya existe, si no otra con audio. */
+  /**
+   * La voz que suena en un capítulo: la elegida si ya existe, si no otra con audio. Sin
+   * conexión, solo las descargadas (si hay alguna).
+   */
   effectiveVoice(chapter: ChapterSummary): string | null {
-    const ready = this.readyVoices(chapter);
+    let ready = this.readyVoices(chapter);
+    if (!onlineManager.isOnline()) {
+      const saved = ready.filter((v) => downloads.voice(chapter.id, v));
+      if (saved.length > 0) ready = saved;
+    }
     const { voice } = this.state;
     return voice && ready.includes(voice) ? voice : (ready[0] ?? null);
   }
@@ -307,13 +316,37 @@ export class PlayerController {
     return this.state.loaded?.chapterId === chapterId;
   }
 
-  /** Trae la URL firmada y la alineación del audio de un capítulo con una voz. */
+  /**
+   * Trae la URL firmada y la alineación del audio de un capítulo con una voz. Si está
+   * descargado, suena desde la descarga: sin red, mientras se regraba (la API no da la
+   * grabación anterior) o cuando es la misma grabación que da la API.
+   */
   async #fetchAudio(bookId: string, chapterId: string, voiceId: string): Promise<LoadedAudio> {
-    const state = await this.api.get<AudioState>(
-      `/api/v1/chapters/${chapterId}/audio?voice=${encodeURIComponent(voiceId)}`,
-    );
+    const saved = downloads.voice(chapterId, voiceId);
+    let state: AudioState;
+    try {
+      state = await this.api.get<AudioState>(
+        `/api/v1/chapters/${chapterId}/audio?voice=${encodeURIComponent(voiceId)}`,
+      );
+    } catch (error) {
+      const offline =
+        saved && isUnreachable(error) && (await this.#fromDownload(bookId, chapterId, saved));
+      if (offline) return offline;
+      throw error;
+    }
     if (state.status !== 'ready' || !state.audioUrl || !state.alignmentUrl) {
+      const fallback = saved && (await this.#fromDownload(bookId, chapterId, saved));
+      if (fallback) return fallback;
       throw new Error('El audio aún no está listo');
+    }
+    const outdated = state.outdated ? (state.outdatedReason ?? 'voice') : null;
+    const audioKey = new URL(state.audioUrl, location.origin).searchParams.get('key');
+    if (saved && saved.audioKey === audioKey) {
+      const local = await this.#fromDownload(bookId, chapterId, saved);
+      if (local) return { ...local, outdated };
+    } else if (saved) {
+      // Se regeneró después de descargarlo: se baja la grabación nueva por detrás.
+      void downloads.refreshVoice(this.api, chapterId, voiceId);
     }
     const key = jobKey(chapterId, voiceId);
     let alignment = this.#alignments.get(key);
@@ -331,7 +364,30 @@ export class PlayerController {
       expiresAt: state.expiresAt ? Date.parse(state.expiresAt) : Infinity,
       alignment,
       durationMs: state.durationMs ?? alignment.durationMs,
-      outdated: state.outdated ? (state.outdatedReason ?? 'voice') : null,
+      outdated,
+    };
+  }
+
+  /** El audio descargado (no vence: no hay firma que renovar). Null si falta en la caché. */
+  async #fromDownload(
+    bookId: string,
+    chapterId: string,
+    saved: DownloadedVoice,
+  ): Promise<LoadedAudio | null> {
+    const [alignment, src] = await Promise.all([
+      downloads.readAlignment(saved),
+      downloads.audioSrc(saved),
+    ]).catch(() => [null, null] as const);
+    if (!alignment || !src) return null;
+    return {
+      bookId,
+      chapterId,
+      voiceId: saved.voiceId,
+      src,
+      expiresAt: Infinity,
+      alignment,
+      durationMs: alignment.durationMs,
+      outdated: null,
     };
   }
 

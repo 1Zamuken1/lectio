@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi, useSession } from '../app/context';
+import { downloads, isUnreachable } from '../pwa/downloads';
 import type { components } from './schema';
 
 export type Schemas = components['schemas'];
@@ -78,7 +79,13 @@ export function useChapter(id: string | null) {
   const api = useApi();
   return useQuery({
     queryKey: ['chapter', id],
-    queryFn: () => api.get<Chapter>(`/api/v1/chapters/${id}`),
+    queryFn: () =>
+      offlineFallback(
+        () => api.get<Chapter>(`/api/v1/chapters/${id}`),
+        () => downloads.readChapter(id!),
+      ),
+    // Sin red también se intenta: puede estar descargado.
+    networkMode: 'always',
     enabled: id !== null,
     staleTime: Infinity,
     gcTime: 10 * 60_000,
@@ -120,11 +127,35 @@ export function useBookDetail(book: Pick<BookSummary, 'id' | 'isPublic' | 'slug'
   return useQuery({
     queryKey: [...keys.book(book.id), userId],
     queryFn: () =>
-      api.get<BookDetail>(
-        book.isPublic && book.slug
-          ? `/api/v1/books/public/${encodeURIComponent(book.slug)}`
-          : `/api/v1/books/${book.id}`,
+      offlineFallback(
+        () =>
+          api.get<BookDetail>(
+            book.isPublic && book.slug
+              ? `/api/v1/books/public/${encodeURIComponent(book.slug)}`
+              : `/api/v1/books/${book.id}`,
+          ),
+        async () => (await downloads.load(), downloads.book(book.id)),
       ),
+    networkMode: 'always',
     enabled: book.status === 'ready',
   });
+}
+
+/**
+ * Pide a la API; si la red falla, usa lo descargado (si lo hay). Así el lector abre sin
+ * conexión aunque no haya Service Worker (en desarrollo) o la caché de la visita anterior
+ * ya no tenga el libro.
+ */
+async function offlineFallback<T>(
+  fetcher: () => Promise<T>,
+  fallback: () => Promise<T | null>,
+): Promise<T> {
+  try {
+    return await fetcher();
+  } catch (error) {
+    if (!isUnreachable(error)) throw error;
+    const saved = await fallback().catch(() => null);
+    if (saved) return saved;
+    throw error;
+  }
 }

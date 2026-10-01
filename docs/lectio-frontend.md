@@ -252,11 +252,12 @@ Ambas deben manejar los huecos: oraciones con `narration` vacía (un DOI, por ej
 
 ### 6.3 Sin conexión
 
-**Qué se descarga por capítulo:** el JSON del capítulo (`GET /chapters/:id`), el audio y el `alignment.json`.
+**Qué se descarga por capítulo:** el JSON del capítulo (`GET /chapters/:id`), sus imágenes, el audio y el `alignment.json` de la voz que suena. Además, la ficha del libro (para abrirlo sin red). Código: `apps/web/src/pwa/downloads.ts`.
 
 - **Botón "Descargar"** por capítulo y por libro ("descargar los próximos 3 capítulos"). El usuario decide; no se descarga todo automáticamente, porque un libro completo puede pesar cientos de MB.
-- **Dónde:** Cache Storage para audio y alineación; IndexedDB para el índice de descargas (qué capítulo, tamaño, fecha).
-- **Clave de caché estable:** las URLs de audio privadas son firmadas y expiran, así que la caché se indexa por `audioSegmentId`, no por URL.
+- **Dónde:** Cache Storage (`lectio-downloads`) para el capítulo, las imágenes, el audio y la alineación; IndexedDB (versión 2: stores `downloads` y `books`) para el índice (capítulo, voces con sus claves, tamaño, fecha) y la ficha.
+- **Clave de caché estable:** las URLs de audio son firmadas y expiran, así que la caché se indexa por el parámetro `key` (la clave del storage, única por grabación), sin la firma: `/api/v1/media?key=…` (`pwa/cache-keys.ts`). Si la grabación se regenera, la API da otra clave y la app baja la nueva por detrás.
+- **Quién lo sirve:** el Service Worker (`sw/sw.ts`): `/media` desde la caché por clave; el capítulo, red primero y la copia sin red o con 5xx; las imágenes, desde la caché. Sin worker (en `pnpm dev`), el lector y el reproductor leen la caché directo cuando la API no responde (red caída o 5xx).
 - **Detalle técnico crítico: peticiones `Range`.** Para avanzar o retroceder, el `<audio>` pide trozos del archivo con la cabecera `Range`. Un audio servido desde el Service Worker debe responder `206 Partial Content`; si no, el reproductor no puede adelantar en modo sin conexión (y en Safari puede ni siquiera reproducir). Se resuelve con el `RangeRequestsPlugin` de Workbox.
 - **Persistencia:** al primer uso de descargas se pide `navigator.storage.persist()` para que el navegador no borre los archivos ante poco espacio. La pantalla de ajustes muestra el espacio usado (`navigator.storage.estimate()`).
 

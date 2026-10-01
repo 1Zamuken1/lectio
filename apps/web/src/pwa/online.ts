@@ -1,5 +1,6 @@
 import { onlineManager } from '@tanstack/react-query';
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
+import { useDownloads } from './downloads';
 
 /**
  * Si hay conexión, según el navegador (eventos online/offline). Es el mismo estado con el
@@ -18,9 +19,13 @@ export function useOnline(): boolean {
 }
 
 /**
- * Si un libro se puede abrir sin conexión. Hasta que lleguen las descargas (fase 7,
- * etapa 2), ninguno: sin red, las salas los muestran apagados.
+ * Si un libro se puede abrir sin conexión: tiene al menos un capítulo descargado. Sin red,
+ * las salas muestran apagados los demás.
  */
 export function useAvailableOffline(): (bookId: string) => boolean {
-  return () => false;
+  const chapters = useDownloads((s) => s.chapters);
+  return useMemo(() => {
+    const books = new Set(Object.values(chapters).map((c) => c.bookId));
+    return (bookId: string) => books.has(bookId);
+  }, [chapters]);
 }

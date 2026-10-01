@@ -22,6 +22,7 @@ import { PublicLibrary } from './screens/PublicLibrary';
 import { Reader } from './screens/Reader';
 import { TitleScreen } from './screens/TitleScreen';
 import { listenForInstall } from './pwa/install';
+import { downloads } from './pwa/downloads';
 import { watchConnection } from './pwa/online';
 import { registerServiceWorker } from './pwa/UpdateNotice';
 
@@ -29,6 +30,7 @@ import { registerServiceWorker } from './pwa/UpdateNotice';
 watchConnection();
 listenForInstall();
 registerServiceWorker();
+void downloads.load();
 
 const router = createBrowserRouter([
   {

@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MouseEvent 
 import { createPortal } from 'react-dom';
 import type { Chapter, ChapterSummary } from '../api/queries';
 import { useApi } from '../app/context';
+import { resourceUrl } from '../pwa/cache-keys';
+import { downloads, isUnreachable } from '../pwa/downloads';
 import { Pixel } from '../theme/pixel';
 import { useListening } from './listening';
 import {
@@ -297,7 +299,8 @@ function illuminate(prose: HTMLElement) {
 /**
  * Las imágenes del capítulo vienen de `/books/:id/resources?path=`. Las de libros públicos
  * van directo; las de los tuyos se piden con el token y se muestran como blob (un <img>
- * no manda Authorization), con la misma caché que las portadas.
+ * no manda Authorization), con la misma caché que las portadas. Sin red, todas salen de
+ * lo descargado.
  */
 function useChapterImages(
   prose: React.RefObject<HTMLDivElement | null>,
@@ -311,16 +314,27 @@ function useChapterImages(
     let active = true;
     for (const img of prose.current?.querySelectorAll<HTMLImageElement>('img[data-lectio-src]') ??
       []) {
-      const url = `/api/v1/books/${bookId}/resources?path=${encodeURIComponent(img.dataset.lectioSrc ?? '')}`;
-      if (isPublic) {
+      const url = resourceUrl(bookId, img.dataset.lectioSrc ?? '');
+      if (isPublic && navigator.onLine) {
         img.src = url;
         continue;
       }
       void client
         .fetchQuery({
           queryKey: ['image', url],
-          queryFn: async () =>
-            URL.createObjectURL(await (await api.send(url, { raw: true })).blob()),
+          queryFn: async () => {
+            let blob: Blob;
+            try {
+              blob = await (await api.send(url, { raw: true })).blob();
+            } catch (error) {
+              // Sin red: la del capítulo descargado, si está.
+              const saved = isUnreachable(error) ? await downloads.readBlob(url) : null;
+              if (!saved) throw error;
+              blob = saved;
+            }
+            return URL.createObjectURL(blob);
+          },
+          networkMode: 'always',
           staleTime: Infinity,
           gcTime: 30 * 60_000,
         })
