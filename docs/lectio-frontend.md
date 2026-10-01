@@ -268,8 +268,8 @@ Ambas deben manejar los huecos: oraciones con `narration` vacía (un DOI, por ej
 
 ### 6.4 Progreso sin conexión
 
-- Los `PUT /progress` que fallan por falta de red se guardan en una cola en IndexedDB `{ bookId, chapterId, sentenceIndex, mode, clientUpdatedAt }`.
-- Al recuperar la conexión (`online`), se envía **solo el último** por libro.
+- Los `PUT /progress` que fallan por falta de red (o con 5xx), y los que ni se intentan porque no hay red, se guardan en una cola en IndexedDB (store `progress`, versión 3) `{ userId, bookId, position }`: **una por usuario y libro, la más reciente**. Código: `apps/web/src/pwa/progress-queue.ts` y `ProgressSync` en `reader/position.ts`.
+- Al recuperar la conexión (`online`), al abrir la app y al entrar, se envía lo encolado del usuario con sesión. Un 2xx o un 4xx (libro borrado, fuera de rango) lo saca de la cola; la red caída o un 401 lo dejan para la próxima vez. La cuenta que no es la de la sesión no se envía.
 - **Conflictos** (se escuchó sin conexión en el celular y se leyó en el computador): gana el `updatedAt` más reciente. Requiere que la API acepte `clientUpdatedAt` y lo compare con el guardado (ver §9).
 
 ---

@@ -1,6 +1,6 @@
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
-import { ApiError, type ApiClient } from '../api/client';
+import { isUnreachable, type ApiClient } from '../api/client';
 import type { BookDetail, Chapter, Schemas } from '../api/queries';
 import type { Alignment } from '../player/sync';
 import { DOWNLOADS_CACHE, chapterCacheUrl, mediaCacheUrl, resourceUrl } from './cache-keys';
@@ -30,13 +30,7 @@ export interface StorageUse {
   persisted: boolean;
 }
 
-/**
- * No se llegó a la API: falló la red o el servidor no responde (5xx). Entonces sirve lo
- * descargado; un 4xx (no es tuyo, no existe) es una respuesta de verdad.
- */
-export function isUnreachable(error: unknown): boolean {
-  return !(error instanceof ApiError) || error.status >= 500;
-}
+export { isUnreachable };
 
 /**
  * Las descargas para leer y escuchar sin conexión (frontend §2.4 y §6.3). Siempre a mano:

@@ -73,3 +73,12 @@ export class ApiClient {
 }
 
 export { ApiError };
+
+/**
+ * No se llegó a la API: falló la red o el servidor no responde (5xx). Entonces sirve lo
+ * descargado o se encola el progreso; un 4xx (no es tuyo, no existe) es una respuesta de
+ * verdad.
+ */
+export function isUnreachable(error: unknown): boolean {
+  return !(error instanceof ApiError) || error.status >= 500;
+}

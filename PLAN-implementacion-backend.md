@@ -130,7 +130,7 @@ Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por
 
 ## Estado y cómo retomar (01-10-2026)
 
-Hechas las fases 0 a 6 y las **etapas 1 y 2 de la fase 7** (base PWA y descargas); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
+Hechas las fases 0 a 6 y las **etapas 1 a 3 de la fase 7** (base PWA, descargas y progreso sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
 
 **Levantar el entorno**
 
@@ -180,7 +180,9 @@ La interfaz (frontend §2.4, filas "Descargas: …"):
 
 Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y celular), panel, Clásico, lector con la red bloqueada; Salir con una cuenta de prueba (borrada después). El audio en el atril y el panel (voz y MB) aún no se vio en pantalla con un libro con audio.
 
-**Siguiente: fase 7, etapa 3** (cola de progreso sin conexión, frontend §6.4): los `PUT /progress` que fallan sin red van a una cola en IndexedDB y al volver la red se envía solo el último por libro (`clientUpdatedAt` ya existe). Después: 4 (prerender) y 5 (Playwright offline y Android real).
+**Hecho el 01-10 (fase 7, etapa 3: progreso sin conexión)**: `ProgressSync` (`reader/position.ts`) encola en IndexedDB v3 (`pwa/progress-queue.ts`, una posición por usuario y libro, la más reciente) lo que no llega a la API, y lo envía al volver la red, al abrir la app y al entrar (`progress.sync()`). Un 4xx descarta; la red caída o un 401 lo dejan para después; el servidor ya se queda con el `clientUpdatedAt` más reciente. `isUnreachable` vive ahora en `api/client.ts`. Tests en `test/progress-sync.test.ts`; probado en el navegador con una cuenta de prueba (borrada): sin red queda en la cola, al recargar o al volver la red llega al servidor.
+
+**Siguiente: fase 7, etapa 4 (prerender)**: `/`, `/biblioteca` y `/libros/:slug`, con la ficha y el texto del primer capítulo narrativo en el HTML (frontend §2.4). Después: 5 (Playwright offline y Android real).
 
 **Limitaciones conocidas (para decidir más adelante)**
 

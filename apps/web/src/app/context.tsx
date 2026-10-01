@@ -34,8 +34,13 @@ export function createServices(): AppServices {
   });
   const api = new ApiClient(session);
   const authenticated = () => session.state.status === 'authenticated';
-  const progress = new ProgressSync(api, queryClient, authenticated);
+  const userId = () => (session.state.status === 'authenticated' ? session.state.user.id : null);
+  const progress = new ProgressSync(api, queryClient, userId);
   progress.install();
+  // Al entrar (o al saberse que la sesión sigue) sale el progreso que quedó sin enviar.
+  session.subscribe((state) => {
+    if (state.status === 'authenticated') void progress.sync();
+  });
   const player = new PlayerController(api, queryClient, progress, authenticated);
   // En desarrollo, a mano desde la consola: window.lectio.player.state
   if (import.meta.env.DEV) {
