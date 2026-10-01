@@ -26,9 +26,10 @@ declare const self: ServiceWorkerGlobalScope & {
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cualquier ruta de la app (/estudio, /leer/:id…) abre el index.html precargado.
+// Cualquier ruta (/estudio, /leer/:id, /libros/:slug…) abre la app vacía precargada
+// (shell.html; index.html es la portada prerenderizada) y React dibuja la pantalla.
 registerRoute(
-  new NavigationRoute(createHandlerBoundToURL('/index.html'), {
+  new NavigationRoute(createHandlerBoundToURL('/shell.html'), {
     denylist: [/^\/api\//],
   }),
 );

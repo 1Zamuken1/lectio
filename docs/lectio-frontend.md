@@ -60,6 +60,14 @@ Android con Chrome soporta todo lo anterior. En iOS (Safari, PWA añadida a pant
 
 Resultado: el frontend completo se despliega como **sitio estático** (Cloudflare Pages, Netlify o similar), gratis a esta escala.
 
+**Cómo está hecho el prerender** (`apps/web/build/prerender.ts`, plugin de Vite al final del build):
+
+- Lee el catálogo de `LECTIO_API_URL` (`GET /books/public`, el detalle por slug y el primer capítulo narrativo) y escribe `index.html` (la portada), `biblioteca.html` y `libros/<slug>.html`, con `<title>`, descripción, Open Graph, Twitter card y JSON-LD (`Book`, `WebSite`, `CollectionPage`). Más `robots.txt`, `sitemap.xml` (solo con `LECTIO_SITE_URL`, que da las URL absolutas) y `_redirects`.
+- **Sin hidratación**: el HTML es propio, con las clases del lector; al cargar, `createRoot` lo reemplaza por la app. Para quien entra por primera vez, el lector abre el mismo capítulo que estaba prerenderizado. El capítulo se sanea con DOMPurify como en el navegador.
+- Un script en el `<head>` de `index.html` aplica el mundo y el modo guardados antes de pintar (la misma regla que `theme.ts`).
+- `shell.html` (y `404.html`) es la app vacía: la sirve el Service Worker para toda navegación (las páginas prerenderizadas no se precargan) y `_redirects` la da a `/estudio` y `/leer/*`.
+- Sin la API, el build avisa y sigue sin prerender; con `LECTIO_PRERENDER=required`, falla (para el despliegue).
+
 ---
 
 ## 2.2 Dirección visual

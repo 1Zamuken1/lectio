@@ -675,3 +675,81 @@ body[data-mini] #app {
 .toc .is-unavailable button {
   opacity: 0.45;
 }
+
+/* ---------------------------------------------------------------- Prerender */
+/* Lo que lleva el HTML de las páginas públicas antes de que cargue React
+   (build/prerender.ts): el lector usa sus propias clases; aquí, lo que es distinto. */
+
+.prerender-book .toc a {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  line-height: 1.3;
+  color: var(--ink);
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.prerender-book .toc a[aria-current='page'] {
+  font-weight: 600;
+  border-left-color: var(--accent);
+}
+
+.prerender-catalog {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  color: var(--ink);
+}
+
+.prerender-logo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: var(--accent);
+}
+
+.prerender-tagline {
+  margin: 0.2rem 0 2.5rem;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+}
+
+.prerender-catalog h1,
+.prerender-catalog h2 {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-read);
+}
+
+.prerender-books {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 1.4rem 1.2rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prerender-books a {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.prerender-books img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 0.3rem;
+  box-shadow: var(--shadow);
+}
+
+.prerender-books .title {
+  font-family: var(--font-read);
+  font-weight: 600;
+}
+
+.prerender-books .author {
+  font-size: 0.9rem;
+  color: var(--muted);
+}

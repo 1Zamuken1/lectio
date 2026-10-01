@@ -1,5 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "noEmit": true, "declaration": false },
-  "include": ["vite.config.ts"]
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    // El prerender arma las páginas con jsdom: usa los tipos del DOM.
+    "lib": ["ES2024", "DOM", "DOM.Iterable"]
+  },
+  "include": ["vite.config.ts", "build"]
 }

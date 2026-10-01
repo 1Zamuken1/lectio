@@ -14,7 +14,7 @@ export interface QueuedProgress {
  * Es una interfaz para que ProgressSync se pruebe sin IndexedDB.
  */
 export interface ProgressQueue {
-  /** Guarda la posición si es más reciente que la que ya esperaba. */
+  /** Guarda la posición salvo que la que ya esperaba sea más reciente (si empatan, la última). */
   put(entry: QueuedProgress): Promise<void>;
   list(userId: string): Promise<QueuedProgress[]>;
   /** Saca la posición, salvo que entretanto haya llegado otra más reciente. */
@@ -32,7 +32,7 @@ export const indexedDbQueue: ProgressQueue = {
     const db = await lectioDb();
     const tx = db.transaction('progress', 'readwrite');
     const current = await tx.store.get(key(entry));
-    if (!current || newer(entry.position, current.position)) {
+    if (!current || !newer(current.position, entry.position)) {
       await tx.store.put({ ...entry, key: key(entry) });
     }
     await tx.done;
@@ -59,7 +59,7 @@ export function memoryQueue(): ProgressQueue {
   return {
     async put(entry) {
       const current = entries.get(key(entry));
-      if (!current || newer(entry.position, current.position)) entries.set(key(entry), entry);
+      if (!current || !newer(current.position, entry.position)) entries.set(key(entry), entry);
     },
     async list(userId) {
       return [...entries.values()].filter((e) => e.userId === userId);

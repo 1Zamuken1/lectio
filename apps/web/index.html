@@ -12,6 +12,34 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Lectio" />
     <title>Lectio</title>
+    <script>
+      // El mundo y el modo guardados, antes de pintar: las páginas prerenderizadas se ven
+      // con el tema de quien las abre, sin parpadeo. theme.ts hace lo mismo al cargar
+      // (si cambia la regla, cambiarla en los dos lados).
+      (function () {
+        var root = document.documentElement;
+        function read(key, fallback) {
+          try {
+            var value = localStorage.getItem('lectio:' + key);
+            return value === null ? fallback : JSON.parse(value);
+          } catch (e) {
+            return fallback;
+          }
+        }
+        var world = read('world', null);
+        if (world !== 'scriptorium' && world !== 'clasico') {
+          // La portada abre el Scriptorium en la primera visita (TitleScreen).
+          world = world === null && location.pathname === '/' ? 'scriptorium' : 'clasico';
+        }
+        var mode = read('mode', 'system');
+        var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        root.dataset.world = world;
+        root.dataset.mode = mode === 'night' || (mode === 'system' && dark) ? 'night' : 'day';
+        root.dataset.companion = read('companion', true) ? 'on' : 'off';
+        root.dataset.motion = reduced ? 'reduced' : 'full';
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

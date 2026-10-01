@@ -130,7 +130,7 @@ Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por
 
 ## Estado y cómo retomar (01-10-2026)
 
-Hechas las fases 0 a 6 y las **etapas 1 a 3 de la fase 7** (base PWA, descargas y progreso sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
+Hechas las fases 0 a 6 y las **etapas 1 a 4 de la fase 7** (base PWA, descargas, progreso sin conexión y prerender); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
 
 **Levantar el entorno**
 
@@ -182,7 +182,9 @@ Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y cel
 
 **Hecho el 01-10 (fase 7, etapa 3: progreso sin conexión)**: `ProgressSync` (`reader/position.ts`) encola en IndexedDB v3 (`pwa/progress-queue.ts`, una posición por usuario y libro, la más reciente) lo que no llega a la API, y lo envía al volver la red, al abrir la app y al entrar (`progress.sync()`). Un 4xx descarta; la red caída o un 401 lo dejan para después; el servidor ya se queda con el `clientUpdatedAt` más reciente. `isUnreachable` vive ahora en `api/client.ts`. Tests en `test/progress-sync.test.ts`; probado en el navegador con una cuenta de prueba (borrada): sin red queda en la cola, al recargar o al volver la red llega al servidor.
 
-**Siguiente: fase 7, etapa 4 (prerender)**: `/`, `/biblioteca` y `/libros/:slug`, con la ficha y el texto del primer capítulo narrativo en el HTML (frontend §2.4). Después: 5 (Playwright offline y Android real).
+**Hecho el 01-10 (fase 7, etapa 4: prerender)**: `build/prerender.ts` (plugin de Vite) escribe `/`, `/biblioteca` y `/libros/:slug` con su contenido, etiquetas para buscadores y para compartir, `robots.txt`, `sitemap.xml` y `_redirects` (frontend §2.1). Sin hidratación: React reemplaza el HTML al cargar. El tema se aplica antes de pintar (script en `index.html`) y el Service Worker usa `shell.html` para toda navegación. Variables: `LECTIO_API_URL`, `LECTIO_SITE_URL` y `LECTIO_PRERENDER=required`. `headingMatchesTitle` pasó a `reader/heading.ts` (sin dependencias: la usa el build). Tests en `test/prerender.test.ts`; probado en `preview:pwa`: sin JS se ve como el lector, y React toma el control con el mismo capítulo.
+
+**Siguiente: fase 7, etapa 5**: Playwright sin conexión (descargar, cortar la red, leer y escuchar, progreso que vuelve) y la prueba en un Android real (instalación, sin conexión de verdad, pantalla bloqueada). Antes de Playwright, ver si conviene en CI o solo local.
 
 **Limitaciones conocidas (para decidir más adelante)**
 
