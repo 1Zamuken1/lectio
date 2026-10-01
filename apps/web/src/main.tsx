@@ -4,6 +4,7 @@ import '@fontsource/atkinson-hyperlegible/400-italic.css';
 import '@fontsource-variable/literata/opsz.css';
 import '@fontsource-variable/literata/opsz-italic.css';
 import '@fontsource-variable/pixelify-sans/index.css';
+import '@fontsource-variable/handjet/index.css';
 // Orden de la CLI: el CSS de las pantallas primero; el del tema sobrescribe sus tokens.
 import './styles/reader.css';
 import './styles/library.css';

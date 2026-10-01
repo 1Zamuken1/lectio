@@ -72,7 +72,7 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 
 _Lo siguiente (decidido el 01-10-2026). El despliegue y Kokoro quedan para más adelante._
 
-**El principio:** el Scriptorium está **completo y es la referencia**. No se rediseña ni se rehace. Bosque élfico y Solarpunk son **adaptaciones**: cada pieza del Scriptorium tiene su equivalente en cada mundo, con **la misma estructura, la misma mecánica y los mismos tiempos** (qué aparece, cuándo, cuánto dura, qué progreso refleja), y cambian el arte, la paleta, los personajes y los sonidos. Si una animación del Scriptorium muestra el avance real, la del otro mundo muestra el mismo avance; si respeta el movimiento reducido o se esconde en el celular, la adaptación hace lo mismo.
+**El principio** (corregido el 01-10-2026): el Scriptorium está **completo** y no se toca. Bosque élfico y Solarpunk son **mundos propios**: cada uno tiene su composición, su HUD, sus lugares y su arte, y no reutiliza la estructura visual del Scriptorium (marcos, esquineros, la sala con estanterías a los lados y la ventana al centro). Lo que comparten es **la mecánica**: las mismas piezas (portada, dos salas y el paso entre ellas, compañero, taller, cuadrilla, libro fallido, descargas en escena, panel y sonidos), lo que cada una muestra (el avance real, los mismos estados y tiempos) y el mismo comportamiento con movimiento reducido y en el celular. La primera versión del Bosque (entregas 1 y 2, `2203f79` y `850b576`) era un Scriptorium con otra paleta y se rehace (§7.6).
 
 Antes de dibujar, **preguntas de diseño** (como en cada etapa visual): ver la lista al final de esta sección.
 
@@ -144,31 +144,31 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 - **Solo la app** (`apps/web`) recibe los mundos nuevos; la CLI (`apps/cli/assets/theme/`) se queda con el Scriptorium y el Clásico por ahora.
 - Compañero del Solarpunk: **el dron jardinero** (nombre y personalidad, cuando toque ese mundo).
 
-**Bosque élfico**
+**Bosque élfico** (rediseño del 01-10-2026; reemplaza la tabla anterior)
 
 | Pieza | Decisión |
 |---|---|
-| Referencia de estilo | **Demacia (League of Legends) en la arquitectura y los detalles**: piedra blanca, arcos altos y ojivales, alas y filigrana de oro en el salón, el HUD y los esquineros. La paleta **no** suma el azul real: el bosque es el protagonista. |
-| Tono de día | Luminoso y plateado: verdes claros, oro, plata y corteza clara. |
-| Noche | Todo a la vez: luciérnagas (como el polvo en el haz), linternas colgantes encendidas (como los candelabros), luna plateada y estrellas por las ventanas, y hongos y plantas que brillan suave. |
-| HUD | Madera plateada tallada con filete de plata y detalles de oro (estilo Demacia), hojas en los esquineros, botones como hojas lisas, el activo en verde esmeralda. |
-| Barra de progreso | Una enredadera que crece, con una hoja en la punta (en lugar de la pluma). |
-| Sala pública | **Salón élfico de piedra blanca**: columnas finas como troncos, arcos ojivales con hojas talladas, vitrales de hojas; hace el papel de la nave del monasterio. |
-| Sala propia | **Refugio en la copa del árbol**: ventana redonda a las hojas, escritorio de rama, sillón de musgo con mesita y linterna, alfombra tejida, tapiz de hojas, cofre y puerta (las mismas piezas que el estudio). |
-| Portada | **Interior del salón**: la misma composición que el Scriptorium (dos estanterías de piedra, la ventana ojival al centro, la mesa de lectura con el libro abierto y la linterna). |
-| Paisaje por las ventanas | **Bosque y torres blancas**: copas plateadas en capas, el río y, a lo lejos, torres blancas con techos de oro; de noche, sus ventanas se encienden. |
-| Nombres de las salas | Solo cambia el **título de la sala** ("El salón élfico", "Tu refugio": lo lee el lector de pantalla); los botones y avisos siguen diciendo "Biblioteca" y "Estudio" en todos los mundos. |
-| Estantes | El salón, **piedra blanca** tallada con filigrana de oro; el refugio, una **repisa de rama** con dos ramitas en vez de las escuadras de hierro. |
-| Puerta | **Arco de ramas que se aparta** hacia los lados, con luz verde dorada; suena un susurro de hojas. Mismo fundido y tiempos. |
-| Compañero | **Lumen, el espíritu de luz**: curioso y juguetón; revolotea, se asoma a la página, habla corto y con entusiasmo; brilla más mientras suena el libro (contrasta con la solemnidad de Sabio). |
-| Taller | **Tejedores de un tapiz**: una maestra élfica y 9 aprendices tejen en un gran telar un tapiz que se llena de abajo hacia arriba con el avance real; al terminar lo enrollan, se lo llevan por el arco y suena una campanilla de cristal. |
-| Voces en el taller | Color de la capa, una por voz (como los hábitos). |
-| Libro fallido | Se marchita (hojas secas que caen, queda gris) y, al reintentar, rebrota con destellos verdes. |
-| Descargas en escena | Un aprendiz por capítulo guarda un rollito de tela en un **cofre de raíz** que se cierra con un golpe de madera. |
-| Panel "Descargas" | El espacio es un **frasco de luciérnagas** que se va apagando (en lugar de la vela). |
-| Sonidos y música | Arpa y flauta: arpegios de arpa en select y open, flauta en la música, campanilla de cristal en lugar de la campana, y un tintineo de Lumen en lugar del ulular. |
+| Estilo | **Como Stardew Valley / Terraria** (corregido tras la maqueta): pixel nítido a 320×180, **colores sólidos** (sin bruma ni tramas), siluetas claras con **contorno de color** (más oscuro que el objeto, nunca negro), objetos grandes que se lean. |
+| Referencia | El bosque es el protagonista; **Demacia solo en detalles** (algo de oro con alas: el logo, el medallón del reproductor), sin arquitectura de piedra. |
+| Paleta de día | **Atardecer dorado**: luz ámbar que entra entre las hojas, verdes oliva y turquesa en las sombras. |
+| Noche | **Luna plateada**: azul noche, la luna grande, estrellas y luciérnagas; las linternas del árbol en ámbar. |
+| Tipografía | **Handjet** (fuente pixel estrecha y fina; elegida en la maqueta); el logo, con letras dibujadas a mano. Lectura en Literata e interfaz en Atkinson, como siempre. |
+| HUD | **Paneles flotantes opacos y sólidos** (corregido tras la maqueta: el cristal lavaba la escena): crema con borde de oro de día, azul noche de noche; esquinas en escalón de píxeles; nada pegado a los bordes. El reproductor, un panel flotante abajo al centro, con el medallón de oro con alas. |
+| Íconos | 16×16, **pixel suave sin contorno negro** (luz y sombra), en ámbar, verde y crema. |
+| Portada | **El lago y su reflejo**: el gran árbol domina la mitad derecha, a la orilla de un lago que lo refleja (el reflejo se mueve en pasos y titila el camino de luz); en la cima de la copa asoma la biblioteca (baranda, arco con libros y linternas); al frente, nenúfares y juncos. De noche, la luna, luciérnagas y las linternas encendidas. |
+| Sala pública | **Una biblioteca construida sobre la copa** (boceto del usuario y ajustes, 01-10-2026): el piso es una **plataforma de tablas de madera clara** en perspectiva (fugan al fondo), con baranda; la copa asoma alrededor de la plataforma y las ramas gruesas (madera clara sin corteza, Demacia) siguen creciendo detrás; hojas en las esquinas de abajo. Muebles: alfombra, rincón de lectura, farol y macetas con flores azules. |
+| Libros | **Lomos de pie** en la estantería del centro (los libros reales), de pie sobre la plataforma y abrazada por un arco de dos ramas vivas con hojas y linternas; a los lados, dos estanterías con libros dibujados. Las hojas: grumos de borde dentado con hojitas dibujadas. |
+| Sala propia | **Un hueco arriba en el mismo árbol**: la abertura es un gran arco de corteza viva con hiedra, abierto a una rama; por él se ven el cielo, las copas y, abajo, la plataforma de la biblioteca. Tus libros (los reales) de pie en el alféizar. Adentro: nido de cojines con manta, mesita con linterna y maceta, alfombra, linternas colgadas y hongos que brillan de noche. |
+| Paso entre salas | **Subir o bajar por el árbol**: la vista se desliza en pasos por un tramo de tronco (corteza, ramas, hiedra, la copa al pie) hasta la otra sala, en lo mismo que dura el fundido; con movimiento reducido, directo. |
+| Página de lectura | **Una hoja sólida** como los demás paneles (crema con borde de oro y esquinas en escalón) sobre la biblioteca **nítida y atenuada** (sin desenfoque: no es pixel). |
+| Nombres de las salas | Solo cambia el título de la sala (lo lee el lector de pantalla); los botones siguen diciendo "Biblioteca" y "Estudio". |
+| Se mantiene | **Lumen**, el espíritu de luz (curioso y juguetón); el **taller del tapiz** (maestra y 9 aprendices, capa por voz, campanilla de cristal); **cofre de raíz** y **frasco de luciérnagas** para las descargas; el libro que **se marchita y rebrota**; **arpa y flauta**. Su forma concreta se vuelve a preguntar en cada entrega. |
+| Cómo se trabaja | Primero una **maqueta estática** (la portada, el gran árbol con su estantería, los paneles y la página, de día y de noche); se ajusta ahí y después se pasa a la app. |
 
 ### 7.6 Avance del Bosque élfico
+
+- **En la app (01-10-2026)**: el rediseño, pasado de la maqueta (ya borrada) a la app con más elementos donde había huecos. Las escenas son de lienzo (`theme/bosque-scenes.js`, 320 × 180, se dibujan una vez por modo y lo que se mueve se repinta en pasos: el agua del lago, las luciérnagas, las mariposas) y se muestran con `components/RasterArt.tsx`; `world-art.ts` las da con `rasterScene()`. Cada escena dice en sus coordenadas dónde va la estantería real y la puerta: `LibraryRoom` las pasa a píxeles (`--shelf-*`, `--door-*`) y escala los lomos (`--spine-k`) para que midan lo que los dibujados. La puerta entre salas es un **ascensor de lianas** (se toca en la escena; el teclado usa la barra) y el paso es la vista que sube o baja por el tronco (`RoomPassage` en `room-door.tsx`). Detrás del lector, la sala de la que viene el libro, atenuada. Paneles sólidos flotantes, medallón con alas, hilo de luz con luciérnaga, 22 íconos suaves (`icons-bosque.js`) y Handjet. Agregado sobre la maqueta: guirnaldas de luces entre las ramas, el ascensor en las dos salas, un muelle con farol en el lago, repisas con frascos y hierbas, un cesto de rollos, mariposas de día. Falta: Lumen, el taller, la cuadrilla, el libro que se marchita, las descargas en escena y los sonidos.
+- **Se rehace (01-10-2026)**: las entregas 1 y 2 de abajo copiaban la estructura del Scriptorium. De ellas se queda la infraestructura (el registro de mundos, `world-art.ts`, `data-scenes`, el motor de pixel art compartido); el arte, el CSS y la disposición del Bosque se rehacen según la tabla nueva, a partir de una maqueta.
 
 - **Base (01-10-2026)**: el registro de mundos (`theme/worlds.ts`: `ready`, `scenes`, `companion`) reemplaza las comprobaciones `world === 'scriptorium'` (`hasScenes()`); en `pnpm dev` se eligen también los mundos a medio hacer ("En desarrollo") y el build los deja fuera hasta que estén `ready` (el script de `index.html` recibe la lista desde `vite.config.ts`). Las piezas de pixel art que comparte todo HUD (esquinero de la página y perilla del progreso) se piden por mundo en `theme/world-art.ts`.
 - **Entrega 1 (01-10-2026)**: paleta, tokens día y noche, talla del HUD (madera plateada, filetes de plata y oro, emblema de alas, botones como hojas lisas, medallón de oro), enredadera del progreso con su brote, barras de desplazamiento, índice con marcador de hoja, paneles, página (filetes de oro y hoja, ramitas en las esquinas, inicial esmeralda con zarcillos) y los 22 íconos. Archivos: `styles/bosque.css`, `theme/icons-bosque.js`, `theme/bosque.js`. Sin escenas todavía: la portada y las salas se ven como en el Clásico con la paleta del Bosque.

@@ -1,4 +1,5 @@
 import { Bosque } from './bosque';
+import { SCENES as BOSQUE_SCENES, type RasterScene } from './bosque-scenes';
 import { Pixel } from './pixel';
 import type { WorldId } from './worlds';
 
@@ -9,6 +10,8 @@ import type { WorldId } from './worlds';
 export type ArtPiece =
   'pageCorner' | 'progressThumb' | 'title' | 'monastery' | 'study' | 'lecternStand';
 
+const NONE = () => '';
+
 const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
   scriptorium: {
     pageCorner: Pixel.fleuron,
@@ -18,16 +21,28 @@ const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
     study: Pixel.studyScene,
     lecternStand: Pixel.lecternStand,
   },
+  // Las escenas del Bosque son de lienzo (rasterScene); la página no lleva esquineros.
   bosque: {
-    pageCorner: Bosque.corner,
-    progressThumb: Bosque.sprout,
-    title: Bosque.titleScene,
-    monastery: Bosque.hallScene,
-    study: Bosque.refugeScene,
+    pageCorner: NONE,
+    progressThumb: Bosque.firefly,
+    title: NONE,
+    monastery: NONE,
+    study: NONE,
     lecternStand: Bosque.lecternStand,
   },
 };
 
 export function worldArt(world: WorldId, piece: ArtPiece): string {
   return ART[world]?.[piece]() ?? '';
+}
+
+/** Las escenas que un mundo dibuja en lienzo en vez de SVG (portada, salas y el tronco). */
+export type ScenePiece = 'title' | 'monastery' | 'study' | 'trunk';
+
+const RASTER: Partial<Record<WorldId, Partial<Record<ScenePiece, RasterScene>>>> = {
+  bosque: BOSQUE_SCENES,
+};
+
+export function rasterScene(world: WorldId, piece: ScenePiece): RasterScene | null {
+  return RASTER[world]?.[piece] ?? null;
 }

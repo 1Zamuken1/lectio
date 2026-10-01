@@ -24,6 +24,9 @@ import { useOnline } from '../pwa/online';
 import { ReaderSidebar } from '../reader/Sidebar';
 import { TextTools } from '../reader/TextTools';
 import { Sound } from '../theme/sound';
+import { useTheme } from '../theme/theme';
+import { rasterScene } from '../theme/world-art';
+import { RasterArt } from '../components/RasterArt';
 
 /**
  * El lector: `/leer/:id` para tus libros y `/libros/:slug` para los públicos (sin cuenta).
@@ -257,6 +260,9 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
   );
 
   const place = back === '/estudio' ? 'Tu estudio' : 'Biblioteca';
+  // En un mundo de lienzo (el Bosque), detrás de la página se ve la sala de la que viene el libro.
+  const { world } = useTheme();
+  const backdrop = rasterScene(world, back === '/estudio' ? 'study' : 'monastery');
   const goTo = (orderIndex: number) => void go(orderIndex);
 
   // Sin red, solo se abren los capítulos descargados: el que no lo está lo explica y
@@ -284,6 +290,7 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
   };
   return (
     <div className="layout has-player">
+      {backdrop && <RasterArt className="reader-backdrop" scene={backdrop} still />}
       <header className="topbar" ref={topbar}>
         <button
           type="button"

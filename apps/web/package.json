@@ -16,6 +16,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource-variable/handjet": "^5.3.0",
     "@fontsource-variable/literata": "^5.3.0",
     "@fontsource-variable/pixelify-sans": "^5.3.0",
     "@fontsource/atkinson-hyperlegible": "^5.3.0",

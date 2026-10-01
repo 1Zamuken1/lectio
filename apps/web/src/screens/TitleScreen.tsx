@@ -6,7 +6,8 @@ import { PixelArt } from '../components/art';
 import { ModeButton, SettingsButton } from '../components/ThemeTools';
 import { Sound } from '../theme/sound';
 import { Theme, WORLDS, isSelectable, useTheme } from '../theme/theme';
-import { worldArt } from '../theme/world-art';
+import { rasterScene, worldArt } from '../theme/world-art';
+import { RasterArt } from '../components/RasterArt';
 
 const number = new Intl.NumberFormat('es');
 
@@ -22,6 +23,7 @@ export function TitleScreen() {
   const books = usePublicBooks();
   const start = useRef<HTMLButtonElement>(null);
   const scene = useMemo(() => worldArt(theme.world, 'title'), [theme.world]);
+  const raster = rasterScene(theme.world, 'title');
 
   useEffect(() => {
     // Primera visita: la portada muestra el Scriptorium; se cambia desde los mundos.
@@ -33,7 +35,11 @@ export function TitleScreen() {
   const count = books.data?.length;
   return (
     <main className="title-screen">
-      <PixelArt className="scene" svg={scene} />
+      {raster ? (
+        <RasterArt className="scene" scene={raster} />
+      ) : (
+        <PixelArt className="scene" svg={scene} />
+      )}
       <div className="title-banner">
         <h1 className="logo">Lectio</h1>
         <p className="tagline">Tu biblioteca, leída en voz alta</p>

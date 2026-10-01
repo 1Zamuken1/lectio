@@ -1675,23 +1675,3 @@ export const Pixel = {
   scrollCarrier,
   downloadChest,
 };
-
-/**
- * Piezas del motor que reutilizan los otros mundos (bosque.js): formas de arco, rayos de
- * luz, halos, cielo, libros y vitrales. Se dibujan con la paleta del mundo activo.
- */
-export const PixelParts = {
-  archShape,
-  lancetShape,
-  fillShape,
-  lightBeam,
-  lightPool,
-  glow,
-  motes,
-  sky,
-  book,
-  openBook,
-  inkwellWithQuill,
-  stainedGlass,
-  ladder,
-};

@@ -10,12 +10,14 @@ import {
 } from 'react';
 import { isPreparing, type BookSummary } from '../api/queries';
 import { PixelArt } from '../components/art';
+import { RasterArt } from '../components/RasterArt';
 import { takeIosInstallHint } from '../pwa/install';
 import { useAvailableOffline, useOnline } from '../pwa/online';
 import { Pixel } from '../theme/pixel';
 import { Sound } from '../theme/sound';
 import { roomTitle, useTheme } from '../theme/theme';
-import { worldArt } from '../theme/world-art';
+import type { RasterScene, SceneRect } from '../theme/bosque-scenes';
+import { rasterScene, worldArt } from '../theme/world-art';
 import { useRoomDoor } from './room-door';
 import {
   SORT_LABELS,
@@ -88,6 +90,10 @@ export function LibraryRoom({
   const hintRef = useRef<HTMLParagraphElement>(null);
   const { world } = useTheme();
   const scene = useMemo(() => worldArt(world, room), [world, room]);
+  // Los mundos de lienzo (el Bosque) ponen la estantería sobre la que dibuja la escena.
+  const raster = rasterScene(world, room);
+  const roomRef = useRef<HTMLElement>(null);
+  const layout = useSceneLayout(roomRef, raster);
   const owlSvg = useMemo(() => Pixel.owlBadge(), []);
   const doorOpen = useRoomDoor((s) => s.phase === 'opening' || s.phase === 'out');
   const book = books?.find((b) => b.id === selected) ?? null;
@@ -101,7 +107,7 @@ export function LibraryRoom({
   const [sort, setSort] = useState<ShelfSort>(ROOMS[room].sort);
   const [page, setPage] = useState(0);
   const shelfRef = useRef<HTMLDivElement>(null);
-  const { width, rows } = useShelfFit(shelfRef, ROOMS[room].maxRows);
+  const { width, rows } = useShelfFit(shelfRef, raster?.shelf ? 1 : ROOMS[room].maxRows);
   const browsing = (books?.length ?? 0) >= BROWSE_FROM;
   const visible = useMemo(
     () => sortBooks(filterBooks(books ?? [], query), sort),
@@ -169,8 +175,11 @@ export function LibraryRoom({
 
   return (
     <main
+      ref={roomRef}
       className={`library${book ? ' has-selection' : ''}${doorOpen ? ' door-open' : ''}`}
       data-room={room}
+      data-layout={raster?.shelf ? 'scene' : undefined}
+      style={layout}
     >
       {/* Solo el clic en la puerta: el teclado usa el botón de la barra. */}
       <div
@@ -179,7 +188,12 @@ export function LibraryRoom({
           if ((event.target as Element).closest('.px-door')) onDoor();
         }}
       >
-        <PixelArt className="scene" svg={scene} />
+        {raster ? (
+          <RasterArt className="scene" scene={raster} />
+        ) : (
+          <PixelArt className="scene" svg={scene} />
+        )}
+        {raster?.door && <span className="px-door scene-door" aria-hidden="true" />}
       </div>
       <div className="library-floor">
         <h1 className="room-title">{roomTitle(world, room)}</h1>
@@ -351,6 +365,56 @@ function Spine({
       {preparing && <span className="spine-progress" aria-hidden="true" />}
     </button>
   );
+}
+
+/** Un lomo mide unos 34 píxeles de escena de alto: así los libros reales calzan con los dibujados. */
+const SPINE_SCENE_HEIGHT = 34;
+/** El alto medio de un lomo en la interfaz (spineSize: de 150 a 182 px). */
+const SPINE_HEIGHT = 166;
+
+/**
+ * Las coordenadas de una escena de lienzo (320 × 180, recortada como `cover` en su
+ * `focus`) pasadas a píxeles de la sala: dónde va la estantería real y dónde está la
+ * puerta, y la escala de los lomos para que midan lo que los dibujados.
+ */
+function useSceneLayout(
+  ref: RefObject<HTMLElement | null>,
+  scene: RasterScene | null,
+): CSSProperties | undefined {
+  const [style, setStyle] = useState<CSSProperties>();
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || !scene?.shelf) {
+      setStyle(undefined);
+      return;
+    }
+    const measure = () => {
+      const w = element.clientWidth;
+      const h = element.clientHeight;
+      const s = Math.max(w / 320, h / 180);
+      const ox = (w - 320 * s) * scene.focus[0];
+      const oy = (h - 180 * s) * scene.focus[1];
+      const vars: Record<string, string | number> = {
+        '--spine-k': ((SPINE_SCENE_HEIGHT * s) / SPINE_HEIGHT).toFixed(4),
+      };
+      const put = (name: string, r: SceneRect) => {
+        vars[`--${name}-x`] = `${Math.round(ox + r.x * s)}px`;
+        vars[`--${name}-y`] = `${Math.round(oy + r.y * s)}px`;
+        vars[`--${name}-w`] = `${Math.round(r.w * s)}px`;
+        vars[`--${name}-h`] = `${Math.round(r.h * s)}px`;
+      };
+      put('shelf', scene.shelf!);
+      if (scene.door) put('door', scene.door);
+      setStyle((previous) =>
+        JSON.stringify(previous) === JSON.stringify(vars) ? previous : (vars as CSSProperties),
+      );
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [ref, scene]);
+  return style;
 }
 
 /** Lo que ocupa bajo los estantes: las flechas y el margen del suelo. */
