@@ -11,7 +11,9 @@ export type SoundName =
   | 'burn'
   | 'reborn'
   | 'chest'
-  | 'chest-soft';
+  | 'chest-soft'
+  /** Lumen se encoge ante un error (solo el Bosque). */
+  | 'sad';
 
 /** Efectos y música chiptune con Web Audio (sound.js). */
 export declare const Sound: {

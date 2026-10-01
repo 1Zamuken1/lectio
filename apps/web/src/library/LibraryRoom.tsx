@@ -147,8 +147,11 @@ export function LibraryRoom({
 
   // Sabio reacciona a cada aviso nuevo.
   useEffect(() => {
-    if (notice) react();
-  }, [notice]);
+    if (!notice) return;
+    react();
+    // Lumen se encoge con su sonido (el búho del Scriptorium no tiene uno).
+    if (companionLine(world, notice.text).mood === 'error') Sound.play('sad');
+  }, [notice, world]);
 
   useEffect(() => {
     if (focus && focus.open !== false) setSelected(focus.bookId);

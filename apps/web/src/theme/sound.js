@@ -3,12 +3,14 @@
 //
 // Reglas: la música viene apagada; se desvanece sola mientras suena la narración; los
 // efectos nunca suenan encima de la narración; todo se calla con la pestaña oculta.
-// El tema Clásico no tiene ambientación: ni efectos ni música.
+// El tema Clásico no tiene ambientación: ni efectos ni música. El Bosque élfico trae los
+// suyos (arpa, flauta y cristal) en sound-bosque.js.
 // Portado de apps/cli/assets/theme/sound.js como módulo ES (la CLI conserva su copia).
 import { Theme } from './theme';
+import * as Bosque from './sound-bosque';
 
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-const WORLDS_WITH_SOUND = new Set(['scriptorium']);
+const WORLDS_WITH_SOUND = new Set(['scriptorium', 'bosque']);
 
 let ctx = null;
 let master = null;
@@ -220,6 +222,9 @@ const SFX = {
   },
 };
 
+/** El contexto y los buses, para los sonidos de cada mundo. */
+const audio = () => ({ ctx, sfx: sfxBus, music: musicBus });
+
 function soundAllowed() {
   const settings = Theme.get();
   return WORLDS_WITH_SOUND.has(settings.world) && settings.volume > 0;
@@ -234,7 +239,9 @@ function play(name, { force = false } = {}) {
   if (!settings.sfx || !soundAllowed() || document.hidden) return;
   if (narrating && !force) return;
   if (!ensure()) return;
-  SFX[name]?.(ctx.currentTime + 0.01);
+  const t = ctx.currentTime + 0.01;
+  if (settings.world === 'bosque') Bosque.SFX[name]?.(t, audio());
+  else SFX[name]?.(t);
 }
 
 // ------------------------------------------------------------ música del scriptorium
@@ -323,9 +330,14 @@ function schedule() {
 function startMusic() {
   if (timer || !ensure()) return;
   nextTime = ctx.currentTime + 0.1;
+  Bosque.startMusic(audio());
   musicBus.gain.cancelScheduledValues(ctx.currentTime);
   musicBus.gain.setTargetAtTime(0.9, ctx.currentTime, 0.6);
-  timer = setInterval(schedule, 60);
+  timer = setInterval(() => {
+    const settings = Theme.get();
+    if (settings.world === 'bosque') Bosque.scheduleMusic(audio(), settings.night);
+    else schedule();
+  }, 60);
 }
 
 function stopMusic() {
