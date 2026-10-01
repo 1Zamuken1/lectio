@@ -643,3 +643,35 @@ body[data-mini] #app {
     translate: -50% -0.5rem;
   }
 }
+
+/* Sin red, un capítulo que no está descargado (frontend §2.4). */
+.chapter-offline {
+  max-width: 34rem;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.chapter-offline strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.chapter-offline .open-book {
+  margin-top: 0.6rem;
+  cursor: pointer;
+}
+
+/* Como botón, sin el borde del navegador (el Scriptorium pone el suyo). */
+.chapter-offline :where(button.open-book) {
+  border: 0;
+}
+
+/* En el índice, sin red, los capítulos no descargados se ven apagados. */
+.toc .is-unavailable button {
+  opacity: 0.45;
+}

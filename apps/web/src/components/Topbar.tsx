@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { useSession } from '../app/context';
+import { usePlayer, useSession } from '../app/context';
 import { useAuthPrompt } from '../auth/auth-prompt';
+import { DownloadsButton } from '../library/DownloadsPanel';
+import { downloads } from '../pwa/downloads';
 import { install, useInstall } from '../pwa/install';
 import { useOnline } from '../pwa/online';
 import { Sound } from '../theme/sound';
@@ -9,9 +11,10 @@ import { Icon } from './art';
 import { ModeButton, SettingsButton } from './ThemeTools';
 
 /**
- * Barra superior de las salas: marca, portada, cuenta, día/noche y ajustes. Sin conexión
- * lo dice, y "Entrar" espera a que vuelva la red. "Instalar" aparece solo cuando el
- * navegador lo ofrece (frontend §2.4).
+ * Barra superior de las salas: marca, portada, descargas, cuenta, día/noche y ajustes.
+ * Sin conexión lo dice, y "Entrar" espera a que vuelva la red. "Instalar" aparece solo
+ * cuando el navegador lo ofrece. Al salir se borran las descargas de tus libros (las de
+ * la biblioteca pública se quedan), avisando antes (frontend §2.4).
  */
 export function Topbar({ subtitle, children }: { subtitle: string; children?: ReactNode }) {
   const navigate = useNavigate();
@@ -19,6 +22,26 @@ export function Topbar({ subtitle, children }: { subtitle: string; children?: Re
   const ask = useAuthPrompt((s) => s.ask);
   const online = useOnline();
   const canInstall = useInstall((s) => s.offer !== null);
+  const player = usePlayer();
+
+  const logout = async () => {
+    Sound.play('toggle');
+    const mine = downloads.privateChapters().length;
+    if (mine > 0) {
+      const ok = await player.ask({
+        title: 'Salir de tu cuenta',
+        body: `Se borrarán de este dispositivo las descargas de tus libros (${
+          mine === 1 ? '1 capítulo' : `${mine} capítulos`
+        }). Las de la biblioteca pública se quedan.`,
+        confirm: 'Salir y borrarlas',
+        cancel: 'Quedarme',
+      });
+      if (!ok) return;
+      await downloads.removePrivate();
+    }
+    await session.logout();
+    navigate('/biblioteca');
+  };
 
   return (
     <header className="topbar">
@@ -44,6 +67,7 @@ export function Topbar({ subtitle, children }: { subtitle: string; children?: Re
           <Icon name="home" />
           <span className="label">Portada</span>
         </button>
+        <DownloadsButton />
         {canInstall && (
           <button
             type="button"
@@ -70,10 +94,7 @@ export function Topbar({ subtitle, children }: { subtitle: string; children?: Re
             aria-label="Salir"
             // Sin red, la cookie de la sesión seguiría viva en la API: al volver, entrarías solo.
             disabled={!online}
-            onClick={() => {
-              Sound.play('toggle');
-              void session.logout().then(() => navigate('/biblioteca'));
-            }}
+            onClick={() => void logout()}
           >
             <Icon name="key" />
             <span className="label">Salir</span>

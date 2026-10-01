@@ -9,7 +9,9 @@ export type SoundName =
   | 'bell'
   | 'door'
   | 'burn'
-  | 'reborn';
+  | 'reborn'
+  | 'chest'
+  | 'chest-soft';
 
 /** Efectos y música chiptune con Web Audio (sound.js). */
 export declare const Sound: {

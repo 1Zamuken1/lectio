@@ -13,8 +13,11 @@ interface DownloadsState {
   loaded: boolean;
   chapters: Record<string, DownloadRecord>;
   books: Record<string, DownloadedBook>;
-  /** Capítulos que se están bajando ahora. */
-  active: Record<string, true>;
+  /**
+   * Capítulos que se están bajando o esperan su turno, con su avance de 0 a 1 (0: en
+   * cola). El anillo del atril lo dibuja.
+   */
+  active: Record<string, number>;
 }
 
 export interface StorageUse {
@@ -53,6 +56,8 @@ export class Downloads {
   }));
 
   #loading: Promise<void> | null = null;
+  /** Se baja un capítulo a la vez: el anillo avanza parejo y la red no se reparte. */
+  #queue: Promise<unknown> = Promise.resolve();
   #askedPersist = false;
   /**
    * Sin Service Worker, el audio descargado suena desde un blob. Se guardan los dos
@@ -172,9 +177,21 @@ export class Downloads {
   /**
    * Baja un capítulo: el texto, sus imágenes y, si se da una voz con audio listo, el audio
    * y la alineación. Si ya estaba, lo renueva y suma la voz. Si algo falla, no queda nada
-   * a medias (salvo lo que ya estaba descargado).
+   * a medias (salvo lo que ya estaba descargado). Va a la cola: uno a la vez.
    */
-  async downloadChapter(
+  downloadChapter(
+    api: ApiClient,
+    book: BookDetail,
+    chapterId: string,
+    voiceId: string | null,
+  ): Promise<DownloadRecord> {
+    if (this.state.active[chapterId] === undefined) this.#setProgress(chapterId, 0);
+    const run = this.#queue.then(() => this.#download(api, book, chapterId, voiceId));
+    this.#queue = run.catch(() => undefined);
+    return run;
+  }
+
+  async #download(
     api: ApiClient,
     book: BookDetail,
     chapterId: string,
@@ -182,8 +199,11 @@ export class Downloads {
   ): Promise<DownloadRecord> {
     await this.load();
     const summary = book.chapters.find((c) => c.id === chapterId);
-    if (!summary) throw new Error('El capítulo no es de este libro');
-    this.#setActive(chapterId, true);
+    if (!summary) {
+      this.#setProgress(chapterId, null);
+      throw new Error('El capítulo no es de este libro');
+    }
+    this.#setProgress(chapterId, 0.02);
     const cache = await caches.open(DOWNLOADS_CACHE);
     const previous = this.chapter(chapterId);
     const written: string[] = [];
@@ -192,7 +212,10 @@ export class Downloads {
       const text = await this.#saveText(api, cache, book.id, chapterId, written);
       let voices = previous?.voices ?? [];
       if (voiceId) {
-        const voice = await this.#saveVoice(api, cache, chapterId, voiceId, written);
+        this.#setProgress(chapterId, TEXT_SHARE);
+        const voice = await this.#saveVoice(api, cache, chapterId, voiceId, written, (f) =>
+          this.#setProgress(chapterId, TEXT_SHARE + (1 - TEXT_SHARE) * f),
+        );
         voices = [...voices.filter((v) => v.voiceId !== voiceId), voice];
       }
       const record: DownloadRecord = {
@@ -211,36 +234,53 @@ export class Downloads {
       await Promise.all(written.filter((url) => !keep.has(url)).map((url) => cache.delete(url)));
       throw error;
     } finally {
-      this.#setActive(chapterId, false);
+      this.#setProgress(chapterId, null);
     }
   }
 
   /**
-   * "Descargar los próximos 3": desde el capítulo dado (incluido), los narrativos que
-   * faltan, cada uno con la voz que le toque. Devuelve cuántos se bajaron.
+   * Lo que baja "Descargar los próximos 3": desde el capítulo dado (incluido), los
+   * primeros `count` capítulos narrativos que faltan (o les falta la voz). Los ya
+   * descargados y los que están en la cola se saltan: siempre suma tres más.
    */
-  async downloadNext(
-    api: ApiClient,
+  nextTargets(
     book: BookDetail,
-    fromChapterId: string,
+    fromChapterId: string | null,
     voiceFor: (chapterId: string) => string | null,
     count = 3,
-  ): Promise<number> {
+  ): string[] {
     const start = Math.max(
       0,
       book.chapters.findIndex((c) => c.id === fromChapterId),
     );
-    const targets = book.chapters
+    return book.chapters
       .slice(start)
-      .filter((c) => c.kind === 'narrative')
+      .filter((c) => c.kind === 'narrative' && this.state.active[c.id] === undefined)
       .filter((c) => {
         const voice = voiceFor(c.id);
-        const saved = this.chapter(c.id);
-        return !saved || (voice !== null && !this.voice(c.id, voice));
+        return !this.chapter(c.id) || (voice !== null && !this.voice(c.id, voice));
       })
-      .slice(0, count);
-    for (const chapter of targets) {
-      await this.downloadChapter(api, book, chapter.id, voiceFor(chapter.id));
+      .slice(0, count)
+      .map((c) => c.id);
+  }
+
+  /** "Descargar los próximos 3", con aviso tras cada uno (`done` de `total`). */
+  async downloadNext(
+    api: ApiClient,
+    book: BookDetail,
+    fromChapterId: string | null,
+    voiceFor: (chapterId: string) => string | null,
+    onProgress?: (done: number, total: number) => void,
+    count = 3,
+  ): Promise<number> {
+    const targets = this.nextTargets(book, fromChapterId, voiceFor, count);
+    // Todos a la cola de una vez: sus anillos aparecen vacíos y se llenan por turno.
+    const runs = targets.map((id) => this.downloadChapter(api, book, id, voiceFor(id)));
+    let done = 0;
+    onProgress?.(0, targets.length);
+    for (const run of runs) {
+      await run;
+      onProgress?.(++done, targets.length);
     }
     return targets.length;
   }
@@ -252,8 +292,8 @@ export class Downloads {
   async refreshVoice(api: ApiClient, chapterId: string, voiceId: string): Promise<void> {
     const record = this.chapter(chapterId);
     const book = record && this.state.books[record.bookId];
-    if (!record || !book || this.state.active[chapterId]) return;
-    this.#setActive(chapterId, true);
+    if (!record || !book || this.state.active[chapterId] !== undefined) return;
+    this.#setProgress(chapterId, 0);
     const cache = await caches.open(DOWNLOADS_CACHE);
     const written: string[] = [];
     try {
@@ -267,7 +307,7 @@ export class Downloads {
     } catch {
       await Promise.all(written.map((url) => cache.delete(url)));
     } finally {
-      this.#setActive(chapterId, false);
+      this.#setProgress(chapterId, null);
     }
   }
 
@@ -310,6 +350,7 @@ export class Downloads {
     chapterId: string,
     voiceId: string,
     written: string[],
+    onProgress: (fraction: number) => void = () => undefined,
   ): Promise<DownloadedVoice> {
     const state = await api.get<AudioState>(
       `/api/v1/chapters/${chapterId}/audio?voice=${encodeURIComponent(voiceId)}`,
@@ -331,7 +372,9 @@ export class Downloads {
       // Sin Range: completo (200). Cache Storage no guarda respuestas parciales.
       const response = await fetch(signed);
       if (!response.ok) throw new Error('No se pudo bajar el audio');
-      const blob = await response.blob();
+      // El audio es casi todo el peso: su avance es el del anillo.
+      const blob =
+        key === audioKey ? await readWithProgress(response, onProgress) : await response.blob();
       const url = mediaCacheUrl(location.origin, key);
       await cache.put(url, blobResponse(blob, response.headers.get('Content-Type')));
       written.push(url);
@@ -390,6 +433,18 @@ export class Downloads {
     }
   }
 
+  /** Los capítulos descargados de libros privados (los de la cuenta, no los públicos). */
+  privateChapters(): DownloadRecord[] {
+    return Object.values(this.state.chapters).filter(
+      (c) => this.state.books[c.bookId]?.detail.isPublic !== true,
+    );
+  }
+
+  /** Al salir de la cuenta: se borran tus libros; los públicos se quedan (frontend §2.4). */
+  async removePrivate(): Promise<void> {
+    for (const record of this.privateChapters()) await this.removeChapter(record.chapterId);
+  }
+
   async removeAll(): Promise<void> {
     if (!this.supported) return;
     const db = await lectioDb();
@@ -422,11 +477,12 @@ export class Downloads {
     await Promise.all(urls.filter((url) => !used.has(url)).map((url) => cache.delete(url)));
   }
 
-  #setActive(chapterId: string, active: boolean) {
+  /** El avance de un capítulo en la cola (0 a 1), o null cuando termina. */
+  #setProgress(chapterId: string, progress: number | null) {
     this.store.setState((s) => {
       const next = { ...s.active };
-      if (active) next[chapterId] = true;
-      else delete next[chapterId];
+      if (progress === null) delete next[chapterId];
+      else next[chapterId] = Math.min(1, Math.max(0, progress));
       return { active: next };
     });
   }
@@ -447,6 +503,34 @@ export function imagePaths(html: string): string[] {
     .map((img) => img.getAttribute('src'))
     .filter((src): src is string => !!src);
   return [...new Set(paths)];
+}
+
+/** Del anillo, lo que corresponde al texto y las imágenes cuando también se baja audio. */
+const TEXT_SHARE = 0.1;
+
+/** Lee una respuesta entera avisando cuánto va (si dice su tamaño), unas 10 veces por segundo. */
+async function readWithProgress(
+  response: Response,
+  onProgress: (fraction: number) => void,
+): Promise<Blob> {
+  const total = Number(response.headers.get('Content-Length')) || 0;
+  if (!response.body || !total) return response.blob();
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let received = 0;
+  let last = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    received += value.byteLength;
+    if (performance.now() - last > 100) {
+      last = performance.now();
+      onProgress(received / total);
+    }
+  }
+  onProgress(1);
+  return new Blob(chunks as BlobPart[], { type: response.headers.get('Content-Type') ?? '' });
 }
 
 function keyOf(url: string): string | null {

@@ -293,6 +293,16 @@ export class PlayerController {
     return voice && ready.includes(voice) ? voice : (ready[0] ?? null);
   }
 
+  /**
+   * La voz con que se descarga un capítulo: la elegida, si ese capítulo la tiene; si no,
+   * otra con audio; null si no tiene ninguna (se baja solo el texto).
+   */
+  downloadVoice(chapter: ChapterSummary): string | null {
+    const ready = this.readyVoices(chapter);
+    const chosen = this.state.voice ?? store.get<string | null>('voice', null);
+    return chosen && ready.includes(chosen) ? chosen : (ready[0] ?? null);
+  }
+
   hasAudio(chapter: ChapterSummary): boolean {
     return this.readyVoices(chapter).length > 0;
   }
@@ -888,6 +898,17 @@ export class PlayerController {
     );
   }
 
+  /** El siguiente capítulo con audio descargado (con alguna voz), o null. */
+  #nextDownloaded(bookId: string, chapterId: string): ChapterSummary | null {
+    const chapters = this.state.books[bookId]?.chapters ?? [];
+    const index = chapters.findIndex((c) => c.id === chapterId);
+    return (
+      chapters
+        .slice(index + 1)
+        .find((c) => this.readyVoices(c).some((voice) => downloads.voice(c.id, voice))) ?? null
+    );
+  }
+
   /** Capítulo con audio más cercano en la dirección indicada. */
   audioChapter(bookId: string, chapterId: string, step: 1 | -1): ChapterSummary | null {
     const chapters = this.state.books[bookId]?.chapters ?? [];
@@ -966,6 +987,19 @@ export class PlayerController {
     const loaded = this.state.loaded;
     if (!loaded) return;
     this.#positions.delete(loaded.chapterId);
+    // Sin red: el siguiente descargado (saltando los que no); si no hay, se detiene.
+    if (!onlineManager.isOnline()) {
+      const saved = this.#nextDownloaded(loaded.bookId, loaded.chapterId);
+      if (saved) {
+        this.#advance(loaded.chapterId, saved.id);
+        await this.load(loaded.bookId, saved.id, { play: true, sentence: 0 });
+      } else {
+        Sound.play('hoot');
+        this.#set({ notice: 'No hay más capítulos descargados.' });
+        this.#sync();
+      }
+      return;
+    }
     const book = this.state.books[loaded.bookId];
     const voice = this.state.voice;
     const upcoming = this.#nextNarratable(loaded.bookId, loaded.chapterId);

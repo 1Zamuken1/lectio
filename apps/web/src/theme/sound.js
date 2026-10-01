@@ -94,6 +94,20 @@ function rustle(start, duration = 0.16, gain = 0.1) {
   source.start(start);
 }
 
+/** Golpe de madera: dos notas graves y cortas, con un poco de roce al chocar. */
+function chestLid(t, level) {
+  tone({ note: 43, start: t, duration: 0.09, type: 'triangle', gain: 0.2 * level, slide: -5 });
+  rustle(t, 0.05, 0.06 * level);
+  tone({
+    note: 36,
+    start: t + 0.11,
+    duration: 0.12,
+    type: 'triangle',
+    gain: 0.12 * level,
+    slide: -3,
+  });
+}
+
 // ------------------------------------------------------------ efectos
 
 const SFX = {
@@ -175,6 +189,10 @@ const SFX = {
     tone({ note: 36, start: t + 0.5, duration: 0.16, type: 'triangle', gain: 0.16 });
     rustle(t + 0.5, 0.1, 0.05);
   },
+  /** La tapa del arcón se cierra: un golpe de madera hueco ("clonc") y su rebote. */
+  chest: (t) => chestLid(t, 1),
+  /** El mismo, más discreto (el Clásico, sin arcón a la vista). */
+  'chest-soft': (t) => chestLid(t, 0.45),
   /**
    * Campanita del taller: la voz nueva está lista. Parciales inarmónicos de campana
    * (1 · 2,76 · 5,40 del fundamental) que se apagan despacio, dos golpes.

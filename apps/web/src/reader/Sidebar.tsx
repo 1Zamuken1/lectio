@@ -11,10 +11,12 @@ export const hasAudio = (chapter: ChapterSummary) =>
 /**
  * El índice del libro: la ficha con la portada, los capítulos agrupados por su sección
  * (con la marca ♪ si ya tienen audio), el búho y el interruptor de las secciones no
- * narrativas. En el celular se abre como panel (`open`).
+ * narrativas. En el celular se abre como panel (`open`). Sin red, `available` dice cuáles
+ * están descargados: los demás se ven apagados (se pueden tocar: el lector lo explica).
  */
 export function ReaderSidebar({
   book,
+  available,
   currentId,
   hideAux,
   open,
@@ -22,6 +24,7 @@ export function ReaderSidebar({
   onGo,
 }: {
   book: BookDetail;
+  available: ((chapterId: string) => boolean) | null;
   currentId: string | null;
   hideAux: boolean;
   open: boolean;
@@ -48,11 +51,13 @@ export function ReaderSidebar({
       }
     }
     const withAudio = hasAudio(chapter);
+    const unavailable = available !== null && !available(chapter.id);
     items.push(
-      <li key={chapter.id}>
+      <li key={chapter.id} className={unavailable ? 'is-unavailable' : undefined}>
         <button
           type="button"
           aria-current={chapter.id === currentId ? 'page' : undefined}
+          title={unavailable ? 'No está descargado: sin conexión no se abre' : undefined}
           onClick={() => onGo(chapter.orderIndex)}
         >
           <span className={`toc-title${aux ? ' is-hidden' : ''}`}>{chapter.title}</span>

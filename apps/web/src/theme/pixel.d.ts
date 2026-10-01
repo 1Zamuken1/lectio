@@ -19,6 +19,14 @@ export declare const Pixel: {
   flames(): string;
   /** El taller de copistas; `voice` elige la cuadrilla. */
   workshop(voice: string): string;
+  /** Un aprendiz con su pergamino, vestido del color de la voz que se descarga. */
+  scrollCarrier(voice?: string): string;
+  /** El arcón de las descargas, con la tapa abierta y cerrada (la alterna el CSS). */
+  downloadChest(): string;
+  /** Un aprendiz con su pergamino, vestido del color de la voz que se descarga. */
+  scrollCarrier(voice?: string): string;
+  /** El arcón de las descargas, con la tapa abierta y cerrada (la alterna el CSS). */
+  downloadChest(): string;
   owlBadge(): string;
   fleuron(): string;
   quill(): string;

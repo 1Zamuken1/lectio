@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApi, useSession } from '../app/context';
+import type { ApiClient } from './client';
 import { downloads, isUnreachable } from '../pwa/downloads';
 import type { components } from './schema';
 
@@ -73,11 +74,12 @@ export type Position = Schemas['PositionDto'];
 /**
  * Un capítulo. La API responde con ETag y `Cache-Control: no-cache`: el navegador guarda
  * la respuesta y la revalida sola (If-None-Match → 304), así que volver a un capítulo no
- * lo descarga de nuevo. Su contenido solo cambia si el libro se reprocesa.
+ * lo descarga de nuevo. Su contenido solo cambia si el libro se reprocesa. Sin red, sale
+ * de lo descargado. El lector y el adelanto usan las mismas opciones: si el adelanto
+ * quedara en pausa sin red, el lector esperaría por él.
  */
-export function useChapter(id: string | null) {
-  const api = useApi();
-  return useQuery({
+function chapterQuery(api: ApiClient, id: string | null) {
+  return {
     queryKey: ['chapter', id],
     queryFn: () =>
       offlineFallback(
@@ -85,23 +87,21 @@ export function useChapter(id: string | null) {
         () => downloads.readChapter(id!),
       ),
     // Sin red también se intenta: puede estar descargado.
-    networkMode: 'always',
-    enabled: id !== null,
+    networkMode: 'always' as const,
     staleTime: Infinity,
-    gcTime: 10 * 60_000,
-  });
+  };
+}
+
+export function useChapter(id: string | null) {
+  const api = useApi();
+  return useQuery({ ...chapterQuery(api, id), enabled: id !== null, gcTime: 10 * 60_000 });
 }
 
 /** Adelanta el capítulo siguiente para que pasar de página sea instantáneo. */
 export function usePrefetchChapter() {
   const api = useApi();
   const client = useQueryClient();
-  return (id: string) =>
-    client.prefetchQuery({
-      queryKey: ['chapter', id],
-      queryFn: () => api.get<Chapter>(`/api/v1/chapters/${id}`),
-      staleTime: Infinity,
-    });
+  return (id: string) => client.prefetchQuery(chapterQuery(api, id));
 }
 
 /** Dónde ibas en el libro, según el servidor (solo con sesión; sin ella, en el navegador). */

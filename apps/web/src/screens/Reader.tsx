@@ -19,6 +19,8 @@ import { ChapterView } from '../reader/ChapterView';
 import { Report } from '../reader/Report';
 import { loadLocalPosition } from '../reader/position';
 import { applyReaderPrefs, useReaderPrefs } from '../reader/prefs';
+import { isUnreachable, useDownloads } from '../pwa/downloads';
+import { useOnline } from '../pwa/online';
 import { ReaderSidebar } from '../reader/Sidebar';
 import { TextTools } from '../reader/TextTools';
 import { Sound } from '../theme/sound';
@@ -256,6 +258,14 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
 
   const place = back === '/estudio' ? 'Tu estudio' : 'Biblioteca';
   const goTo = (orderIndex: number) => void go(orderIndex);
+
+  // Sin red, solo se abren los capítulos descargados: el que no lo está lo explica y
+  // ofrece el descargado más cercano (frontend §2.4).
+  const online = useOnline();
+  const saved = useDownloads((s) => s.chapters);
+  const offline = !online || (chapter.isError && isUnreachable(chapter.error));
+  const missing = offline && summary !== null && !chapter.data && saved[summary.id] === undefined;
+  const nearest = missing ? nearestDownloaded(book, index, saved) : null;
   // Libro o Reporte: en la URL (?vista=reporte), así "atrás" vuelve al libro.
   const report = params.get('vista') === 'reporte';
   const setView = (view: 'book' | 'report') => {
@@ -310,6 +320,7 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
       </header>
       <ReaderSidebar
         book={book}
+        available={offline ? (id) => saved[id] !== undefined : null}
         currentId={summary?.id ?? null}
         hideAux={prefs.hideAux}
         open={sidebarOpen}
@@ -338,6 +349,20 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
             onGo={goTo}
             onPosition={onPosition}
           />
+        ) : missing ? (
+          <div className="chapter-offline" role="status">
+            <p>
+              <strong>Este capítulo no está descargado.</strong> Sin conexión solo se abren los
+              capítulos descargados.
+            </p>
+            {nearest ? (
+              <button type="button" className="open-book" onClick={() => goTo(nearest.orderIndex)}>
+                Ir a «{nearest.title ?? `Capítulo ${nearest.orderIndex + 1}`}»
+              </button>
+            ) : (
+              <p>Ningún capítulo de este libro está descargado en este dispositivo.</p>
+            )}
+          </div>
         ) : chapter.isError ? (
           <p className="chapter-loading">
             No pudimos abrir este capítulo.{' '}
@@ -361,4 +386,26 @@ function BookReader({ book, back }: { book: BookDetail; back: string }) {
       <Workshop bookId={book.id} />
     </div>
   );
+}
+
+/**
+ * El capítulo descargado más cercano al que se quería abrir (el siguiente si empatan): sin
+ * red, es al que se ofrece ir.
+ */
+function nearestDownloaded(
+  book: BookDetail,
+  from: number,
+  saved: Record<string, unknown>,
+): ChapterSummary | null {
+  let best: ChapterSummary | null = null;
+  let distance = Infinity;
+  book.chapters.forEach((chapter, i) => {
+    if (saved[chapter.id] === undefined) return;
+    const d = Math.abs(i - from) - (i > from ? 0.5 : 0);
+    if (d < distance) {
+      distance = d;
+      best = chapter;
+    }
+  });
+  return best;
 }

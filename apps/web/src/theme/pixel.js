@@ -1517,6 +1517,86 @@ function bookCrew() {
   </svg>`;
 }
 
+// ------------------------------------------------------------ descargas
+//
+// Al descargar, un aprendiz por capítulo lleva su pergamino hasta un arcón al pie del
+// atril (DownloadCrew.tsx): camina según el avance real y, al llegar, el arcón se abre,
+// lo guarda y se cierra. Visten el color de la voz que se descarga (data-voice).
+
+const SCROLL_CARRY = {
+  a: [
+    '...ooo......',
+    '..orrro.....',
+    '.orrrrro....',
+    '.orrrsso....',
+    '.orrsoso....',
+    '..orsss..ogo',
+    '.orrrrro.owo',
+    '.orrrrrssowo',
+    '.orbbbro.owo',
+    '.orrrrro.ogo',
+    '.orrdrro....',
+    '..oo.oo.....',
+  ],
+  b: [
+    '...ooo......',
+    '..orrro.....',
+    '.orrrrro....',
+    '.orrrsso....',
+    '.orrsoso....',
+    '..orsss..ogo',
+    '.orrrrro.owo',
+    '.orrrrrssowo',
+    '.orbbbro.owo',
+    '.orrrrro.ogo',
+    '.orrdrro....',
+    '.oo...oo....',
+  ],
+};
+
+/** Un aprendiz con su pergamino (12 × 12): camina alternando poses; "cheer" al entregar. */
+function scrollCarrier(voice = '') {
+  const walker = actor(SCROLL_CARRY, 0, 12, { className: 'ws-toggle', style: '--dur:0.3s' });
+  const cheer = canvas();
+  cheer.sprite(CREW.cheer, CREW_PALETTE, 0, 0);
+  return `<svg class="px-workshop px-dl-carrier" data-voice="${voice}" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    <g class="dl-walker">${walker}</g><g class="dl-cheer">${cheer.svg()}</g>
+  </svg>`;
+}
+
+/**
+ * El arcón de las descargas (20 × 16): madera con flejes de plomo y cerradura de oro.
+ * Cerrado, la tapa abombada; abierto, la tapa queda atrás, levantada, y se ve el hueco.
+ */
+function downloadChest() {
+  const body = canvas();
+  body.rect('ink', 0, 7, 20, 9);
+  body.rect('wood', 1, 8, 18, 7);
+  body.rect('wood-l', 1, 8, 18, 1);
+  body.rect('wood-d', 1, 14, 18, 1);
+  for (const x of [3, 15]) body.rect('lead', x, 8, 2, 7);
+  const closed = canvas();
+  closed.rect('ink', 1, 3, 18, 5);
+  closed.rect('ink', 0, 5, 20, 3);
+  closed.rect('wood', 2, 4, 16, 3);
+  closed.rect('wood', 1, 6, 18, 1);
+  closed.rect('wood-l', 2, 4, 16, 1);
+  for (const x of [3, 15]) closed.rect('lead', x, 4, 2, 3);
+  closed.rect('ink', 8, 6, 4, 4);
+  closed.rect('gold', 9, 7, 2, 2);
+  const open = canvas();
+  open.rect('ink', 1, 0, 18, 8);
+  open.rect('wood-d', 2, 1, 16, 5);
+  open.rect('wood', 2, 1, 16, 1);
+  for (const x of [3, 15]) open.rect('lead', x, 1, 2, 5);
+  open.rect('ink', 1, 6, 18, 2);
+  open.rect('parch', 4, 6, 3, 1);
+  open.rect('gold', 12, 6, 2, 1);
+  return `<svg class="px-dl-chest" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
+    ${body.svg()}<g class="dl-lid-closed">${closed.svg()}</g><g class="dl-lid-open">${open.svg()}</g>
+  </svg>`;
+}
+
 /** Llamas en pixel art (tres fotogramas que alterna el CSS), para el libro que arde. */
 function flames() {
   const FRAMES = [
@@ -1592,4 +1672,6 @@ export const Pixel = {
   quill,
   canvas,
   random,
+  scrollCarrier,
+  downloadChest,
 };
