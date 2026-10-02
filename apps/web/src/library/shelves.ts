@@ -43,6 +43,14 @@ export function slotWidth(book: Pick<BookSummary, 'id' | 'progress'> & { status?
   return book.status === 'error' ? CARD_WIDTH : spineSize(book).width;
 }
 
+/** Ancho de un libro de luz (la estantería holográfica del Solarpunk): todos iguales. */
+export const LIGHT_BOOK_WIDTH = 54;
+
+/** Lo que ocupa cada libro en el panel holográfico: su libro de luz, o la tarjeta si falló. */
+export function holoSlotWidth(book: { status?: string }) {
+  return book.status === 'error' ? CARD_WIDTH : LIGHT_BOOK_WIDTH;
+}
+
 /** Para buscar sin que importen mayúsculas ni tildes ("becquer" encuentra "Bécquer"). */
 function fold(text: string): string {
   return text
@@ -73,13 +81,14 @@ export function sortBooks(books: BookSummary[], sort: ShelfSort): BookSummary[] 
 }
 
 /**
- * Reparte los libros en estantes de `rows` filas de `width` px. Si aún no se conoce el
- * ancho (0), todo va en uno.
+ * Reparte los libros en estantes de `rows` filas de `width` px; `widthOf` dice cuánto
+ * ocupa cada libro (por omisión, su lomo). Si aún no se conoce el ancho (0), todo va en uno.
  */
 export function packShelves<T extends Pick<BookSummary, 'id' | 'progress' | 'status'>>(
   books: T[],
   width: number,
   rows: number,
+  widthOf: (book: T) => number = slotWidth,
 ): T[][] {
   if (width <= 0 || books.length === 0) return [books];
   const shelves: T[][] = [];
@@ -87,7 +96,7 @@ export function packShelves<T extends Pick<BookSummary, 'id' | 'progress' | 'sta
   let row = 0;
   let used = 0;
   for (const book of books) {
-    const w = slotWidth(book);
+    const w = widthOf(book);
     const needed = used === 0 ? w : used + SPINE_GAP + w;
     if (needed <= width || used === 0) {
       used = needed;

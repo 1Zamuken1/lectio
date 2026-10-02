@@ -15,6 +15,7 @@
 // Al cambiar de mundo se vuelven a dibujar todos.
 // Portado de apps/cli/assets/theme/icons.js como módulo ES (la CLI conserva su copia).
 import { SYLVAN } from './icons-bosque';
+import { SOLAR } from './icons-solarpunk';
 import { Theme } from './theme';
 
 const ILLUMINATED = {
@@ -476,7 +477,7 @@ function lineSvg(body) {
 }
 
 /** El set de píxeles de cada mundo; los que no tienen usan los íconos de línea. */
-const PIXEL_SETS = { scriptorium: ILLUMINATED, bosque: SYLVAN };
+const PIXEL_SETS = { scriptorium: ILLUMINATED, bosque: SYLVAN, solarpunk: SOLAR };
 
 function draw(element) {
   element.innerHTML = markup(element.dataset.icon);

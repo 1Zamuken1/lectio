@@ -1,0 +1,1927 @@
+/*
+ * Lectio · tema Solarpunk (docs/lectio-temas.md §7.8). Un mundo propio: escenas de pixel
+ * art en lienzo (solarpunk-scenes.js) con un apartamento hiperfuturista, la terraza solar y
+ * la ciudad blanca de terrazas verdes; mañana dorada de día y la ciudad encendida de noche.
+ * La interfaz va en paneles holográficos un poco transparentes (celeste claro de día, azul
+ * noche de noche) con esquinas cortadas en escalón y una línea de luz arriba. Títulos en
+ * Silkscreen. Los libros son libros de luz en un panel holográfico que los proyecta.
+ * Contrastes verificados (con el panel sobre el pixel más oscuro o más claro de la escena):
+ * tinta/panel ≥ 12:1 (día) y ≥ 7,5:1 (noche); textos secundarios ≥ 4,7:1; la página es casi
+ * opaca: tinta/página 16:1 (día) y 13:1 (noche), resaltado de la oración ≥ 9:1.
+ */
+
+/* ---------------------------------------------------------------- Tokens de la interfaz */
+
+:root[data-world='solarpunk'] {
+  --paper: #e4f2f8;
+  --paper-raised: #f5fbfe;
+  --paper-sunken: #e2f1f8;
+  --ink: #12202c;
+  --ink-soft: #2c4256;
+  --muted: #354f66;
+  --line: #b4d9ea;
+  --accent: #0d6a90;
+  --accent-soft: #fff0b0;
+  --accent-contrast: #ffffff;
+  --focus: #0d6a90;
+  --warn: #8a4a00;
+  --warn-soft: #fff0d0;
+  --shadow: 0 3px 0 rgb(40 90 130 / 22%);
+  --gold: #9a5f00;
+
+  /* El panel holográfico: celeste claro un poco transparente, con su línea de luz. */
+  --chrome: rgb(232 247 253 / 82%);
+  --chrome-solid: #e8f7fd;
+  --chrome-dark: #2f8fb8;
+  --chrome-light: #6fbfe0;
+  --chrome-ink: #12304a;
+  --chrome-muted: #35526a;
+  --panel-edge: #6fbfe0;
+  --panel-edge-d: #2f8fb8;
+  --holo-light: #36c2e6;
+  --holo-light-hi: #a6ecfa;
+  --holo-plate: rgb(196 232 246 / 70%);
+  --holo-plate-hover: rgb(166 236 250 / 85%);
+  --sun: #ffc83a;
+  --sun-d: #d98a12;
+  --sun-ink: #3a2400;
+
+  --font-display: 'Silkscreen', 'Atkinson Hyperlegible', system-ui, sans-serif;
+
+  /* Las piezas SVG (solarpunk.js) y los colores de los libros de luz. */
+  --px-sp-line: #3d5a78;
+  --px-sp-white: #e6eef5;
+  --px-sp-white-l: #ffffff;
+  --px-sp-white-d: #bccfe0;
+  --px-sp-cyan: #36c2e6;
+  --px-sp-sun: #ffc83a;
+  --px-pol: #ffc83a;
+  --px-pol-d: #e0961a;
+  --px-pol-l: #ffffff;
+  --px-pol-wing: #a6ecfa;
+  --px-pol-leaf: #5aa64a;
+  --px-pol-screen: #16304c;
+  --px-pol-eye: #5ff0ff;
+  --px-red: #e8743b;
+  --px-red-d: #d9577a;
+  --px-blue: #3f8fc4;
+  --px-blue-d: #7a6ad0;
+  --px-green: #2fa89a;
+  --px-gold-d: #e0a01a;
+  --px-ink: #12304a;
+  --px-spark: #ffe14a;
+  --px-spark-c: #5ff0ff;
+  --px-spark-w: #ffffff;
+  --px-smoke: #9aa6b2;
+
+  /* Las cuatro tintas de los íconos (icons-solarpunk.js). */
+  --ic-ink: #1c4a6a;
+  --ic-red: #1f9fd0;
+  --ic-gold: #f0a810;
+  --ic-light: #ffffff;
+
+  /* Esquinas cortadas en escalón (cuatro peldaños de 3 px). */
+  --step-corners: polygon(
+    0 12px,
+    3px 12px,
+    3px 9px,
+    6px 9px,
+    6px 6px,
+    9px 6px,
+    9px 3px,
+    12px 3px,
+    12px 0,
+    calc(100% - 12px) 0,
+    calc(100% - 12px) 3px,
+    calc(100% - 9px) 3px,
+    calc(100% - 9px) 6px,
+    calc(100% - 6px) 6px,
+    calc(100% - 6px) 9px,
+    calc(100% - 3px) 9px,
+    calc(100% - 3px) 12px,
+    100% 12px,
+    100% calc(100% - 12px),
+    calc(100% - 3px) calc(100% - 12px),
+    calc(100% - 3px) calc(100% - 9px),
+    calc(100% - 6px) calc(100% - 9px),
+    calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 9px) calc(100% - 6px),
+    calc(100% - 9px) calc(100% - 3px),
+    calc(100% - 12px) calc(100% - 3px),
+    calc(100% - 12px) 100%,
+    12px 100%,
+    12px calc(100% - 3px),
+    9px calc(100% - 3px),
+    9px calc(100% - 6px),
+    6px calc(100% - 6px),
+    6px calc(100% - 9px),
+    3px calc(100% - 9px),
+    3px calc(100% - 12px),
+    0 calc(100% - 12px)
+  );
+  --step-small: polygon(
+    0 6px,
+    3px 6px,
+    3px 3px,
+    6px 3px,
+    6px 0,
+    calc(100% - 6px) 0,
+    calc(100% - 6px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 6px,
+    100% 6px,
+    100% calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 6px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 6px) calc(100% - 3px),
+    calc(100% - 6px) 100%,
+    6px 100%,
+    6px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 6px),
+    0 calc(100% - 6px)
+  );
+  /* El borde del panel: filete celeste y la línea de luz de arriba. */
+  --panel-border:
+    inset 0 3px 0 var(--holo-light), inset 0 4px 0 var(--holo-light-hi),
+    inset 0 0 0 2px var(--panel-edge), inset 0 -4px 0 rgb(47 143 184 / 18%);
+  --scroll-size: 12px;
+  --scroll-track: #d2eaf4;
+  --scroll-thumb: #36c2e6;
+  --scroll-thumb-hover: #1f9fd0;
+  --scroll-radius: 0;
+  --scroll-gap: 2px;
+  --scroll-bevel: inset 2px 2px 0 rgb(255 255 255 / 45%), inset -2px -2px 0 rgb(0 0 0 / 15%);
+  --sun-0: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M14%201h1v1h-1zM5%205h1v1h-1zM14%205h2v1h-2zM24%205h1v1h-1zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM1%2015h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM28%2015h2v1h-2zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM5%2024h1v1h-1zM14%2024h2v1h-2zM24%2024h1v1h-1zM15%2028h1v1h-1zM15%2029h1v1h-1z'%20fill='%23d98a12'/%3E%3Cpath%20d='M14%202h1v1h-1zM14%203h1v1h-1zM14%204h1v1h-1zM6%206h1v1h-1zM23%206h1v1h-1zM7%207h1v1h-1zM17%207h2v1h-2zM22%207h1v1h-1zM16%208h1v1h-1zM19%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM2%2015h3v1h-3zM9%2015h15v1h-15zM25%2015h3v1h-3zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM8%2020h14v1h-14zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM7%2022h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM22%2022h1v1h-1zM6%2023h1v1h-1zM15%2023h1v1h-1zM23%2023h1v1h-1zM15%2025h1v1h-1zM15%2026h1v1h-1zM15%2027h1v1h-1z'%20fill='%23ffc83a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffe58a'/%3E%3C/svg%3E");
+  --sun-1: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M17%201h1v1h-1zM7%203h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM26%207h1v1h-1zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM1%2012h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM28%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM3%2022h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM22%2026h1v1h-1zM12%2028h1v1h-1z'%20fill='%23d98a12'/%3E%3Cpath%20d='M17%202h1v1h-1zM17%203h1v1h-1zM7%204h2v1h-2zM17%204h1v1h-1zM8%205h1v1h-1zM9%206h1v1h-1zM17%207h2v1h-2zM25%207h1v1h-1zM16%208h1v1h-1zM19%208h2v1h-2zM24%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM23%209h1v1h-1zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM2%2012h3v1h-3zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM25%2017h3v1h-3zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM6%2020h1v1h-1zM8%2020h14v1h-14zM4%2021h2v1h-2zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM4%2022h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM15%2023h1v1h-1zM20%2023h1v1h-1zM21%2024h1v1h-1zM12%2025h1v1h-1zM21%2025h2v1h-2zM12%2026h1v1h-1zM12%2027h1v1h-1z'%20fill='%23ffc83a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffe58a'/%3E%3C/svg%3E");
+  --sun-2: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M9%202h1v1h-1zM20%202h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM2%209h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM27%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM2%2020h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM27%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM9%2027h1v1h-1zM20%2027h1v1h-1z'%20fill='%23d98a12'/%3E%3Cpath%20d='M10%202h1v1h-1zM19%202h1v1h-1zM10%203h1v1h-1zM19%203h1v1h-1zM10%204h1v1h-1zM19%204h1v1h-1zM10%205h1v1h-1zM19%205h1v1h-1zM17%207h2v1h-2zM16%208h1v1h-1zM19%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM2%2010h4v1h-4zM14%2010h8v1h-8zM24%2010h4v1h-4zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM2%2019h4v1h-4zM8%2019h1v1h-1zM10%2019h11v1h-11zM24%2019h4v1h-4zM8%2020h14v1h-14zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM15%2023h1v1h-1zM10%2024h1v1h-1zM19%2024h1v1h-1zM10%2025h1v1h-1zM19%2025h1v1h-1zM10%2026h1v1h-1zM19%2026h1v1h-1zM10%2027h1v1h-1zM19%2027h1v1h-1z'%20fill='%23ffc83a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffe58a'/%3E%3C/svg%3E");
+  --sun-3: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M12%201h1v1h-1zM22%203h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM3%207h1v1h-1zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM28%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM1%2017h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM26%2022h1v1h-1zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM7%2026h1v1h-1zM17%2028h1v1h-1z'%20fill='%23d98a12'/%3E%3Cpath%20d='M12%202h1v1h-1zM12%203h1v1h-1zM12%204h1v1h-1zM21%204h2v1h-2zM21%205h1v1h-1zM20%206h1v1h-1zM4%207h1v1h-1zM17%207h2v1h-2zM4%208h2v1h-2zM16%208h1v1h-1zM19%208h2v1h-2zM6%209h1v1h-1zM15%209h4v1h-4zM20%209h2v1h-2zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM25%2012h3v1h-3zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM2%2017h3v1h-3zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM8%2020h14v1h-14zM23%2020h1v1h-1zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM24%2021h2v1h-2zM11%2022h1v1h-1zM14%2022h3v1h-3zM25%2022h1v1h-1zM9%2023h1v1h-1zM15%2023h1v1h-1zM8%2024h1v1h-1zM7%2025h2v1h-2zM17%2025h1v1h-1zM17%2026h1v1h-1zM17%2027h1v1h-1z'%20fill='%23ffc83a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffe58a'/%3E%3C/svg%3E");
+  --check-off: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M1%200h9v1h-9zM0%201h1v1h-1zM10%201h1v1h-1zM0%202h1v1h-1zM10%202h1v1h-1zM0%203h1v1h-1zM10%203h1v1h-1zM0%204h1v1h-1zM10%204h1v1h-1zM0%205h1v1h-1zM10%205h1v1h-1zM0%206h1v1h-1zM10%206h1v1h-1zM0%207h1v1h-1zM10%207h1v1h-1zM0%208h1v1h-1zM10%208h1v1h-1zM0%209h1v1h-1zM10%209h1v1h-1zM1%2010h9v1h-9z'%20fill='%231f8fb8'/%3E%3Cpath%20d='M1%201h1v1h-1zM9%201h1v1h-1zM1%202h9v1h-9zM1%203h9v1h-9zM1%204h3v1h-3zM7%204h3v1h-3zM1%205h3v1h-3zM7%205h3v1h-3zM1%206h3v1h-3zM7%206h3v1h-3zM1%207h9v1h-9zM1%208h9v1h-9zM1%209h9v1h-9z'%20fill='%23e8f7fd'/%3E%3Cpath%20d='M2%201h7v1h-7z'%20fill='%23ffffff'/%3E%3Cpath%20d='M4%204h3v1h-3zM4%205h3v1h-3zM4%206h3v1h-3z'%20fill='%23a6d8ec'/%3E%3C/svg%3E");
+  --check-on: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M1%200h9v1h-9zM0%201h1v1h-1zM10%201h1v1h-1zM0%202h1v1h-1zM10%202h1v1h-1zM0%203h1v1h-1zM10%203h1v1h-1zM0%204h1v1h-1zM8%204h1v1h-1zM10%204h1v1h-1zM0%205h1v1h-1zM7%205h1v1h-1zM10%205h1v1h-1zM0%206h1v1h-1zM2%206h1v1h-1zM6%206h1v1h-1zM10%206h1v1h-1zM0%207h1v1h-1zM3%207h1v1h-1zM5%207h1v1h-1zM10%207h1v1h-1zM0%208h1v1h-1zM4%208h1v1h-1zM10%208h1v1h-1zM0%209h1v1h-1zM10%209h1v1h-1zM1%2010h9v1h-9z'%20fill='%231f8fb8'/%3E%3Cpath%20d='M1%201h1v1h-1zM9%201h1v1h-1zM1%202h9v1h-9zM1%203h7v1h-7zM9%203h1v1h-1zM1%204h6v1h-6zM9%204h1v1h-1zM1%205h1v1h-1zM3%205h3v1h-3zM8%205h2v1h-2zM1%206h1v1h-1zM4%206h1v1h-1zM7%206h3v1h-3zM1%207h2v1h-2zM6%207h4v1h-4zM1%208h3v1h-3zM5%208h5v1h-5zM1%209h9v1h-9z'%20fill='%2336c2e6'/%3E%3Cpath%20d='M2%201h7v1h-7zM8%203h1v1h-1zM7%204h1v1h-1zM2%205h1v1h-1zM6%205h1v1h-1zM3%206h1v1h-1zM5%206h1v1h-1zM4%207h1v1h-1z'%20fill='%23ffffff'/%3E%3C/svg%3E");
+  --knob: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2012%2012'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M5%200h1v1h-1zM2%202h1v1h-1zM9%202h1v1h-1zM0%206h1v1h-1zM11%206h1v1h-1zM2%209h1v1h-1zM9%209h1v1h-1zM6%2011h1v1h-1z'%20fill='%23e0961a'/%3E%3Cpath%20d='M4%202h4v1h-4zM3%203h1v1h-1zM8%203h1v1h-1zM2%204h1v1h-1zM9%204h1v1h-1zM2%205h1v1h-1zM9%205h1v1h-1zM2%206h1v1h-1zM9%206h1v1h-1zM2%207h1v1h-1zM9%207h1v1h-1zM3%208h1v1h-1zM8%208h1v1h-1zM4%209h4v1h-4z'%20fill='%23c07a10'/%3E%3Cpath%20d='M4%203h2v1h-2zM3%204h2v1h-2zM3%205h1v1h-1z'%20fill='%23ffe58a'/%3E%3Cpath%20d='M6%203h2v1h-2zM5%204h4v1h-4zM4%205h5v1h-5zM3%206h6v1h-6zM3%207h6v1h-6zM4%208h4v1h-4z'%20fill='%23ffc83a'/%3E%3C/svg%3E");
+}
+
+:root[data-world='solarpunk'][data-mode='night'] {
+  --paper: #0f1a30;
+  --paper-raised: #17223a;
+  --paper-sunken: #121c33;
+  --ink: #e6edf3;
+  --ink-soft: #c7d6e2;
+  --muted: #a8bccc;
+  --line: #2a4060;
+  --accent: #4fd8f2;
+  --accent-soft: #4a3e18;
+  --accent-contrast: #0c1530;
+  --focus: #4fd8f2;
+  --warn: #ffc88a;
+  --warn-soft: #2d2a1c;
+  --shadow: 0 3px 0 rgb(0 0 0 / 40%);
+  --gold: #ffc24a;
+  --chrome: rgb(20 36 65 / 82%);
+  --chrome-solid: #142441;
+  --chrome-dark: #4fd8f2;
+  --chrome-light: #2f6f96;
+  --chrome-ink: #e4f3fb;
+  --chrome-muted: #a8c4d8;
+  --panel-edge: #2f6f96;
+  --panel-edge-d: #0a1428;
+  --holo-light: #4fd8f2;
+  --holo-light-hi: #b4f6ff;
+  --holo-plate: rgb(36 64 104 / 70%);
+  --holo-plate-hover: rgb(47 111 150 / 85%);
+  --sun: #ffc24a;
+  --sun-d: #b07a1a;
+  --sun-ink: #2a1800;
+  --px-sp-line: #0f1730;
+  --px-sp-white: #525c74;
+  --px-sp-white-l: #6c7890;
+  --px-sp-white-d: #3a4256;
+  --px-sp-cyan: #4fd8f2;
+  --px-sp-sun: #e8b23a;
+  --px-red: #c8603a;
+  --px-red-d: #b44a68;
+  --px-blue: #3a7cb0;
+  --px-blue-d: #6a5ab8;
+  --px-green: #26907f;
+  --px-gold-d: #c08a1a;
+  --ic-ink: #8fb4d0;
+  --ic-red: #4fd8f2;
+  --ic-gold: #ffc24a;
+  --ic-light: #e8fbff;
+  --scroll-track: #10182c;
+  --scroll-thumb: #2f6f96;
+  --scroll-thumb-hover: #4fd8f2;
+  --sun-0: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M14%201h1v1h-1zM5%205h1v1h-1zM14%205h2v1h-2zM24%205h1v1h-1zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM1%2015h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM28%2015h2v1h-2zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM5%2024h1v1h-1zM14%2024h2v1h-2zM24%2024h1v1h-1zM15%2028h1v1h-1zM15%2029h1v1h-1z'%20fill='%239a6a14'/%3E%3Cpath%20d='M14%202h1v1h-1zM14%203h1v1h-1zM14%204h1v1h-1zM6%206h1v1h-1zM23%206h1v1h-1zM7%207h1v1h-1zM17%207h2v1h-2zM22%207h1v1h-1zM16%208h1v1h-1zM19%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM2%2015h3v1h-3zM9%2015h15v1h-15zM25%2015h3v1h-3zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM8%2020h14v1h-14zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM7%2022h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM22%2022h1v1h-1zM6%2023h1v1h-1zM15%2023h1v1h-1zM23%2023h1v1h-1zM15%2025h1v1h-1zM15%2026h1v1h-1zM15%2027h1v1h-1z'%20fill='%23e8b23a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffd27a'/%3E%3C/svg%3E");
+  --sun-1: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M17%201h1v1h-1zM7%203h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM26%207h1v1h-1zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM1%2012h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM28%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM3%2022h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM22%2026h1v1h-1zM12%2028h1v1h-1z'%20fill='%239a6a14'/%3E%3Cpath%20d='M17%202h1v1h-1zM17%203h1v1h-1zM7%204h2v1h-2zM17%204h1v1h-1zM8%205h1v1h-1zM9%206h1v1h-1zM17%207h2v1h-2zM25%207h1v1h-1zM16%208h1v1h-1zM19%208h2v1h-2zM24%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM23%209h1v1h-1zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM2%2012h3v1h-3zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM25%2017h3v1h-3zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM6%2020h1v1h-1zM8%2020h14v1h-14zM4%2021h2v1h-2zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM4%2022h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM15%2023h1v1h-1zM20%2023h1v1h-1zM21%2024h1v1h-1zM12%2025h1v1h-1zM21%2025h2v1h-2zM12%2026h1v1h-1zM12%2027h1v1h-1z'%20fill='%23e8b23a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffd27a'/%3E%3C/svg%3E");
+  --sun-2: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M9%202h1v1h-1zM20%202h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM2%209h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM27%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM2%2020h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM27%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM9%2027h1v1h-1zM20%2027h1v1h-1z'%20fill='%239a6a14'/%3E%3Cpath%20d='M10%202h1v1h-1zM19%202h1v1h-1zM10%203h1v1h-1zM19%203h1v1h-1zM10%204h1v1h-1zM19%204h1v1h-1zM10%205h1v1h-1zM19%205h1v1h-1zM17%207h2v1h-2zM16%208h1v1h-1zM19%208h2v1h-2zM15%209h4v1h-4zM20%209h2v1h-2zM2%2010h4v1h-4zM14%2010h8v1h-8zM24%2010h4v1h-4zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM2%2019h4v1h-4zM8%2019h1v1h-1zM10%2019h11v1h-11zM24%2019h4v1h-4zM8%2020h14v1h-14zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM11%2022h1v1h-1zM14%2022h3v1h-3zM15%2023h1v1h-1zM10%2024h1v1h-1zM19%2024h1v1h-1zM10%2025h1v1h-1zM19%2025h1v1h-1zM10%2026h1v1h-1zM19%2026h1v1h-1zM10%2027h1v1h-1zM19%2027h1v1h-1z'%20fill='%23e8b23a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffd27a'/%3E%3C/svg%3E");
+  --sun-3: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2030'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M12%201h1v1h-1zM22%203h1v1h-1zM14%205h2v1h-2zM11%206h3v1h-3zM16%206h3v1h-3zM3%207h1v1h-1zM9%207h2v1h-2zM19%207h2v1h-2zM8%208h1v1h-1zM21%208h1v1h-1zM7%209h1v1h-1zM22%209h1v1h-1zM7%2010h1v1h-1zM22%2010h1v1h-1zM6%2011h1v1h-1zM23%2011h1v1h-1zM6%2012h1v1h-1zM23%2012h1v1h-1zM28%2012h1v1h-1zM6%2013h1v1h-1zM23%2013h1v1h-1zM5%2014h1v1h-1zM24%2014h1v1h-1zM5%2015h1v1h-1zM24%2015h1v1h-1zM6%2016h1v1h-1zM1%2017h1v1h-1zM6%2017h1v1h-1zM23%2017h1v1h-1zM6%2018h1v1h-1zM23%2018h1v1h-1zM7%2019h1v1h-1zM22%2019h1v1h-1zM7%2020h1v1h-1zM22%2020h1v1h-1zM8%2021h1v1h-1zM21%2021h1v1h-1zM9%2022h2v1h-2zM19%2022h2v1h-2zM26%2022h1v1h-1zM11%2023h3v1h-3zM17%2023h2v1h-2zM14%2024h2v1h-2zM7%2026h1v1h-1zM17%2028h1v1h-1z'%20fill='%239a6a14'/%3E%3Cpath%20d='M12%202h1v1h-1zM12%203h1v1h-1zM12%204h1v1h-1zM21%204h2v1h-2zM21%205h1v1h-1zM20%206h1v1h-1zM4%207h1v1h-1zM17%207h2v1h-2zM4%208h2v1h-2zM16%208h1v1h-1zM19%208h2v1h-2zM6%209h1v1h-1zM15%209h4v1h-4zM20%209h2v1h-2zM14%2010h8v1h-8zM13%2011h8v1h-8zM22%2011h1v1h-1zM12%2012h10v1h-10zM25%2012h3v1h-3zM11%2013h11v1h-11zM10%2014h13v1h-13zM9%2015h15v1h-15zM8%2016h15v1h-15zM2%2017h3v1h-3zM7%2017h1v1h-1zM9%2017h13v1h-13zM7%2018h1v1h-1zM9%2018h13v1h-13zM8%2019h1v1h-1zM10%2019h11v1h-11zM8%2020h14v1h-14zM23%2020h1v1h-1zM9%2021h2v1h-2zM12%2021h7v1h-7zM20%2021h1v1h-1zM24%2021h2v1h-2zM11%2022h1v1h-1zM14%2022h3v1h-3zM25%2022h1v1h-1zM9%2023h1v1h-1zM15%2023h1v1h-1zM8%2024h1v1h-1zM7%2025h2v1h-2zM17%2025h1v1h-1zM17%2026h1v1h-1zM17%2027h1v1h-1z'%20fill='%23e8b23a'/%3E%3Cpath%20d='M14%206h2v1h-2zM11%207h6v1h-6zM9%208h7v1h-7zM17%208h2v1h-2zM8%209h7v1h-7zM19%209h1v1h-1zM8%2010h6v1h-6zM7%2011h6v1h-6zM21%2011h1v1h-1zM7%2012h5v1h-5zM22%2012h1v1h-1zM7%2013h4v1h-4zM22%2013h1v1h-1zM6%2014h4v1h-4zM23%2014h1v1h-1zM6%2015h3v1h-3zM7%2016h1v1h-1zM23%2016h1v1h-1zM8%2017h1v1h-1zM22%2017h1v1h-1zM8%2018h1v1h-1zM22%2018h1v1h-1zM9%2019h1v1h-1zM21%2019h1v1h-1zM11%2021h1v1h-1zM19%2021h1v1h-1zM12%2022h2v1h-2zM17%2022h2v1h-2zM14%2023h1v1h-1zM16%2023h1v1h-1z'%20fill='%23ffd27a'/%3E%3C/svg%3E");
+  --check-off: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M1%200h9v1h-9zM0%201h1v1h-1zM10%201h1v1h-1zM0%202h1v1h-1zM10%202h1v1h-1zM0%203h1v1h-1zM10%203h1v1h-1zM0%204h1v1h-1zM10%204h1v1h-1zM0%205h1v1h-1zM10%205h1v1h-1zM0%206h1v1h-1zM10%206h1v1h-1zM0%207h1v1h-1zM10%207h1v1h-1zM0%208h1v1h-1zM10%208h1v1h-1zM0%209h1v1h-1zM10%209h1v1h-1zM1%2010h9v1h-9z'%20fill='%234fd8f2'/%3E%3Cpath%20d='M1%201h1v1h-1zM9%201h1v1h-1zM1%202h9v1h-9zM1%203h9v1h-9zM1%204h3v1h-3zM7%204h3v1h-3zM1%205h3v1h-3zM7%205h3v1h-3zM1%206h3v1h-3zM7%206h3v1h-3zM1%207h9v1h-9zM1%208h9v1h-9zM1%209h9v1h-9z'%20fill='%2316304c'/%3E%3Cpath%20d='M2%201h7v1h-7z'%20fill='%23b4f6ff'/%3E%3Cpath%20d='M4%204h3v1h-3zM4%205h3v1h-3zM4%206h3v1h-3z'%20fill='%232f6f96'/%3E%3C/svg%3E");
+  --check-on: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2011%2011'%20shape-rendering='crispEdges'%3E%3Cpath%20d='M1%200h9v1h-9zM0%201h2v1h-2zM9%201h2v1h-2zM0%202h11v1h-11zM0%203h8v1h-8zM9%203h2v1h-2zM0%204h7v1h-7zM9%204h2v1h-2zM0%205h2v1h-2zM3%205h3v1h-3zM8%205h3v1h-3zM0%206h2v1h-2zM4%206h1v1h-1zM7%206h4v1h-4zM0%207h3v1h-3zM6%207h5v1h-5zM0%208h4v1h-4zM5%208h6v1h-6zM0%209h11v1h-11zM1%2010h9v1h-9z'%20fill='%234fd8f2'/%3E%3Cpath%20d='M2%201h7v1h-7z'%20fill='%23b4f6ff'/%3E%3Cpath%20d='M8%203h1v1h-1zM7%204h1v1h-1zM2%205h1v1h-1zM6%205h1v1h-1zM3%206h1v1h-1zM5%206h1v1h-1zM4%207h1v1h-1z'%20fill='%23ffffff'/%3E%3Cpath%20d='M8%204h1v1h-1zM7%205h1v1h-1zM2%206h1v1h-1zM6%206h1v1h-1zM3%207h1v1h-1zM5%207h1v1h-1zM4%208h1v1h-1z'%20fill='%2316304c'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------------- Paneles holográficos */
+/*
+ * Nada pegado a los bordes: la barra, el reproductor y los menús flotan sobre la escena,
+ * un poco transparentes (se ve la ciudad detrás), con esquinas cortadas en escalón, un
+ * filete celeste y una línea de luz arriba.
+ */
+
+[data-world='solarpunk'] .topbar,
+[data-world='solarpunk'] .player,
+[data-world='solarpunk'] .speed-menu,
+[data-world='solarpunk'] .settings-panel,
+[data-world='solarpunk'] .note-popover,
+[data-world='solarpunk'] .inspector,
+[data-world='solarpunk'] dialog.confirm,
+[data-world='solarpunk'] .listen-chip,
+[data-world='solarpunk'] .shelf-hint,
+[data-world='solarpunk'] .shelf-pager,
+[data-world='solarpunk'] .title-card,
+[data-world='solarpunk'] .downloads-panel {
+  background: var(--chrome);
+  color: var(--chrome-ink);
+  border: 0;
+  border-radius: 0;
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+  backdrop-filter: none;
+}
+
+/* Los menús y diálogos, sobre lo que sea: opacos para leerse bien. */
+[data-world='solarpunk'] .speed-menu,
+[data-world='solarpunk'] .settings-panel,
+[data-world='solarpunk'] .note-popover,
+[data-world='solarpunk'] .inspector,
+[data-world='solarpunk'] dialog.confirm,
+[data-world='solarpunk'] .downloads-panel {
+  background: var(--chrome-solid);
+}
+
+/*
+ * La barra y el reproductor tienen menús adentro (ajustes, velocidad, volumen, voz): el
+ * recorte en escalón no puede ir en ellos, porque cortaría los menús. Su panel se dibuja en
+ * una capa de atrás que sí se recorta.
+ */
+[data-world='solarpunk'] .topbar,
+[data-world='solarpunk'] .player {
+  background: none;
+  clip-path: none;
+  box-shadow: none;
+  isolation: isolate;
+}
+
+[data-world='solarpunk'] .topbar::before,
+[data-world='solarpunk'] .player::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--chrome);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+  pointer-events: none;
+}
+
+[data-world='solarpunk'] .topbar {
+  top: 0.6rem;
+  margin: 0.6rem 0.6rem 0;
+  padding: 0.55rem 0.9rem 0.45rem;
+}
+
+/* En las salas, la barra flota sobre la escena (la sala ocupa toda la pantalla). */
+:root[data-world='solarpunk'] body[data-screen='library'] .topbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 40;
+}
+
+[data-world='solarpunk'] .player {
+  left: max(0.6rem, calc(50% - 30rem));
+  right: max(0.6rem, calc(50% - 30rem));
+  bottom: calc(0.6rem + env(safe-area-inset-bottom));
+  padding: 0.75rem 1.1rem 0.8rem;
+}
+
+[data-world='solarpunk'] .brand {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--chrome-ink);
+}
+
+/* El cuadradito solar antes de la marca. */
+[data-world='solarpunk'] .brand::before {
+  content: '';
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.4em;
+  vertical-align: 0.05em;
+  background: var(--sun);
+  box-shadow: 0 0 0 2px var(--sun-d);
+}
+
+[data-world='solarpunk'] .brand small {
+  font-family: var(--font-ui);
+  color: var(--chrome-muted);
+}
+
+/* Botones de la barra: placas holográficas; el activo, celeste encendido. */
+[data-world='solarpunk'] .tool {
+  border: 0;
+  border-radius: 0;
+  background: var(--holo-plate);
+  color: var(--chrome-ink);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px rgb(54 194 230 / 45%),
+    inset 0 2px 0 rgb(255 255 255 / 45%);
+  transition: transform 0.05s steps(1);
+}
+
+[data-world='solarpunk'][data-mode='night'] .tool {
+  box-shadow:
+    inset 0 0 0 2px rgb(79 216 242 / 40%),
+    inset 0 2px 0 rgb(180 246 255 / 18%);
+}
+
+[data-world='solarpunk'] .tool:hover {
+  background: var(--holo-plate-hover);
+}
+
+[data-world='solarpunk'] .tool:active {
+  transform: translateY(2px);
+}
+
+[data-world='solarpunk'] .tool[aria-pressed='true'],
+[data-world='solarpunk'] .tool[aria-expanded='true'] {
+  --ic-ink: #0c3a56;
+  --ic-red: #ffffff;
+  --ic-gold: #fff1a0;
+  --ic-light: #ffffff;
+  background: var(--holo-light);
+  color: #0c2a40;
+}
+
+[data-world='solarpunk'] .tool:disabled {
+  opacity: 0.5;
+}
+
+[data-world='solarpunk'] .tool .label,
+[data-world='solarpunk'] .player .speed,
+[data-world='solarpunk'] .voice-button,
+[data-world='solarpunk'] .volume-button {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+}
+
+:root[data-world='solarpunk'] .icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+:root[data-world='solarpunk'] .icon.big svg {
+  width: 40px;
+  height: 40px;
+}
+
+/* Pestañas: dos placas; la activa, amarillo solar. */
+[data-world='solarpunk'] .tabs {
+  background: rgb(0 0 0 / 5%);
+  border-radius: 0;
+  clip-path: var(--step-small);
+  box-shadow: inset 0 0 0 2px rgb(54 194 230 / 40%);
+}
+
+[data-world='solarpunk'] .tabs button {
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--chrome-muted);
+}
+
+[data-world='solarpunk'] .tabs button[aria-selected='true'] {
+  background: var(--sun);
+  color: var(--sun-ink);
+}
+
+/* ---------------------------------------------------------------- El reproductor */
+
+/* ▶ es un disco solar con rayos de píxel; mientras suena, los rayos giran en pasos. */
+[data-world='solarpunk'] .player .play {
+  position: relative;
+  width: 3.9rem;
+  height: 3.9rem;
+  margin: -0.35rem 0.9rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--sun-0) center / contain no-repeat;
+  box-shadow: none;
+  image-rendering: pixelated;
+  --ic-ink: #5a3208;
+  --ic-gold: #3a2400;
+  --ic-red: #3a2400;
+  --ic-light: #7a4a10;
+}
+
+:root[data-world='solarpunk'][data-motion='full'][data-playing='true'] .player .play {
+  animation: sun-spin 1.6s steps(1) infinite;
+}
+
+@keyframes sun-spin {
+  0% {
+    background-image: var(--sun-0);
+  }
+  25% {
+    background-image: var(--sun-1);
+  }
+  50% {
+    background-image: var(--sun-2);
+  }
+  75% {
+    background-image: var(--sun-3);
+  }
+}
+
+[data-world='solarpunk'] .player .play:hover {
+  filter: brightness(1.08);
+}
+
+[data-world='solarpunk'] .player .play:active {
+  transform: translateY(2px);
+}
+
+[data-world='solarpunk'] .player .play .icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+[data-world='solarpunk'] .player-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+[data-world='solarpunk'] .player-time,
+[data-world='solarpunk'] .player-book {
+  color: var(--chrome-muted);
+}
+
+[data-world='solarpunk'] .skip small {
+  display: none;
+}
+
+/* Progreso: un riel de luz celeste; Pol va en la punta. */
+[data-world='solarpunk'] .progress {
+  height: 1.8rem;
+}
+
+[data-world='solarpunk'] .progress-track {
+  height: 8px;
+  background: rgb(54 194 230 / 18%);
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px var(--panel-edge);
+}
+
+[data-world='solarpunk'] .progress-fill {
+  background: linear-gradient(var(--holo-light-hi) 0 3px, var(--holo-light) 3px);
+  box-shadow: inset -3px 0 0 var(--sun);
+}
+
+[data-world='solarpunk'] .progress-thumb {
+  width: 24px;
+  height: 22px;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transform: translate(-50%, -60%);
+}
+
+[data-world='solarpunk'] .progress-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+:root[data-world='solarpunk'][data-motion='full'] .progress-thumb svg {
+  animation: pol-hover 1.2s steps(2) infinite;
+}
+
+@keyframes pol-hover {
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+[data-world='solarpunk'] .progress:has(.player-progress:focus-visible) .progress-thumb {
+  outline: 2px solid var(--focus);
+}
+
+/* Menús del reproductor y paneles: títulos en Silkscreen, placas holográficas. */
+[data-world='solarpunk'] .speed-head,
+[data-world='solarpunk'] .settings-panel h2,
+[data-world='solarpunk'] dialog.confirm h2,
+[data-world='solarpunk'] .inspector header,
+[data-world='solarpunk'] .note-popover .note-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+[data-world='solarpunk'] .voice-pick,
+[data-world='solarpunk'] .world-option,
+[data-world='solarpunk'] .chapter-nav button,
+[data-world='solarpunk'] .toc-toggle {
+  border: 0;
+  border-radius: 0;
+  background: var(--holo-plate);
+  color: var(--chrome-ink);
+  clip-path: var(--step-small);
+  box-shadow: inset 0 0 0 2px rgb(54 194 230 / 45%);
+}
+
+[data-world='solarpunk'] .world-option[aria-pressed='true'],
+[data-world='solarpunk'] .voice-pick[aria-pressed='true'] {
+  background: var(--holo-light);
+  color: #0c2a40;
+}
+
+[data-world='solarpunk'] .world-option[aria-pressed='true'] small,
+[data-world='solarpunk'] .voice-pick[aria-pressed='true'] small {
+  color: #0c2a40;
+}
+
+[data-world='solarpunk'] .voice-pick strong,
+[data-world='solarpunk'] .world-option strong {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------- La página de lectura */
+
+/* El fondo del body taparía la escena de atrás (va con z-index -1): pasa a la raíz. */
+:root[data-world='solarpunk']:has(.reader-backdrop) {
+  background: #12202c;
+}
+
+:root[data-world='solarpunk'] body:has(.reader-backdrop) {
+  background: transparent;
+}
+
+/* La hoja: un panel holográfico claro, casi opaco (la lectura no se toca). */
+[data-world='solarpunk'] .chapter {
+  position: relative;
+  padding: 2.5rem clamp(1rem, 4vw, 3.5rem) 3rem;
+  background: rgb(245 251 254 / 97%);
+  clip-path: var(--step-corners);
+  box-shadow:
+    inset 0 3px 0 var(--holo-light),
+    inset 0 4px 0 var(--holo-light-hi),
+    inset 0 0 0 2px var(--panel-edge);
+}
+
+[data-world='solarpunk'][data-mode='night'] .chapter {
+  background: rgb(23 34 58 / 97%);
+}
+
+[data-world='solarpunk'] .chapter-title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+[data-world='solarpunk'] .chapter-ancestors {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+/* La inicial: grande, en el amarillo del sol (más oscuro de día, para el contraste). */
+[data-world='solarpunk'] .prose .illuminated::first-letter {
+  float: left;
+  margin: 0.08em 0.12em 0 0;
+  padding: 0.06em 0.14em 0;
+  font-family: var(--font-read);
+  font-size: 3.1em;
+  font-weight: 600;
+  line-height: 0.92;
+  color: var(--sun-ink);
+  background: var(--sun);
+  box-shadow: 0 0 0 2px var(--sun-d);
+}
+
+[data-world='solarpunk'] ::highlight(lectio-current) {
+  background-color: var(--accent-soft);
+}
+
+/* El índice: un panel hundido, con el capítulo actual en una placa celeste. */
+[data-world='solarpunk'] .sidebar {
+  background: var(--paper-sunken);
+  border-right: 0;
+  box-shadow:
+    inset -3px 0 0 var(--holo-light),
+    inset -5px 0 0 var(--panel-edge);
+}
+
+[data-world='solarpunk'] .toc-group {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+[data-world='solarpunk'] .toc button {
+  border-radius: 0;
+}
+
+[data-world='solarpunk'] .toc button[aria-current='page'] {
+  border-left: 0;
+  background: var(--paper-raised);
+  box-shadow:
+    inset 0 0 0 2px var(--panel-edge),
+    inset 4px 0 0 2px var(--holo-light);
+}
+
+[data-world='solarpunk'] .book-card h1,
+[data-world='solarpunk'] .report h2,
+[data-world='solarpunk'] .stat strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+[data-world='solarpunk'] .book-card img,
+[data-world='solarpunk'] .cover {
+  border-radius: 0;
+  box-shadow:
+    0 0 0 2px var(--panel-edge-d),
+    0 0 0 3px var(--holo-light);
+}
+
+[data-world='solarpunk'] .stat,
+[data-world='solarpunk'] .report table,
+[data-world='solarpunk'] .announcement,
+[data-world='solarpunk'] .kind,
+[data-world='solarpunk'] .legend span {
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------- Las salas */
+
+/* El globo de Pol: Silkscreen va en mayúsculas y cansa en frases largas; el globo va en
+   Atkinson, como el resto del texto corrido. */
+:root[data-world='solarpunk'] .library[data-layout='scene'] .shelf-hint {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+/* La puerta corrediza de la escena: al pasar, la costura se ilumina. */
+[data-world='solarpunk'] .scene-door:hover {
+  background: radial-gradient(closest-side, rgb(120 230 255 / 35%), transparent);
+}
+
+/* ---------------------------------------------------------------- El panel holográfico */
+/*
+ * Los libros son libros de luz (LibraryRoom.tsx, LightBook): cartuchos de cristal del color
+ * de cada libro, en la cara oscura del panel que dibuja la escena. Al pasar el cursor (o al
+ * enfocar, o con el primer toque) el libro se levanta, brilla y se proyecta encima como
+ * holograma: la portada que gira, el título, el autor, dónde vas y "Abrir".
+ */
+
+[data-world='solarpunk'] .spine.light-book {
+  --px-book: var(--spine);
+  --px-book-l: color-mix(in srgb, var(--spine) 55%, #fff);
+  --px-book-d: color-mix(in srgb, var(--spine) 70%, #12203a);
+  width: 54px;
+  height: 81px;
+  padding: 0;
+  overflow: visible;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  transition: translate 0.12s steps(2);
+}
+
+[data-world='solarpunk'] .spine.light-book::before,
+[data-world='solarpunk'] .spine.light-book::after {
+  display: none;
+}
+
+[data-world='solarpunk'] .spine.light-book svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+[data-world='solarpunk'] .slot:is(:hover, :focus-within, .is-armed) .spine.light-book,
+[data-world='solarpunk'] .spine.light-book[aria-pressed='true'] {
+  translate: 0 -8px;
+  filter: brightness(1.12) drop-shadow(0 0 6px var(--spine));
+}
+
+[data-world='solarpunk'] .spine.light-book:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 4px;
+}
+
+[data-world='solarpunk'] .library.has-selection .spine.light-book:not([aria-pressed='true']) {
+  opacity: 0.55;
+}
+
+[data-world='solarpunk'] .spine.light-book.is-offline {
+  filter: grayscale(0.85) brightness(0.8);
+}
+
+/* El panel ocupa la cara oscura de la escena: los libros, al pie, como en una ranura. */
+[data-bookcase='holo'] .slot {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+[data-bookcase='holo'] .slot:is(:hover, :focus-within, .is-armed) {
+  z-index: 6;
+}
+
+/* El holograma: se ve al pasar, al enfocar o con el primer toque. */
+.holo-projection {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  z-index: 6;
+  display: none;
+  justify-items: center;
+  width: 260px;
+  /* La estantería va escalada como la escena: el holograma vuelve al tamaño de la interfaz. */
+  scale: calc(1 / var(--spine-k, 1));
+  transform-origin: 50% 100%;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+[data-bookcase='holo'] .slot:is(:hover, :focus-within, .is-armed) .holo-projection {
+  display: grid;
+}
+
+.holo-card {
+  display: grid;
+  grid-template-columns: 30% 1fr;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: center;
+  width: 100%;
+  padding: 9px 11px;
+  text-align: left;
+  color: #c8f6ff;
+  background:
+    repeating-linear-gradient(transparent 0 2px, rgb(120 230 255 / 10%) 2px 3px),
+    rgb(10 30 58 / 80%);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 1px #5fe4ff,
+    inset 0 3px 0 rgb(95 228 255 / 45%);
+  pointer-events: auto;
+}
+
+:root[data-motion='full'] .holo-card {
+  animation: holo-flicker 3.2s steps(1) infinite;
+}
+
+@keyframes holo-flicker {
+  47% {
+    opacity: 0.84;
+  }
+  48% {
+    opacity: 1;
+  }
+  81% {
+    opacity: 0.92;
+  }
+  82% {
+    opacity: 1;
+  }
+}
+
+.holo-cover {
+  grid-row: span 3;
+  position: relative;
+  --px-book: var(--spine);
+  --px-book-l: color-mix(in srgb, var(--spine) 55%, #fff);
+  --px-book-d: color-mix(in srgb, var(--spine) 70%, #12203a);
+}
+
+.holo-cover svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 5px var(--spine));
+}
+
+.holo-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent 0 2px, rgb(120 230 255 / 18%) 2px 3px);
+  mix-blend-mode: screen;
+}
+
+:root[data-motion='full'] .holo-cover {
+  animation: holo-turn 4s steps(8) infinite alternate;
+}
+
+@keyframes holo-turn {
+  from {
+    transform: perspective(200px) rotateY(-22deg);
+  }
+  to {
+    transform: perspective(200px) rotateY(22deg);
+  }
+}
+
+.holo-card strong {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.holo-card small {
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: #a8ecfa;
+}
+
+.holo-open {
+  justify-self: start;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border: 0;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: #3a2400;
+  background: #ffc83a;
+  clip-path: var(--step-small);
+  cursor: pointer;
+}
+
+.holo-open:hover {
+  filter: brightness(1.08);
+}
+
+.holo-beam {
+  width: 80%;
+  height: 26px;
+  background: linear-gradient(rgb(95 228 255 / 30%), rgb(95 228 255 / 6%));
+  clip-path: polygon(0 0, 100% 0, 58% 100%, 42% 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo-card,
+  .holo-cover {
+    animation: none;
+  }
+}
+
+/* La ficha del libro: un panel holográfico sobre su pedestal blanco. */
+[data-world='solarpunk'] .lectern-backdrop {
+  background: rgb(10 25 45 / 40%);
+}
+
+[data-world='solarpunk'] .lectern-book {
+  padding: 10px;
+  height: min(30rem, calc(100vh - 17rem));
+  background: var(--chrome-solid);
+  border: 0;
+  border-radius: 0;
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='solarpunk'] .lectern-page {
+  background: var(--paper-raised);
+}
+
+[data-world='solarpunk'] .lectern-page.left {
+  border-right: 0;
+  box-shadow: inset -3px 0 0 var(--line);
+}
+
+[data-world='solarpunk'] .lectern-page h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+[data-world='solarpunk'] .lectern-chapters a,
+[data-world='solarpunk'] .lectern-chapters li > span:not(.dl-toggle),
+[data-world='solarpunk'] .detail-close,
+[data-world='solarpunk'] .dl-toggle {
+  border-radius: 0;
+}
+
+[data-world='solarpunk'] .lectern-download-next {
+  font-family: var(--font-display);
+}
+
+[data-world='solarpunk'] .lectern-stand {
+  display: block;
+  width: min(18rem, 40%);
+  margin-top: -4px;
+}
+
+[data-world='solarpunk'] .lectern-stand .px-lectern {
+  display: block;
+  width: 100%;
+  image-rendering: pixelated;
+}
+
+[data-world='solarpunk'] .book-transition {
+  background: var(--paper-raised);
+}
+
+@media (max-width: 700px) {
+  [data-world='solarpunk'] .lectern-book {
+    padding: 6px 6px 0;
+    height: auto;
+  }
+
+  [data-world='solarpunk'] .lectern-stand {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- La portada */
+
+[data-world='solarpunk'] .title-screen {
+  background: #12202c;
+}
+
+[data-world='solarpunk'] .title-banner .logo {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 11vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  /* Contorno de píxel azul (se lee sobre la ciudad blanca) y la sombra celeste abajo. */
+  text-shadow:
+    3px 0 0 #12304a,
+    -3px 0 0 #12304a,
+    0 3px 0 #12304a,
+    0 -3px 0 #12304a,
+    3px 3px 0 #12304a,
+    -3px 3px 0 #12304a,
+    3px -3px 0 #12304a,
+    -3px -3px 0 #12304a,
+    0 7px 0 #36c2e6,
+    3px 7px 0 #36c2e6,
+    -3px 7px 0 #36c2e6;
+}
+
+[data-world='solarpunk'][data-mode='night'] .title-banner .logo {
+  color: #e8fbff;
+  text-shadow:
+    3px 0 0 #0a1428,
+    -3px 0 0 #0a1428,
+    0 3px 0 #0a1428,
+    0 -3px 0 #0a1428,
+    3px 3px 0 #0a1428,
+    -3px 3px 0 #0a1428,
+    3px -3px 0 #0a1428,
+    -3px -3px 0 #0a1428,
+    0 7px 0 #2f6f96,
+    3px 7px 0 #2f6f96,
+    -3px 7px 0 #2f6f96;
+}
+
+/* El cuadrado solar antes del logo. */
+[data-world='solarpunk'] .logo::before {
+  content: '';
+  display: inline-block;
+  width: 0.42em;
+  height: 0.42em;
+  margin-right: 0.3em;
+  vertical-align: 0.1em;
+  background: var(--sun);
+  box-shadow:
+    0 0 0 0.06em var(--sun-d),
+    0 0.12em 0 0.06em rgb(18 48 74 / 35%);
+}
+
+[data-world='solarpunk'] .tagline {
+  padding: 0.35rem 0.9rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--chrome-ink);
+  background: var(--chrome);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='solarpunk'] .title-card {
+  width: min(44rem, 100%);
+  padding: 1.2rem 1.5rem;
+}
+
+/* En pantallas anchas, el título y la tarjeta van a la izquierda (sobre la pared y la
+   monstera) y el ventanal con la ciudad queda libre a la derecha. */
+@media (min-width: 900px) {
+  [data-world='solarpunk'] .title-banner,
+  [data-world='solarpunk'] .title-card {
+    justify-self: start;
+    margin-left: clamp(1rem, 5vw, 5rem);
+  }
+
+  [data-world='solarpunk'] .title-card {
+    width: min(34rem, 48vw);
+  }
+
+  [data-world='solarpunk'] .world-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+[data-world='solarpunk'] .slots-title,
+[data-world='solarpunk'] .title-footer {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+[data-world='solarpunk'] .world-slot {
+  border: 0;
+  border-radius: 0;
+  background: var(--holo-plate);
+  clip-path: var(--step-small);
+  box-shadow: inset 0 0 0 2px rgb(54 194 230 / 45%);
+}
+
+[data-world='solarpunk'] .world-slot strong {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+[data-world='solarpunk'] .world-slot[aria-pressed='true'] {
+  background: var(--sun);
+  color: var(--sun-ink);
+}
+
+[data-world='solarpunk'] .world-slot[aria-pressed='true'] small,
+[data-world='solarpunk'] .world-slot[aria-pressed='true'] .slot-number {
+  color: var(--sun-ink);
+}
+
+:root[data-world='solarpunk'][data-motion='full'] .press-start {
+  animation: press-blink 1.6s steps(1) infinite;
+}
+
+:root[data-world='solarpunk'][data-motion='full'] .press-start:hover,
+:root[data-world='solarpunk'][data-motion='full'] .press-start:focus-visible {
+  animation: none;
+}
+
+/* ---------------------------------------------------------------- Entrar */
+
+[data-world='solarpunk'] .scroll-sheet {
+  position: relative;
+  margin: 0;
+  padding-top: 2.2rem;
+  border: 0;
+  background: var(--chrome-solid);
+  color: var(--chrome-ink);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='solarpunk'] .scroll-rod {
+  display: none;
+}
+
+/* Una franja de celdas solares cruza el panel de entrar por arriba. */
+[data-world='solarpunk'] .scroll-sheet::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  height: 10px;
+  background:
+    linear-gradient(90deg, transparent 0 1px, #eef4f9 1px 2px, transparent 2px) 0 0 / 14px 100%,
+    linear-gradient(#6b9dd2 0 3px, #3c6ea8 3px);
+  box-shadow: 0 0 0 2px #8aa4bd;
+  pointer-events: none;
+}
+
+[data-world='solarpunk'] .scroll-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+}
+
+[data-world='solarpunk'] .scroll-form label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+[data-world='solarpunk'] .scroll-dismiss {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--chrome-ink);
+  text-decoration-style: dotted;
+}
+
+/* Los campos: una ranura de vidrio oscuro con el texto legible de siempre. */
+[data-world='solarpunk'] .scroll-form input {
+  border: 0;
+  border-radius: 0;
+  color: var(--chrome-ink);
+  background: rgb(255 255 255 / 70%);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px var(--panel-edge),
+    inset 0 3px 0 rgb(0 0 0 / 8%);
+}
+
+[data-world='solarpunk'][data-mode='night'] .scroll-form input {
+  background: rgb(10 20 40 / 70%);
+}
+
+[data-world='solarpunk'] .scroll-form input:focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--holo-light),
+    inset 0 4px 0 rgb(0 0 0 / 8%);
+}
+
+/* ---------------------------------------------------------------- Pol, el compañero */
+/*
+ * La bolita amarilla con visera (solarpunk.js): flota, aletea y, cuando pasa algo, da un
+ * loop y suelta una llovizna; ante un error se le enreda la regadera y la pantalla baja.
+ * En las salas flota junto al panel de libros y habla en su globo; en el índice zumba
+ * mientras suena el libro, se asoma a la página y en la portada revolotea junto al título.
+ */
+
+.px-pol {
+  overflow: visible;
+}
+
+.px-pol .pol-f1,
+.px-pol .pol-sad {
+  opacity: 0;
+}
+
+:root[data-motion='full'] .px-pol .pol-f0 {
+  animation: pol-flap 0.3s steps(1) infinite;
+}
+
+:root[data-motion='full'] .px-pol .pol-f1 {
+  animation: pol-flap 0.3s steps(1) infinite reverse;
+}
+
+@keyframes pol-flap {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Ante un error: la cara de enredado. */
+.is-sad .px-pol .pol-f0,
+.is-sad .px-pol .pol-f1 {
+  opacity: 0;
+  animation: none;
+}
+
+.is-sad .px-pol .pol-sad {
+  opacity: 1;
+}
+
+:root[data-motion='full'] .shelf-owl .px-pol,
+:root[data-motion='full'] .title-companion .px-pol {
+  animation: pol-float 1.8s steps(4) infinite;
+}
+
+@keyframes pol-float {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* En las salas: junto al panel, más grande (es una bolita de 26 px de arte). */
+.library[data-layout='scene'] .shelf-owl:has(.px-pol) {
+  width: 52px;
+}
+
+@media (min-width: 701px) {
+  .library[data-layout='scene'] .shelf-owl:has(.px-pol) {
+    top: -2.6rem;
+  }
+}
+
+/* Un loop con llovizna (en vez del saltito del búho). */
+:root[data-motion='full'] .shelf-owl.hop .px-pol {
+  animation: pol-loop 0.7s steps(8);
+}
+
+:root[data-motion='full'] .shelf-owl.hop:has(.px-pol)::after {
+  content: '';
+  position: absolute;
+  left: 60%;
+  top: 92%;
+  width: 2px;
+  height: 3px;
+  background: var(--px-pol-wing);
+  box-shadow:
+    5px 4px 0 #5ff0ff,
+    -3px 8px 0 var(--px-pol-wing),
+    7px 12px 0 #5ff0ff,
+    1px 14px 0 var(--px-pol-wing);
+  animation: pol-drizzle 0.8s steps(4) forwards;
+}
+
+@keyframes pol-loop {
+  0% {
+    transform: translate(0, 0) rotate(0);
+  }
+  50% {
+    transform: translate(6px, -10px) rotate(180deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+@keyframes pol-drizzle {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Ante un error, cae un poco y se queda enredado un momento (sin loop ni llovizna). */
+:root[data-motion='full'] .shelf-owl.is-sad.hop .px-pol {
+  animation: pol-tangle 1.4s steps(6);
+}
+
+:root[data-motion='full'] .shelf-owl.is-sad.hop::after {
+  display: none;
+}
+
+@keyframes pol-tangle {
+  20%,
+  80% {
+    transform: translateY(5px) rotate(-12deg);
+    filter: brightness(0.8);
+  }
+}
+
+/* En el índice del lector: zumba (brilla y aletea) mientras suena el libro. */
+[data-world='solarpunk'] .sidebar .companion-slot .px-pol {
+  filter: brightness(0.92);
+}
+
+:root[data-world='solarpunk'][data-motion='full'][data-playing='true']
+  .sidebar
+  .companion-slot
+  .px-pol {
+  animation: pol-buzz 0.5s steps(2) infinite;
+}
+
+@keyframes pol-buzz {
+  50% {
+    transform: translateX(1px);
+    filter: brightness(1.1) drop-shadow(0 0 4px rgb(255 200 60 / 70%));
+  }
+}
+
+/* Asomado a la página y junto al título: el mismo hueco que Lumen, un poco más grande. */
+.companion-peek:has(.px-pol) {
+  width: 34px;
+}
+
+.title-companion:has(.px-pol) {
+  width: 56px;
+  left: -3.4rem;
+}
+
+/* ---------------------------------------------------------------- El taller del jardín */
+/*
+ * Mientras se genera una voz (Workshop.tsx, solarpunk.js: workshop): los robots plantan el
+ * muro verde con el progreso real; cada maceta florece del color de la voz. Usa las clases
+ * y los tiempos de los otros talleres; aquí, el color de cada voz y dónde va.
+ */
+
+[data-world='solarpunk'] .px-workshop[data-voice='gonzalo'] {
+  --px-voice: #3fa9e0;
+}
+
+[data-world='solarpunk'] .px-workshop[data-voice='jorge'] {
+  --px-voice: #5aa64a;
+}
+
+[data-world='solarpunk'] .px-workshop[data-voice='salome'] {
+  --px-voice: #f0785a;
+}
+
+[data-world='solarpunk'] .px-workshop[data-voice='salome-grave'] {
+  --px-voice: #8a6ad8;
+}
+
+[data-world='solarpunk'][data-mode='night'] .px-workshop {
+  filter: brightness(0.9);
+}
+
+/* Sobre el reproductor flotante, al centro. */
+[data-world='solarpunk'] .workshop {
+  right: auto;
+  left: 50%;
+  bottom: calc(var(--player-height, 7.5rem) + 0.4rem);
+  width: min(640px, calc(100vw - 1.2rem));
+  translate: -50% 0;
+}
+
+/* Al terminar, el muro no se enrolla (como el pergamino): florece y queda; se llevan una
+   jardinera en flor. */
+.px-garden.ws-done .ws-sheet {
+  transform: none;
+}
+
+/* ---------------------------------------------------------------- El libro en cortocircuito */
+/* FailedBook.tsx, con los mismos tiempos que el que arde: chispea y se apaga (1,3 s), queda
+   un humito (0,6 s) y se reinicia con destellos celestes (0,7 s). */
+
+[data-world='solarpunk'] .burning-spine {
+  animation-name: spine-short;
+}
+
+[data-world='solarpunk'] .failed-book.is-ash .burning-spine {
+  animation-name: spine-short-off;
+}
+
+@keyframes spine-short {
+  10%,
+  30%,
+  50% {
+    filter: brightness(1.6);
+  }
+  20%,
+  40% {
+    filter: brightness(0.5);
+  }
+  100% {
+    filter: grayscale(1) brightness(0.55);
+  }
+}
+
+@keyframes spine-short-off {
+  from {
+    filter: grayscale(1) brightness(0.55);
+  }
+  to {
+    opacity: 0;
+    filter: grayscale(1) brightness(0.55);
+    transform: scaleY(0.05);
+  }
+}
+
+/* El humito que queda. */
+[data-world='solarpunk'] .burn-ash {
+  height: 12px;
+  background:
+    radial-gradient(ellipse at 30% 100%, var(--px-smoke) 0 35%, transparent 36%),
+    radial-gradient(
+      ellipse at 65% 90%,
+      color-mix(in srgb, var(--px-smoke) 60%, transparent) 0 40%,
+      transparent 41%
+    );
+}
+
+/* Se reinicia: destellos celestes que suben. */
+[data-world='solarpunk'] .burn-sparks span {
+  background: var(--px-spark-c);
+  box-shadow: 0 0 6px var(--px-spark-c);
+}
+
+[data-world='solarpunk'] .burn-sparks span:nth-child(odd) {
+  background: var(--px-spark);
+}
+
+/* La tarjeta que se reinicia: un panel con su barra de carga arriba. */
+[data-world='solarpunk'] .failed-card {
+  position: relative;
+  color: var(--chrome-ink);
+  background: var(--chrome-solid);
+  border: 0;
+  border-radius: 0;
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='solarpunk'] .failed-card::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  right: 14px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--holo-light) 100%, transparent 0);
+  box-shadow: 0 0 0 1px var(--panel-edge);
+}
+
+:root[data-world='solarpunk'][data-motion='full'] .failed-card::before {
+  animation: reboot-bar 0.9s steps(6) both;
+}
+
+@keyframes reboot-bar {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+[data-world='solarpunk'] .failed-card h3 {
+  font-size: 1rem;
+}
+
+/* ---------------------------------------------------------------- Descargas */
+/* La cápsula y los robotitos con su cartucho (DownloadCrew.tsx) usan las clases del arcón;
+   aquí, el panel "Descargas": el espacio es una batería acostada (con su borne a la derecha)
+   cuyas celdas se llenan con el espacio usado; las últimas, en amarillo. */
+
+[data-world='solarpunk'] .px-dl-carrier[data-voice='gonzalo'] {
+  --px-voice: #3fa9e0;
+}
+
+[data-world='solarpunk'] .px-dl-carrier[data-voice='jorge'] {
+  --px-voice: #5aa64a;
+}
+
+[data-world='solarpunk'] .px-dl-carrier[data-voice='salome'] {
+  --px-voice: #f0785a;
+}
+
+[data-world='solarpunk'] .px-dl-carrier[data-voice='salome-grave'] {
+  --px-voice: #8a6ad8;
+}
+
+[data-world='solarpunk'] .px-dl-carrier {
+  --px-voice: #ffc83a;
+}
+
+[data-world='solarpunk'] .downloads-candle {
+  height: 24px;
+  margin-right: 12px;
+  overflow: visible;
+  background: rgb(54 194 230 / 12%);
+  border: 2px solid var(--panel-edge-d);
+  border-radius: 0;
+}
+
+/* El borne. */
+[data-world='solarpunk'] .downloads-candle::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: -9px;
+  width: 6px;
+  height: 10px;
+  background: var(--panel-edge-d);
+}
+
+/* Las celdas: diez, separadas; se llenan con el espacio usado (amarillas pasado el 80 %). */
+[data-world='solarpunk'] .downloads-candle .wax {
+  position: absolute;
+  inset: 2px;
+  width: auto;
+  min-width: 0;
+  background:
+    linear-gradient(90deg, transparent calc(100% - 3px), var(--chrome-solid) 0) 0 0 / 10% 100%,
+    linear-gradient(90deg, var(--holo-light) 0 80%, var(--sun) 80% 100%);
+  border: 0;
+  mask: linear-gradient(
+    90deg,
+    #000 calc(var(--used) * 100%),
+    rgb(0 0 0 / 12%) calc(var(--used) * 100%)
+  );
+}
+
+:root[data-world='solarpunk'][data-motion='full'] .downloads-candle .wax {
+  animation: battery-pulse 2.4s steps(3) infinite;
+}
+
+@keyframes battery-pulse {
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+[data-world='solarpunk'] .downloads-candle .flame {
+  display: none;
+}
+
+[data-world='solarpunk'] .downloads-head h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------- Botones y controles */
+/*
+ * Nada del sistema a la vista. Los botones de texto son placas holográficas con esquinas
+ * en escalón y su línea de luz; el principal es amarillo solar con un solcito. Las casillas
+ * son interruptores de luz y el volumen, un riel celeste con un solcito por perilla.
+ */
+
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .danger,
+  [data-world='solarpunk'] .confirm-actions button,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .seal,
+  [data-world='solarpunk'] .password-field .reveal,
+  [data-world='solarpunk'] .hint-action,
+  [data-world='solarpunk'] .app-toast-action,
+  [data-world='solarpunk'] .player-empty-actions button,
+  [data-world='solarpunk'] .lectern-download-next,
+  [data-world='solarpunk'] .failed-card button,
+  [data-world='solarpunk'] .shelf-pager button,
+  [data-world='solarpunk'] .chapter-nav button,
+  [data-world='solarpunk'] .speed-presets button,
+  [data-world='solarpunk'] .voice-sample,
+  [data-world='solarpunk'] .follow-return,
+  [data-world='solarpunk'] .toc-toggle,
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book,
+  [data-world='solarpunk'] .open-book,
+  [data-world='solarpunk'] .press-start
+) {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-shadow: none;
+  color: var(--chrome-ink);
+  background: var(--holo-plate);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px var(--panel-edge),
+    inset 0 4px 0 rgb(255 255 255 / 35%),
+    inset 0 -4px 0 rgb(47 143 184 / 18%);
+  transition: none;
+}
+
+/* El principal y lo elegido: amarillo solar con un solcito delante. */
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .confirm-actions .primary,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .seal[aria-selected='true'],
+  [data-world='solarpunk'] .speed-presets button[aria-pressed='true'],
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book,
+  [data-world='solarpunk'] .open-book,
+  [data-world='solarpunk'] .press-start
+) {
+  color: var(--sun-ink);
+  background: var(--sun);
+  box-shadow:
+    inset 0 0 0 2px var(--sun-d),
+    inset 0 4px 0 rgb(255 255 255 / 45%),
+    inset 0 -4px 0 rgb(160 90 0 / 25%);
+}
+
+/* Los de los diálogos y el de añadir libro, con cuerpo de placa. */
+:is(
+  [data-world='solarpunk'] .confirm-actions button,
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .danger,
+  [data-world='solarpunk'] .app-toast-action,
+  [data-world='solarpunk'] .add-book
+) {
+  min-height: 2.4rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 0.85rem;
+}
+
+[data-world='solarpunk'] .press-start,
+[data-world='solarpunk'] .open-book {
+  font-size: 1.1rem;
+}
+
+/* El solcito, pegado al texto (un rayo cortado en lo que borra). */
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .seal[aria-selected='true'],
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book,
+  [data-world='solarpunk'] .open-book,
+  [data-world='solarpunk'] .press-start
+)::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 0.5em;
+  vertical-align: -1px;
+  background: var(--knob) center / 100% 100%;
+  image-rendering: pixelated;
+}
+
+/* :root para ganarle a la placa común (su :is pesa como tres clases). */
+:root[data-world='solarpunk'] .danger {
+  color: #8a1f10;
+  background: rgb(255 214 200 / 85%);
+  box-shadow:
+    inset 0 0 0 2px #d0603a,
+    inset 0 4px 0 rgb(255 255 255 / 40%);
+}
+
+:root[data-world='solarpunk'][data-mode='night'] .danger {
+  color: #ffd6c8;
+  background: rgb(120 40 30 / 70%);
+}
+
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .danger,
+  [data-world='solarpunk'] .confirm-actions button,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .seal,
+  [data-world='solarpunk'] .password-field .reveal,
+  [data-world='solarpunk'] .hint-action,
+  [data-world='solarpunk'] .app-toast-action,
+  [data-world='solarpunk'] .player-empty-actions button,
+  [data-world='solarpunk'] .lectern-download-next,
+  [data-world='solarpunk'] .failed-card button,
+  [data-world='solarpunk'] .shelf-pager button,
+  [data-world='solarpunk'] .chapter-nav button,
+  [data-world='solarpunk'] .speed-presets button,
+  [data-world='solarpunk'] .voice-sample,
+  [data-world='solarpunk'] .follow-return,
+  [data-world='solarpunk'] .toc-toggle,
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book,
+  [data-world='solarpunk'] .open-book,
+  [data-world='solarpunk'] .press-start
+):where(:hover:not(:disabled), :focus-visible) {
+  filter: brightness(1.07);
+  translate: 0 -1px;
+}
+
+:is(
+    [data-world='solarpunk'] .primary,
+    [data-world='solarpunk'] .danger,
+    [data-world='solarpunk'] .confirm-actions button,
+    [data-world='solarpunk'] .scroll-submit,
+    [data-world='solarpunk'] .seal,
+    [data-world='solarpunk'] .password-field .reveal,
+    [data-world='solarpunk'] .hint-action,
+    [data-world='solarpunk'] .app-toast-action,
+    [data-world='solarpunk'] .player-empty-actions button,
+    [data-world='solarpunk'] .lectern-download-next,
+    [data-world='solarpunk'] .failed-card button,
+    [data-world='solarpunk'] .shelf-pager button,
+    [data-world='solarpunk'] .chapter-nav button,
+    [data-world='solarpunk'] .speed-presets button,
+    [data-world='solarpunk'] .voice-sample,
+    [data-world='solarpunk'] .follow-return,
+    [data-world='solarpunk'] .toc-toggle,
+    [data-world='solarpunk'] .generate,
+    [data-world='solarpunk'] .add-book,
+    [data-world='solarpunk'] .open-book,
+    [data-world='solarpunk'] .press-start
+  ):active:not(:disabled) {
+  translate: 0 1px;
+  filter: brightness(0.96);
+}
+
+/* El recorte en escalón se comería el contorno del foco: va por dentro. */
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .danger,
+  [data-world='solarpunk'] .confirm-actions button,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .seal,
+  [data-world='solarpunk'] .password-field .reveal,
+  [data-world='solarpunk'] .hint-action,
+  [data-world='solarpunk'] .app-toast-action,
+  [data-world='solarpunk'] .player-empty-actions button,
+  [data-world='solarpunk'] .lectern-download-next,
+  [data-world='solarpunk'] .failed-card button,
+  [data-world='solarpunk'] .shelf-pager button,
+  [data-world='solarpunk'] .chapter-nav button,
+  [data-world='solarpunk'] .speed-presets button,
+  [data-world='solarpunk'] .voice-sample,
+  [data-world='solarpunk'] .follow-return,
+  [data-world='solarpunk'] .toc-toggle,
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book,
+  [data-world='solarpunk'] .open-book,
+  [data-world='solarpunk'] .press-start
+):focus-visible {
+  outline: 0;
+  box-shadow:
+    inset 0 0 0 3px var(--accent),
+    inset 0 0 0 5px var(--paper-raised);
+}
+
+:is(
+  [data-world='solarpunk'] .primary,
+  [data-world='solarpunk'] .danger,
+  [data-world='solarpunk'] .confirm-actions button,
+  [data-world='solarpunk'] .scroll-submit,
+  [data-world='solarpunk'] .lectern-download-next,
+  [data-world='solarpunk'] .generate,
+  [data-world='solarpunk'] .add-book
+):disabled {
+  filter: saturate(0.4);
+  opacity: 0.7;
+}
+
+/* Las casillas: un interruptor de luz (apagado, un punto; encendido, la marca). */
+[data-world='solarpunk'] input[type='checkbox'] {
+  appearance: none;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 0;
+  background: var(--check-off) center / 100% 100%;
+  image-rendering: pixelated;
+  cursor: pointer;
+}
+
+[data-world='solarpunk'] input[type='checkbox']:checked {
+  background-image: var(--check-on);
+}
+
+:root[data-world='solarpunk'][data-motion='full'] input[type='checkbox']:checked {
+  animation: switch-on 0.25s steps(2);
+}
+
+@keyframes switch-on {
+  from {
+    filter: brightness(1.6);
+  }
+}
+
+[data-world='solarpunk'] input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* El volumen: un riel de luz con un solcito que se desliza. */
+[data-world='solarpunk'] input[type='range'] {
+  appearance: none;
+  height: 24px;
+  background: transparent;
+  cursor: pointer;
+}
+
+[data-world='solarpunk'] input[type='range']::-webkit-slider-runnable-track {
+  height: 8px;
+  background: linear-gradient(var(--holo-light-hi) 0 3px, var(--holo-light) 3px);
+  box-shadow: 0 0 0 2px var(--panel-edge-d);
+}
+
+[data-world='solarpunk'] input[type='range']::-moz-range-track {
+  height: 8px;
+  background: linear-gradient(var(--holo-light-hi) 0 3px, var(--holo-light) 3px);
+  box-shadow: 0 0 0 2px var(--panel-edge-d);
+}
+
+[data-world='solarpunk'] input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -8px;
+  border: 0;
+  background: var(--knob) center / 100% 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 4px rgb(255 200 60 / 70%));
+}
+
+[data-world='solarpunk'] input[type='range']::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: var(--knob) center / 100% 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 4px rgb(255 200 60 / 70%));
+}
+
+[data-world='solarpunk'] input[type='range']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- Subir */
+
+/* El libro en blanco del panel vacío: un libro de luz apagado que late. */
+:root[data-world='solarpunk'] .spine.blank-book {
+  --spine: #a6d8ec;
+  color: var(--chrome-ink);
+  border: 0;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 60%) 0 6px, transparent 6px),
+    linear-gradient(#e8f7fd 0 8px, #8aa4bd 8px 10px, transparent 10px), rgb(166 216 236 / 55%);
+  clip-path: var(--step-small);
+  box-shadow:
+    inset 0 0 0 2px var(--holo-light),
+    0 0 10px rgb(95 228 255 / 40%);
+}
+
+/* En el panel holográfico, el libro en blanco mide lo que un libro de luz y la ayuda va
+   debajo del panel (al costado está el globo de Pol). */
+[data-bookcase='holo'] .blank-shelf {
+  position: relative;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+[data-bookcase='holo'] .spine.blank-book {
+  width: calc(var(--shelf-h) * 0.6);
+  height: calc(var(--shelf-h) * 0.9);
+  padding: 0;
+}
+
+[data-bookcase='holo'] .spine.blank-book .spine-title {
+  font-size: 0.6rem;
+}
+
+[data-bookcase='holo'] .blank-shelf p {
+  position: absolute;
+  top: calc(100% + 0.8rem);
+  left: 50%;
+  width: max-content;
+  max-width: min(22rem, 80vw);
+  margin: 0;
+  translate: -50% 0;
+  text-align: center;
+}
+
+[data-world='solarpunk'] .blank-shelf p,
+[data-world='solarpunk'] .drop-veil p {
+  border: 0;
+  border-radius: 0;
+  font-family: var(--font-display);
+  color: var(--chrome-ink);
+  background: var(--chrome-solid);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
+}
+
+[data-world='solarpunk'] .blank-shelf p {
+  padding: 0.55rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+/* Al arrastrar un EPUB: la sala se atenúa y un marco holográfico espera el libro. */
+[data-world='solarpunk'] .drop-veil {
+  background:
+    repeating-linear-gradient(transparent 0 3px, rgb(95 228 255 / 6%) 3px 4px), rgb(10 30 58 / 55%);
+  border: 0;
+  box-shadow:
+    inset 0 0 0 12px transparent,
+    inset 0 0 0 15px var(--holo-light),
+    inset 0 0 0 17px var(--holo-light-hi);
+}
+
+[data-world='solarpunk'] .drop-veil p {
+  padding: 1rem 1.4rem 1rem 2.6rem;
+  font-size: 1rem;
+  background:
+    var(--knob) no-repeat 1rem 50% / 18px 18px,
+    var(--chrome-solid);
+}

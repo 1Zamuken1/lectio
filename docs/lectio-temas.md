@@ -230,3 +230,41 @@ Solarpunk es el último mundo. Es lo único que falta de los temas. Hoy está en
 - La cuadrilla, el libro fallido (cortocircuito y reinicio), las descargas (contenedor o batería) y el medidor del panel.
 - HUD: forma de los paneles, el botón de reproducir, la barra de progreso, los íconos y la fuente de los títulos.
 - Sonido: sintetizadores luminosos; el motivo musical, el ambiente de día y de noche y el sonido del dron.
+
+### 7.8 Decisiones del Solarpunk (02-10-2026)
+
+| Pieza | Decisión |
+|---|---|
+| Estilo | **Igual que el Bosque**: pixel nítido a 320×180 estilo Stardew/Terraria, colores sólidos, contornos de color (nunca negros), objetos grandes y legibles. |
+| Portada | **Un apartamento hiperfuturista** visto desde adentro; por el ventanal, rascacielos blancos hiperfuturistas y paisaje. Los detalles (autos voladores, drones, tranvía, etc.) los propone la maqueta. |
+| Luz | **Día: mañana dorada** (sol bajo, amarillo cálido, sombras largas celestes). **Noche**: la ciudad encendida (ventanas de los edificios, las luces del propio apartamento y, si suman, vehículos voladores con sus luces). |
+| Sala pública | **Una terraza abierta, sin techo** (corregido tras la maqueta: la pérgola tapaba la ciudad): balcón de vidrio con jardinera corrida y la ciudad en todo su esplendor (bahía, azoteas vecinas con paneles, dirigible, tren, autos voladores); huerto con girasoles, tumbona, farol solar y el pabellón con la puerta. |
+| Sala propia | **El mismo apartamento de la portada, con otra vista**: ventana lateral, el panel de tus libros empotrado en la pared (parte de la casa, no un mueble agregado) entre dos macetas colgantes, la cómoda con un robot en su base de carga, la silla huevo y la puerta. |
+| Estanterías | **Paneles holográficos** (idea del usuario): los libros son **ranuras de luz** del color de cada libro en un panel de vidrio oscuro (en la terraza, una placa sobre un pie; en el rincón, empotrado en la pared). Al pasar el cursor (o al enfocar con el teclado) el libro **se proyecta como holograma** encima: la tapa que gira, el título, el autor, el avance y "Abrir". En el celular, el primer toque proyecta y el segundo (o "Abrir") abre. Los libros de luz son cartuchos de cristal de 12×18 (tapa metálica, dos bandas, un emblema) y toda la franja de cada libro es zona de clic. La portada del holograma sale de **10 portadas prediseñadas** (amanecer, ola, luna, árbol, flor, rombos, pluma, montañas, velero, estrella) repartidas al azar sobre el color del libro, sin repetir hasta agotarlas. |
+| Paso entre salas | **Una puerta** de la terraza al apartamento, como hoy (puerta futurista; su forma, en la maqueta). |
+| HUD | **Holográfico**: paneles celestes claros **un poco transparentes** (≈80 % de opacidad; pedido tras la maqueta), esquinas cortadas en escalón, una línea de luz arriba. La página de lectura queda casi opaca (AAA). |
+| Fuente de títulos | **Silkscreen** (elegida en la maqueta). Lectura en Literata e interfaz en Atkinson, como siempre. |
+| Página de lectura | **Panel holográfico claro**: blanco celeste opaco, esquinas en diagonal y línea de luz, sobre la terraza nítida y atenuada; la oración que suena, en amarillo solar pálido. |
+| Reproductor | **Reproducir es un disco solar** amarillo con rayos de píxel que giran lento al sonar; **la barra es un riel de luz** que se llena, con Pol de perilla. |
+| Compañero | **Pol, el dron jardinero**: curioso y científico, con un brazo-regadera; comenta datos ("Capítulo 4 de 12: 33 % polinizado"). Si algo sale bien, zumba y da un loop; ante un error, se le enreda el brazo. El primer diseño (abejorro alargado) no convenció; elegido **Pol peluche**: una bolita amarilla con franjas blancas, visera de ojos grandes, alitas de abeja, brote en la cabeza y la regadera colgando. |
+| Taller | **Solo robots, con forma de mascota** (entre robot y adorable, estilo Wall-E o R2-D2, nada humanoide; diseños propios para aprobar antes de dibujarlos). Plantan **un jardín vertical** maceta por maceta, de abajo hacia arriba, con el avance real (uno riega, uno trae plantines, uno poda, uno duerme cargándose…). Al terminar el muro florece, lo suben a la terraza y suena un chime. La cuadrilla: **Tuerca, Domo, Gota, Brote** (reemplaza a Foco) y **Cúpula y Alada** (las variantes de Pol que no quedaron, como robots). **Colores de los robots al azar y sin repetirse**; el color de la voz va en **las flores** que se abren en cada maceta. Paleta de voces **A**: Gonzalo celeste, Jorge hoja, Salomé coral, Salomé grave violeta. |
+| Cuadrilla | **Dos Cúpulas** (el robot del taller, en miniatura) traen el libro gigante volando, colgado de dos cables, y lo bajan a su hueco; la segunda se bambolea. Reemplazan a los drones de carga (corrección del usuario al aprobar la maqueta). |
+| Libro fallido | **Cortocircuito y reinicio**: el lomo chispea, se apaga, sale humito y se reinicia con una barra de carga y un "ding". Mismos tiempos que el que arde. |
+| Descargas | **Cápsula**: un robot por capítulo lleva un cartucho de luz a una cápsula de almacenamiento al pie del atril, que se cierra con un "fsss". En el panel, el medidor es **una batería** cuyas celdas se llenan con el espacio usado. |
+| Sonido | **Synth cálido y marimba**: pads luminosos, marimba o kalimba digital y arpegios suaves (Animal Crossing / Mother 3 tranquilo). De día, pájaros y viento en los aerogeneradores; de noche, más lento, con zumbido de ciudad lejana. Pol: bips y trinos de robot. |
+| Cómo se trabaja | Primero una **maqueta estática** (portada, azotea, rincón, paneles y página, de día y de noche, con candidatas de fuente y de robots); se ajusta ahí y después se pasa a la app. |
+
+### 7.9 Avance del Solarpunk
+
+- **Maqueta aprobada (02-10-2026)**, en tres rondas (estaba en `apps/web/.scratch/solarpunk/`, ignorada por git). Al aprobarla, el usuario cambió los drones de carga de la cuadrilla por Cúpulas.
+- **En la app (02-10-2026)**:
+  - **Escenas**: `theme/solarpunk-scenes.js`, el mismo motor de lienzo del Bosque, con portada, terraza y rincón. La base de cada escena lleva colgada su vista de la ciudad (`view`), que sirve para animar solo donde se ve la ciudad: aerogeneradores, tren, teleférico, globo, dirigible, veleros, autos voladores y abejas.
+  - **Piezas SVG**: `theme/solarpunk.js`. Los sprites se dibujan en un `Pix` y se pasan a SVG con `svgOf`; los colores "de mentira" (`BOOK`, `VOICE`) salen como `var(--px-book*)` y `var(--px-voice*)`, así un mismo SVG sirve para cualquier libro o voz. Incluye Pol, el taller del jardín vertical (seis robots con colores al azar y las flores del color de la voz), las Cúpulas de la cuadrilla, el cortocircuito, el robotito con su cartucho, la cápsula, los libros de luz y las 10 portadas.
+  - **Estantería holográfica**: el registro tiene `bookcase: 'holo'` (`hasHoloBookcase`). `LibraryRoom` dibuja `LightBook` en vez de `Spine` y reparte los estantes con `holoSlotWidth`. El holograma es CSS: se muestra con `:hover`, `:focus-within` o `.is-armed` (el primer toque con el dedo). Las portadas se barajan una vez por visita.
+  - **Íconos**: `theme/icons-solarpunk.js` (`SOLAR`), generados con `.scratch/solarpunk/gen-icons.mjs`.
+  - **Sonido**: `theme/sound-solarpunk.js` (sintetizador cálido y marimba; Pol con bips y trinos). `sound.js` elige el módulo por mundo (`OWN_SOUND`).
+  - **Voz de Pol**: `POL` en `companion-voice.ts`.
+  - **Hoja de estilos**: `styles/solarpunk.css`, con Silkscreen (`@fontsource/silkscreen`), los paneles holográficos al 82 %, el disco solar con 4 cuadros de rayos, el riel de luz con Pol, la batería, los interruptores y el riel del volumen. Las imágenes en línea del CSS salen de `.scratch/solarpunk/gen-css-art.mjs`.
+- **Probado** en `pnpm dev` con una cuenta de prueba (borrada después): portada, terraza de día y de noche, holograma, ficha, lector, rincón vacío y una subida real, con Pol anunciando la entrega. El taller, la cuadrilla y las descargas se revisaron insertando sus piezas en la página. No se grabó una voz real, para no gastar.
+- **Falta**: la revisión completa del usuario y, después, `ready: true`.
+

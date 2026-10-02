@@ -29,6 +29,22 @@ describe('la voz del compañero', () => {
     expect(companionLine('scriptorium', NOT_AN_EPUB).mood).toBe('error');
   });
 
+  it('Pol lo dice con datos y conserva el título', () => {
+    expect(companionLine('solarpunk', '«Niebla». Buena elección.').text).toBe(
+      'Analizando «Niebla»… resultado: excelente elección.',
+    );
+    expect(companionLine('solarpunk', '«Niebla». Cap. 3 de 12 · leyendo').text).toBe(
+      '«Niebla» — dato: cap. 3 de 12 · leyendo. Sigamos.',
+    );
+  });
+
+  it('los errores de Pol, sin frase propia, empiezan con "Error:"', () => {
+    expect(companionLine('solarpunk', NOT_AN_EPUB)).toEqual({
+      text: 'Error: eso no es un EPUB. Lectio guarda libros EPUB sin DRM.',
+      mood: 'error',
+    });
+  });
+
   it('un aviso que no conoce pasa igual', () => {
     expect(companionLine('bosque', 'Algo nuevo.').text).toBe('Algo nuevo.');
   });

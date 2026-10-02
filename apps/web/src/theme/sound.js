@@ -4,13 +4,18 @@
 // Reglas: la música viene apagada; se desvanece sola mientras suena la narración; los
 // efectos nunca suenan encima de la narración; todo se calla con la pestaña oculta.
 // El tema Clásico no tiene ambientación: ni efectos ni música. El Bosque élfico trae los
-// suyos (arpa, flauta y cristal) en sound-bosque.js.
+// suyos (arpa, flauta y cristal) en sound-bosque.js y el Solarpunk (sintetizador cálido y
+// marimba), en sound-solarpunk.js.
 // Portado de apps/cli/assets/theme/sound.js como módulo ES (la CLI conserva su copia).
 import { Theme } from './theme';
 import * as Bosque from './sound-bosque';
+import * as Solarpunk from './sound-solarpunk';
 
 const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-const WORLDS_WITH_SOUND = new Set(['scriptorium', 'bosque']);
+const WORLDS_WITH_SOUND = new Set(['scriptorium', 'bosque', 'solarpunk']);
+
+/** Los mundos que traen su propio sonido (efectos y música en su módulo). */
+const OWN_SOUND = { bosque: Bosque, solarpunk: Solarpunk };
 
 let ctx = null;
 let master = null;
@@ -240,7 +245,8 @@ function play(name, { force = false } = {}) {
   if (narrating && !force) return;
   if (!ensure()) return;
   const t = ctx.currentTime + 0.01;
-  if (settings.world === 'bosque') Bosque.SFX[name]?.(t, audio());
+  const own = OWN_SOUND[settings.world];
+  if (own) own.SFX[name]?.(t, audio());
   else SFX[name]?.(t);
 }
 
@@ -331,11 +337,13 @@ function startMusic() {
   if (timer || !ensure()) return;
   nextTime = ctx.currentTime + 0.1;
   Bosque.startMusic(audio());
+  Solarpunk.startMusic(audio());
   musicBus.gain.cancelScheduledValues(ctx.currentTime);
   musicBus.gain.setTargetAtTime(0.9, ctx.currentTime, 0.6);
   timer = setInterval(() => {
     const settings = Theme.get();
-    if (settings.world === 'bosque') Bosque.scheduleMusic(audio(), settings.night);
+    const own = OWN_SOUND[settings.world];
+    if (own) own.scheduleMusic(audio(), settings.night);
     else schedule();
   }, 60);
 }

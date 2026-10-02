@@ -34,6 +34,11 @@ export interface World {
   downloadsVessel: string;
   /** El título de cada sala (lo lee el lector de pantalla; en el Clásico se ve). */
   rooms: { monastery: string; study: string };
+  /**
+   * Cómo se ven los libros en las salas: lomos en una estantería (lo de siempre) o
+   * libros de luz en un panel holográfico que proyecta el libro al pasar por encima.
+   */
+  bookcase?: 'spines' | 'holo';
 }
 
 const CLASSIC_ROOMS = { monastery: 'La biblioteca del monasterio', study: 'Tu estudio' };
@@ -68,10 +73,13 @@ export const WORLDS: World[] = [
     name: 'Solarpunk',
     tagline: 'Cielo, sol y jardines',
     ready: false,
-    scenes: false,
-    crew: [],
-    downloadsVessel: 'El arcón',
-    rooms: CLASSIC_ROOMS,
+    scenes: true,
+    crew: ['workshop', 'bookCrew', 'downloads'],
+    companion: 'Pol, el dron jardinero',
+    companionCaption: 'Pol toma nota de tu lectura.',
+    downloadsVessel: 'La cápsula',
+    rooms: { monastery: 'La terraza solar', study: 'Tu rincón del apartamento' },
+    bookcase: 'holo',
   },
   {
     id: 'clasico',
@@ -103,6 +111,11 @@ export function hasScenes(world: string | undefined): boolean {
 /** ¿El mundo tiene esa pieza de su gente animada (el taller, la cuadrilla, el arcón)? */
 export function hasCrew(world: string | undefined, piece: CrewPiece): boolean {
   return byId(world)?.crew.includes(piece) ?? false;
+}
+
+/** ¿Los libros del mundo son libros de luz en un panel holográfico? */
+export function hasHoloBookcase(world: string | undefined): boolean {
+  return byId(world)?.bookcase === 'holo';
 }
 
 /** El título de una sala en el mundo. */

@@ -14,14 +14,17 @@ import { RasterArt } from '../components/RasterArt';
 import { takeIosInstallHint } from '../pwa/install';
 import { useAvailableOffline, useOnline } from '../pwa/online';
 import { Sound } from '../theme/sound';
-import { roomTitle, useTheme } from '../theme/theme';
+import { hasHoloBookcase, roomTitle, useTheme } from '../theme/theme';
 import type { RasterScene, SceneRect } from '../theme/bosque-scenes';
+import { Solarpunk } from '../theme/solarpunk';
 import { rasterScene, worldArt } from '../theme/world-art';
 import { companionLine } from './companion-voice';
+import { progressLabel } from './progress';
 import { useRoomDoor } from './room-door';
 import {
   SORT_LABELS,
   filterBooks,
+  holoSlotWidth,
   packShelves,
   sortBooks,
   spineSize,
@@ -113,7 +116,14 @@ export function LibraryRoom({
     () => sortBooks(filterBooks(books ?? [], query), sort),
     [books, query, sort],
   );
-  const shelves = useMemo(() => packShelves(visible, width, rows), [visible, width, rows]);
+  // En el Solarpunk, los libros son libros de luz en un panel holográfico (todos iguales).
+  const holo = hasHoloBookcase(world) && !!raster?.shelf;
+  const shelves = useMemo(
+    () => packShelves(visible, width, rows, holo ? holoSlotWidth : undefined),
+    [visible, width, rows, holo],
+  );
+  // El libro de luz armado con el dedo: el primer toque lo proyecta, el segundo lo abre.
+  const [armed, setArmed] = useState<string | null>(null);
   const current = Math.min(page, shelves.length - 1);
 
   // Al cambiar la búsqueda o el orden, se vuelve al primer estante.
@@ -194,7 +204,11 @@ export function LibraryRoom({
       className={`library${book ? ' has-selection' : ''}${doorOpen ? ' door-open' : ''}`}
       data-room={room}
       data-layout={raster?.shelf ? 'scene' : undefined}
+      data-bookcase={holo ? 'holo' : undefined}
       style={layout}
+      onClick={(event) => {
+        if (armed && !(event.target as Element).closest('.slot')) setArmed(null);
+      }}
     >
       {/* Solo el clic en la puerta: el teclado usa el botón de la barra. */}
       <div
@@ -286,17 +300,36 @@ export function LibraryRoom({
                 <p className="shelf-none">Ningún libro coincide con «{query.trim()}».</p>
               ) : (
                 (shelves[current] ?? []).map((b, i) => (
-                  <div className="slot" key={b.id} data-book-id={b.id}>
-                    {renderBook?.(b) ?? (
-                      <Spine
-                        book={b}
-                        index={i}
-                        hidden={hiddenIds?.has(b.id) ?? false}
-                        dimmed={dimmed(b)}
-                        pressed={b.id === selected}
-                        onClick={() => choose(b.id === selected ? null : b.id)}
-                      />
-                    )}
+                  <div
+                    className={`slot${armed === b.id ? ' is-armed' : ''}`}
+                    key={b.id}
+                    data-book-id={b.id}
+                  >
+                    {renderBook?.(b) ??
+                      (holo ? (
+                        <LightBook
+                          book={b}
+                          index={i}
+                          hidden={hiddenIds?.has(b.id) ?? false}
+                          dimmed={dimmed(b)}
+                          pressed={b.id === selected}
+                          armed={armed === b.id}
+                          onArm={() => setArmed(b.id)}
+                          onOpen={() => {
+                            setArmed(null);
+                            choose(b.id === selected ? null : b.id);
+                          }}
+                        />
+                      ) : (
+                        <Spine
+                          book={b}
+                          index={i}
+                          hidden={hiddenIds?.has(b.id) ?? false}
+                          dimmed={dimmed(b)}
+                          pressed={b.id === selected}
+                          onClick={() => choose(b.id === selected ? null : b.id)}
+                        />
+                      ))}
                   </div>
                 ))
               )}
@@ -378,6 +411,100 @@ function Spine({
       </span>
       {preparing && <span className="spine-progress" aria-hidden="true" />}
     </button>
+  );
+}
+
+/**
+ * Las portadas del holograma, barajadas una vez por visita: cada libro del estante toma la
+ * siguiente, sin repetir hasta agotarlas (docs/lectio-temas.md §7.8).
+ */
+const COVER_ORDER = (() => {
+  const order = [...Solarpunk.COVERS];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j]!, order[i]!];
+  }
+  return order;
+})();
+
+/**
+ * Un libro de luz del panel holográfico (Solarpunk): un cartucho de cristal del color del
+ * libro. Al pasar el cursor o al enfocarlo, el libro se proyecta encima como holograma
+ * (la portada, el título, el autor y dónde vas) con su botón "Abrir"; el clic lo abre.
+ * Con el dedo no hay "pasar por encima": el primer toque lo proyecta y el segundo lo abre.
+ */
+function LightBook({
+  book,
+  index,
+  hidden,
+  dimmed,
+  pressed,
+  armed,
+  onArm,
+  onOpen,
+}: {
+  book: BookSummary;
+  index: number;
+  hidden: boolean;
+  dimmed: boolean;
+  pressed: boolean;
+  armed: boolean;
+  onArm: () => void;
+  onOpen: () => void;
+}) {
+  const { seed } = spineSize(book);
+  const color = SPINE_COLORS[seed % SPINE_COLORS.length];
+  const emblem = Solarpunk.EMBLEMS[seed % Solarpunk.EMBLEMS.length] ?? 'dot';
+  const preparing = isPreparing(book);
+  const title = preparing ? 'Preparando…' : (book.title ?? 'Sin título');
+  const touch = useRef(false);
+  const art = useMemo(() => Solarpunk.lightBook(emblem), [emblem]);
+  const cover = useMemo(
+    () => Solarpunk.cover(COVER_ORDER[index % COVER_ORDER.length] ?? 'luna'),
+    [index],
+  );
+  return (
+    <>
+      <button
+        type="button"
+        className={`spine light-book${preparing ? ' is-preparing' : ''}${hidden ? ' is-awaited' : ''}${dimmed ? ' is-offline' : ''}`}
+        style={{ '--spine': `var(--px-${color})`, '--i': index } as CSSProperties}
+        aria-pressed={pressed}
+        aria-label={`${title}${book.author ? `, de ${book.author}` : ''}${dimmed ? ' (sin conexión)' : ''}`}
+        onPointerDown={(event) => {
+          touch.current = event.pointerType !== 'mouse';
+        }}
+        onKeyDown={() => {
+          touch.current = false;
+        }}
+        onClick={() => {
+          if (touch.current && !armed && !pressed) onArm();
+          else onOpen();
+        }}
+      >
+        <PixelArt svg={art} />
+        {preparing && <span className="spine-progress" aria-hidden="true" />}
+      </button>
+      {!preparing && !hidden && (
+        <div
+          className="holo-projection"
+          style={{ '--spine': `var(--px-${color})` } as CSSProperties}
+        >
+          <div className="holo-card">
+            <PixelArt className="holo-cover" svg={cover} />
+            <strong>{title}</strong>
+            <small>
+              {book.author ? `${book.author} · ` : ''}
+              {progressLabel(book) ?? 'Sin abrir'}
+            </small>
+            <button type="button" className="holo-open" tabIndex={-1} onClick={onOpen}>
+              Abrir
+            </button>
+          </div>
+          <span className="holo-beam" aria-hidden="true" />
+        </div>
+      )}
+    </>
   );
 }
 

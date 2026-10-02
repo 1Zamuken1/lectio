@@ -1,6 +1,8 @@
 import { Bosque } from './bosque';
 import { SCENES as BOSQUE_SCENES, type RasterScene } from './bosque-scenes';
 import { Pixel } from './pixel';
+import { Solarpunk } from './solarpunk';
+import { SCENES as SOLARPUNK_SCENES } from './solarpunk-scenes';
 import type { WorldId } from './worlds';
 
 /**
@@ -44,6 +46,17 @@ const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
     companion: Bosque.lumen,
     companionFree: Bosque.lumen,
   },
+  // Las escenas del Solarpunk también son de lienzo; Pol vive en la interfaz.
+  solarpunk: {
+    pageCorner: NONE,
+    progressThumb: Solarpunk.progressThumb,
+    title: NONE,
+    monastery: NONE,
+    study: NONE,
+    lecternStand: Solarpunk.lecternStand,
+    companion: Solarpunk.pol,
+    companionFree: Solarpunk.pol,
+  },
 };
 
 export function worldArt(world: WorldId, piece: ArtPiece): string {
@@ -55,6 +68,7 @@ export type ScenePiece = 'title' | 'monastery' | 'study' | 'trunk';
 
 const RASTER: Partial<Record<WorldId, Partial<Record<ScenePiece, RasterScene>>>> = {
   bosque: BOSQUE_SCENES,
+  solarpunk: SOLARPUNK_SCENES,
 };
 
 export function rasterScene(world: WorldId, piece: ScenePiece): RasterScene | null {
@@ -65,6 +79,7 @@ export function rasterScene(world: WorldId, piece: ScenePiece): RasterScene | nu
 const WORKSHOPS: Partial<Record<WorldId, (voice: string) => string>> = {
   scriptorium: Pixel.workshop,
   bosque: Bosque.workshop,
+  solarpunk: Solarpunk.workshop,
 };
 
 export function workshopArt(world: WorldId, voice: string): string {
@@ -77,12 +92,18 @@ export function workshopArt(world: WorldId, voice: string): string {
  */
 export function crewArt(world: WorldId): { svg: string; lift: string | null } {
   if (world === 'bosque') return { svg: Bosque.bookCrew(), lift: Bosque.crewLift() };
+  if (world === 'solarpunk') return { svg: Solarpunk.bookCrew(), lift: null };
   return { svg: Pixel.bookCrew(), lift: null };
 }
 
-/** Lo que consume al libro que no se pudo preparar: llamas o, en el Bosque, hojas secas. */
+/**
+ * Lo que consume al libro que no se pudo preparar: llamas o, en el Bosque, hojas secas; en
+ * el Solarpunk, las chispas de un cortocircuito.
+ */
 export function flamesArt(world: WorldId): string {
-  return world === 'bosque' ? Bosque.wither() : Pixel.flames();
+  if (world === 'bosque') return Bosque.wither();
+  if (world === 'solarpunk') return Solarpunk.shortCircuit();
+  return Pixel.flames();
 }
 
 /**
@@ -96,5 +117,7 @@ export function downloadArt(world: WorldId): {
 } {
   if (world === 'bosque')
     return { carrier: Bosque.clothCarrier, carrierHeight: 15, chest: Bosque.rootChest() };
+  if (world === 'solarpunk')
+    return { carrier: Solarpunk.cartCarrier, carrierHeight: 15, chest: Solarpunk.capsuleChest() };
   return { carrier: Pixel.scrollCarrier, carrierHeight: 12, chest: Pixel.downloadChest() };
 }

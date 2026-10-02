@@ -8,7 +8,15 @@ import { WORLDS, hasScenes, selectableWorlds, type WorldId } from './worlds';
  * de apps/cli/assets/theme/theme.js, con la misma API para los módulos portados.
  */
 
-export { WORLDS, hasCrew, hasScenes, roomTitle, type World, type WorldId } from './worlds';
+export {
+  WORLDS,
+  hasCrew,
+  hasHoloBookcase,
+  hasScenes,
+  roomTitle,
+  type World,
+  type WorldId,
+} from './worlds';
 export type Mode = 'system' | 'day' | 'night';
 
 /** En desarrollo se eligen también los mundos a medio hacer (para verlos mientras tanto). */

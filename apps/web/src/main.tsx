@@ -5,11 +5,14 @@ import '@fontsource-variable/literata/opsz.css';
 import '@fontsource-variable/literata/opsz-italic.css';
 import '@fontsource-variable/pixelify-sans/index.css';
 import '@fontsource-variable/handjet/index.css';
+import '@fontsource/silkscreen/400.css';
+import '@fontsource/silkscreen/700.css';
 // Orden de la CLI: el CSS de las pantallas primero; el del tema sobrescribe sus tokens.
 import './styles/reader.css';
 import './styles/library.css';
 import './styles/scriptorium.css';
 import './styles/bosque.css';
+import './styles/solarpunk.css';
 import './styles/app.css';
 
 import { StrictMode } from 'react';

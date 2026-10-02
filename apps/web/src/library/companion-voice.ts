@@ -64,7 +64,59 @@ const LUMEN: Rule[] = [
   ],
 ];
 
-const VOICES: Partial<Record<WorldId, Rule[]>> = { bosque: LUMEN };
+/** Pol, el dron jardinero (Solarpunk): curioso y científico; todo lo mide y lo anota. */
+const POL: Rule[] = [
+  [
+    /^Elige un libro de la estantería\. Aquí se lee y se escucha sin cuenta\.$/,
+    () =>
+      'Bip. Pasa el cursor por un libro de luz para verlo; aquí se lee y se escucha sin cuenta.',
+  ],
+  [/^Aquí no hay libros todavía\.$/, () => 'Registro: cero libros en esta terraza. Por ahora.'],
+  [/^«(.+)»\. Buena elección\.$/, (m) => `Analizando «${m[1]}»… resultado: excelente elección.`],
+  [
+    /^«(.+)»\. Sigamos donde lo dejaste\.$/,
+    (m) => `«${m[1]}»: posición guardada. Seguimos donde lo dejaste.`,
+  ],
+  [/^«(.+)»\. Aún sin abrir\.$/, (m) => `«${m[1]}»: 0 % leído. Semilla lista para germinar.`],
+  [
+    /^«(.+)»\. (Cap\. .+|Al comienzo .+)$/,
+    (m) => `«${m[1]}» — dato: ${lowerFirst(m[2] ?? '')}. Sigamos.`,
+  ],
+  [
+    /^Aún lo estoy preparando: en unos segundos estará listo\.$/,
+    () => 'Procesando… unos segundos más y queda listo.',
+  ],
+  [/^Tus libros, a mano\.$/, () => 'Inventario de tu rincón: todos tus libros, a mano.'],
+  [/^Aquí va tu primer libro\.$/, () => 'Este panel espera su primer libro. Bip.'],
+  [/^«(.+)» ya está en tu repisa\.$/, (m) => `Entrega confirmada: «${m[1]}» ya está en tu panel.`],
+  [/^Subiendo «(.+)»…$/, (m) => `Transmitiendo «${m[1]}»…`],
+  [
+    /^¡Recibido! Lo estoy preparando: en unos segundos estará en tu repisa\.$/,
+    () => 'Recibido. Lo proceso y en unos segundos está en tu panel.',
+  ],
+  [
+    /^Ya tienes este libro: aquí está\.$/,
+    () => 'Duplicado detectado: ya tienes este libro. Aquí está.',
+  ],
+  [/^Quité «(.+)» de tu estudio\.$/, (m) => `Listo: «${m[1]}» fuera de tu rincón.`],
+  [/^Quité el libro de tu estudio\.$/, () => 'Listo: el libro salió de tu rincón.'],
+  [/^Listo, sigue en tu repisa\.$/, () => 'Restaurado. Sigue en tu panel.'],
+  [
+    /^Sin conexión: te muestro los libros de tu última visita\.$/,
+    () => 'Sin señal. Te muestro los libros de tu última visita.',
+  ],
+  [/^Sin conexión por ahora\.$/, () => 'Sin señal por ahora. Sigo midiendo.'],
+  [
+    /^Hay audio generándose para ese libro: espera a que termine y vuelve a quitarlo\.$/,
+    () => 'Error 409: hay audio grabándose de ese libro. Cuando termine, lo quitamos.',
+    'error',
+  ],
+];
+
+const VOICES: Partial<Record<WorldId, Rule[]>> = { bosque: LUMEN, solarpunk: POL };
+
+/** Cómo empieza un error sin frase propia, según el compañero. */
+const ERROR_PREFIX: Partial<Record<WorldId, string>> = { bosque: 'Ay…', solarpunk: 'Error:' };
 
 export function companionLine(world: WorldId, text: string): CompanionLine {
   const mood: CompanionLine['mood'] = ERRORS.test(text) ? 'error' : 'happy';
@@ -74,7 +126,8 @@ export function companionLine(world: WorldId, text: string): CompanionLine {
     const match = text.match(pattern);
     if (match) return { text: write(match), mood: ruleMood ?? mood };
   }
-  // Los errores sin frase propia: con un "Ay…" delante, que es como suena Lumen.
-  if (mood === 'error') return { text: `Ay… ${lowerFirst(text)}`, mood };
+  // Los errores sin frase propia: "Ay…" con Lumen, "Error:" con Pol.
+  if (mood === 'error')
+    return { text: `${ERROR_PREFIX[world] ?? ''} ${lowerFirst(text)}`.trim(), mood };
   return { text, mood };
 }

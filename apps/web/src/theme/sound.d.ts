@@ -12,7 +12,7 @@ export type SoundName =
   | 'reborn'
   | 'chest'
   | 'chest-soft'
-  /** Lumen se encoge ante un error (solo el Bosque). */
+  /** El compañero se encoge o se enreda ante un error (Lumen, Pol). */
   | 'sad';
 
 /** Efectos y música chiptune con Web Audio (sound.js). */
