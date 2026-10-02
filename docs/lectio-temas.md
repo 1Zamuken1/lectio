@@ -268,3 +268,30 @@ Solarpunk es el último mundo. Es lo único que falta de los temas. Hoy está en
 - **Probado** en `pnpm dev` con una cuenta de prueba (borrada después): portada, terraza de día y de noche, holograma, ficha, lector, rincón vacío y una subida real, con Pol anunciando la entrega. El taller, la cuadrilla y las descargas se revisaron insertando sus piezas en la página. No se grabó una voz real, para no gastar.
 - **Aprobado (02-10-2026)**: el usuario lo revisó y queda `ready: true` en `theme/worlds.ts`; el build ya lo deja elegir. Con esto están los cuatro temas.
 
+### 7.10 Rediseño del Bosque élfico y del Clásico (02-10-2026)
+
+Con los cuatro temas listos, el usuario pidió pasar el **Bosque élfico** y el **Clásico** por el mismo proceso que el Solarpunk (preguntas, maqueta aprobada y paso a la app), porque son los dos más flojos. Va **primero el Bosque**; el Clásico, después.
+
+**Bosque élfico: rediseño completo** (escenas, HUD, personajes y estantería)
+
+| Pieza | Decisión |
+|---|---|
+| Esencia | **Lothlórien noble, afinado**: la idea original (luminoso, árboles plateados, oro y verde, elfos de El Señor de los Anillos), con el detalle y el pulido del Solarpunk. |
+| Qué se conserva | **Nada**: el arte es nuevo desde cero (algo puede volver si gana en la maqueta). |
+| Luz | Se mantiene: **atardecer dorado** de día, **luna de plata** con linternas ámbar de noche. |
+| Portada | **Dos propuestas en la maqueta** para elegir. |
+| Salas | **Salón élfico** (pública): un gran salón abierto entre los troncos, con columnas que son árboles vivos y techo de hojas. **Tu talan** (propia): una plataforma privada en lo alto, con vista al bosque. |
+| Paso entre salas | Una **escalera de caracol alrededor del tronco**. |
+| Estantería | Reinventarla como el panel holográfico; **las tres propuestas en la maqueta**: libros que brotan (capullos en una rama que se abren al pasar el cursor), huecos en el tronco (las luciérnagas iluminan el nicho) y estantería de raíces (el lomo sale y cae una hoja con la ficha). |
+| Compañero | Lumen sale. **Varias opciones en la maqueta** (por ejemplo, un zorro de plata o un cervatillo blanco; una lechuza chocaría con el búho del Scriptorium). |
+| HUD | **Opciones en la maqueta** (por ejemplo, plata y hojas, o vitral de hojas). |
+| Taller | **Opciones en la maqueta** (por ejemplo, un manuscrito élfico iluminado, un farol de luz estelar o un árbol que brota con un canto). |
+| Cuadrilla | **Mensajeros élficos**: dos elfos traen el libro en una litera. |
+| Libro fallido | **Se apaga su luz**: pierde el brillo, se vuelve piedra y después vuelve a brillar. |
+| Descargas | **Una raíz que guarda** los capítulos al pie del atril; en el panel, el medidor son **los anillos de un tronco cortado** que se llenan con el espacio usado. |
+| Sonido | Se mantienen **arpa, flauta y cristal**, con los efectos ajustados a los personajes nuevos. |
+
+**Clásico: editorial con identidad** (después del Bosque)
+
+- Lo que le falla, según el usuario: se ve genérico, las salas no tienen escena, a los detalles les falta pulido, y también la lectura.
+- Sigue **sin pixel art, sin personajes y sin sonido**, y sigue siendo la referencia de accesibilidad. Gana un diseño editorial de verdad: tipografía cuidada, filetes, ornamentos tipográficos sutiles, una estantería elegante y, como mucho, una ilustración mínima de línea. Sus preguntas de diseño se hacen al terminar el Bosque.
