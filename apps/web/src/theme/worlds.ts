@@ -72,7 +72,7 @@ export const WORLDS: World[] = [
     id: 'solarpunk',
     name: 'Solarpunk',
     tagline: 'Cielo, sol y jardines',
-    ready: false,
+    ready: true,
     scenes: true,
     crew: ['workshop', 'bookCrew', 'downloads'],
     companion: 'Pol, el dron jardinero',

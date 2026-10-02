@@ -266,5 +266,5 @@ Solarpunk es el último mundo. Es lo único que falta de los temas. Hoy está en
   - **Voz de Pol**: `POL` en `companion-voice.ts`.
   - **Hoja de estilos**: `styles/solarpunk.css`, con Silkscreen (`@fontsource/silkscreen`), los paneles holográficos al 82 %, el disco solar con 4 cuadros de rayos, el riel de luz con Pol, la batería, los interruptores y el riel del volumen. Las imágenes en línea del CSS salen de `.scratch/solarpunk/gen-css-art.mjs`.
 - **Probado** en `pnpm dev` con una cuenta de prueba (borrada después): portada, terraza de día y de noche, holograma, ficha, lector, rincón vacío y una subida real, con Pol anunciando la entrega. El taller, la cuadrilla y las descargas se revisaron insertando sus piezas en la página. No se grabó una voz real, para no gastar.
-- **Falta**: la revisión completa del usuario y, después, `ready: true`.
+- **Aprobado (02-10-2026)**: el usuario lo revisó y queda `ready: true` en `theme/worlds.ts`; el build ya lo deja elegir. Con esto están los cuatro temas.
 
