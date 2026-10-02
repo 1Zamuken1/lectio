@@ -55,7 +55,7 @@ export const WORLDS: World[] = [
     id: 'bosque',
     name: 'Bosque élfico',
     tagline: 'Luminoso y noble',
-    ready: false,
+    ready: true,
     scenes: true,
     crew: ['workshop', 'bookCrew', 'downloads'],
     companion: 'Lumen, el espíritu de luz',

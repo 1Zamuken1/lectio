@@ -483,8 +483,11 @@ function Popover({
   useLayoutEffect(() => {
     const rect = anchor?.getBoundingClientRect();
     if (rect) {
+      // Alineado al botón por la derecha, sin salirse por la izquierda en pantallas angostas.
+      const viewport = document.documentElement.clientWidth;
+      const width = panel.current?.offsetWidth ?? 0;
       setPosition({
-        right: Math.max(12, document.documentElement.clientWidth - rect.right),
+        right: Math.max(12, Math.min(viewport - rect.right, viewport - width - 12)),
         bottom: window.innerHeight - rect.top + 10,
       });
     }

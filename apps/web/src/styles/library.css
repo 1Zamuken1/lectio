@@ -1358,20 +1358,21 @@ button.lectern-download-next:disabled {
 }
 
 /* El estudio: tus libros en una repisa de pared con escuadras de hierro, no en un mueble.
-   Cuelga entre la puerta y la ventana (la escena deja ese muro libre) y crece hacia abajo. */
+   Cuelga entre la puerta y la ventana (la escena deja ese muro libre) y crece hacia abajo.
+   No vale para las salas que ubican la estantería desde la escena (data-layout='scene'). */
 @media (min-width: 701px) {
-  [data-scenes='on'] .library[data-room='study'] .library-floor {
+  [data-scenes='on'] .library[data-room='study']:not([data-layout='scene']) .library-floor {
     align-items: flex-start;
     margin: 0;
     padding: clamp(5rem, 20vh, 11rem) 0 2.5rem 12vw;
   }
 
-  [data-scenes='on'] .library[data-room='study'] .bookcase {
+  [data-scenes='on'] .library[data-room='study']:not([data-layout='scene']) .bookcase {
     width: 48vw;
   }
 }
 
-[data-scenes='on'] .library[data-room='study'] .bookcase {
+[data-scenes='on'] .library[data-room='study']:not([data-layout='scene']) .bookcase {
   padding: 1rem 1.5rem 0;
   background: none;
   border: 0;
@@ -1413,7 +1414,7 @@ button.lectern-download-next:disabled {
 /* En el celular, el estudio se encuadra en la ventana y el escritorio (x ≈ 228 de 320), no
    en el muro de la repisa. */
 @media (max-width: 700px) {
-  [data-scenes='on'] .library[data-room='study'] .scene .px-scene {
+  [data-scenes='on'] .library[data-room='study']:not([data-layout='scene']) .scene .px-scene {
     position: absolute;
     top: 0;
     left: 50%;

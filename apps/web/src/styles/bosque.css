@@ -1826,12 +1826,13 @@
     inset 0 -5px 0 var(--plank-lo);
 }
 
-/* Los de los diálogos, con cuerpo de tablilla. */
+/* Los de los diálogos y el de añadir libro, con cuerpo de tablilla. */
 :is(
   [data-world='bosque'] .confirm-actions button,
   [data-world='bosque'] .primary,
   [data-world='bosque'] .danger,
-  [data-world='bosque'] .app-toast-action
+  [data-world='bosque'] .app-toast-action,
+  [data-world='bosque'] .add-book
 ) {
   min-height: 2.4rem;
   padding: 0.35rem 1.1rem;
