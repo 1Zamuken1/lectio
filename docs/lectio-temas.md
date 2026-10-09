@@ -291,6 +291,22 @@ Con los cuatro temas listos, el usuario pidió pasar el **Bosque élfico** y el 
 | Descargas | **Una raíz que guarda** los capítulos al pie del atril; en el panel, el medidor son **los anillos de un tronco cortado** que se llenan con el espacio usado. |
 | Sonido | Se mantienen **arpa, flauta y cristal**, con los efectos ajustados a los personajes nuevos. |
 
+**Maqueta del Bosque aprobada (09-10-2026)**, tras cuatro rondas en `apps/web/.scratch/bosque2/`:
+
+- **Portada A**, la ciudad en los mallorn, y **paneles A**, de plata y hojas, con botones en forma de hoja, ▶ como el broche de hoja de Lórien y el progreso como una enredadera.
+- **Más árboles** en todas las escenas (corrección de la ronda 2): filas de mallorn al fondo, más claras cuanto más lejos, y troncos y copas que enmarcan los bordes.
+- **Estanterías**: los libros reales van en un hueco enmarcado por raíces vivas (la C); los huecos tallados en los troncos (la B) tienen libros dibujados, a los lados del salón y en el tronco de tu talan.
+- **Compañero**: el usuario descartó el zorro, el cervatillo y la liebre. Queda el **retoño de mallorn**, una criaturita-planta chibi: cuerpo de corteza plateada, ojos grandes, dos hojas doradas como orejas, un brote, brazos de hojita y raicitas. Contento, florece; ante un error, se marchita.
+- **Taller**: **el árbol que brota con un canto**.
+
+**Avance en la app (09-10-2026)**:
+
+- **Escenas**: `theme/bosque-scenes.js`, rehecho desde la maqueta, con la portada, el salón élfico, tu talan y `trunk`, el tronco con la escalera de caracol, que usa el paso animado entre salas. El retoño se dibuja en lienzo (`sprout`) y `bosque.js` lo pasa a SVG.
+- **Piezas SVG**: `theme/bosque.js`, con el broche, el retoño, el taller del árbol, los mensajeros con la litera (sin canasta de ascensor: `lift: null`), el libro que se vuelve piedra y la raíz que guarda.
+- **Estilos**: en `styles/bosque.css`, los paneles de plata, los botones en hoja, el broche, la enredadera, el retoño, el taller, la piedra y los anillos del tronco como medidor de descargas.
+- **Registro**: el compañero es "El retoño de mallorn", el recipiente de las descargas "La raíz", y las salas "El salón élfico" y "Tu talan".
+- **Pruebas**: probado en `pnpm dev` (portada y salón). Las piezas se revisaron insertándolas en la página. Faltó ver libros reales en la estantería y entrar al talan, porque Docker no estaba abierto: queda para la revisión del usuario.
+
 **Clásico: editorial con identidad** (después del Bosque)
 
 - Lo que le falla, según el usuario: se ve genérico, las salas no tienen escena, a los detalles les falta pulido, y también la lectura.

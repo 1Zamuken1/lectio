@@ -159,7 +159,7 @@ export function LibraryRoom({
   useEffect(() => {
     if (!notice) return;
     react();
-    // Lumen se encoge con su sonido (el búho del Scriptorium no tiene uno).
+    // El compañero se encoge con su sonido (el búho del Scriptorium no tiene uno).
     if (companionLine(world, notice.text).mood === 'error') Sound.play('sad');
   }, [notice, world]);
 

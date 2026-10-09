@@ -12,7 +12,7 @@ describe('la voz del compañero', () => {
     }
   });
 
-  it('Lumen lo dice a su manera y conserva el título', () => {
+  it('el retoño lo dice a su manera y conserva el título', () => {
     expect(companionLine('bosque', '«Niebla». Buena elección.').text).toBe(
       '¡Uy, «Niebla»! Tiene buena pinta. ¿Lo abrimos?',
     );

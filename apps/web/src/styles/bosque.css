@@ -1,10 +1,11 @@
 /*
- * Lectio · tema Bosque élfico (docs/lectio-temas.md §7.5). Un mundo propio, al estilo
- * Stardew Valley / Terraria: escenas de pixel art en lienzo (bosque-scenes.js), colores
- * sólidos y contornos de color, y la interfaz en paneles flotantes opacos (crema con borde
- * de oro de día, azul noche de noche) con esquinas en escalón. Títulos en Handjet.
- * Contrastes verificados: tinta/panel 15,0:1 (día) y 12,6:1 (noche); resaltado de la
- * oración 12,8:1 y 8,1:1; textos secundarios ≥ 6,9:1; acentos ≥ 6,8:1.
+ * Lectio · tema Bosque élfico (docs/lectio-temas.md §7.10). Un mundo propio, Lothlórien
+ * noble, al estilo Stardew Valley / Terraria: escenas de pixel art en lienzo
+ * (bosque-scenes.js), colores sólidos y contornos de color, y la interfaz en paneles de
+ * plata con filete de oro, esquinas en escalón y botones en forma de hoja. ▶ es el broche
+ * de hoja de Lórien y el progreso, una enredadera. Títulos en Handjet.
+ * Contrastes verificados: tinta/panel 13,5:1 (día) y 12,1:1 (noche); resaltado de la
+ * oración ≥ 8:1; textos secundarios ≥ 6,8:1; el texto de las hojas verdes 6,2:1.
  */
 
 /* ---------------------------------------------------------------- Tokens de la interfaz */
@@ -26,14 +27,14 @@
   --shadow: 0 3px 0 rgb(80 50 15 / 25%);
   --gold: #7a4f12;
 
-  /* El panel flotante: crema con borde de oro. */
-  --chrome: #fbefd6;
-  --chrome-dark: #b07a22;
-  --chrome-light: #e9b44c;
-  --chrome-ink: #2a1d0e;
-  --chrome-muted: #5a4122;
-  --panel-edge: #e9b44c;
-  --panel-edge-d: #b07a22;
+  /* El panel flotante: plata clara con filete de plata y de oro. */
+  --chrome: #eef1f2;
+  --chrome-dark: #8a98a4;
+  --chrome-light: #d9b04c;
+  --chrome-ink: #22303a;
+  --chrome-muted: #44525e;
+  --panel-edge: #a6b2bc;
+  --panel-edge-d: #d9b04c;
 
   --font-display: 'Handjet Variable', 'Handjet', 'Atkinson Hyperlegible', system-ui, sans-serif;
 
@@ -62,8 +63,7 @@
   --ic-gold: #c78a2a;
   --ic-light: #fff1c4;
 
-  --medal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26' shape-rendering='crispEdges'%3E%3Crect x='12' y='0' width='1' height='1' fill='%2386c474'/%3E%3Crect x='13' y='0' width='1' height='1' fill='%2386c474'/%3E%3Crect x='11' y='1' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='12' y='1' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='13' y='1' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='14' y='1' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='9' y='2' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='10' y='2' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='11' y='2' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='12' y='2' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='15' y='2' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='16' y='2' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='17' y='2' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='11' y='3' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='15' y='3' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='16' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='17' y='3' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='18' y='3' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='19' y='3' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='21' y='3' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='4' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='4' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='17' y='4' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='18' y='4' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='19' y='4' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='20' y='4' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='21' y='4' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='22' y='4' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='5' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='18' y='5' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='19' y='5' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='20' y='5' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='21' y='5' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='12' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='18' y='6' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='19' y='6' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='20' y='6' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='21' y='6' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='22' y='6' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='11' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='12' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='18' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='19' y='7' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='20' y='7' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='21' y='7' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='22' y='7' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='18' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='19' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='20' y='8' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='21' y='8' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='22' y='8' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='23' y='8' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='2' y='9' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='3' y='9' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='9' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='5' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='9' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='9' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='18' y='9' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='9' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='20' y='9' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='21' y='9' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='22' y='9' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='9' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='2' y='10' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='3' y='10' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='5' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='10' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='7' y='10' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='9' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='10' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='19' y='10' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='10' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='21' y='10' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='10' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='23' y='10' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='1' y='11' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='2' y='11' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='3' y='11' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='7' y='11' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='12' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='14' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='16' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='11' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='20' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='21' y='11' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='11' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='11' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='24' y='11' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='0' y='12' width='1' height='1' fill='%2386c474'/%3E%3Crect x='1' y='12' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='2' y='12' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='3' y='12' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='5' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='7' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='9' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='13' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='15' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='17' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='19' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='12' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='21' y='12' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='12' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='12' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='24' y='12' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='25' y='12' width='1' height='1' fill='%2386c474'/%3E%3Crect x='0' y='13' width='1' height='1' fill='%2386c474'/%3E%3Crect x='1' y='13' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='2' y='13' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='3' y='13' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='5' y='13' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='6' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='7' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='13' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='10' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='21' y='13' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='13' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='13' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='24' y='13' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='25' y='13' width='1' height='1' fill='%2386c474'/%3E%3Crect x='1' y='14' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='2' y='14' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='3' y='14' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='4' y='14' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='5' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='6' y='14' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='7' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='14' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='9' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='10' y='14' width='1' height='1' fill='%23ffd98a'/%3E%3Crect x='11' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='21' y='14' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='14' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='14' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='24' y='14' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='2' y='15' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='3' y='15' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='4' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='5' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='6' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='7' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='10' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='15' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='13' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='15' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='17' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='15' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='21' y='15' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='22' y='15' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='15' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='2' y='16' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='3' y='16' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='4' y='16' width='1' height='1' fill='%23ffe2a0'/%3E%3Crect x='5' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='6' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='7' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='10' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='16' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='21' y='16' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='22' y='16' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='23' y='16' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='2' y='17' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='3' y='17' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='4' y='17' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='5' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='6' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='7' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='10' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='11' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='13' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='14' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='15' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='17' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='18' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='19' y='17' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='20' y='17' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='21' y='17' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='22' y='17' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='23' y='17' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='3' y='18' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='4' y='18' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='5' y='18' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='6' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='7' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='18' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='10' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='18' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='14' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='18' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='16' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='18' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='18' y='18' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='19' y='18' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='20' y='18' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='21' y='18' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='22' y='18' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='3' y='19' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='4' y='19' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='5' y='19' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='6' y='19' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='7' y='19' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='8' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='9' y='19' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='10' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='11' y='19' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='12' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='13' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='14' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='15' y='19' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='16' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='17' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='18' y='19' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='19' y='19' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='20' y='19' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='21' y='19' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='22' y='19' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='4' y='20' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='5' y='20' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='6' y='20' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='7' y='20' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='8' y='20' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='9' y='20' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='10' y='20' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='11' y='20' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='12' y='20' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='13' y='20' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='14' y='20' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='15' y='20' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='16' y='20' width='1' height='1' fill='%23f2b24c'/%3E%3Crect x='17' y='20' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='18' y='20' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='19' y='20' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='20' y='20' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='21' y='20' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='3' y='21' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='4' y='21' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='5' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='6' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='7' y='21' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='8' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='9' y='21' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='10' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='11' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='12' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='13' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='14' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='15' y='21' width='1' height='1' fill='%23c27a22'/%3E%3Crect x='16' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='17' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='18' y='21' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='19' y='21' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='20' y='21' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='21' y='21' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='22' y='21' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='4' y='22' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='6' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='7' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='8' y='22' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='9' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='10' y='22' width='1' height='1' fill='%23e9b44c'/%3E%3Crect x='11' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='12' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='13' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='14' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='15' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='16' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='17' y='22' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='18' y='22' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='19' y='22' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='21' y='22' width='1' height='1' fill='%234f8a5a'/%3E%3Crect x='8' y='23' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='9' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='10' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='11' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='12' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='13' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='14' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='15' y='23' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='16' y='23' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='17' y='23' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='11' y='24' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='12' y='24' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='13' y='24' width='1' height='1' fill='%237a4e12'/%3E%3Crect x='14' y='24' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='12' y='25' width='1' height='1' fill='%2386c474'/%3E%3Crect x='13' y='25' width='1' height='1' fill='%2386c474'/%3E%3C/svg%3E");
-  --wing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 10' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='1' y='0' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='12' y='6' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='11' y='7' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='12' y='7' width='1' height='1' fill='%23a8701f'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='10' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='11' y='8' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='12' y='8' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='13' y='8' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='12' y='9' width='1' height='1' fill='%23f2c25a'/%3E%3Crect x='13' y='9' width='1' height='1' fill='%23f2c25a'/%3E%3C/svg%3E");
+  --brooch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Cpath d='M12 1h1v1h1v1h1v2h1v2h1v3h1v5h-1v3h-1v2h-1v1h-1v1h-1v1h-1v-1h-1v-1H9v-1H8v-2H7v-3H6V9h1V7h1V5h1V3h1V2h1V1z' fill='%23c8ced4'/%3E%3Cpath d='M12 3h1v2h1v2h1v3h1v4h-1v3h-1v2h-1v1h-1v-1h-1v-2H9v-3H8v-4h1V7h1V5h1V3z' fill='%234f7a52'/%3E%3Cpath d='M12 4h1v17h-1z' fill='%23e9b44c'/%3E%3Cpath d='M10 9h2v1h-2zM13 11h2v1h-2zM10 13h2v1h-2zM13 15h2v1h-2z' fill='%23e9b44c'/%3E%3Cpath d='M11 22h3v2h-3z' fill='%23e9b44c'/%3E%3C/svg%3E");
   --step-corners: polygon(
     0 6px,
     2px 6px,
@@ -96,8 +96,8 @@
   );
   /* El borde del panel: filete de oro con su sombra por dentro. */
   --panel-border:
-    inset 0 0 0 2px var(--panel-edge), inset 0 0 0 3px var(--panel-edge-d),
-    inset 0 5px 0 rgb(255 255 255 / 16%), inset 0 -5px 0 rgb(0 0 0 / 7%);
+    inset 0 0 0 2px var(--panel-edge), inset 0 0 0 4px var(--chrome),
+    inset 0 0 0 5px var(--panel-edge-d), inset 0 -5px 0 rgb(0 0 0 / 6%);
   --scroll-size: 12px;
   --scroll-track: #ead9b4;
   --scroll-thumb: #c78a2a;
@@ -123,13 +123,13 @@
   --warn-soft: #2d2a1c;
   --shadow: 0 3px 0 rgb(0 0 0 / 40%);
   --gold: #e9c46a;
-  --chrome: #18213a;
-  --chrome-dark: #c9a24a;
-  --chrome-light: #8a6a24;
-  --chrome-ink: #f3e8d2;
-  --chrome-muted: #c3b8a2;
-  --panel-edge: #c9a24a;
-  --panel-edge-d: #0b1020;
+  --chrome: #1c2433;
+  --chrome-dark: #5a687e;
+  --chrome-light: #c9a24a;
+  --chrome-ink: #eef1f4;
+  --chrome-muted: #c2ccd6;
+  --panel-edge: #5a687e;
+  --panel-edge-d: #c9a24a;
   --px-wood-o: #2a3446;
   --px-wood-d: #4a566c;
   --px-wood-m: #6b788f;
@@ -149,8 +149,7 @@
   --ic-red: #7fb3a0;
   --ic-gold: #ffbf55;
   --ic-light: #fff4d6;
-  --medal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26' shape-rendering='crispEdges'%3E%3Crect x='12' y='0' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='13' y='0' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='11' y='1' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='12' y='1' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='13' y='1' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='14' y='1' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='9' y='2' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='10' y='2' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='11' y='2' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='12' y='2' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='15' y='2' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='16' y='2' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='17' y='2' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='11' y='3' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='15' y='3' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='16' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='17' y='3' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='18' y='3' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='19' y='3' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='21' y='3' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='4' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='4' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='17' y='4' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='18' y='4' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='19' y='4' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='20' y='4' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='21' y='4' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='22' y='4' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='5' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='18' y='5' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='19' y='5' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='20' y='5' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='21' y='5' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='12' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='18' y='6' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='19' y='6' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='20' y='6' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='21' y='6' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='22' y='6' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='11' y='7' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='12' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='18' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='19' y='7' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='20' y='7' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='21' y='7' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='22' y='7' width='1' height='1' fill='%236a5220'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='8' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='10' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='18' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='19' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='20' y='8' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='21' y='8' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='22' y='8' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='23' y='8' width='1' height='1' fill='%236a5220'/%3E%3Crect x='2' y='9' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='3' y='9' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='9' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='5' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='9' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='9' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='9' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='9' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='18' y='9' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='9' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='20' y='9' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='21' y='9' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='22' y='9' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='9' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='2' y='10' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='3' y='10' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='5' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='10' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='7' y='10' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='9' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='10' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='19' y='10' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='10' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='21' y='10' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='10' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='23' y='10' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='1' y='11' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='2' y='11' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='3' y='11' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='7' y='11' width='1' height='1' fill='%23fff4d6'/%3E%3Crect x='8' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='12' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='14' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='16' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='11' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='20' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='21' y='11' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='11' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='11' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='24' y='11' width='1' height='1' fill='%236a5220'/%3E%3Crect x='0' y='12' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='1' y='12' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='2' y='12' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='3' y='12' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='5' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='7' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='9' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='13' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='15' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='17' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='19' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='12' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='21' y='12' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='12' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='12' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='24' y='12' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='25' y='12' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='0' y='13' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='1' y='13' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='2' y='13' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='3' y='13' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='5' y='13' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='6' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='7' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='13' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='10' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='21' y='13' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='13' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='13' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='24' y='13' width='1' height='1' fill='%236a5220'/%3E%3Crect x='25' y='13' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='1' y='14' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='2' y='14' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='3' y='14' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='4' y='14' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='5' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='6' y='14' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='7' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='14' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='9' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='10' y='14' width='1' height='1' fill='%23ffcf6b'/%3E%3Crect x='11' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='21' y='14' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='14' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='14' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='24' y='14' width='1' height='1' fill='%236a5220'/%3E%3Crect x='2' y='15' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='3' y='15' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='4' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='5' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='6' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='7' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='10' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='15' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='13' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='15' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='17' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='15' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='21' y='15' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='22' y='15' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='15' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='2' y='16' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='3' y='16' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='4' y='16' width='1' height='1' fill='%23f4e2a2'/%3E%3Crect x='5' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='6' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='7' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='10' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='16' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='21' y='16' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='22' y='16' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='23' y='16' width='1' height='1' fill='%236a5220'/%3E%3Crect x='2' y='17' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='3' y='17' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='4' y='17' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='5' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='6' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='7' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='10' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='11' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='13' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='14' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='15' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='17' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='18' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='19' y='17' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='20' y='17' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='21' y='17' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='22' y='17' width='1' height='1' fill='%236a5220'/%3E%3Crect x='23' y='17' width='1' height='1' fill='%236a5220'/%3E%3Crect x='3' y='18' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='4' y='18' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='5' y='18' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='6' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='7' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='18' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='10' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='18' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='14' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='18' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='16' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='18' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='18' y='18' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='19' y='18' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='20' y='18' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='21' y='18' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='22' y='18' width='1' height='1' fill='%236a5220'/%3E%3Crect x='3' y='19' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='4' y='19' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='5' y='19' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='6' y='19' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='7' y='19' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='8' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='9' y='19' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='10' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='11' y='19' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='12' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='13' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='14' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='15' y='19' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='16' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='17' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='18' y='19' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='19' y='19' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='20' y='19' width='1' height='1' fill='%236a5220'/%3E%3Crect x='21' y='19' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='22' y='19' width='1' height='1' fill='%236a5220'/%3E%3Crect x='4' y='20' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='5' y='20' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='6' y='20' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='7' y='20' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='8' y='20' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='9' y='20' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='10' y='20' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='11' y='20' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='12' y='20' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='13' y='20' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='14' y='20' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='15' y='20' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='16' y='20' width='1' height='1' fill='%23c2862c'/%3E%3Crect x='17' y='20' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='18' y='20' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='19' y='20' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='20' y='20' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='21' y='20' width='1' height='1' fill='%236a5220'/%3E%3Crect x='3' y='21' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='4' y='21' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='5' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='6' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='7' y='21' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='8' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='9' y='21' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='10' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='11' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='12' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='13' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='14' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='15' y='21' width='1' height='1' fill='%237a4e16'/%3E%3Crect x='16' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='17' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='18' y='21' width='1' height='1' fill='%236a5220'/%3E%3Crect x='19' y='21' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='20' y='21' width='1' height='1' fill='%236a5220'/%3E%3Crect x='21' y='21' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='22' y='21' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='4' y='22' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='6' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='7' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='8' y='22' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='9' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='10' y='22' width='1' height='1' fill='%23d8b45a'/%3E%3Crect x='11' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='12' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='13' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='14' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='15' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='16' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='17' y='22' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='18' y='22' width='1' height='1' fill='%236a5220'/%3E%3Crect x='19' y='22' width='1' height='1' fill='%236a5220'/%3E%3Crect x='21' y='22' width='1' height='1' fill='%237fb3a0'/%3E%3Crect x='8' y='23' width='1' height='1' fill='%236a5220'/%3E%3Crect x='9' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='10' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='11' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='12' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='13' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='14' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='15' y='23' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='16' y='23' width='1' height='1' fill='%236a5220'/%3E%3Crect x='17' y='23' width='1' height='1' fill='%236a5220'/%3E%3Crect x='11' y='24' width='1' height='1' fill='%236a5220'/%3E%3Crect x='12' y='24' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='13' y='24' width='1' height='1' fill='%236a5220'/%3E%3Crect x='14' y='24' width='1' height='1' fill='%239c7a30'/%3E%3Crect x='12' y='25' width='1' height='1' fill='%23b5e3cf'/%3E%3Crect x='13' y='25' width='1' height='1' fill='%23b5e3cf'/%3E%3C/svg%3E");
-  --wing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 10' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='1' y='0' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='12' y='6' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='11' y='7' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='12' y='7' width='1' height='1' fill='%238b98b5'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='10' y='8' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='11' y='8' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='12' y='8' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='13' y='8' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='12' y='9' width='1' height='1' fill='%23dfe6f0'/%3E%3Crect x='13' y='9' width='1' height='1' fill='%23dfe6f0'/%3E%3C/svg%3E");
+  --brooch: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' shape-rendering='crispEdges'%3E%3Cpath d='M12 1h1v1h1v1h1v2h1v2h1v3h1v5h-1v3h-1v2h-1v1h-1v1h-1v1h-1v-1h-1v-1H9v-1H8v-2H7v-3H6V9h1V7h1V5h1V3h1V2h1V1z' fill='%23c8ced4'/%3E%3Cpath d='M12 3h1v2h1v2h1v3h1v4h-1v3h-1v2h-1v1h-1v-1h-1v-2H9v-3H8v-4h1V7h1V5h1V3z' fill='%234f7a52'/%3E%3Cpath d='M12 4h1v17h-1z' fill='%23e9b44c'/%3E%3Cpath d='M10 9h2v1h-2zM13 11h2v1h-2zM10 13h2v1h-2zM13 15h2v1h-2z' fill='%23e9b44c'/%3E%3Cpath d='M11 22h3v2h-3z' fill='%23e9b44c'/%3E%3C/svg%3E");
   --scroll-track: #10162a;
   --scroll-thumb: #8a6a24;
   --scroll-thumb-hover: #c9a24a;
@@ -246,7 +245,9 @@
 [data-world='bosque'] .tool {
   border: 0;
   border-radius: 0;
-  background: rgb(0 0 0 / 5%);
+  clip-path: var(--leaf-shape);
+  padding-inline: 0.9rem;
+  background: linear-gradient(var(--plank-hi), var(--plank) 45%, var(--plank-lo));
   color: var(--chrome-ink);
   box-shadow:
     inset 0 0 0 2px rgb(233 180 76 / 55%),
@@ -275,8 +276,8 @@
   --ic-red: #ffe2a0;
   --ic-gold: #ffe2a0;
   --ic-light: #ffffff;
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: linear-gradient(var(--plank-main-hi), var(--plank-main));
+  color: var(--plank-main-ink);
 }
 
 [data-world='bosque'] .tool:disabled {
@@ -311,95 +312,45 @@
 
 [data-world='bosque'] .tabs button {
   border-radius: 0;
+  clip-path: var(--leaf-shape);
+  padding-inline: 1.1rem;
   font-family: var(--font-display);
   font-size: 1.1rem;
   color: var(--chrome-muted);
 }
 
 [data-world='bosque'] .tabs button[aria-selected='true'] {
-  background: var(--accent);
-  color: var(--accent-contrast);
+  background: linear-gradient(var(--plank-main-hi), var(--plank-main));
+  color: var(--plank-main-ink);
 }
 
 /* ---------------------------------------------------------------- El reproductor */
 
-/* ▶ como medallón: aro de oro con hojitas y vidrio ámbar, y dos alas que tienen vida. */
+/* ▶ es el broche de hoja de Lórien: verde con canto de plata y nervio de oro. */
 [data-world='bosque'] .player .play {
   position: relative;
-  width: 3.8rem;
+  width: 3.4rem;
   height: 3.8rem;
-  margin: -0.3rem 1.4rem;
+  margin: -0.3rem 1rem;
   border: 0;
   border-radius: 0;
-  background: var(--medal) center / contain no-repeat;
+  background: var(--brooch) center / contain no-repeat;
   box-shadow: none;
   image-rendering: pixelated;
-  --ic-ink: #3a1f04;
-  --ic-gold: #5a3208;
-  --ic-red: #5a3208;
-  --ic-light: #fff4d6;
+  --ic-ink: #fff4d6;
+  --ic-gold: #fff4d6;
+  --ic-red: #fff4d6;
+  --ic-light: #ffffff;
 }
 
-[data-world='bosque'] .player .play::before,
-[data-world='bosque'] .player .play::after {
-  content: '';
-  position: absolute;
-  top: 2%;
-  width: 30px;
-  height: 22px;
-  background: var(--wing) center / 100% 100% no-repeat;
-  image-rendering: pixelated;
-  pointer-events: none;
-  transition: transform 0.2s steps(2);
-}
-
-[data-world='bosque'] .player .play::before {
-  left: -24px;
-  transform-origin: 100% 80%;
-}
-
-[data-world='bosque'] .player .play::after {
-  right: -24px;
-  transform: scaleX(-1);
-  transform-origin: 100% 80%;
-}
-
-[data-world='bosque'] .player .play:hover::before {
-  transform: rotate(12deg);
-}
-
-[data-world='bosque'] .player .play:hover::after {
-  transform: scaleX(-1) rotate(12deg);
-}
-
-/* Mientras suena, aletea y el vidrio late. */
-:root[data-world='bosque'][data-motion='full'][data-playing='true'] .player .play::before {
-  animation: wing-flap-l 0.9s steps(2) infinite;
-}
-
-:root[data-world='bosque'][data-motion='full'][data-playing='true'] .player .play::after {
-  animation: wing-flap-r 0.9s steps(2) infinite;
-}
-
+/* Mientras suena, el broche late con su luz. */
 :root[data-world='bosque'][data-motion='full'][data-playing='true'] .player .play {
-  animation: medal-breathe 1.8s steps(3) infinite;
+  animation: brooch-glow 1.8s steps(3) infinite;
 }
 
-@keyframes wing-flap-l {
+@keyframes brooch-glow {
   50% {
-    transform: rotate(16deg);
-  }
-}
-
-@keyframes wing-flap-r {
-  50% {
-    transform: scaleX(-1) rotate(16deg);
-  }
-}
-
-@keyframes medal-breathe {
-  50% {
-    filter: brightness(1.15) drop-shadow(0 0 6px rgb(255 200 110 / 70%));
+    filter: brightness(1.12) drop-shadow(0 0 6px rgb(255 220 120 / 70%));
   }
 }
 
@@ -408,8 +359,8 @@
 }
 
 [data-world='bosque'] .player .play .icon svg {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
 }
 
 [data-world='bosque'] .player-title {
@@ -428,34 +379,38 @@
   display: none;
 }
 
-/* Progreso: un hilo de luz ámbar; la luciérnaga va en la punta. */
+/* Progreso: una enredadera que crece con hojitas; el broche va en la punta. */
 [data-world='bosque'] .progress {
-  height: 1.6rem;
+  height: 1.8rem;
 }
 
 [data-world='bosque'] .progress-track {
-  height: 4px;
+  height: 3px;
   background: rgb(0 0 0 / 14%);
   border: 0;
   border-radius: 0;
 }
 
 [data-world='bosque'][data-mode='night'] .progress-track {
-  background: rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 14%);
 }
 
 [data-world='bosque'] .progress-fill {
-  background: repeating-linear-gradient(
-    to right,
-    var(--px-firefly) 0 6px,
-    color-mix(in srgb, var(--px-firefly) 55%, transparent) 6px 8px
-  );
-  box-shadow: 0 0 6px var(--px-firefly);
+  overflow: visible;
+  background: var(--px-leaf);
+}
+
+[data-world='bosque'] .progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
+  background: var(--leaf) 0 50% / 14px 12px repeat-x;
+  image-rendering: pixelated;
 }
 
 [data-world='bosque'] .progress-thumb {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 20px;
   background: none;
   border: 0;
   border-radius: 0;
@@ -467,17 +422,6 @@
   display: block;
   width: 100%;
   height: 100%;
-}
-
-:root[data-world='bosque'][data-motion='full'] .progress-thumb svg {
-  animation: firefly-pulse 1.4s steps(3) infinite;
-}
-
-@keyframes firefly-pulse {
-  50% {
-    filter: brightness(1.35);
-    transform: translateY(-1px);
-  }
 }
 
 [data-world='bosque'] .progress:has(.player-progress:focus-visible) .progress-thumb {
@@ -977,11 +921,11 @@
 [data-world='bosque'] .logo::after {
   content: '';
   display: inline-block;
-  width: 0.55em;
-  height: 0.4em;
+  width: 0.5em;
+  height: 0.42em;
   margin: 0 0.25em;
   vertical-align: middle;
-  background: var(--wing) center / 100% 100% no-repeat;
+  background: var(--leaf) center / 100% 100% no-repeat;
   image-rendering: pixelated;
 }
 
@@ -1111,56 +1055,43 @@
   font-size: 1.3rem;
 }
 
-/* ---------------------------------------------------------------- Lumen, el compañero */
+/* ---------------------------------------------------------------- El retoño, el compañero */
 /*
- * Una bolita de luz con carita y alitas de hoja (bosque.js): flota, parpadea y aletea.
- * En las salas flota junto a la estantería y habla en su globo; cuando pasa algo da una
- * voltereta con chispas (ante un error, se encoge y su luz baja). En el índice brilla
- * mientras suena el libro, y se asoma a la página al empezar cada párrafo.
+ * Una criaturita-planta chibi (bosque.js): cuerpo de corteza plateada, ojos grandes, dos
+ * hojas doradas como orejas y un brote. Camina meciendo las hojas; cuando pasa algo, salta y
+ * florece (le sale una niphredil); ante un error, se marchita un momento. De noche brilla un
+ * poco, para no perderse en lo oscuro. En las salas va junto a la estantería y habla en su
+ * globo; en el índice mece las hojas mientras suena el libro, y se asoma a la página.
  */
 
 :root[data-world='bosque'] {
-  --px-lumen-o: #e9a83c;
-  --px-lumen: #ffd98a;
-  --px-lumen-l: #fff6d6;
-  --px-lumen-eye: #5a3208;
-  --px-lumen-cheek: #f7a8b8;
-  --lumen-glow: rgb(255 200 100 / 75%);
+  --sprout-glow: rgb(255 220 140 / 0%);
 }
 
 :root[data-world='bosque'][data-mode='night'] {
-  --px-lumen-o: #ffbf55;
-  --px-lumen: #ffe29a;
-  --lumen-glow: rgb(255 210 120 / 95%);
+  --sprout-glow: rgb(255 220 140 / 75%);
 }
 
-.px-lumen {
+.px-sprout {
   overflow: visible;
-  filter: drop-shadow(0 0 3px var(--lumen-glow));
+  filter: drop-shadow(0 0 3px var(--sprout-glow, transparent));
 }
 
-.px-lumen .lumen-wings-down,
-.px-lumen .lumen-eyes-closed {
+.px-sprout .sprout-f1,
+.px-sprout .sprout-happy,
+.px-sprout .sprout-sad {
   opacity: 0;
 }
 
-:root[data-motion='full'] .px-lumen .lumen-wings-up {
-  animation: lumen-flap 0.5s steps(1) infinite;
+:root[data-motion='full'] .px-sprout .sprout-f0 {
+  animation: sprout-step 0.9s steps(1) infinite;
 }
 
-:root[data-motion='full'] .px-lumen .lumen-wings-down {
-  animation: lumen-flap 0.5s steps(1) infinite reverse;
+:root[data-motion='full'] .px-sprout .sprout-f1 {
+  animation: sprout-step 0.9s steps(1) infinite reverse;
 }
 
-:root[data-motion='full'] .px-lumen .lumen-eyes-open {
-  animation: px-blink-open 4.6s steps(1) infinite;
-}
-
-:root[data-motion='full'] .px-lumen .lumen-eyes-closed {
-  animation: px-blink-closed 4.6s steps(1) infinite;
-}
-
-@keyframes lumen-flap {
+@keyframes sprout-step {
   0%,
   49% {
     opacity: 1;
@@ -1171,15 +1102,28 @@
   }
 }
 
-/* Flota: sube y baja en pasos. */
-:root[data-motion='full'] .shelf-owl .px-lumen,
-:root[data-motion='full'] .title-companion .px-lumen {
-  animation: lumen-float 2.4s steps(4) infinite;
+/* Contento: florece mientras salta. Triste: se marchita. */
+.hop .px-sprout .sprout-f0,
+.hop .px-sprout .sprout-f1,
+.is-sad .px-sprout .sprout-f0,
+.is-sad .px-sprout .sprout-f1 {
+  opacity: 0;
+  animation: none;
 }
 
-@keyframes lumen-float {
+.hop:not(.is-sad) .px-sprout .sprout-happy,
+.is-sad .px-sprout .sprout-sad {
+  opacity: 1;
+}
+
+:root[data-motion='full'] .shelf-owl .px-sprout,
+:root[data-motion='full'] .title-companion .px-sprout {
+  animation: sprout-bob 1.8s steps(2) infinite;
+}
+
+@keyframes sprout-bob {
   50% {
-    transform: translateY(-3px);
+    transform: translateY(-1px);
   }
 }
 
@@ -1187,9 +1131,9 @@
 .library[data-layout='scene'] .shelf-owl {
   position: absolute;
   left: calc(100% + 0.3rem);
-  top: -0.9rem;
+  top: -1.4rem;
   display: block;
-  width: 46px;
+  width: 52px;
   margin: 0;
   pointer-events: none;
 }
@@ -1200,10 +1144,10 @@
 }
 
 .library[data-layout='scene'] .shelf-owl ~ .shelf-hint {
-  left: calc(100% + 3.6rem);
+  left: calc(100% + 4rem);
 }
 
-/* La colita del globo, en escalón, hacia Lumen. */
+/* La colita del globo, en escalón, hacia el retoño. */
 .library[data-layout='scene'] .shelf-owl ~ .shelf-hint::before {
   content: '';
   position: absolute;
@@ -1215,45 +1159,38 @@
   clip-path: polygon(100% 0, 0 50%, 100% 100%);
 }
 
-/* Voltereta con chispas (en vez del saltito del búho). */
+/* Contento: un salto con destellos dorados (en vez del saltito del búho). */
 :root[data-motion='full'] .library[data-layout='scene'] .shelf-owl.hop {
   animation: none;
 }
 
-:root[data-motion='full'] .shelf-owl.hop .px-lumen {
-  animation: lumen-flip 0.6s steps(8);
+:root[data-motion='full'] .shelf-owl.hop .px-sprout {
+  animation: sprout-jump 0.7s steps(6);
 }
 
-:root[data-motion='full'] .shelf-owl.hop::after {
+:root[data-motion='full'] .shelf-owl.hop:not(.is-sad)::after {
   content: '';
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 30%;
   width: 3px;
   height: 3px;
-  background: var(--px-lumen-l);
+  background: var(--px-gold);
   box-shadow:
-    -14px -10px 0 var(--px-lumen),
-    12px -14px 0 var(--px-lumen-l),
-    16px 6px 0 var(--px-lumen),
-    -12px 12px 0 var(--px-lumen-l),
-    0 -18px 0 var(--px-lumen);
-  animation: lumen-sparks 0.7s steps(5) forwards;
+    -14px -10px 0 #fff4d0,
+    12px -14px 0 var(--px-gold),
+    16px 6px 0 #fff4d0,
+    -12px 12px 0 var(--px-gold);
+  animation: sprout-sparks 0.7s steps(5) forwards;
 }
 
-@keyframes lumen-flip {
-  0% {
-    transform: translateY(0) rotate(0);
-  }
+@keyframes sprout-jump {
   40% {
-    transform: translateY(-10px) rotate(180deg);
-  }
-  100% {
-    transform: translateY(0) rotate(360deg);
+    transform: translateY(-9px);
   }
 }
 
-@keyframes lumen-sparks {
+@keyframes sprout-sparks {
   from {
     opacity: 1;
     transform: scale(0.4);
@@ -1264,20 +1201,16 @@
   }
 }
 
-/* Ante un error, se encoge y su luz baja un momento (sin voltereta ni chispas). */
-:root[data-motion='full'] .shelf-owl.is-sad.hop .px-lumen {
-  animation: lumen-sad 1.4s steps(6);
+/* Ante un error, se marchita un momento (sin salto ni destellos). */
+:root[data-motion='full'] .shelf-owl.is-sad.hop .px-sprout {
+  animation: sprout-wilt 1.4s steps(6);
 }
 
-:root[data-motion='full'] .shelf-owl.is-sad.hop::after {
-  display: none;
-}
-
-@keyframes lumen-sad {
+@keyframes sprout-wilt {
   20%,
   80% {
-    transform: translateY(4px) scale(0.78);
-    filter: brightness(0.6) drop-shadow(0 0 1px var(--lumen-glow));
+    transform: translateY(3px) scaleY(0.9);
+    filter: saturate(0.5) brightness(0.85);
   }
 }
 
@@ -1287,7 +1220,7 @@
     left: 0.9rem;
     top: auto;
     bottom: calc(var(--mini-height, 0px) + 4.6rem + env(safe-area-inset-bottom));
-    width: 40px;
+    width: 44px;
     z-index: 2;
   }
 
@@ -1300,22 +1233,15 @@
   }
 }
 
-/* En el índice del lector: brilla más mientras suena el libro y se adormece en pausa. */
-[data-world='bosque'] .sidebar .companion-slot .px-lumen {
-  filter: drop-shadow(0 0 2px var(--lumen-glow)) brightness(0.85);
+/* En el índice del lector: mece las hojas mientras suena el libro; quieto en pausa. */
+[data-world='bosque'] .sidebar .companion-slot .px-sprout .sprout-f0,
+[data-world='bosque'] .sidebar .companion-slot .px-sprout .sprout-f1 {
+  animation-play-state: paused;
 }
 
-:root[data-world='bosque'][data-motion='full'][data-playing='true']
-  .sidebar
-  .companion-slot
-  .px-lumen {
-  animation: lumen-bright 1.2s steps(3) infinite;
-}
-
-@keyframes lumen-bright {
-  50% {
-    filter: drop-shadow(0 0 6px var(--lumen-glow)) brightness(1.15);
-  }
+:root[data-world='bosque'][data-playing='true'] .sidebar .companion-slot .px-sprout .sprout-f0,
+:root[data-world='bosque'][data-playing='true'] .sidebar .companion-slot .px-sprout .sprout-f1 {
+  animation-play-state: running;
 }
 
 /* Asomado a la página: aparece en el margen a la altura del párrafo y se va. */
@@ -1323,7 +1249,7 @@
   position: absolute;
   left: 0.35rem;
   z-index: 1;
-  width: 30px;
+  width: 32px;
   pointer-events: none;
 }
 
@@ -1333,14 +1259,14 @@
 }
 
 :root[data-motion='full'] .companion-peek {
-  animation: lumen-peek 2.2s steps(11) forwards;
+  animation: sprout-peek 2.2s steps(11) forwards;
 }
 
 :root[data-motion='reduced'] .companion-peek {
   display: none;
 }
 
-@keyframes lumen-peek {
+@keyframes sprout-peek {
   0% {
     opacity: 0;
     transform: translateX(-10px);
@@ -1356,16 +1282,16 @@
   }
 }
 
-/* Junto al título de la portada: revolotea alrededor del logo. */
+/* Junto al título de la portada: camina de un lado a otro, al lado del logo. */
 .title-banner {
   position: relative;
 }
 
 .title-companion {
   position: absolute;
-  left: -2.6rem;
-  top: -0.6rem;
-  width: 48px;
+  left: -3.4rem;
+  top: 0.4rem;
+  width: 56px;
   pointer-events: none;
 }
 
@@ -1374,32 +1300,12 @@
   height: auto;
 }
 
-:root[data-motion='full'] .title-companion {
-  animation: lumen-wander 9s steps(36) infinite;
-}
-
-@keyframes lumen-wander {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  25% {
-    transform: translate(1.5rem, -1rem);
-  }
-  50% {
-    transform: translate(0.6rem, 1.2rem);
-  }
-  75% {
-    transform: translate(-0.8rem, 0.2rem);
-  }
-}
-
-/* ---------------------------------------------------------------- El taller del tapiz */
+/* ---------------------------------------------------------------- El taller del árbol que brota */
 /*
- * Mientras se genera una voz (Workshop.tsx, bosque.js: workshop): la maestra y nueve
- * aprendices tejen el tapiz del gran árbol con el progreso real. Usa las clases y los
+ * Mientras se genera una voz (Workshop.tsx, bosque.js: workshop): el coro canta y la copa
+ * del mallorn joven se llena de hojas doradas con el progreso real. Usa las clases y los
  * tiempos del taller del Scriptorium (scriptorium.css, "Taller de copistas"); aquí, la
- * paleta, las capas de cada voz y dónde va (sobre el reproductor flotante).
+ * paleta, las túnicas de cada voz, las notas y dónde va (sobre el reproductor flotante).
  */
 
 :root[data-world='bosque'] {
@@ -1415,14 +1321,20 @@
   --px-stone-d: #6e6a60;
   --px-tap-warp: #f1e2c2;
   --px-tap-warp-d: #d9c294;
-  --px-tap-sky: #8fb3b0;
-  --px-tap-sun: #fff1c4;
-  --px-tap-water: #4fa3c7;
   --px-tap-bark: #8e6644;
   --px-tap-leaf: #5a9444;
   --px-tap-leaf-d: #3d6b3a;
   --px-robe: #3f9a8c;
   --px-robe-d: #2a6e64;
+  --px-silver: #cbd5dc;
+  --px-silver-d: #8a98a4;
+  --px-silver-l: #f4f7f9;
+  --px-marble: #efe6d4;
+  --px-gleaf: #dcaa3e;
+  --px-gleaf-l: #f4d06a;
+  --px-gleaf-d: #a8701f;
+  --px-niphredil: #ffffff;
+  --px-stone: #a8a49a;
 }
 
 :root[data-world='bosque'][data-mode='night'] {
@@ -1438,15 +1350,21 @@
   --px-stone-d: #3a4252;
   --px-tap-warp: #8e9ab0;
   --px-tap-warp-d: #6b788f;
-  --px-tap-sky: #2b467a;
-  --px-tap-sun: #eef2f8;
-  --px-tap-water: #1f4c72;
   --px-tap-bark: #4a566c;
   --px-tap-leaf: #2d5c6c;
   --px-tap-leaf-d: #1f4253;
+  --px-silver: #7a8aa2;
+  --px-silver-d: #3a4658;
+  --px-silver-l: #a8b6ca;
+  --px-marble: #4c5670;
+  --px-gleaf: #c9a24a;
+  --px-gleaf-l: #e8c870;
+  --px-gleaf-d: #8a6a24;
+  --px-niphredil: #e8eef8;
+  --px-stone: #5a6070;
 }
 
-/* Cada voz tiene su capa (y el tinte del caldero). */
+/* Cada voz tiene su túnica. */
 [data-world='bosque'] .px-workshop[data-voice='gonzalo'] {
   --px-robe: #3f9a8c;
   --px-robe-d: #2a6e64;
@@ -1480,19 +1398,46 @@
   translate: -50% 0;
 }
 
-/* Al terminar, Lumen da una voltereta cuando suena la campanilla. */
-.px-loom .ws-lumen {
+/* La copa no se enrolla (como el pergamino) al terminar: queda, y el árbol florece. */
+.px-song.ws-done .ws-sheet {
+  transform: none;
+}
+
+.px-song .ws-blossom {
+  opacity: 0;
+  transition: opacity 0.4s steps(4) 0.4s;
+}
+
+.px-song.ws-done .ws-blossom {
+  opacity: 1;
+}
+
+/* Las notas suben del coro hacia el árbol. */
+:root[data-motion='full'] .px-song .ws-notes {
+  animation: song-notes 1.8s steps(6) infinite;
+}
+
+@keyframes song-notes {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+}
+
+.px-song .ws-sprout {
   overflow: visible;
 }
 
-:root[data-motion='full'] .px-loom.ws-done .ws-lumen {
+:root[data-motion='full'] .px-song.ws-done .ws-sprout {
   transform-origin: center;
-  animation: lumen-flip 0.6s steps(8) 2.6s 2;
-}
-
-/* La canasta sube: aparece arriba cuando la de abajo se va (ws-door-closed / open). */
-.px-loom .ws-door-open {
-  opacity: 0;
+  animation: sprout-jump 0.7s steps(6) 2.6s 2;
 }
 
 /* ---------------------------------------------------------------- Pelo de los elfos */
@@ -1555,58 +1500,59 @@
   }
 }
 
-/* ---------------------------------------------------------------- El libro que se marchita */
-/* FailedBook.tsx, con los mismos tiempos que el que arde: se marchita (1,3 s; caen hojas
-   secas), queda un montón de hojas (0,6 s) y rebrota con destellos verdes (0,7 s). */
+/* ---------------------------------------------------------------- El libro que se vuelve piedra */
+/* FailedBook.tsx, con los mismos tiempos que el que arde: pierde su luz y se vuelve piedra
+   (1,3 s; caen esquirlas), queda un montoncito de piedras (0,6 s) y vuelve a brillar con
+   destellos dorados (0,7 s). */
 
 [data-world='bosque'] .burning-spine {
-  animation-name: spine-wither;
+  animation-name: spine-stone;
 }
 
 [data-world='bosque'] .failed-book.is-ash .burning-spine {
-  animation-name: spine-wither-fall;
+  animation-name: spine-stone-fall;
 }
 
-@keyframes spine-wither {
+@keyframes spine-stone {
   60% {
-    filter: sepia(0.8) saturate(0.6) brightness(0.85);
+    filter: grayscale(0.7) brightness(0.9);
   }
   100% {
-    filter: sepia(1) saturate(0.25) brightness(0.65);
+    filter: grayscale(1) brightness(0.75) contrast(0.9);
   }
 }
 
-@keyframes spine-wither-fall {
+@keyframes spine-stone-fall {
   from {
-    filter: sepia(1) saturate(0.25) brightness(0.65);
+    filter: grayscale(1) brightness(0.75);
   }
   to {
     opacity: 0;
-    filter: sepia(1) saturate(0.25) brightness(0.65);
+    filter: grayscale(1) brightness(0.75);
     transform: scaleY(0.05);
   }
 }
 
-/* El montón de hojas secas que queda. */
+/* El montoncito de piedras que queda. */
 [data-world='bosque'] .burn-ash {
   height: 12px;
   background:
-    radial-gradient(ellipse at 30% 100%, var(--px-wither) 0 40%, transparent 41%),
-    radial-gradient(ellipse at 70% 100%, var(--px-wither-d) 0 45%, transparent 46%),
-    radial-gradient(ellipse at 50% 100%, var(--px-wither-l) 0 55%, transparent 56%);
+    radial-gradient(ellipse at 30% 100%, var(--px-stone) 0 40%, transparent 41%),
+    radial-gradient(ellipse at 70% 100%, var(--px-stone-d) 0 45%, transparent 46%),
+    radial-gradient(ellipse at 50% 100%, var(--px-silver) 0 55%, transparent 56%);
 }
 
-/* Rebrota: destellos verdes que suben. */
+/* Vuelve a brillar: destellos dorados que suben. */
 [data-world='bosque'] .burn-sparks span {
-  background: var(--px-leaf-l);
-  box-shadow: 0 0 6px var(--px-leaf);
+  background: var(--px-gold);
+  box-shadow: 0 0 6px var(--px-gold);
 }
 
 [data-world='bosque'] .burn-sparks span:nth-child(odd) {
-  background: var(--px-lumen-l);
+  background: #fff4d0;
 }
 
-/* La tarjeta que rebrota: un panel como los demás, con una hojita. */
+/* La tarjeta que vuelve: un panel como los demás. */
 [data-world='bosque'] .failed-card {
   color: var(--chrome-ink);
   background: var(--chrome);
@@ -1627,66 +1573,39 @@
 }
 
 /* ---------------------------------------------------------------- Descargas */
-/* El cofre de raíz y los elfos con su rollito (DownloadCrew.tsx) usan las clases del arcón
-   del Scriptorium; aquí, el panel "Descargas": el espacio es un frasco de luciérnagas
-   acostado (con su corcho a la derecha). Las luciérnagas encendidas son el espacio libre:
-   a medida que se ocupa, se van apagando de derecha a izquierda. */
+/* La raíz que guarda y los elfos con su rollito (DownloadCrew.tsx) usan las clases del
+   arcón del Scriptorium; aquí, el panel "Descargas": el espacio es el corte de un tronco,
+   cuyos anillos se llenan desde el centro con el espacio usado. */
 
 [data-world='bosque'] .downloads-candle {
-  height: 22px;
+  width: 44px;
+  height: 44px;
+  flex: none;
   margin-right: 12px;
-  overflow: visible;
-  background: rgb(159 211 232 / 22%);
-  border: 2px solid var(--px-elf-o);
-  border-radius: 0;
-  box-shadow:
-    inset 0 2px 0 rgb(255 255 255 / 45%),
-    inset 0 -2px 0 rgb(0 0 0 / 12%);
+  overflow: hidden;
+  border: 3px solid var(--px-tap-bark);
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #f1e2c2 0 3px, #d9c294 3px 4px);
+  box-shadow: 0 0 0 2px var(--px-elf-o);
 }
 
 [data-world='bosque'][data-mode='night'] .downloads-candle {
-  background: rgb(10 20 40 / 60%);
+  background: repeating-radial-gradient(circle, #8e9ab0 0 3px, #6b788f 3px 4px);
 }
 
-/* El corcho. */
-[data-world='bosque'] .downloads-candle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  right: -12px;
-  width: 10px;
-  height: 14px;
-  background: var(--px-tap-bark);
-  box-shadow:
-    inset 2px 0 0 var(--px-wither-l),
-    inset -2px 0 0 var(--px-elf-o);
-}
-
-/* Las luciérnagas: dos filas corridas de puntos de luz; las del espacio usado, apagadas. */
+/* Los anillos ocupados: del centro hacia afuera, en madera tibia. */
 [data-world='bosque'] .downloads-candle .wax {
   position: absolute;
-  inset: 2px;
+  inset: 0;
   width: auto;
   min-width: 0;
-  background:
-    radial-gradient(circle, var(--px-firefly) 0 1.5px, transparent 2.5px) 0 1px / 14px 9px,
-    radial-gradient(circle, var(--px-lumen-l) 0 1px, transparent 2px) 7px 7px / 14px 9px;
   border: 0;
-  mask: linear-gradient(
-    90deg,
-    #000 calc((1 - var(--used)) * 100%),
-    rgb(0 0 0 / 18%) calc((1 - var(--used)) * 100%)
+  background: repeating-radial-gradient(circle, #c9893a 0 3px, #8e6644 3px 4px);
+  mask: radial-gradient(
+    circle,
+    #000 calc(var(--used) * 71%),
+    transparent calc(var(--used) * 71% + 1px)
   );
-}
-
-:root[data-world='bosque'][data-motion='full'] .downloads-candle .wax {
-  animation: jar-twinkle 2.4s steps(3) infinite;
-}
-
-@keyframes jar-twinkle {
-  50% {
-    filter: brightness(1.35);
-  }
 }
 
 [data-world='bosque'] .downloads-candle .flame {
@@ -1729,14 +1648,24 @@
     2px calc(100% - 4px),
     0 calc(100% - 4px)
   );
-  --plank: #f1dcae;
-  --plank-hi: #fff4d8;
-  --plank-lo: #c9a36a;
-  --plank-edge: #a8701f;
-  --plank-grain: rgb(168 112 31 / 18%);
-  --plank-ink: #3b2610;
-  --plank-gold: #c78a2a;
-  --plank-main-ink: #1d4a42;
+  --leaf-shape: polygon(
+    10px 0,
+    calc(100% - 10px) 0,
+    100% 50%,
+    calc(100% - 10px) 100%,
+    10px 100%,
+    0 50%
+  );
+  --plank: #eef1f2;
+  --plank-hi: #ffffff;
+  --plank-lo: #cbd5dc;
+  --plank-edge: #a6b2bc;
+  --plank-grain: transparent;
+  --plank-ink: #22303a;
+  --plank-gold: #d9b04c;
+  --plank-main: #3d6b3a;
+  --plank-main-hi: #5a9444;
+  --plank-main-ink: #fff3d0;
   --plank-danger-ink: #7a2e14;
   --field: #fff8e6;
   --field-ink: #2a1d0e;
@@ -1750,15 +1679,17 @@
 
 /* De noche, la madera a la luz de la luna. */
 :root[data-world='bosque'][data-mode='night'] {
-  --plank: #cdbf9f;
-  --plank-hi: #ece2c8;
-  --plank-lo: #8f8062;
-  --plank-edge: #6a5a3a;
-  --plank-grain: rgb(60 48 24 / 20%);
-  --plank-ink: #1c170e;
-  --plank-gold: #e0b45a;
-  --plank-main-ink: #163a34;
-  --plank-danger-ink: #6a2410;
+  --plank: #3a4658;
+  --plank-hi: #5a687e;
+  --plank-lo: #2a3446;
+  --plank-edge: #7a8aa2;
+  --plank-grain: transparent;
+  --plank-ink: #eef1f4;
+  --plank-gold: #c9a24a;
+  --plank-main: #2f5a34;
+  --plank-main-hi: #3d6b3a;
+  --plank-main-ink: #fff3d0;
+  --plank-danger-ink: #ffd6c8;
   --field: #0f1528;
   --field-ink: #f3e8d2;
 }
@@ -1793,13 +1724,12 @@
   letter-spacing: 0.03em;
   text-shadow: none;
   color: var(--plank-ink);
-  background:
-    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px), var(--plank);
-  clip-path: var(--step-small);
+  background: linear-gradient(var(--plank-hi), var(--plank) 45%, var(--plank-lo));
+  clip-path: var(--leaf-shape);
+  padding-inline: 1.2rem;
   box-shadow:
     inset 0 0 0 2px var(--plank-edge),
-    inset 0 4px 0 var(--plank-hi),
-    inset 0 -5px 0 var(--plank-lo);
+    inset 0 -3px 0 var(--plank-lo);
   transition: none;
 }
 
@@ -1816,14 +1746,10 @@
   [data-world='bosque'] .press-start
 ) {
   color: var(--plank-main-ink);
-  background:
-    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px),
-    var(--plank-hi);
+  background: linear-gradient(var(--plank-main-hi), var(--plank-main));
   box-shadow:
     inset 0 0 0 2px var(--plank-gold),
-    inset 0 0 0 3px var(--plank-edge),
-    inset 0 5px 0 rgb(255 255 255 / 45%),
-    inset 0 -5px 0 var(--plank-lo);
+    inset 0 -3px 0 rgb(0 0 0 / 18%);
 }
 
 /* Los de los diálogos y el de añadir libro, con cuerpo de tablilla. */
@@ -1871,16 +1797,13 @@
 ) {
   box-shadow:
     inset 0 0 0 2px var(--plank-gold),
-    inset 0 0 0 3px var(--plank-edge),
-    inset 0 5px 0 var(--plank-lo),
-    inset 0 -3px 0 rgb(255 255 255 / 45%);
+    inset 0 4px 0 rgb(0 0 0 / 18%);
 }
 
 /* :root para ganarle a la tablilla común (su :is pesa como tres clases). */
 :root[data-world='bosque'] .danger {
   color: var(--plank-danger-ink);
-  background:
-    repeating-linear-gradient(180deg, transparent 0 5px, var(--plank-grain) 5px 6px), var(--plank);
+  background: linear-gradient(var(--plank-hi), var(--plank) 45%, var(--plank-lo));
 }
 
 :is(

@@ -38,13 +38,13 @@ const ART: Partial<Record<WorldId, Record<ArtPiece, () => string>>> = {
   // Las escenas del Bosque son de lienzo (rasterScene); la página no lleva esquineros.
   bosque: {
     pageCorner: NONE,
-    progressThumb: Bosque.firefly,
+    progressThumb: Bosque.brooch,
     title: NONE,
     monastery: NONE,
     study: NONE,
     lecternStand: Bosque.lecternStand,
-    companion: Bosque.lumen,
-    companionFree: Bosque.lumen,
+    companion: Bosque.sprout,
+    companionFree: Bosque.sprout,
   },
   // Las escenas del Solarpunk también son de lienzo; Pol vive en la interfaz.
   solarpunk: {
@@ -91,7 +91,7 @@ export function workshopArt(world: WorldId, voice: string): string {
  * (el Bosque: sube por el ascensor de lianas, siempre desde la punta derecha de la repisa).
  */
 export function crewArt(world: WorldId): { svg: string; lift: string | null } {
-  if (world === 'bosque') return { svg: Bosque.bookCrew(), lift: Bosque.crewLift() };
+  if (world === 'bosque') return { svg: Bosque.bookCrew(), lift: null };
   if (world === 'solarpunk') return { svg: Solarpunk.bookCrew(), lift: null };
   return { svg: Pixel.bookCrew(), lift: null };
 }
@@ -101,7 +101,7 @@ export function crewArt(world: WorldId): { svg: string; lift: string | null } {
  * el Solarpunk, las chispas de un cortocircuito.
  */
 export function flamesArt(world: WorldId): string {
-  if (world === 'bosque') return Bosque.wither();
+  if (world === 'bosque') return Bosque.stone();
   if (world === 'solarpunk') return Solarpunk.shortCircuit();
   return Pixel.flames();
 }
@@ -116,7 +116,7 @@ export function downloadArt(world: WorldId): {
   chest: string;
 } {
   if (world === 'bosque')
-    return { carrier: Bosque.clothCarrier, carrierHeight: 15, chest: Bosque.rootChest() };
+    return { carrier: Bosque.clothCarrier, carrierHeight: 15, chest: Bosque.rootStore() };
   if (world === 'solarpunk')
     return { carrier: Solarpunk.cartCarrier, carrierHeight: 15, chest: Solarpunk.capsuleChest() };
   return { carrier: Pixel.scrollCarrier, carrierHeight: 12, chest: Pixel.downloadChest() };

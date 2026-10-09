@@ -1,9 +1,10 @@
-// Lectio · escenas del Bosque élfico (docs/lectio-temas.md §7.5). Al estilo Stardew Valley
-// / Terraria: 320×180, colores sólidos, contornos de color (nunca negros) y objetos grandes.
-// A diferencia del Scriptorium (SVG con la paleta en variables CSS), se dibujan en un
-// lienzo de píxeles, una vez por modo (día o noche), y lo que se mueve (el agua, las
-// luciérnagas, las mariposas) se repinta encima en pasos. Cada escena dice dónde van la
-// estantería de los libros reales y la puerta (el ascensor de lianas) en sus coordenadas.
+// Lectio · escenas del Bosque élfico (docs/lectio-temas.md §7.10): Lothlórien noble, al
+// estilo Stardew Valley / Terraria: 320×180, colores sólidos, contornos de color (nunca
+// negros) y objetos grandes. Mallorn de corteza plateada y copa dorada, talan con baranda
+// blanca, faroles; filas de mallorn al fondo, más claras cuanto más lejos (sin bruma).
+// Se dibujan en un lienzo de píxeles, una vez por modo (día o noche), y lo que se mueve (las
+// luciérnagas, las mariposas) se repinta encima en pasos. Cada sala dice dónde van los
+// libros reales (`shelf`) y la escalera a la otra sala (`door`).
 
 export const W = 320;
 export const H = 180;
@@ -190,13 +191,6 @@ function halo(px, c, cx, cy, r) {
       const d = Math.hypot(x - cx, y - cy);
       if (d < r) px.blend(x, y, c, d < r * 0.55 ? 0.22 : 0.11);
     }
-}
-
-function shadow(px, pal, cx, cy, rx, ry) {
-  for (let y = cy - ry; y <= cy + ry; y++)
-    for (let x = cx - rx; x <= cx + rx; x++)
-      if (Math.pow((x - cx) / rx, 2) + Math.pow((y - cy) / ry, 2) < 1)
-        px.blend(x, y, pal.shadow, 0.35);
 }
 
 /** Hoja chica que apunta arriba a la derecha (l = un tono más claro, h = brillo, d = nervio). */
@@ -430,993 +424,6 @@ function garland(px, pal, x0, y0, x1, y1, sag, night) {
   }
 }
 
-/**
- * El ascensor de lianas (la puerta entre las salas): dos cuerdas que bajan de una rama y
- * una canasta de madera clara con hojas y una linterna.
- */
-function liftBasket(px, pal, x, top, bottom, night) {
-  const w = pal.wood;
-  for (let y = top; y < bottom - 10; y++) {
-    px.set(x + 2, y, pal.rope);
-    px.set(x + 15, y, pal.rope);
-    if (y % 9 === 0) {
-      px.set(x + 1, y, pal.leaf.mid);
-      px.set(x + 16, y + 3, pal.leaf.light);
-    }
-  }
-  fillMask(
-    px,
-    (X, Y) =>
-      Y >= bottom - 10 &&
-      Y < bottom &&
-      X >= x + Math.max(0, Y - (bottom - 3)) &&
-      X <= x + 17 - Math.max(0, Y - (bottom - 3)),
-    [x, bottom - 10, x + 17, bottom],
-    (X, Y) => ((Y - bottom) % 3 === 0 ? w.dark : X < x + 3 ? w.light : w.mid),
-    w.outline,
-  );
-  rect(px, pal.gold, x + 1, bottom - 8, 16, 1);
-  clump(px, pal.leaf, x + 4, bottom - 11, 4, { detail: 0.5 });
-  lantern(px, pal, x + 12, bottom - 18, night);
-}
-
-// ------------------------------------------------------------ la biblioteca sobre la copa
-
-/** El borde de la plataforma: se está parado arriba de la copa, casi plana, que se curva. */
-const rim = (x) => 196 - 104 * Math.sqrt(Math.max(0, 1 - Math.pow((x - 170) / 225, 2)));
-
-const LIB_SHELF = { cx: 160, top: 62, bottom: 110, w: 36 };
-
-function shelfCabinet(px, pal, s) {
-  const w = pal.wood;
-  const x0 = s.cx - s.w - 5;
-  const x1 = s.cx + s.w + 5;
-  const top = s.top - 10;
-  const bottom = s.bottom + 6;
-  const arch = (x, y) => {
-    if (x < x0 || x > x1 || y < top || y > bottom) return false;
-    const u = (x - s.cx) / (s.w + 5);
-    return y >= top + 16 * (1 - Math.sqrt(Math.max(0, 1 - u * u)));
-  };
-  const inner = (x, y) => {
-    if (x < s.cx - s.w || x > s.cx + s.w || y < s.top - 4 || y > s.bottom) return false;
-    const u = (x - s.cx) / s.w;
-    return y >= s.top - 4 + 12 * (1 - Math.sqrt(Math.max(0, 1 - u * u)));
-  };
-  fillMask(
-    px,
-    arch,
-    [x0, top, x1, bottom],
-    (x, y) => (inner(x, y) ? pal.inside[1] : x < s.cx - s.w + 2 || y < top + 4 ? w.light : w.mid),
-    w.outline,
-  );
-  fillMask(
-    px,
-    inner,
-    [x0, top, x1, bottom],
-    (x, y) =>
-      y > s.bottom - 10 ? pal.inside[2] : (x - x0) % 9 === 0 ? pal.inside[0] : pal.inside[1],
-    pal.goldD,
-  );
-  rect(px, w.outline, x0 - 2, s.bottom + 1, x1 - x0 + 5, 6);
-  rect(px, w.light, x0 - 1, s.bottom + 2, x1 - x0 + 3, 2);
-  rect(px, w.mid, x0 - 1, s.bottom + 4, x1 - x0 + 3, 2);
-  rect(px, pal.gold, x0, s.bottom + 4, x1 - x0 + 1, 1);
-  const crest = [
-    'gg.........gg',
-    'Gggg.....gggG',
-    '.Gggg...ggggG',
-    '..GGgggggGG..',
-    '....GgwgG....',
-    '.....GwG.....',
-    '......G......',
-  ];
-  crest.forEach((row, dy) =>
-    [...row].forEach((ch, dx) => {
-      const c = ch === 'g' ? pal.gold : ch === 'G' ? pal.goldD : ch === 'w' ? pal.cream : null;
-      if (c) px.set(s.cx - 6 + dx, top - 6 + dy, c);
-    }),
-  );
-}
-
-function deckFloor(px, pal) {
-  const w = pal.wood;
-  const VP = { x: 160, y: 28 };
-  const K = 7;
-  const L = 14;
-  for (let x = 0; x < W; x++)
-    for (let y = Math.round(rim(x)) + 3; y < H; y++) {
-      const dy = y - VP.y;
-      const f = ((x - VP.x) / dy) * K;
-      const plank = Math.floor(f);
-      const seam = (f - plank) * (dy / K) < 1;
-      const z = 1000 / dy;
-      const end = (((z / L + plank * 0.37) % 1) + 1) % 1 < 1000 / (dy * dy) / L;
-      px.set(
-        x,
-        y,
-        seam || end ? w.outline : (plank * 7) % 5 === 0 ? w.dark : plank % 2 ? w.mid : w.light,
-      );
-    }
-}
-
-function railing(px, pal) {
-  const w = pal.wood;
-  for (let x = 0; x < W; x++) {
-    const y = Math.round(rim(x)) + 2;
-    for (let dy = 0; dy < 3; dy++)
-      px.set(x, y - 12 + dy, dy === 0 ? w.outline : dy === 1 ? w.light : w.mid);
-    px.set(x, y - 9, w.outline);
-    px.set(x, y - 4, pal.gold);
-    px.set(x, y + 1, w.outline);
-    px.set(x, y + 2, w.dark);
-  }
-  for (let x = 4; x < W; x += 13) {
-    const y = Math.round(rim(x)) + 2;
-    for (let dy = -9; dy < 1; dy++) {
-      px.set(x, y + dy, w.outline);
-      px.set(x + 1, y + dy, w.light);
-      px.set(x + 2, y + dy, w.mid);
-      px.set(x + 3, y + dy, w.outline);
-    }
-    px.set(x + 1, y - 13, pal.gold);
-    px.set(x + 2, y - 13, pal.gold);
-  }
-}
-
-function sideBookcase(px, pal, x, bottom, w, h, seed) {
-  const wd = pal.wood;
-  const top = bottom - h;
-  fillMask(
-    px,
-    (X, Y) => X >= x && X < x + w && Y >= top && Y < bottom,
-    [x, top, x + w, bottom],
-    (X) => (X < x + 3 ? wd.light : X > x + w - 4 ? wd.dark : wd.mid),
-    wd.outline,
-  );
-  rect(px, pal.inside[1], x + 4, top + 5, w - 8, h - 9);
-  rect(px, wd.outline, x - 2, top - 2, w + 4, 4);
-  rect(px, wd.light, x - 1, top - 1, w + 2, 2);
-  rect(px, pal.gold, x, top + 2, w, 1);
-  const r = rng(seed);
-  const shelfH = Math.floor((h - 9) / 3);
-  for (let k = 0; k < 3; k++) {
-    const base = top + 5 + shelfH * (k + 1);
-    rect(px, wd.outline, x + 3, base - 1, w - 6, 2);
-    rect(px, wd.light, x + 4, base - 1, w - 8, 1);
-    let bx = x + 5;
-    while (bx < x + w - 8) {
-      const bw = 2 + Math.floor(r() * 3);
-      const bh = shelfH - 4 - Math.floor(r() * 4);
-      const c = pal.spines[Math.floor(r() * pal.spines.length)];
-      rect(
-        px,
-        c.map((v) => v * 0.7),
-        bx,
-        base - 1 - bh,
-        bw,
-        bh,
-      );
-      rect(px, c, bx, base - bh, Math.max(1, bw - 1), bh - 1);
-      px.set(bx, base - bh + 2, pal.gold);
-      bx += bw + (r() < 0.15 ? 2 : 0);
-    }
-  }
-}
-
-/** El rincón de lectura: silla con cojín, mesita con el libro abierto y una taza. */
-function readingNook(px, pal, x, bottom) {
-  const w = pal.wood;
-  shadow(px, pal, x + 16, bottom, 22, 3);
-  fillMask(
-    px,
-    (X, Y) => Math.pow((X - x - 16) / 20, 2) + Math.pow((Y - bottom + 1) / 3.5, 2) < 1,
-    [x - 6, bottom - 6, x + 38, bottom + 4],
-    () => pal.rug[1],
-    pal.rug[2],
-  );
-  fillMask(
-    px,
-    (X, Y) =>
-      X >= x &&
-      X <= x + 9 &&
-      Y >= bottom - 20 &&
-      Y <= bottom - 9 &&
-      Y >= bottom - 20 + 3 * (1 - Math.sqrt(Math.max(0, 1 - Math.pow((X - x - 4.5) / 4.5, 2)))),
-    [x, bottom - 20, x + 9, bottom - 9],
-    (X, Y) => (X < x + 2 ? w.light : (X + Y) % 3 === 0 ? w.dark : w.mid),
-    w.outline,
-  );
-  rect(px, w.outline, x - 1, bottom - 10, 13, 3);
-  rect(px, pal.cushion[1], x, bottom - 10, 11, 1);
-  rect(px, pal.cushion[0], x, bottom - 9, 11, 1);
-  for (const lx of [x, x + 10]) rect(px, w.outline, lx, bottom - 7, 1, 6);
-  rect(px, w.outline, x + 16, bottom - 12, 18, 3);
-  rect(px, w.light, x + 17, bottom - 12, 16, 1);
-  rect(px, pal.gold, x + 17, bottom - 10, 16, 1);
-  rect(px, w.outline, x + 24, bottom - 9, 3, 8);
-  rect(px, w.mid, x + 25, bottom - 9, 1, 7);
-  rect(px, w.outline, x + 21, bottom - 2, 9, 1);
-  rect(px, w.outline, x + 18, bottom - 16, 11, 4);
-  rect(px, pal.cream, x + 19, bottom - 15, 4, 2);
-  rect(px, pal.cream, x + 24, bottom - 15, 4, 2);
-  rect(px, pal.stone.outline, x + 30, bottom - 15, 3, 3);
-  px.set(x + 31, bottom - 14, pal.cream);
-}
-
-function libraryBase(mode) {
-  const pal = palette(mode);
-  const night = mode === 'night';
-  const light = night ? -1 : 1;
-  const px = new Pix();
-  sky(px, pal, night, [0, 30, 62, 90], {
-    sun: [272, 84],
-    moon: [270, 30],
-    clouds: [
-      [60, 40, 34],
-      [210, 22, 28],
-      [130, 70, 22],
-    ],
-  });
-  for (let x = -6; x < W + 20; x += 18)
-    clump(px, pal.far2, x, 70 + (((x + 40) * 13) % 9), 14, { light, detail: 0.5 });
-  for (let x = -10; x < W + 20; x += 16)
-    clump(px, pal.far, x, 90 + (((x + 40) * 7) % 9), 14, { light, detail: 0.5 });
-  const wd = pal.wood;
-  limb(
-    px,
-    wd,
-    [
-      [30, 140],
-      [22, 80],
-      [36, 30],
-      [26, -4],
-    ],
-    9,
-    5,
-    light,
-  );
-  limb(
-    px,
-    wd,
-    [
-      [294, 136],
-      [306, 80],
-      [292, 30],
-      [304, -4],
-    ],
-    9,
-    5,
-    light,
-  );
-  limb(
-    px,
-    wd,
-    [
-      [76, 118],
-      [88, 70],
-      [80, 26],
-      [92, -4],
-    ],
-    6,
-    3,
-    light,
-  );
-  limb(
-    px,
-    wd,
-    [
-      [248, 116],
-      [236, 66],
-      [250, 24],
-      [240, -4],
-    ],
-    6,
-    3,
-    light,
-  );
-  // Guirnaldas de lucecitas entre las ramas: llenan el cielo de entre las copas.
-  garland(px, pal, 34, 66, 82, 60, 8, night);
-  garland(px, pal, 240, 58, 300, 70, 9, night);
-  garland(px, pal, 94, 40, 120, 30, 4, night);
-  for (const [x, y, r] of [
-    [14, 44, 20],
-    [46, 16, 18],
-    [76, 34, 15],
-    [96, 8, 14],
-    [230, 30, 15],
-    [252, 8, 15],
-    [286, 46, 20],
-    [314, 16, 18],
-    [6, 92, 14],
-    [318, 94, 15],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  for (let x = -6; x < W + 10; x += 14)
-    clump(px, pal.leaf, x, rim(x) - 3 + ((x * 7) % 5), 11 + ((x * 3) % 4), { light });
-  deckFloor(px, pal);
-  railing(px, pal);
-  shadow(px, pal, 64, 132, 34, 4);
-  sideBookcase(px, pal, 34, 131, 58, 50, 11);
-  shadow(px, pal, 256, 130, 34, 4);
-  sideBookcase(px, pal, 228, 129, 58, 50, 12);
-  const s = LIB_SHELF;
-  shadow(px, pal, s.cx, s.bottom + 6, s.w + 12, 4);
-  shelfCabinet(px, pal, s);
-  limb(
-    px,
-    wd,
-    [
-      [s.cx - s.w - 9, s.bottom + 7],
-      [s.cx - s.w - 10, s.top + 6],
-      [s.cx - s.w + 4, s.top - 17],
-      [s.cx, s.top - 21],
-    ],
-    5,
-    3,
-    light,
-  );
-  limb(
-    px,
-    wd,
-    [
-      [s.cx + s.w + 9, s.bottom + 7],
-      [s.cx + s.w + 10, s.top + 6],
-      [s.cx + s.w - 4, s.top - 17],
-      [s.cx, s.top - 21],
-    ],
-    5,
-    3,
-    light,
-  );
-  for (const [dx, dy, r] of [
-    [-s.w + 2, -22, 10],
-    [-s.w * 0.4, -29, 11],
-    [s.w * 0.4, -29, 11],
-    [s.w - 2, -22, 10],
-    [0, -25, 9],
-  ])
-    clump(px, pal.leaf, s.cx + dx, s.top + dy, r, { light });
-  for (const side of [-1, 1])
-    for (const k of [-1, 1])
-      limb(
-        px,
-        wd,
-        [
-          [s.cx + side * (s.w + 9), s.bottom + 5],
-          [s.cx + side * (s.w + 9) + k * 5, s.bottom + 9],
-        ],
-        2,
-        1,
-        light,
-      );
-  for (const lx of [s.cx - s.w - 2, s.cx + s.w + 2]) {
-    rect(px, wd.outline, lx, s.top - 8, 1, 5);
-    lantern(px, pal, lx, s.top - 3, night);
-  }
-  fillMask(
-    px,
-    (x, y) => Math.pow((x - 160) / 38, 2) + Math.pow((y - 128) / 6, 2) < 1,
-    [120, 120, 200, 136],
-    (x, y) => {
-      const d = Math.pow((x - 160) / 38, 2) + Math.pow((y - 128) / 6, 2);
-      return d > 0.72 ? pal.rug[2] : d > 0.3 ? pal.rug[0] : pal.rug[1];
-    },
-    pal.rug[0].map((v) => v * 0.7),
-  );
-  readingNook(px, pal, 90, 141);
-  shadow(px, pal, 226, 156, 6, 2);
-  lampPost(px, pal, 226, 156, 30, night);
-  // El ascensor de lianas, a la derecha: sube a tu estudio.
-  shadow(px, pal, 299, 150, 12, 3);
-  liftBasket(px, pal, 290, 0, 150, night);
-  planter(px, pal, 28, 160);
-  planter(px, pal, 266, 168);
-  for (const [x, y, r] of [
-    [-4, 178, 22],
-    [20, 186, 16],
-    [324, 182, 18],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  return px;
-}
-
-// ------------------------------------------------------------ tu hueco arriba en el árbol
-
-const HOLLOW_SHELF = { cx: 160, top: 80, bottom: 118, w: 46 };
-
-const opening = (x, y) => {
-  const cx = 160;
-  const half = 88;
-  const top = 12;
-  const rise = 46;
-  if (x < cx - half || x > cx + half || y > 118 || y < top) return false;
-  const u = (x - cx) / half;
-  return y >= top + rise * (1 - Math.sqrt(Math.max(0, 1 - u * u)));
-};
-
-function hollowBase(mode) {
-  const pal = palette(mode);
-  const night = mode === 'night';
-  const light = night ? -1 : 1;
-  const inner = pal.inner;
-  const bark = pal.bark;
-  const wd = pal.wood;
-  const px = new Pix();
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++) {
-      const ring = Math.sin(Math.hypot(x - 160, (y - 70) * 1.4) / 5) > 0.92;
-      const grain = (x * 3 + Math.round(Math.sin(y / 9) * 3)) % 17 === 0;
-      px.set(
-        x,
-        y,
-        ring
-          ? inner.ring
-          : grain
-            ? inner.dark
-            : y < 30 || x < 20 || x > 300
-              ? inner.dark
-              : inner.mid,
-      );
-    }
-  // Afuera: el cielo, las copas abajo (se está alto) y la plataforma de la biblioteca.
-  const view = new Pix();
-  sky(view, pal, night, [0, 30, 58, 84], {
-    sun: [206, 66],
-    moon: [212, 34],
-    clouds: [
-      [110, 30, 26],
-      [220, 46, 20],
-    ],
-  });
-  for (let x = 60; x < 270; x += 13)
-    clump(view, pal.far2, x, 84 + ((x * 7) % 5), 11, { light, detail: 0.4 });
-  for (let x = 60; x < 270; x += 15)
-    clump(view, pal.far, x, 98 + ((x * 5) % 6), 13, { light, detail: 0.5 });
-  for (let x = 92; x < 150; x++) {
-    const y = 104 + Math.round(Math.pow((x - 121) / 29, 2) * 3);
-    view.set(x, y, wd.outline);
-    view.set(x, y + 1, wd.light);
-    view.set(x, y + 2, wd.mid);
-    view.set(x, y + 3, wd.outline);
-  }
-  for (let x = 94; x < 150; x += 5) for (let y = 101; y < 104; y++) view.set(x, y, wd.outline);
-  for (const bx of [104, 130]) {
-    rect(view, wd.outline, bx, 94, 9, 10);
-    rect(view, pal.inside[1], bx + 1, 95, 7, 8);
-    for (let i = 0; i < 3; i++) rect(view, pal.spines[i], bx + 2 + i * 2, 97, 1, 5);
-  }
-  rect(view, pal.goldD, 120, 92, 2, 3);
-  view.set(120, 93, pal.lantern);
-  if (night) halo(view, pal.glow, 121, 93, 9);
-  for (let x = 90; x < 160; x += 9)
-    clump(view, pal.leaf, x, 116 + ((x * 3) % 4), 8, { light, detail: 0.5 });
-  limb(
-    view,
-    bark,
-    [
-      [226, 120],
-      [252, 102],
-      [278, 92],
-      [300, 88],
-    ],
-    6,
-    3,
-    light,
-  );
-  for (const [x, y, r] of [
-    [262, 88, 12],
-    [288, 80, 13],
-    [244, 96, 9],
-  ])
-    clump(view, pal.leaf, x, y, r, { light });
-  // El ascensor de lianas cuelga del arco, afuera a la derecha: baja a la biblioteca.
-  liftBasket(view, pal, 214, 14, 112, night);
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++) if (opening(x, y)) px.set(x, y, view.get(x, y));
-  for (let y = 0; y < H; y++)
-    for (let x = 0; x < W; x++) {
-      if (opening(x, y)) continue;
-      const near = [1, 2, 3, 4, 5, 6].find(
-        (k) => opening(x - k, y) || opening(x + k, y) || opening(x, y + k),
-      );
-      if (near === undefined) continue;
-      const lit = (x < 160 ? 1 : -1) * light;
-      px.set(
-        x,
-        y,
-        near === 1 || near === 6
-          ? bark.outline
-          : near < 3
-            ? lit > 0
-              ? bark.light
-              : bark.mid
-            : bark.dark,
-      );
-    }
-  for (let x = 72; x < 249; x++) {
-    const sag = Math.round(Math.pow((x - 160) / 88, 2) * -2);
-    for (let dy = 0; dy < 8; dy++)
-      px.set(
-        x,
-        118 + dy + sag,
-        dy === 0 || dy === 7 ? bark.outline : dy < 3 ? bark.light : bark.mid,
-      );
-  }
-  for (const [x, y, r] of [
-    [78, 60, 9],
-    [70, 88, 8],
-    [244, 58, 9],
-    [250, 84, 8],
-    [120, 14, 7],
-    [200, 14, 7],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  for (const vx of [96, 104, 226])
-    for (let y = 18; y < 18 + 14 + (vx % 9); y++) {
-      px.set(vx + Math.round(Math.sin(y / 3)), y, pal.leaf.mid);
-      if (y % 4 === 0) px.set(vx + 1 + Math.round(Math.sin(y / 3)), y, pal.leaf.light);
-    }
-  // Repisas en las paredes: frascos y un libro a la izquierda, hierbas secas a la derecha.
-  for (const [sx, sy] of [
-    [8, 66],
-    [270, 70],
-  ]) {
-    rect(px, wd.outline, sx, sy, 42, 3);
-    rect(px, wd.light, sx + 1, sy, 40, 1);
-    rect(px, wd.outline, sx + 4, sy + 3, 2, 5);
-    rect(px, wd.outline, sx + 36, sy + 3, 2, 5);
-  }
-  for (const [jx, jh, c] of [
-    [11, 8, pal.water[1]],
-    [19, 6, pal.flower[1]],
-    [26, 9, pal.leaf.light],
-  ]) {
-    rect(px, pal.stone.outline, jx, 66 - jh, 6, jh);
-    rect(px, c, jx + 1, 66 - jh + 2, 4, jh - 2);
-    rect(px, pal.cream, jx + 1, 66 - jh, 4, 1);
-  }
-  rect(px, pal.spines[3], 35, 58, 3, 8);
-  rect(px, pal.spines[0], 38, 59, 3, 7);
-  rect(px, pal.spines[2], 41, 60, 4, 6);
-  for (const hx of [274, 282, 290, 298, 306]) {
-    rect(px, pal.rope, hx, 73, 1, 3);
-    for (let k = 0; k < 7; k++)
-      px.set(hx + (k % 2 ? 1 : -1), 76 + k, k % 3 ? pal.leaf.mid : pal.leaf.light);
-  }
-  // El piso de tablas claras.
-  for (let y = 136; y < H; y++)
-    for (let x = 0; x < W; x++) {
-      const row = Math.floor((y - 136) / 7);
-      const seam = (y - 136) % 7 === 0 || (x + row * 23) % 41 === 0;
-      px.set(x, y, seam ? wd.outline : row % 2 ? wd.mid : wd.light);
-    }
-  for (let x = 0; x < W; x++) {
-    px.set(x, 135, inner.outline);
-    px.set(x, 134, inner.dark);
-  }
-  fillMask(
-    px,
-    (x, y) => Math.pow((x - 160) / 52, 2) + Math.pow((y - 152) / 8, 2) < 1,
-    [106, 142, 214, 162],
-    (x, y) => {
-      const d = Math.pow((x - 160) / 52, 2) + Math.pow((y - 152) / 8, 2);
-      return d > 0.72 ? pal.rug[2] : d > 0.3 ? pal.rug[0] : pal.rug[1];
-    },
-    pal.rug[0].map((v) => v * 0.7),
-  );
-  // A la izquierda, el nido de cojines con su manta y un par de libros.
-  shadow(px, pal, 40, 150, 32, 4);
-  fillMask(
-    px,
-    (x, y) => Math.pow((x - 40) / 30, 2) + Math.pow((y - 142) / 10, 2) < 1,
-    [8, 130, 72, 154],
-    (x, y) => (y < 138 ? pal.cushion[1] : pal.cushion[0]),
-    pal.cushion[0].map((v) => v * 0.6),
-  );
-  fillMask(
-    px,
-    (x, y) => x >= 22 && x <= 58 && y >= 136 && y <= 146 && (x + y) % 11 !== 0,
-    [22, 136, 58, 146],
-    (x) => ((x >> 2) % 2 ? pal.rug[1] : pal.rug[0]),
-    null,
-  );
-  for (const [cx, cy, r] of [
-    [18, 134, 7],
-    [62, 135, 6],
-  ])
-    fillMask(
-      px,
-      (x, y) => Math.hypot(x - cx, (y - cy) * 1.3) < r,
-      [cx - r, cy - r, cx + r, cy + r],
-      (x, y) => (y < cy ? pal.cream : pal.stone.light),
-      pal.stone.outline,
-    );
-  rect(px, pal.stone.outline, 66, 142, 12, 6);
-  rect(px, pal.spines[3], 67, 143, 10, 2);
-  rect(px, pal.spines[2], 67, 145, 10, 2);
-  // A la derecha, la mesita con su linterna y una maceta; al frente, un cesto de rollos.
-  shadow(px, pal, 276, 152, 22, 3);
-  rect(px, wd.outline, 258, 132, 36, 4);
-  rect(px, wd.light, 259, 132, 34, 2);
-  rect(px, pal.gold, 259, 134, 34, 1);
-  for (const lx of [261, 289]) {
-    rect(px, wd.outline, lx, 136, 3, 15);
-    rect(px, wd.mid, lx + 1, 136, 1, 14);
-  }
-  lantern(px, pal, 283, 122, night, 2);
-  planter(px, pal, 268, 132);
-  shadow(px, pal, 236, 170, 10, 2);
-  fillMask(
-    px,
-    (x, y) => y >= 160 && y < 171 && Math.abs(x - 236) < 9 - (170 - y) * 0.1,
-    [226, 160, 246, 171],
-    (x, y) => ((y - 160) % 3 === 0 ? wd.dark : wd.mid),
-    wd.outline,
-  );
-  for (const [rx, rh] of [
-    [231, 7],
-    [235, 9],
-    [239, 6],
-  ]) {
-    rect(px, pal.stone.outline, rx, 160 - rh, 3, rh);
-    rect(px, pal.cream, rx + 1, 160 - rh, 1, rh);
-  }
-  for (const lx of [36, 290]) {
-    rect(px, inner.outline, lx, 0, 1, 40);
-    lantern(px, pal, lx, 40, night, 2);
-  }
-  for (const [mx, my] of [
-    [12, 100],
-    [20, 108],
-    [304, 96],
-  ]) {
-    rect(px, inner.outline, mx - 3, my - 2, 7, 3);
-    rect(px, pal.shroom, mx - 2, my - 2, 5, 2);
-    rect(px, pal.stone.light, mx, my + 1, 1, 3);
-    if (night) halo(px, pal.shroom, mx, my, 9);
-  }
-  return px;
-}
-
-// ------------------------------------------------------------ la portada: el lago
-
-const HORIZON = 112;
-
-function forestRidge(px, tones, base, amp, step, seed, light) {
-  for (let x = 0; x < W; x++) {
-    const top = Math.round(base - amp * (0.5 + 0.5 * Math.sin(x / 37 + seed)));
-    for (let y = top; y < HORIZON; y++) px.set(x, y, tones.dark);
-  }
-  for (let x = -8; x < W + 10; x += step) {
-    const top = Math.round(base - amp * (0.5 + 0.5 * Math.sin(x / 37 + seed)));
-    clump(px, tones, x + ((x * 7) % 4), top + 2, step * 0.7, { light, detail: 0.4 });
-  }
-}
-
-function lakeBase(mode) {
-  const pal = palette(mode);
-  const night = mode === 'night';
-  const light = night ? -1 : 1;
-  const bark = pal.bark;
-  const wd = pal.wood;
-  const px = new Pix();
-  sky(px, pal, night, [0, 34, 66, 92], {
-    sun: [112, 84],
-    moon: [150, 22],
-    clouds: [
-      [40, 22, 30],
-      [150, 40, 26],
-      [290, 16, 22],
-    ],
-  });
-  // Una bandada lejana (de día).
-  if (!night)
-    for (const [bx, by] of [
-      [176, 30],
-      [184, 26],
-      [190, 33],
-      [70, 46],
-    ]) {
-      px.set(bx, by, pal.bark.outline);
-      px.set(bx + 1, by + 1, pal.bark.outline);
-      px.set(bx + 2, by, pal.bark.outline);
-    }
-  forestRidge(px, pal.far2, 102, 4, 9, 1, light);
-  forestRidge(px, pal.far, 107, 3, 10, 4, light);
-  for (let x = 150; x < W; x++) {
-    const top = Math.round(HORIZON - 4 - 5 * Math.sin((Math.min(1, (x - 150) / 60) * Math.PI) / 2));
-    for (let y = top; y < HORIZON + 2; y++)
-      px.set(x, y, y === top ? pal.leaf.light : y < top + 3 ? pal.leaf.mid : pal.leaf.dark);
-  }
-  limb(
-    px,
-    bark,
-    [
-      [236, HORIZON + 1],
-      [230, 92],
-      [238, 70],
-      [234, 52],
-    ],
-    15,
-    9,
-    light,
-  );
-  for (const [dx, k] of [
-    [-1, 24],
-    [1, 22],
-    [-1, 12],
-  ])
-    limb(
-      px,
-      bark,
-      [
-        [236, HORIZON - 6],
-        [236 + dx * k, HORIZON + 2],
-      ],
-      6,
-      2,
-      light,
-    );
-  limb(
-    px,
-    bark,
-    [
-      [232, 74],
-      [196, 58],
-      [170, 54],
-    ],
-    6,
-    3,
-    light,
-  );
-  limb(
-    px,
-    bark,
-    [
-      [238, 68],
-      [276, 52],
-      [302, 50],
-    ],
-    6,
-    3,
-    light,
-  );
-  for (const [x, y, r] of [
-    [236, 40, 30],
-    [196, 48, 24],
-    [276, 46, 25],
-    [170, 60, 17],
-    [300, 58, 18],
-    [214, 26, 22],
-    [258, 24, 22],
-    [236, 60, 20],
-    [190, 68, 13],
-    [282, 70, 13],
-    [236, 20, 18],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  // En la cima de la copa, la biblioteca: plataforma con baranda, el arco con libros y linternas.
-  const top = 8;
-  for (let x = 210; x < 264; x++) {
-    px.set(x, top + 10, wd.outline);
-    px.set(x, top + 11, wd.light);
-    px.set(x, top + 12, wd.mid);
-    px.set(x, top + 13, wd.outline);
-    px.set(x, top + 5, wd.outline);
-    px.set(x, top + 6, wd.light);
-  }
-  for (let x = 210; x < 264; x += 6)
-    for (let y = top + 6; y < top + 10; y++) px.set(x, y, wd.outline);
-  const ax0 = 226;
-  const ax1 = 248;
-  for (let y = top - 6; y < top + 10; y++) {
-    px.set(ax0, y, wd.outline);
-    px.set(ax0 + 1, y, wd.light);
-    px.set(ax1 - 1, y, wd.mid);
-    px.set(ax1, y, wd.outline);
-  }
-  for (let x = ax0; x <= ax1; x++) {
-    const y = Math.round(top - 6 - Math.sin(((x - ax0) / (ax1 - ax0)) * Math.PI) * 4);
-    px.set(x, y, wd.outline);
-    px.set(x, y + 1, wd.light);
-  }
-  rect(px, pal.inside[1], ax0 + 2, top - 4, ax1 - ax0 - 3, 14);
-  for (let x = ax0 + 3, i = 0; x < ax1 - 2; x += 3, i++)
-    rect(px, pal.spines[i % pal.spines.length], x, top - 1 - (i % 2), 2, 10 + (i % 2));
-  rect(px, wd.outline, ax0, top + 9, ax1 - ax0 + 1, 1);
-  px.set(237, top - 11, pal.gold);
-  px.set(236, top - 10, pal.gold);
-  px.set(238, top - 10, pal.gold);
-  for (const lx of [216, 258]) {
-    rect(px, pal.goldD, lx - 1, top - 2, 3, 5);
-    px.set(lx, top - 1, pal.lantern);
-    px.set(lx, top, pal.lanternCore);
-    if (night) halo(px, pal.glow, lx, top, 14);
-  }
-  // A la izquierda, un muelle de tablas claras que entra al lago, con su farol.
-  for (let y = HORIZON + 6; y < HORIZON + 10; y++)
-    for (let x = 0; x < 70; x++)
-      px.set(x, y, y === HORIZON + 6 ? wd.light : x % 7 === 0 ? wd.outline : wd.mid);
-  for (const lx of [8, 30, 52, 68]) rect(px, wd.outline, lx, HORIZON + 10, 2, 8);
-  rect(px, wd.outline, 64, HORIZON - 14, 3, 20);
-  rect(px, wd.mid, 65, HORIZON - 13, 1, 18);
-  lantern(px, pal, 65, HORIZON - 22, night, 2);
-  for (let y = HORIZON; y < H; y++)
-    for (let x = 0; x < W; x++) px.set(x, y, pal.water[y < HORIZON + 18 ? 1 : 0]);
-  return px;
-}
-
-/** El agua: el reflejo corre un píxel por fila en pasos, y titilan los destellos. */
-function lakeFrame(base, mode, time) {
-  const pal = palette(mode);
-  const night = mode === 'night';
-  const px = base.copy();
-  const tick = Math.floor(time * 4);
-  const water = pal.water[0];
-  for (let y = HORIZON; y < H; y++) {
-    const depth = y - HORIZON;
-    const shift = Math.round(Math.sin(y * 0.7 + tick * 0.6) * (depth > 30 ? 2 : 1));
-    const sy = HORIZON - 1 - Math.round(depth * 0.95);
-    if (sy < 0) continue;
-    for (let x = 0; x < W; x++) {
-      const src = base.get(x + shift, sy);
-      px.set(
-        x,
-        y,
-        [0, 1, 2].map((k) => Math.round(src[k] * 0.55 + water[k] * 0.45)),
-      );
-    }
-  }
-  // El muelle sobre el agua (va delante del reflejo).
-  const wd = pal.wood;
-  for (let y = HORIZON + 6; y < HORIZON + 10; y++)
-    for (let x = 0; x < 70; x++)
-      px.set(x, y, y === HORIZON + 6 ? wd.light : x % 7 === 0 ? wd.outline : wd.mid);
-  for (const lx of [8, 30, 52, 68]) rect(px, wd.outline, lx, HORIZON + 10, 2, 8);
-  for (let x = 0; x < W; x++) px.set(x, HORIZON, pal.water[2]);
-  const lx = night ? 150 : 112;
-  const r = rng((tick % 6) + 1);
-  for (let i = 0; i < 26; i++) {
-    const y = HORIZON + 2 + Math.floor(r() * (H - HORIZON - 4));
-    const spread = 4 + (y - HORIZON) * 0.5;
-    rect(
-      px,
-      pal.water[2],
-      Math.round(lx + (r() - 0.5) * spread * 2),
-      y,
-      2 + Math.floor(r() * 5),
-      1,
-    );
-  }
-  for (let i = 0; i < 14; i++)
-    rect(
-      px,
-      pal.water[1],
-      Math.floor(r() * W),
-      HORIZON + 4 + Math.floor(r() * 60),
-      3 + Math.floor(r() * 4),
-      1,
-    );
-  // Al frente: nenúfares con flor y juncos que se mecen.
-  for (const [cx, cy, rr] of [
-    [30, 164, 8],
-    [52, 172, 6],
-    [276, 166, 7],
-    [118, 170, 5],
-  ])
-    fillMask(
-      px,
-      (x, y) =>
-        Math.pow((x - cx) / rr, 2) + Math.pow((y - cy) / (rr * 0.4), 2) < 1 &&
-        !(x > cx && Math.abs(y - cy) < 1),
-      [cx - rr, cy - rr, cx + rr, cy + rr],
-      (x, y) => (y < cy ? pal.leaf.light : pal.leaf.mid),
-      pal.leaf.outline,
-    );
-  for (const [fx, fy] of [
-    [28, 161],
-    [276, 163],
-  ]) {
-    px.set(fx, fy, pal.petal);
-    px.set(fx - 1, fy + 1, pal.petal);
-    px.set(fx + 1, fy + 1, pal.petal);
-    px.set(fx, fy + 1, pal.cream);
-  }
-  for (const rx of [300, 305, 311, 296, 4, 9, 14])
-    for (let y = 150; y < H; y++)
-      if (y > 150 + (rx % 7) * 2)
-        px.set(
-          rx + Math.round(Math.sin(y / 6 + tick * 0.2) * 0.6),
-          y,
-          y % 9 === 0 ? pal.leaf.light : pal.leaf.dark,
-        );
-  if (night) fireflies(px, pal, 150, 50, 160, 60, time, 16);
-  return px;
-}
-
-// ------------------------------------------------------------ el tronco (el paso entre salas)
-
-function trunkBase(mode) {
-  const pal = palette(mode);
-  const night = mode === 'night';
-  const light = night ? -1 : 1;
-  const bark = pal.bark;
-  const px = new Pix();
-  const bands = [0, 45, 90, 135];
-  for (let y = 0; y < H; y++) {
-    let b = 0;
-    bands.forEach((v, i) => {
-      if (y >= v) b = i;
-    });
-    for (let x = 0; x < W; x++) px.set(x, y, pal.sky[3 - b]);
-  }
-  for (const [x, y, r] of [
-    [14, 30, 18],
-    [306, 60, 18],
-    [20, 120, 16],
-    [300, 150, 18],
-    [40, 170, 14],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  limb(
-    px,
-    bark,
-    [
-      [160, 60],
-      [80, 40],
-      [30, 30],
-    ],
-    7,
-    3,
-    light,
-  );
-  limb(
-    px,
-    bark,
-    [
-      [160, 130],
-      [240, 110],
-      [300, 104],
-    ],
-    7,
-    3,
-    light,
-  );
-  for (const [x, y, r] of [
-    [40, 26, 14],
-    [70, 36, 11],
-    [286, 98, 14],
-    [258, 108, 11],
-  ])
-    clump(px, pal.leaf, x, y, r, { light });
-  limb(
-    px,
-    bark,
-    [
-      [160, -10],
-      [156, 90],
-      [162, 190],
-    ],
-    70,
-    70,
-    light,
-  );
-  for (let y = 0; y < H; y++)
-    for (let x = 92; x < 228; x++)
-      if (Math.sin(x * 0.55 + Math.sin(y / 11 + x * 0.05) * 2.4) > 0.86) px.set(x, y, bark.dark);
-  for (let x = -10; x < W + 20; x += 18) clump(px, pal.leaf, x, 176 + ((x * 7) % 5), 16, { light });
-  for (const [vx, vy] of [
-    [120, 20],
-    [196, 96],
-  ])
-    for (let y = vy; y < vy + 34; y++) {
-      px.set(vx + Math.round(Math.sin(y / 4) * 2), y, pal.leaf.mid);
-      if (y % 5 === 0) px.set(vx + 1 + Math.round(Math.sin(y / 4) * 2), y, pal.leaf.light);
-    }
-  return px;
-}
-
 // ------------------------------------------------------------ lo que se mueve
 
 /** Luciérnagas que flotan y titilan (de noche). */
@@ -1457,64 +464,1032 @@ function butterflies(px, pal, spots, time) {
   });
 }
 
+// ============================================================ REDISEÑO (maqueta)
+// Lothlórien noble: mallorn de corteza plateada y copa dorada, talan con baranda blanca,
+// faroles. Usa los ayudantes de arriba (sky, clump, limb, lantern, garland…).
+
+const EXH = {
+  day: {
+    silver: { outline: '#6f7c88', dark: '#a6b2bc', mid: '#cbd5dc', light: '#eef3f6' },
+    gleaf: { outline: '#7a4e12', dark: '#b8832a', mid: '#dcaa3e', light: '#f2cc66', hl: '#fff0a6' },
+    marble: ['#efe6d4', '#e2d6bf', '#c9b896', '#fffaf0'],
+    elanor: '#ffd84a',
+    niphr: '#f4f6ff',
+    glowWarm: '#ffe2a0',
+  },
+  night: {
+    silver: { outline: '#1a2230', dark: '#3a4658', mid: '#5a687e', light: '#8494ac' },
+    gleaf: { outline: '#121a26', dark: '#2a3a3e', mid: '#3e5048', light: '#5c6a52', hl: '#7e865e' },
+    marble: ['#3a4256', '#30384a', '#232a3a', '#4c5670'],
+    elanor: '#c8a83a',
+    niphr: '#c8d0e8',
+    glowWarm: '#ffcf6b',
+  },
+};
+const EXC = {};
+function ex(mode) {
+  if (EXC[mode]) return EXC[mode];
+  const conv = (v) =>
+    typeof v === 'string'
+      ? hex(v)
+      : Array.isArray(v)
+        ? v.map(hex)
+        : Object.fromEntries(Object.entries(v).map(([k, c]) => [k, hex(c)]));
+  return (EXC[mode] = {
+    ...palette(mode),
+    ...Object.fromEntries(Object.entries(EXH[mode]).map(([k, v]) => [k, conv(v)])),
+  });
+}
+
+/** Un mallorn: tronco plateado que se ensancha en la raíz y una copa de grumos dorados. */
+function mallorn(px, p, x, bottom, top, w, { canopy = true, lean = 0, light = 1 } = {}) {
+  limb(
+    px,
+    p.silver,
+    [
+      [x, bottom + 4],
+      [x + lean * 0.4, (bottom + top) / 2],
+      [x + lean, top],
+    ],
+    w * 0.62,
+    w * 0.34,
+    light,
+  );
+  // raíces que se abren
+  for (const d of [-1, 1])
+    limb(
+      px,
+      p.silver,
+      [
+        [x + d * w * 0.2, bottom - 8],
+        [x + d * w * 0.9, bottom + 3],
+      ],
+      w * 0.18,
+      w * 0.08,
+      light,
+    );
+  // corteza: vetas verticales claras
+  for (let y = top + 6; y < bottom - 4; y += 3)
+    px.set(x + lean * ((y - top) / (bottom - top)) * -1 + lean - 2, y, p.silver.light);
+  if (!canopy) return;
+  const cx = x + lean;
+  for (const [dx, dy, r] of [
+    [0, -6, w * 1.3],
+    [-w * 1.1, 2, w],
+    [w * 1.1, 0, w],
+    [-w * 0.5, -w * 0.9, w * 0.9],
+    [w * 0.6, -w * 0.8, w * 0.9],
+  ])
+    clump(px, p.gleaf, cx + dx, top + dy, r, { light });
+}
+
+/** Un talan: plataforma elíptica de madera clara con baranda blanca y faroles. */
+function talan(px, p, cx, y, rx, night, lanterns = 2) {
+  fillMask(
+    px,
+    (X, Y) => ((X + 0.5 - cx) / rx) ** 2 + ((Y + 0.5 - y) / (rx * 0.18)) ** 2 < 1,
+    [cx - rx - 1, y - rx * 0.2, cx + rx + 1, y + rx * 0.2],
+    (X, Y) => (Y < y ? p.wood.light : p.wood.mid),
+    p.wood.outline,
+  );
+  rect(px, p.wood.dark, cx - rx * 0.9, y + rx * 0.16, rx * 1.8, 2);
+  // baranda: pasamanos y postes
+  for (let X = cx - rx + 2; X <= cx + rx - 2; X++) {
+    const yy = Math.round(y - 5 - Math.sqrt(Math.max(0, 1 - ((X - cx) / rx) ** 2)) * rx * 0.06);
+    px.set(X, yy, p.marble[3]);
+    if ((X - cx) % 6 === 0) rect(px, p.marble[1], X, yy + 1, 1, 4);
+  }
+  for (let i = 0; i < lanterns; i++)
+    lantern(
+      px,
+      p,
+      Math.round(cx - rx * 0.7 + (i * rx * 1.4) / Math.max(1, lanterns - 1)),
+      y - 13,
+      night,
+    );
+}
+
+/** Escalera de caracol alrededor de un tronco: peldaños que asoman a un lado y al otro. */
+function spiral(px, p, cx, y0, y1, r, step = 11) {
+  const half = Math.floor(step / 2);
+  for (let y = y1, i = 0; y > y0; y -= Math.max(5, Math.round(step / 2.2)), i++) {
+    const side = Math.sin(i * 0.9);
+    const x = Math.round(cx + side * r);
+    rect(px, p.wood.outline, x - half, y, step, 3);
+    rect(px, p.wood.light, x - half + 1, y, step - 2, 1);
+    px.set(x + (side > 0 ? half : -half), y - 4, p.marble[3]);
+    rect(px, p.marble[1], x + (side > 0 ? half : -half), y - 3, 1, 3);
+  }
+}
+
+/** Puente colgante entre dos talan: tablas en curva y dos cuerdas. */
+function bridge(px, p, x0, y0, x1, y1, sag, night) {
+  for (let x = x0; x <= x1; x++) {
+    const t = (x - x0) / (x1 - x0);
+    const y = Math.round(y0 + (y1 - y0) * t + Math.sin(t * Math.PI) * sag);
+    px.set(x, y, x % 3 ? p.wood.mid : p.wood.outline);
+    px.set(x, y + 1, p.wood.outline);
+    px.set(x, y - 5, p.rope);
+    if (x % 8 === 0) rect(px, p.rope, x, y - 4, 1, 4);
+  }
+  lantern(px, p, Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2 + sag - 4), night);
+}
+
+/** Flores de elanor (estrellas amarillas) y niphredil (blancas) en el pasto. */
+function elanor(px, p, x0, x1, y0, y1, n, seed) {
+  const r = rng(seed);
+  for (let i = 0; i < n; i++) {
+    const x = Math.round(x0 + r() * (x1 - x0));
+    const y = Math.round(y0 + r() * (y1 - y0));
+    const c = r() < 0.65 ? p.elanor : p.niphr;
+    px.set(x, y + 1, p.leaf.mid);
+    for (const [dx, dy] of [
+      [0, -1],
+      [-1, 0],
+      [1, 0],
+      [-1, 1],
+      [1, 1],
+    ])
+      px.set(x + dx, y + dy, c);
+    px.set(x, y, p.goldD);
+  }
+}
+
+/** Una loma de copas que rellena hasta abajo (forestRidge solo llega al horizonte del lago). */
+function hill(px, tones, base, amp, step, seed, light = 1) {
+  for (let x = 0; x < W; x++) {
+    const top = Math.round(base - amp * (0.5 + 0.5 * Math.sin(x / 37 + seed)));
+    for (let y = top; y < H; y++) px.set(x, y, tones.dark);
+  }
+  for (let x = -8; x < W + 10; x += step) {
+    const top = Math.round(base - amp * (0.5 + 0.5 * Math.sin(x / 37 + seed)));
+    clump(px, tones, x + ((x * 7) % 4), top + 2, step * 0.7, { light, detail: 0.4 });
+  }
+}
+
+/** El prado: una loma de pasto con matas y briznas más claras. */
+function grass(px, p, y0, seed, light = 1) {
+  hill(px, p.leaf, y0, 4, 7, seed, light);
+  for (let y = y0 + 6; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const h = hash(x, y, seed);
+      if (h < 0.08) px.set(x, y, p.leaf.light);
+      else if (h < 0.16) px.set(x, y, p.leaf.mid);
+    }
+}
+
+// ------------------------------------------------------------ portada A: la ciudad en los mallorn
+
+function titleCity(mode) {
+  const night = mode === 'night';
+  const p = ex(mode);
+  const px = new Pix();
+  sky(px, p, night, [0, 22, 46, 70], {
+    sun: [250, 58],
+    moon: [254, 34],
+    clouds: night
+      ? []
+      : [
+          [80, 30, 40],
+          [190, 20, 28],
+        ],
+  });
+  hill(px, p.far2, 118, 18, 9, 3, 1);
+  for (const [x, top, w] of [
+    [24, 40, 6],
+    [120, 54, 5],
+    [300, 44, 6],
+    [214, 62, 4],
+  ])
+    mallorn(px, { ...p, silver: p.far2, gleaf: p.far2 }, x, 130, top, w, { light: 0.5 });
+  hill(px, p.far, 136, 12, 8, 7, 1);
+  // los tres mallorn de la ciudad
+  mallorn(px, p, 62, 168, 26, 16, { lean: -4 });
+  mallorn(px, p, 270, 166, 34, 14, { lean: 5 });
+  mallorn(px, p, 166, 176, 10, 26, { lean: 2 });
+  spiral(px, p, 168, 64, 160, 16);
+  talan(px, p, 60, 96, 24, night);
+  talan(px, p, 272, 104, 22, night);
+  talan(px, p, 168, 58, 34, night, 3);
+  talan(px, p, 166, 120, 28, night);
+  bridge(px, p, 84, 92, 136, 116, 6, night);
+  bridge(px, p, 196, 116, 252, 100, 5, night);
+  // el camino de piedra blanca y el prado
+  grass(px, p, 160, 11);
+  fillMask(
+    px,
+    (X, Y) => Y > 162 && Math.abs(X - (166 + (Y - 176) * 2.2)) < 4 + (Y - 162) * 0.9,
+    [100, 160, 240, 179],
+    (X, Y) => ((X + Y * 3) % 7 < 2 ? p.marble[2] : p.marble[0]),
+    p.marble[2],
+  );
+  elanor(px, p, 0, 320, 164, 178, 50, 4);
+  return px;
+}
+
+// ------------------------------------------------------------ portada B: la puerta del bosque
+
+// ------------------------------------------------------------ el salón élfico (biblioteca)
+
+const HALL_DOOR = { x: 286, y: 70, w: 30, h: 90 };
+
+function hallBase(mode) {
+  const night = mode === 'night';
+  const p = ex(mode);
+  const px = new Pix();
+  sky(px, p, night, [0, 26, 52, 78], {
+    sun: [70, 70],
+    moon: [252, 40],
+    clouds: night ? [] : [[220, 44, 30]],
+  });
+  hill(px, p.far2, 112, 16, 9, 2, 1);
+  for (const [x, top] of [
+    [46, 50],
+    [110, 60],
+    [214, 52],
+    [266, 62],
+  ])
+    mallorn(px, { ...p, silver: p.far2, gleaf: p.far2 }, x, 120, top, 5, { light: 0.4 });
+  // el piso de mármol con su mosaico de hoja
+  for (let y = 118; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const dy = y - 90;
+      const f = ((x - 160) / dy) * 6;
+      const seam = (f - Math.floor(f)) * (dy / 6) < 1 || (1300 / dy) % 5 < 1400 / (dy * dy) / 5;
+      px.set(
+        x,
+        y,
+        seam
+          ? p.marble[2]
+          : (Math.floor(f) + Math.floor(1300 / dy / 5)) % 2
+            ? p.marble[0]
+            : p.marble[1],
+      );
+    }
+  fillMask(
+    px,
+    (X, Y) =>
+      ((X - 160) / 46) ** 2 + ((Y - 150) / 12) ** 2 < 1 &&
+      ((X - 160) / 42) ** 2 + ((Y - 150) / 10) ** 2 > 0.82,
+    [110, 136, 210, 164],
+    () => p.gold,
+    null,
+  );
+  fillMask(
+    px,
+    (X, Y) => Math.abs(Y - 150) < 6 - Math.abs(X - 160) * 0.2 && Math.abs(X - 160) < 26,
+    [130, 142, 190, 158],
+    (X, Y) => (Y === 150 ? p.goldD : p.leaf.mid),
+    null,
+  );
+  // el estrado y el gran tronco del centro (ahí van los libros)
+  for (const [y, w] of [
+    [112, 96],
+    [118, 120],
+  ]) {
+    rect(px, p.marble[2], 160 - w / 2, y, w, 6);
+    rect(px, p.marble[3], 160 - w / 2, y, w, 1);
+  }
+  // columnas: troncos vivos, y entre ellas arcos de ramas
+  for (const [x, w] of [
+    [18, 16],
+    [92, 14],
+    [228, 14],
+    [302, 16],
+  ])
+    limb(
+      px,
+      p.silver,
+      [
+        [x, 180],
+        [x, 60],
+        [x, -6],
+      ],
+      w * 0.6,
+      w * 0.5,
+      x < 160 ? 1 : -1,
+    );
+  for (const [a, b] of [
+    [18, 92],
+    [228, 302],
+  ]) {
+    for (let t = 0; t <= 1; t += 0.01) {
+      const x = Math.round(a + (b - a) * t);
+      const y = Math.round(40 - Math.sin(t * Math.PI) * 22);
+      for (let k = 0; k < 4; k++)
+        px.set(x, y + k, k === 0 ? p.silver.light : k === 3 ? p.silver.outline : p.silver.mid);
+    }
+    lantern(px, p, Math.round((a + b) / 2), 30, night, 2);
+  }
+  // el techo de hojas doradas
+  for (let x = -10; x < W + 10; x += 16) clump(px, p.gleaf, x, 4 + ((x * 7) % 6), 14);
+  // bancos, arpa y faroles de pie
+  for (const bx of [40, 248]) {
+    rect(px, p.wood.outline, bx, 150, 34, 6);
+    rect(px, p.wood.light, bx + 1, 150, 32, 2);
+    rect(px, p.cushion[0], bx + 2, 147, 30, 3);
+    rect(px, p.wood.outline, bx + 3, 156, 2, 6);
+    rect(px, p.wood.outline, bx + 29, 156, 2, 6);
+  }
+  limb(
+    px,
+    p.wood,
+    [
+      [112, 150],
+      [104, 126],
+      [114, 112],
+    ],
+    2,
+    1.5,
+    1,
+  );
+  for (let k = 0; k < 7; k++) rect(px, p.gold, 106 + k * 1, 118 + k * 3 - k, 1, 30 - k * 3);
+  lampPost(px, p, 84, 176, 26, night);
+  lampPost(px, p, 236, 176, 26, night);
+  // la escalera de caracol a la derecha (sube a tu talan)
+  spiral(px, p, 302, 60, 168, 12);
+  return px;
+}
+
+// ------------------------------------------------------------ tu talan (sala propia)
+
+const TALAN_REAL = { x: 118, y: 84, w: 84, h: 36 };
+const TALAN_DOOR = { x: 6, y: 92, w: 40, h: 76 };
+
+function talanBase(mode) {
+  const night = mode === 'night';
+  const p = ex(mode);
+  const px = new Pix();
+  sky(px, p, night, [0, 30, 60, 88], {
+    sun: [236, 92],
+    moon: [240, 40],
+    clouds: night
+      ? []
+      : [
+          [150, 40, 40],
+          [280, 56, 26],
+        ],
+  });
+  // el mar de copas doradas allá abajo y otros mallorn
+  for (const [x, top] of [
+    [90, 70],
+    [200, 80],
+    [300, 66],
+  ])
+    mallorn(px, { ...p, silver: p.far2, gleaf: p.far2 }, x, 130, top, 5, { light: 0.4 });
+  for (let x = -10; x < W + 10; x += 14)
+    clump(px, p.gleaf, x, 128 + ((x * 5) % 7), 12, { light: 0.6, detail: 0.5 });
+  // la plataforma: tablas claras en perspectiva y la baranda blanca en curva
+  for (let y = 134; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const f = ((x - 170) / (y - 100)) * 8;
+      px.set(
+        x,
+        y,
+        (f - Math.floor(f)) * ((y - 100) / 8) < 1
+          ? p.wood.outline
+          : Math.floor(f) % 2
+            ? p.wood.mid
+            : p.wood.light,
+      );
+    }
+  for (let x = 40; x < W; x++) {
+    const y = Math.round(126 + ((x - 180) / 140) ** 2 * 6);
+    rect(px, p.marble[3], x, y, 1, 1);
+    px.set(x, y + 1, p.marble[2]);
+    if (x % 10 === 0) rect(px, p.marble[1], x, y + 2, 2, 8);
+  }
+  // el gran tronco a la izquierda, con la escalera que baja al salón
+  limb(
+    px,
+    p.silver,
+    [
+      [24, 190],
+      [26, 90],
+      [20, -10],
+    ],
+    32,
+    26,
+    1,
+  );
+  spiral(px, p, 30, 96, 176, 18);
+  // la copa encima y una rama que cruza
+  limb(
+    px,
+    p.silver,
+    [
+      [30, 30],
+      [140, 18],
+      [260, 8],
+    ],
+    5,
+    2,
+    1,
+  );
+  for (let x = 30; x < W + 10; x += 18) clump(px, p.gleaf, x, 6 + ((x * 3) % 8), 14);
+  garland(px, p, 70, 26, 250, 22, 12, night);
+  lantern(px, p, 120, 30, night, 2);
+  lantern(px, p, 220, 26, night, 2);
+  // cojines, escritorio con su farol y flores
+  for (const [cx, c] of [
+    [244, p.cushion[0]],
+    [262, p.rug[1]],
+    [280, p.cushion[1]],
+  ])
+    fillMask(
+      px,
+      (X, Y) => ((X - cx) / 11) ** 2 + ((Y - 158) / 6) ** 2 < 1,
+      [cx - 12, 151, cx + 12, 165],
+      () => c,
+      p.wood.outline,
+    );
+  rect(px, p.wood.outline, 64, 140, 40, 4);
+  rect(px, p.wood.light, 65, 140, 38, 1);
+  for (const lx of [66, 100]) rect(px, p.wood.outline, lx, 144, 2, 18);
+  rect(px, p.cream, 72, 136, 12, 4);
+  lantern(px, p, 94, 128, night);
+  elanor(px, p, 200, 310, 166, 176, 10, 3);
+  return px;
+}
+
+const sway = (base, mode, time) => {
+  const px = base.copy();
+  const p = ex(mode);
+  if (mode === 'night') fireflies(px, p, 10, 20, 300, 140, time, 26);
+  else
+    butterflies(
+      px,
+      p,
+      [
+        [90, 140],
+        [240, 130],
+      ],
+      time,
+    );
+  return px;
+};
+
+// ------------------------------------------------------------ estanterías (las tres propuestas)
+
+const BOOKC = ['#7b3b4a', '#2f6a5e', '#a8701f', '#3d5f86', '#5e4a7a', '#4f7a52'].map(hex);
+
+function standingBooks(px, p, x0, x1, bottom, h, seed) {
+  const r = rng(seed);
+  let x = x0;
+  while (x < x1 - 3) {
+    const w = 3 + Math.floor(r() * 2);
+    const bh = h - Math.floor(r() * 4);
+    const c = BOOKC[Math.floor(r() * BOOKC.length)];
+    rect(px, p.inner.outline, x, bottom - bh, w + 1, bh);
+    rect(px, c, x + 1, bottom - bh + 1, w - 1, bh - 1);
+    px.set(x + 1, bottom - bh + 3, p.gold);
+    x += w + 1;
+  }
+}
+
+/** Huecos tallados en el tronco: arcos con libros; uno iluminado por luciérnagas. */
+function trunkNiches(px, p, cx, top, rows, night, lit = 1) {
+  for (let i = 0; i < rows; i++) {
+    const y = top + i * 18;
+    const inside = (X, Y) =>
+      Y >= y &&
+      Y < y + 15 &&
+      Math.abs(X + 0.5 - cx) < 11 &&
+      (Y > y + 5 || Math.hypot(X + 0.5 - cx, (Y - y - 5) * 2) < 11);
+    fillMask(
+      px,
+      inside,
+      [cx - 12, y - 1, cx + 12, y + 16],
+      (X, Y) => (Y < y + 4 ? p.inner.mid : p.inner.dark),
+      p.inner.outline,
+    );
+    rect(px, p.gold, cx - 11, y + 15, 22, 1);
+    standingBooks(px, p, cx - 9, cx + 9, y + 14, 9, i * 7 + 3);
+    if (i === lit) {
+      halo(px, p.glow, cx, y + 8, 14);
+      for (const [dx, dy] of [
+        [-6, 3],
+        [5, 2],
+        [0, 6],
+        [7, 9],
+      ])
+        px.set(cx + dx, y + dy, p.firefly);
+    }
+  }
+}
+
+// ------------------------------------------------------------ las salas, con su estantería
+
+function talanWithRoots(mode) {
+  const px = talanBase(mode);
+  const p = ex(mode);
+  mainShelf(px, p, TALAN_REAL, mode === 'night');
+  // arpa y macetas
+  limb(
+    px,
+    p.wood,
+    [
+      [232, 160],
+      [226, 128],
+      [238, 118],
+    ],
+    2,
+    1.5,
+    1,
+  );
+  for (let k = 0; k < 7; k++) rect(px, p.gold, 228 + k, 126 + k, 1, 30 - k * 3);
+  for (const x of [206, 300]) {
+    planter(px, p, x, 174);
+  }
+  return px;
+}
+
+// ------------------------------------------------------------ viñetas (opciones para elegir)
+
+// ------------------------------------------------------------ más bosque (ronda 2)
+
+/** Mezcla un juego de tonos con el color del cielo: más lejos, más claro (sin bruma). */
+function fade(tones, sky, k) {
+  return Object.fromEntries(
+    Object.entries(tones).map(([n, c]) => [
+      n,
+      c.map((v, i) => Math.round(v * (1 - k) + sky[i] * k)),
+    ]),
+  );
+}
+
+/** Una fila de mallorn a una distancia (k: 0 cerca, 1 se funde con el cielo). */
+function treeRow(
+  px,
+  p,
+  { y, n, k, wMin, wMax, hMin, hMax, seed, x0 = -10, x1 = W + 10, skip = null },
+) {
+  const r = rng(seed);
+  const sky = p.sky[3];
+  const tp = { ...p, silver: fade(p.silver, sky, k), gleaf: fade(p.gleaf, sky, k) };
+  for (let i = 0; i < n; i++) {
+    const x = Math.round(x0 + ((i + r() * 0.6) / n) * (x1 - x0));
+    if (skip && x > skip[0] && x < skip[1]) continue;
+    const w = wMin + r() * (wMax - wMin);
+    mallorn(px, tp, x, y, y - (hMin + r() * (hMax - hMin)), w, {
+      lean: (r() - 0.5) * 6,
+      light: 1 - k * 0.5,
+    });
+  }
+}
+
+/** Troncos y copas que enmarcan los bordes de la escena, y hojas colgando arriba. */
+function frameTrees(px, p, { left = true, right = true, top = true } = {}) {
+  if (left) {
+    limb(
+      px,
+      p.silver,
+      [
+        [-2, 190],
+        [6, 90],
+        [0, -10],
+      ],
+      16,
+      12,
+      1,
+    );
+  }
+  if (right) {
+    limb(
+      px,
+      p.silver,
+      [
+        [322, 190],
+        [314, 90],
+        [320, -10],
+      ],
+      16,
+      12,
+      -1,
+    );
+  }
+  if (top) {
+    for (let x = -10; x < 90; x += 13) clump(px, p.gleaf, x, 6 + ((x * 7) % 9), 13);
+    for (let x = 240; x < W + 12; x += 13) clump(px, p.gleaf, x, 6 + ((x * 5) % 9), 13);
+    for (const vx of [30, 52, 268, 290])
+      for (let y = 14; y < 40 + (vx % 20); y++)
+        if (y % 3)
+          px.set(
+            vx + Math.round(Math.sin(y / 4) * 1.5),
+            y,
+            y % 6 === 0 ? p.gleaf.light : p.gleaf.mid,
+          );
+  }
+}
+
+/** Helechos y matas al pie (primer plano). */
+function ferns(px, p, y, seed) {
+  const r = rng(seed);
+  for (let x = -6; x < W + 6; x += 9 + Math.floor(r() * 8)) {
+    if (x > 100 && x < 220) continue;
+    clump(px, p.leaf, x, y + Math.round(r() * 6), 6 + r() * 4, { detail: 0.6 });
+  }
+}
+
+const _city = titleCity;
+
+/** Dibuja una escena encima de un fondo de bosque (las filas lejanas van primero). */
+function layered(base, back, front) {
+  return (mode) => {
+    const p = ex(mode);
+    const scene = base(mode);
+    const bg = new Pix();
+    bg.d.set(scene.d);
+    back?.(bg, p, mode);
+    // lo que la escena pintó encima del cielo se respeta: solo se rellena donde había cielo
+    const skyOnly = new Pix();
+    sky(skyOnly, p, mode === 'night', SKYBANDS[base.name] ?? [0, 24, 48, 74], { clouds: [] });
+    for (let i = 0; i < W * H; i++) {
+      const k = i * 4;
+      const isSky = [0, 1, 2].every((c) => Math.abs(scene.d[k + c] - skyOnly.d[k + c]) < 2);
+      if (!isSky) for (let c = 0; c < 3; c++) bg.d[k + c] = scene.d[k + c];
+    }
+    front?.(bg, p, mode);
+    return bg;
+  };
+}
+const SKYBANDS = {
+  titleCity: [0, 22, 46, 70],
+  titleGate: [0, 24, 48, 74],
+  hallWithNiches: [0, 26, 52, 78],
+  talanWithRoots: [0, 30, 60, 88],
+};
+
+const cityMore = layered(
+  _city,
+  (px, p) => {
+    treeRow(px, p, { y: 118, n: 16, k: 0.7, wMin: 3, wMax: 5, hMin: 50, hMax: 80, seed: 3 });
+    treeRow(px, p, { y: 140, n: 9, k: 0.45, wMin: 6, wMax: 9, hMin: 70, hMax: 110, seed: 7 });
+  },
+  (px, p) => {
+    frameTrees(px, p);
+    ferns(px, p, 172, 5);
+  },
+);
+
+// ------------------------------------------------------------ ronda 3: salas con B y C, compañeros y talleres
+
+// ------------------------------------------------------------ salas: raíces (C) y huecos (B) juntos
+
+const HALL_REAL = { x: 116, y: 64, w: 88, h: 40 };
+
+function hallC(mode) {
+  const night = mode === 'night';
+  const p = ex(mode);
+  const px = hallBase(mode);
+  // dos troncos con huecos tallados (B) entre las columnas
+  for (const cx of [55, 265]) {
+    limb(
+      px,
+      p.silver,
+      [
+        [cx, 182],
+        [cx, 60],
+        [cx - 2, -10],
+      ],
+      16,
+      13,
+      cx < 160 ? 1 : -1,
+    );
+    trunkNiches(px, p, cx, 50, 3, night, cx < 160 ? 0 : 2);
+    for (let y = 40; y < 170; y++)
+      if (Math.sin(y / 5 + cx) > 0.5)
+        px.set(cx + 14 + Math.round(Math.sin(y / 3) * 2), y, y % 6 ? p.leaf.mid : p.niphr);
+  }
+  // al centro, sobre el estrado, el hueco enmarcado en raíces: ahí van los libros reales
+  mainShelf(px, p, HALL_REAL, night);
+  return px;
+}
+
+function talanBC(mode) {
+  const px = talanWithRoots(mode);
+  const p = ex(mode);
+  trunkNiches(px, p, 26, 36, 2, mode === 'night', 0);
+  return px;
+}
+
+const hall4 = layered(
+  hallC,
+  (px, p) => {
+    treeRow(px, p, { y: 112, n: 16, k: 0.7, wMin: 3, wMax: 5, hMin: 40, hMax: 70, seed: 21 });
+    treeRow(px, p, { y: 120, n: 9, k: 0.45, wMin: 6, wMax: 8, hMin: 60, hMax: 90, seed: 23 });
+  },
+  (px, p) => ferns(px, p, 174, 3),
+);
+SKYBANDS.hallC = [0, 26, 52, 78];
+SKYBANDS.talanBC = [0, 30, 60, 88];
+const talan4 = layered(
+  talanBC,
+  (px, p) => {
+    treeRow(px, p, {
+      y: 128,
+      n: 12,
+      k: 0.65,
+      wMin: 4,
+      wMax: 6,
+      hMin: 40,
+      hMax: 70,
+      seed: 31,
+      x0: 50,
+    });
+    treeRow(px, p, {
+      y: 132,
+      n: 5,
+      k: 0.35,
+      wMin: 8,
+      wMax: 11,
+      hMin: 70,
+      hMax: 100,
+      seed: 33,
+      x0: 80,
+    });
+  },
+  (px, p) => {
+    limb(
+      px,
+      p.silver,
+      [
+        [322, 190],
+        [314, 100],
+        [320, -10],
+      ],
+      14,
+      10,
+      -1,
+    );
+    for (let x = 250; x < W + 10; x += 12) clump(px, p.gleaf, x, 40 + ((x * 3) % 10), 11);
+  },
+);
+
+// ------------------------------------------------------------ compañeros (rehechos con más cuidado)
+
+/** Una parte del cuerpo: elipse (girable) con tres tonos según la luz (arriba a la izquierda). */
+function part(px, t, cx, cy, rx, ry, ang = 0, outline = true) {
+  const ca = Math.cos(ang),
+    sa = Math.sin(ang);
+  const inside = (x, y) => {
+    const dx = x + 0.5 - cx,
+      dy = y + 0.5 - cy;
+    const u = dx * ca + dy * sa,
+      v = -dx * sa + dy * ca;
+    return (u / rx) ** 2 + (v / ry) ** 2 < 1;
+  };
+  const R = Math.max(rx, ry) + 1;
+  fillMask(
+    px,
+    inside,
+    [cx - R, cy - R, cx + R, cy + R],
+    (x, y) => {
+      const v = -((x + 0.5 - cx) / rx) * 0.5 - ((y + 0.5 - cy) / ry) * 0.85;
+      return v > 0.45 ? t.light : v < -0.45 ? t.dark : t.mid;
+    },
+    outline ? t.outline : null,
+  );
+}
+function eye(px, x, y, big = false) {
+  const k = hex('#1c2430');
+  rect(px, k, x, y, 2, big ? 3 : 2);
+  px.set(x, y, hex('#ffffff'));
+  if (big) px.set(x + 1, y + 2, hex('#3a4a6a'));
+}
+
+// ------------------------------------------------------------ talleres con más detalle (200 × 52)
+
+// ------------------------------------------------------------ el retoño de mallorn (compañero)
+
+/**
+ * El retoño: una criaturita-planta chibi. Cuerpo redondo de corteza plateada, carita con
+ * ojos grandes, dos hojas doradas como orejas y un brote arriba; brazos de hojita y
+ * raicitas por pies. `mood`: 'idle' | 'happy' (florece, brazos arriba) | 'sad' (se marchita).
+ */
+function sprout(mode, frame = 0, mood = 'idle') {
+  const px = new Pix(28, 30);
+  // Siempre con los colores de día: de noche brilla por su cuenta (en la app, con CSS).
+  const p = ex('day');
+  const happy = mood === 'happy';
+  const sad = mood === 'sad';
+  const bob = frame % 2;
+  const leafT = sad ? fade(p.gleaf, p.bark.mid, 0.45) : p.gleaf;
+  // raicitas
+  for (const [x, d] of [
+    [10, -1],
+    [17, 1],
+  ]) {
+    rect(px, p.bark.outline, x, 25, 2, 3);
+    px.set(x + d, 28, p.bark.outline);
+    px.set(x + d * 2, 28, p.bark.mid);
+  }
+  // brazos de hojita
+  const armY = happy ? 13 : sad ? 22 : 19 - bob;
+  part(px, p.leaf, 5, armY, 3.4, 1.8, happy ? -0.9 : sad ? 0.6 : -0.3);
+  part(px, p.leaf, 23, armY, 3.4, 1.8, happy ? 0.9 : sad ? -0.6 : 0.3);
+  // el cuerpo de corteza plateada, con dos vetas
+  part(px, p.silver, 14, 18 + (sad ? 1 : 0), 8.2, 8);
+  px.set(9, 15, p.silver.light);
+  px.set(10, 14, p.silver.light);
+  rect(px, p.silver.dark, 19, 13, 1, 3);
+  // la carita
+  const ey = 17 + (sad ? 1 : 0);
+  if (sad) {
+    rect(px, hex('#1c2430'), 10, ey + 1, 3, 1);
+    rect(px, hex('#1c2430'), 15, ey + 1, 3, 1);
+  } else if (happy) {
+    for (const ex0 of [10, 15]) {
+      px.set(ex0, ey + 1, hex('#1c2430'));
+      px.set(ex0 + 1, ey, hex('#1c2430'));
+      px.set(ex0 + 2, ey + 1, hex('#1c2430'));
+    }
+  } else {
+    eye(px, 10, ey, true);
+    eye(px, 16, ey, true);
+  }
+  px.set(8, ey + 3, hex('#f2a8b0'));
+  px.set(9, ey + 3, hex('#f2a8b0'));
+  px.set(19, ey + 3, hex('#f2a8b0'));
+  px.set(20, ey + 3, hex('#f2a8b0'));
+  if (!sad) {
+    px.set(13, ey + 4, hex('#7a4a3a'));
+    px.set(14, ey + 4, hex('#7a4a3a'));
+  }
+  // el tallo, las dos hojas-orejas y el brote (o la flor)
+  rect(px, p.leaf.dark, 14, 7 + (sad ? 2 : 0), 1, 4);
+  const droop = sad ? 0.9 : 0;
+  const flap = bob ? 0.12 : 0;
+  part(px, leafT, 8, 8 + (sad ? 4 : 0), 5.4, 2.4, -0.45 - flap + droop);
+  part(px, leafT, 20, 8 + (sad ? 4 : 0), 5.4, 2.4, 0.45 + flap - droop);
+  px.set(6, 7 + (sad ? 4 : 0), leafT.hl);
+  if (happy) {
+    for (const [dx, dy] of [
+      [0, -2],
+      [-2, 0],
+      [2, 0],
+      [0, 2],
+      [-1, -1],
+      [1, -1],
+      [-1, 1],
+      [1, 1],
+    ])
+      px.set(14 + dx, 4 + dy, p.niphr);
+    px.set(14, 4, p.elanor);
+    for (const [x, y] of [
+      [4, 4],
+      [24, 3],
+      [2, 12],
+      [26, 11],
+    ])
+      px.set(x, y, p.gold);
+  } else if (!sad) {
+    part(px, p.leaf, 14, 5 + bob, 1.8, 2.6);
+    px.set(14, 3 + bob, p.leaf.hl);
+  }
+  return px;
+}
+
+// ------------------------------------------------------------ la estantería real: un hueco enmarcado en raíces
+
+/**
+ * Donde van los libros reales: un hueco oscuro de una fila, enmarcado por dos raíces vivas
+ * que se arquean arriba con musgo y flores, y una raíz por tabla. Las repisas de raíces y
+ * los huecos de los troncos que la rodean llevan libros dibujados (son decoración).
+ */
+function mainShelf(px, p, s, night) {
+  rect(px, p.inner.outline, s.x - 1, s.y - 1, s.w + 2, s.h + 2);
+  for (let y = s.y; y < s.y + s.h; y++)
+    for (let x = s.x; x < s.x + s.w; x++)
+      px.set(x, y, (x - s.x) % 12 === 0 ? p.inner.mid : p.inner.dark);
+  limb(
+    px,
+    p.bark,
+    [
+      [s.x - 6, s.y + s.h + 8],
+      [s.x - 4, s.y + 10],
+      [s.x + 10, s.y - 6],
+      [s.x + s.w / 2, s.y - 9],
+    ],
+    3.6,
+    2.4,
+    1,
+  );
+  limb(
+    px,
+    p.bark,
+    [
+      [s.x + s.w + 6, s.y + s.h + 8],
+      [s.x + s.w + 4, s.y + 10],
+      [s.x + s.w - 10, s.y - 6],
+      [s.x + s.w / 2, s.y - 9],
+    ],
+    3.6,
+    2.4,
+    -1,
+  );
+  limb(
+    px,
+    p.bark,
+    [
+      [s.x - 8, s.y + s.h + 2],
+      [s.x + s.w / 2, s.y + s.h + 4],
+      [s.x + s.w + 8, s.y + s.h + 1],
+    ],
+    2.6,
+    2.4,
+    1,
+  );
+  for (let x = s.x - 6; x < s.x + s.w + 8; x += 8)
+    clump(px, p.leaf, x, s.y - 9 + Math.abs(x - s.x - s.w / 2) * 0.12, 4.5, { detail: 0.5 });
+  elanor(px, p, s.x - 4, s.x + s.w + 4, s.y - 14, s.y - 8, 9, 5);
+  for (let y = s.y + 4; y < s.y + s.h; y += 5) {
+    px.set(s.x - 6 + (y % 2), y, p.leaf.light);
+    px.set(s.x + s.w + 5 - (y % 2), y, p.leaf.light);
+  }
+  if (night) halo(px, p.glow, s.x + s.w / 2, s.y + s.h / 2, 30);
+}
+
+// ------------------------------------------------------------ el tronco con la escalera (el paso entre salas)
+
+function trunkBase(mode) {
+  const night = mode === 'night';
+  const p = ex(mode);
+  const px = new Pix();
+  sky(px, p, night, [0, 40, 90, 140], {
+    moon: [270, 30],
+    clouds: night
+      ? []
+      : [
+          [60, 50, 40],
+          [250, 110, 30],
+        ],
+  });
+  treeRow(px, p, { y: 200, n: 12, k: 0.7, wMin: 4, wMax: 6, hMin: 190, hMax: 210, seed: 41 });
+  treeRow(px, p, {
+    y: 200,
+    n: 6,
+    k: 0.45,
+    wMin: 8,
+    wMax: 10,
+    hMin: 190,
+    hMax: 210,
+    seed: 43,
+    skip: [110, 210],
+  });
+  limb(
+    px,
+    p.silver,
+    [
+      [160, 200],
+      [158, 90],
+      [162, -20],
+    ],
+    34,
+    32,
+    1,
+  );
+  for (let y = 4; y < H; y += 3) px.set(146 + ((y * 7) % 5), y, p.silver.light);
+  for (const [y, d] of [
+    [30, -1],
+    [100, 1],
+    [150, -1],
+  ]) {
+    limb(
+      px,
+      p.silver,
+      [
+        [160 + d * 20, y + 10],
+        [160 + d * 70, y],
+        [160 + d * 120, y - 8],
+      ],
+      6,
+      2,
+      d,
+    );
+    for (let k = 0; k < 4; k++) clump(px, p.gleaf, 160 + d * (70 + k * 18), y - 6 - (k % 2) * 4, 9);
+  }
+  spiral(px, p, 160, -4, 186, 30, 24);
+  for (const y of [40, 110, 170]) lantern(px, p, 160 + (y % 2 ? 30 : -30), y, night, 2);
+  for (let y = 0; y < H; y++)
+    if (Math.sin(y / 6) > 0.3)
+      px.set(186 + Math.round(Math.sin(y / 4) * 2), y, y % 5 ? p.leaf.mid : p.niphr);
+  return px;
+}
+
 // ------------------------------------------------------------ las escenas
 
 /**
  * Cada escena: cómo se dibuja (una vez por modo), qué se repinta encima en cada paso y,
- * en coordenadas de la escena, dónde van la estantería real (`shelf`, el hueco entre las
- * tablas) y la puerta (`door`, el ascensor de lianas). `focus` es el punto que queda a la
- * vista cuando la pantalla recorta la escena (en el celular).
+ * en coordenadas de la escena, dónde van los libros reales (`shelf`) y la escalera de
+ * caracol (`door`). `focus` es el punto que queda a la vista cuando la pantalla recorta.
  */
 export const SCENES = {
-  title: {
-    base: lakeBase,
-    frame: lakeFrame,
-    focus: [0.62, 0.5],
-  },
-  monastery: {
-    base: libraryBase,
-    frame: (base, mode, time) => {
-      const px = base.copy();
-      const pal = palette(mode);
-      if (mode === 'night') fireflies(px, pal, 20, 30, 280, 120, time, 22);
-      else
-        butterflies(
-          px,
-          pal,
-          [
-            [110, 120],
-            [214, 112],
-          ],
-          time,
-        );
-      return px;
-    },
-    shelf: {
-      x: LIB_SHELF.cx - LIB_SHELF.w + 2,
-      y: LIB_SHELF.top - 2,
-      w: LIB_SHELF.w * 2 - 4,
-      h: LIB_SHELF.bottom - LIB_SHELF.top + 1,
-    },
-    door: { x: 286, y: 96, w: 26, h: 56 },
-    focus: [0.5, 0.5],
-  },
-  study: {
-    base: hollowBase,
-    frame: (base, mode, time) => {
-      const px = base.copy();
-      const pal = palette(mode);
-      if (mode === 'night') fireflies(px, pal, 80, 20, 160, 90, time, 14);
-      else butterflies(px, pal, [[120, 60]], time);
-      return px;
-    },
-    shelf: {
-      x: HOLLOW_SHELF.cx - HOLLOW_SHELF.w + 2,
-      y: HOLLOW_SHELF.top - 2,
-      w: HOLLOW_SHELF.w * 2 - 4,
-      h: HOLLOW_SHELF.bottom - HOLLOW_SHELF.top + 1,
-    },
-    door: { x: 210, y: 60, w: 26, h: 56 },
-    focus: [0.5, 0.5],
-  },
+  title: { base: cityMore, frame: sway, focus: [0.52, 0.5] },
+  monastery: { base: hall4, frame: sway, shelf: HALL_REAL, door: HALL_DOOR, focus: [0.5, 0.5] },
+  study: { base: talan4, frame: sway, shelf: TALAN_REAL, door: TALAN_DOOR, focus: [0.4, 0.5] },
   trunk: { base: trunkBase, frame: null, focus: [0.5, 0.5] },
 };
+
+/** El retoño de mallorn (el compañero), como lienzo: bosque.js lo pasa a SVG. */
+export { sprout };

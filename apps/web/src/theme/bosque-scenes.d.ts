@@ -34,3 +34,6 @@ export interface RasterScene {
 }
 
 export declare const SCENES: Record<'title' | 'monastery' | 'study' | 'trunk', RasterScene>;
+
+/** El retoño de mallorn (el compañero) en un lienzo; `mood`: 'idle' | 'happy' | 'sad'. */
+export declare function sprout(mode: Mode, frame?: number, mood?: 'idle' | 'happy' | 'sad'): Pix;

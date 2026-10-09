@@ -1,21 +1,19 @@
 /** Las piezas SVG del Bosque élfico (bosque.js); las escenas, en bosque-scenes.js. */
 export declare const Bosque: {
-  /** La luciérnaga en la punta de la barra de progreso. */
-  firefly(): string;
+  /** El broche de hoja de Lórien en la punta de la enredadera (la barra de progreso). */
+  brooch(): string;
   /** El pie del atril bajo la ficha del libro. */
   lecternStand(): string;
-  /** Lumen, el espíritu de luz (el compañero). */
-  lumen(): string;
-  /** El taller del tapiz; `voice` elige el color de las capas. */
+  /** El retoño de mallorn (el compañero). */
+  sprout(): string;
+  /** El taller del árbol que brota con un canto; `voice` elige el color de las túnicas. */
   workshop(voice: string): string;
-  /** La cuadrilla que trae un libro subido (48 × 24, como la del Scriptorium). */
+  /** Los mensajeros con la litera que traen un libro subido (48 × 24, como la del Scriptorium). */
   bookCrew(): string;
-  /** La canasta del ascensor en la que llega la cuadrilla. */
-  crewLift(): string;
-  /** Las hojas secas del libro que se marchita (en lugar de las llamas). */
-  wither(): string;
-  /** El elfo que lleva un capítulo descargado al cofre (12 × 15). */
+  /** Las esquirlas del libro que se vuelve piedra (en lugar de las llamas). */
+  stone(): string;
+  /** El elfo que lleva un capítulo descargado a la raíz (12 × 15). */
   clothCarrier(voice?: string): string;
-  /** El cofre de raíz de las descargas (20 × 16). */
-  rootChest(): string;
+  /** La raíz que guarda las descargas (20 × 16). */
+  rootStore(): string;
 };

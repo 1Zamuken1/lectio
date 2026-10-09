@@ -12,7 +12,7 @@ export type SoundName =
   | 'reborn'
   | 'chest'
   | 'chest-soft'
-  /** El compañero se encoge o se enreda ante un error (Lumen, Pol). */
+  /** El compañero se encoge o se enreda ante un error (el retoño, Pol). */
   | 'sad';
 
 /** Efectos y música chiptune con Web Audio (sound.js). */

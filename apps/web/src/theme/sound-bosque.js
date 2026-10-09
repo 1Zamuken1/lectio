@@ -99,7 +99,7 @@ function flute(a, { note, start, duration, gain = 0.05, bus = a.sfx }) {
   breath.stop(start + 0.25);
 }
 
-/** Cristal: parciales inarmónicos agudos que se apagan despacio (campanilla, Lumen). */
+/** Cristal: parciales inarmónicos agudos que se apagan despacio (campanilla, el retoño). */
 function glass(a, { note, start, duration = 1.2, gain = 0.06, bus = a.sfx }) {
   for (const [ratio, level, decay] of [
     [1, 1, 1],
@@ -200,12 +200,12 @@ export const SFX = {
     );
     flute(a, { note: 84, start: t + 0.3, duration: 0.7, gain: 0.04 });
   },
-  /** Risita de Lumen: cuatro notas de cristal que suben rápido (fin de capítulo). */
+  /** Risita del retoño: cuatro notas de cristal que suben rápido (fin de capítulo). */
   hoot: (t, a) =>
     [88, 91, 95, 100].forEach((note, i) =>
       glass(a, { note, start: t + i * 0.07, duration: i === 3 ? 0.9 : 0.4, gain: 0.05 }),
     ),
-  /** Lumen se encoge ante un error: dos notas de cristal que bajan. */
+  /** El retoño se marchita ante un error: dos notas de cristal que bajan. */
   sad: (t, a) => {
     glass(a, { note: 88, start: t, duration: 0.5, gain: 0.04 });
     glass(a, { note: 83, start: t + 0.16, duration: 0.8, gain: 0.035 });

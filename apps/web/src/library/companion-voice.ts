@@ -3,7 +3,7 @@ import type { WorldId } from '../theme/worlds';
 /**
  * Lo que dice el compañero de la sala, con la voz de cada mundo. Las salas y el estudio
  * escriben sus avisos en el tono neutro de siempre (el de Sabio y del Clásico); aquí se
- * reescriben para los compañeros con personalidad propia, como Lumen en el Bosque
+ * reescriben para los compañeros con personalidad propia, como el retoño en el Bosque
  * (curioso, juguetón, frases cortas y entusiastas). `mood` dice cómo reacciona:
  * 'error' lo encoge un momento; lo demás, voltereta con chispas.
  */
@@ -20,7 +20,8 @@ type Rule = [RegExp, (m: RegExpMatchArray) => string, CompanionLine['mood']?];
 const ERRORS =
   /DRM|no es un EPUB|no es un EPUB válido|No encontramos|No pudimos|No pude|demasiado|Algo falló|muy rápido|Hay audio generándose/i;
 
-const LUMEN: Rule[] = [
+/** El retoño de mallorn (Bosque): tierno, curioso y entusiasta; frases cortas. */
+const RETONO: Rule[] = [
   [
     /^Elige un libro de la estantería\. Aquí se lee y se escucha sin cuenta\.$/,
     () => '¡Hola! Elige el libro que quieras: aquí se lee y se escucha sin cuenta.',
@@ -113,7 +114,7 @@ const POL: Rule[] = [
   ],
 ];
 
-const VOICES: Partial<Record<WorldId, Rule[]>> = { bosque: LUMEN, solarpunk: POL };
+const VOICES: Partial<Record<WorldId, Rule[]>> = { bosque: RETONO, solarpunk: POL };
 
 /** Cómo empieza un error sin frase propia, según el compañero. */
 const ERROR_PREFIX: Partial<Record<WorldId, string>> = { bosque: 'Ay…', solarpunk: 'Error:' };
@@ -126,7 +127,7 @@ export function companionLine(world: WorldId, text: string): CompanionLine {
     const match = text.match(pattern);
     if (match) return { text: write(match), mood: ruleMood ?? mood };
   }
-  // Los errores sin frase propia: "Ay…" con Lumen, "Error:" con Pol.
+  // Los errores sin frase propia: "Ay…" con el retoño, "Error:" con Pol.
   if (mood === 'error')
     return { text: `${ERROR_PREFIX[world] ?? ''} ${lowerFirst(text)}`.trim(), mood };
   return { text, mood };
