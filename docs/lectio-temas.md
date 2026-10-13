@@ -322,3 +322,28 @@ Con los cuatro temas listos, el usuario pidió pasar el **Bosque élfico** y el 
 
 - Lo que le falla, según el usuario: se ve genérico, las salas no tienen escena, a los detalles les falta pulido, y también la lectura.
 - Sigue **sin pixel art, sin personajes y sin sonido**, y sigue siendo la referencia de accesibilidad. Gana un diseño editorial de verdad: tipografía cuidada, filetes, ornamentos tipográficos sutiles, una estantería elegante y, como mucho, una ilustración mínima de línea. Sus preguntas de diseño se hacen al terminar el Bosque.
+
+### 7.11 Decisiones del Clásico (13-10-2026)
+
+Cuatro rondas de preguntas. Sigue sin pixel art, sin personajes y sin sonido, y es la referencia de accesibilidad (AAA en el texto, AA en la interfaz). Lo siguiente es la maqueta, en `apps/web/.scratch/clasico/`.
+
+| Pieza | Decisión |
+|---|---|
+| Referente | **Editorial literaria**: una colección de clásicos de una buena editorial (Penguin Clothbound, Anagrama, Siruela). Portadillas, filetes finos, versalitas, ornamentos tipográficos sobrios. |
+| Paleta | **Crema y azul tinta, y un segundo color, el lacre** (por ejemplo `#9b2d20`), para ornamentos, números y sellos. |
+| Tipografía | **Literata en todo**: títulos y rótulos en versalitas espaciadas. Atkinson solo en datos chicos. |
+| Libros en las salas | **Tres opciones en la maqueta**: lomos en una estantería de línea, portadas en grilla tipo catálogo y una lista tipo índice de colección. |
+| Ilustración | **Un grabado mínimo de línea**, monocromo en tinta, como las viñetas de los libros antiguos. Estático, sin personajes y decorativo (`aria-hidden`). |
+| Portada | **Portadilla de libro**: florón, LECTIO en versalitas espaciadas, "Biblioteca leída en voz alta", los mundos como un índice numerado y "Comenzar la lectura". |
+| Salas | **La colección** (pública) y **Tu biblioteca** (propia). Los botones de la barra dicen **"Colección"** y **"Mi biblioteca"** solo en el Clásico; los demás mundos no cambian. |
+| Paso entre salas | **Pasar la página**: un deslizamiento horizontal corto, sin 3D. Con movimiento reducido, un fundido. |
+| Apertura de capítulo | **Editorial**: número romano en versalitas, título centrado, florón, espacio arriba y la primera palabra en versalitas. **Capitular en lacre**, de 3 líneas, en Literata. |
+| Interfaz | **Filete y versalitas**: botones planos con filete fino y rótulos en versalitas, y paneles con doble filete (grueso y fino) como un recuadro de imprenta. Esquinas rectas. |
+| Noche | **Café cálido**: café muy oscuro con texto marfil, la tinta pasa a un azul claro y el lacre a un coral suave. Nunca negro puro. |
+| Generando la voz | **La galerada que se compone**: sobre el reproductor, una prueba de imprenta cuyos renglones grises se componen en tinta con el avance real, con "Componiendo la voz de Gonzalo · 42 %" en versalitas. Al terminar, un sello "Listo" en lacre. |
+| Libro nuevo / fallido | El libro nuevo aparece con un fundido y una marca **"Nuevo"** en lacre unos segundos. El que falla queda como una tarjeta **"Fe de erratas"**, con el título tachado, la explicación y "Quitar". |
+| Descargas | **Ex libris**: un sello pequeño en lacre junto a cada capítulo descargado. El panel se llama **"Tu archivo"**, con el espacio como un filete que se llena y las cifras en versalitas. |
+| Ficha del libro | **Portadilla e índice**: a dos columnas, como un libro abierto sobrio. A la izquierda la portada, el título en versalitas, el autor y "Empezar"; a la derecha el índice con puntos guía y números. |
+| Íconos | **Línea fina pulida**, con trazo uniforme. Algunos tienen motivo editorial: la puerta como una página, las descargas como un ex libris. |
+| Movimiento | **Mínimo y funcional**: el pase de página, el fundido del libro nuevo y la galerada. Nada ambiental. |
+| La maqueta muestra | La portada y las dos salas (con las tres formas de ver los libros), el lector y el reproductor (con la galerada en marcha), la ficha, las descargas y sus estados, y todo de noche y a 375 px. |
