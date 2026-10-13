@@ -146,7 +146,7 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 - **Solo la app** (`apps/web`) recibe los mundos nuevos; la CLI (`apps/cli/assets/theme/`) se queda con el Scriptorium y el Clásico por ahora.
 - Compañero del Solarpunk: **el dron jardinero** (nombre y personalidad, cuando toque ese mundo).
 
-**Bosque élfico** (rediseño del 01-10-2026; reemplaza la tabla anterior)
+**Bosque élfico** (rediseño del 01-10-2026; **reemplazado por el rediseño del 06-10-2026, §7.10**: se deja como historia)
 
 | Pieza | Decisión |
 |---|---|
@@ -174,7 +174,7 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 | Se mantiene | **Lumen**, el espíritu de luz (curioso y juguetón); el **taller del tapiz** (maestra y 9 aprendices, capa por voz, campanilla de cristal); **cofre de raíz** y **frasco de luciérnagas** para las descargas; el libro que **se marchita y rebrota**; **arpa y flauta**. Su forma concreta se vuelve a preguntar en cada entrega. |
 | Cómo se trabaja | Primero una **maqueta estática** (la portada, el gran árbol con su estantería, los paneles y la página, de día y de noche); se ajusta ahí y después se pasa a la app. |
 
-### 7.6 Avance del Bosque élfico
+### 7.6 Avance del Bosque élfico (primer diseño; reemplazado en §7.10)
 
 - **En la app (01-10-2026)**: el rediseño, pasado de la maqueta (ya borrada) a la app con más elementos donde había huecos. Las escenas son de lienzo (`theme/bosque-scenes.js`, 320 × 180, se dibujan una vez por modo y lo que se mueve se repinta en pasos: el agua del lago, las luciérnagas, las mariposas) y se muestran con `components/RasterArt.tsx`; `world-art.ts` las da con `rasterScene()`. Cada escena dice en sus coordenadas dónde va la estantería real y la puerta: `LibraryRoom` las pasa a píxeles (`--shelf-*`, `--door-*`) y escala los lomos (`--spine-k`) para que midan lo que los dibujados. La puerta entre salas es un **ascensor de lianas** (se toca en la escena; el teclado usa la barra) y el paso es la vista que sube o baja por el tronco (`RoomPassage` en `room-door.tsx`). Detrás del lector, la sala de la que viene el libro, atenuada. Paneles sólidos flotantes, medallón con alas, hilo de luz con luciérnaga, 22 íconos suaves (`icons-bosque.js`) y Handjet. Agregado sobre la maqueta: guirnaldas de luces entre las ramas, el ascensor en las dos salas, un muelle con farol en el lago, repisas con frascos y hierbas, un cesto de rollos, mariposas de día. Falta: Lumen, el taller, la cuadrilla, el libro que se marchita, las descargas en escena y los sonidos.
 - **Se rehace (01-10-2026)**: las entregas 1 y 2 de abajo copiaban la estructura del Scriptorium. De ellas se queda la infraestructura (el registro de mundos, `world-art.ts`, `data-scenes`, el motor de pixel art compartido); el arte, el CSS y la disposición del Bosque se rehacen según la tabla nueva, a partir de una maqueta.

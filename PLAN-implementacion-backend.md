@@ -128,7 +128,7 @@ Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por
 
 ---
 
-## Estado y cómo retomar (01-10-2026)
+## Estado y cómo retomar (13-10-2026)
 
 Hechas las fases 0 a 6 y la **fase 7** salvo la prueba en un Android real (base PWA, descargas, progreso sin conexión, prerender y Playwright sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
 
@@ -189,11 +189,28 @@ Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y cel
 
 **Hecho el 01-10 (temas: el Bosque élfico completo)**: el Bosque es un mundo propio, no un Scriptorium con otra paleta, en pixel art de lienzo estilo Stardew/Terraria. Tiene la portada con el gran árbol junto al lago, la biblioteca sobre la copa, el hueco en el árbol y el paso por el tronco. Lumen es el compañero, con su propia voz. El taller teje un tapiz, con elfos al estilo de El Señor de los Anillos; la cuadrilla sube en el ascensor de lianas; el libro fallido se marchita y rebrota; y las descargas van al cofre de raíz, con el frasco de luciérnagas en el panel. Suena con arpa, flauta y cristal, y tiene controles propios (tablillas, capullos, la rama del volumen). Commits `3f57008` a `5eaddd5`; el detalle está en `docs/lectio-temas.md` §7.5 y §7.6. Además, una API caída o arrancando ya no cierra la sesión (`12dab1c`). El 02-10 el usuario lo aprobó: `ready: true`.
 
-**Hecho el 02-10 (el Solarpunk en la app)**: se hicieron las preguntas de diseño y la maqueta, que el usuario aprobó en tres rondas, y después se pasó a la app. El detalle está en `docs/lectio-temas.md` §7.8 y §7.9. Tiene la portada en un apartamento hiperfuturista, la terraza solar abierta a la ciudad y tu rincón del apartamento. Los libros son libros de luz en un panel holográfico que los proyecta al pasar el cursor. Pol es el dron peluche. El taller es un jardín vertical con seis robots; la cuadrilla, dos Cúpulas; el libro fallido hace cortocircuito, y las descargas van a una cápsula, con una batería en el panel. Suena con sintetizador cálido y marimba. Sigue en `ready: false`.
+**Hecho el 02-10 (el Solarpunk)**: preguntas de diseño, maqueta aprobada en tres rondas y paso a la app (`docs/lectio-temas.md` §7.8 y §7.9). Tiene la portada en un apartamento hiperfuturista, la terraza solar abierta a la ciudad y tu rincón. Los libros son libros de luz en un panel holográfico. Pol es el dron peluche; el taller, un jardín vertical con seis robots, y suena con sintetizador y marimba. El usuario lo aprobó: `ready: true` (`f7d6660`). **Con eso están los cuatro temas.**
 
-**Siguiente sesión**: que el usuario revise el Solarpunk completo en `pnpm dev` (también la noche, el celular, el taller con una voz real si quiere gastarla, y las descargas). Con su visto bueno, se marca `ready: true` en `theme/worlds.ts`. Con eso quedan terminados los cuatro temas.
+**Hecho del 06 al 09-10 (el Bosque élfico rediseñado)**: el usuario pidió rehacer los dos temas más flojos (el Bosque y el Clásico) con el mismo proceso (§7.10). Se hizo primero el Bosque, desde cero: un Lothlórien noble, con maqueta aprobada en cuatro rondas en `apps/web/.scratch/bosque2/`, y paso a la app (`a7fa0f4`).
 
-**Para más adelante (no ahora)**: la prueba en un Android real (`docs/lectio-prueba-android.md`, cuando el usuario tenga el celular a mano), el despliegue y Kokoro con el circuit breaker. Los commits desde `381122d` siguen en `main` sin push (31 al cerrar el 01-10).
+- **Escenas**: la ciudad en los mallorn (portada), el salón élfico con columnas que son troncos vivos, tu talan en lo alto y el tronco con la escalera de caracol para el paso entre salas.
+- **Estanterías**: los libros reales van en un hueco enmarcado por raíces, y hay huecos tallados en los troncos con libros dibujados.
+- **Personajes**: el **retoño de mallorn** reemplaza a Lumen. El taller es **el árbol que brota con un canto**. Los libros subidos llegan con **mensajeros con litera**, el libro que falla **se vuelve piedra**, y las descargas van a **la raíz**, con los **anillos de un tronco** como medidor.
+- **Interfaz**: paneles de plata con filete de oro, botones en forma de hoja, ▶ como el broche de Lórien y el progreso como una enredadera.
+- **Probado** en `pnpm dev`: la portada y el salón. Las piezas se revisaron insertándolas en la página. Docker no estaba abierto, así que no se vieron libros reales ni el talan.
+
+**Siguiente sesión: lo que falta**
+
+1. **Terminar de revisar el Bosque con Docker abierto** (`pnpm db:up`): libros reales en el hueco de raíces (la escala de los lomos y el holograma no aplican; aquí son lomos), entrar al talan, el paso por la escalera, el lector, el taller en uso real (si se quiere gastar una voz), la subida con los mensajeros, el libro de piedra y las descargas a la raíz. También la noche y el celular.
+2. **Pulidos pendientes del Bosque**:
+   - Íconos: la puerta, la casa y el arcón siguen siendo los del Bosque anterior (ascensor de lianas, gran árbol, cofre). Pasarlos a la escalera, el mallorn y la raíz en `theme/icons-bosque.js`.
+   - Sonido: el de la puerta todavía es el crujido de lianas del ascensor (`theme/sound-bosque.js`, `door`). Pasarlo a pasos en la escalera.
+   - Rendimiento: dibujar la base de cada escena tarda de 150 a 240 ms (se cachea una vez por modo). Si se nota, aligerar las filas de árboles.
+3. **El Clásico**: hacer sus preguntas de diseño (editorial con identidad, sin pixel art ni personajes ni sonido, y referencia de accesibilidad; §7.10). Después, maqueta y paso a la app.
+
+**Para más adelante (no ahora)**: la prueba en un Android real (`docs/lectio-prueba-android.md`, cuando el usuario tenga el celular a mano), el despliegue y Kokoro con el circuit breaker. Los commits desde `381122d` siguen en `main` sin push (37 al 13-10).
+
+**Maquetas** (en `apps/web/.scratch/`, que git ignora): `solarpunk/` (servida con la configuración `maqueta-solarpunk`, :4180) y `bosque2/` (`maqueta-bosque`, :4181). `node render.mjs` (o `r4.mjs`, `r5.mjs` y `r6.mjs` en `bosque2/`) dibuja las escenas en PNG para revisarlas de cerca.
 
 **Limitaciones conocidas (para decidir más adelante)**
 
