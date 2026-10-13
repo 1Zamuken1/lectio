@@ -309,6 +309,14 @@ Con los cuatro temas listos, el usuario pidió pasar el **Bosque élfico** y el 
 - **Estilos**: en `styles/bosque.css`, los paneles de plata, los botones en hoja, el broche, la enredadera, el retoño, el taller, la piedra y los anillos del tronco como medidor de descargas.
 - **Registro**: el compañero es "El retoño de mallorn", el recipiente de las descargas "La raíz", y las salas "El salón élfico" y "Tu talan".
 - **Pruebas**: probado en `pnpm dev` (portada y salón). Las piezas se revisaron insertándolas en la página. Faltó ver libros reales en la estantería y entrar al talan, porque Docker no estaba abierto: queda para la revisión del usuario.
+- **Revisión (13-10-2026)**, con Docker: todo funciona con libros reales. Se corrigió:
+  - **El celular**: la barra se salía de la pantalla, y el estante, recortado por la escena, se centra ahora en él (`--scene-focus-x`; ayuda también al Solarpunk).
+  - **La estantería**: el paginador y "Añadir libro" van bajo la raíz (`--scene-px`).
+  - **El logo** lleva un contorno pixel oscuro.
+  - **Los nombres de sala**: el botón de la puerta y la biblioteca vacía usan los del mundo.
+  - **El taller** va en su propia viñeta: un panel de plata con cielo del atardecer (o de luna), sol y mallorn lejanos, para no mezclarse con el texto que queda detrás.
+  - **Íconos nuevos**: la escalera alrededor del tronco (la puerta), un mallorn (la portada) y la raíz con un rollo (las descargas).
+  - **El sonido de la puerta**: pasos ligeros en la escalera, hojas que rozan y una nota de arpa al llegar.
 
 **Clásico: editorial con identidad** (después del Bosque)
 

@@ -1378,6 +1378,13 @@
   --px-gleaf-d: #a8701f;
   --px-niphredil: #ffffff;
   --px-stone: #a8a49a;
+  /* El fondo de la viñeta del taller: atardecer dorado y mallorn lejanos. */
+  --px-sky-1: #f8e8bf;
+  --px-sky-2: #f4d796;
+  --px-sky-3: #ecc275;
+  --px-sun: #fff4d2;
+  --px-far-trunk: #f3e6cc;
+  --px-far-leaf: #f6d58c;
 }
 
 :root[data-world='bosque'][data-mode='night'] {
@@ -1405,6 +1412,12 @@
   --px-gleaf-d: #8a6a24;
   --px-niphredil: #e8eef8;
   --px-stone: #5a6070;
+  --px-sky-1: #18223a;
+  --px-sky-2: #1f2c48;
+  --px-sky-3: #283857;
+  --px-sun: #e8eef8;
+  --px-far-trunk: #3c4a66;
+  --px-far-leaf: #33445e;
 }
 
 /* Cada voz tiene su túnica. */
@@ -1432,13 +1445,21 @@
   filter: brightness(0.92);
 }
 
-/* Sobre el reproductor flotante, al centro (en el Scriptorium, pegado a la derecha). */
+/*
+ * Sobre el reproductor flotante, al centro (en el Scriptorium, pegado a la derecha), en su
+ * propia viñeta: un panel de plata con filete, como los demás, para que el árbol no se
+ * mezcle con el texto del libro que queda detrás.
+ */
 [data-world='bosque'] .workshop {
   right: auto;
   left: 50%;
   bottom: calc(var(--player-height, 7.5rem) + 0.4rem);
   width: min(640px, calc(100vw - 1.2rem));
   translate: -50% 0;
+  padding: 6px;
+  background: var(--chrome);
+  clip-path: var(--step-corners);
+  box-shadow: var(--panel-border);
 }
 
 /* La copa no se enrolla (como el pergamino) al terminar: queda, y el árbol florece. */

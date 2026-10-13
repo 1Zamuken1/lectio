@@ -201,10 +201,8 @@ Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y cel
 
 **Siguiente sesión: lo que falta**
 
-1. **Terminar de revisar el Bosque con Docker abierto** (`pnpm db:up`): libros reales en el hueco de raíces (la escala de los lomos y el holograma no aplican; aquí son lomos), entrar al talan, el paso por la escalera, el lector, el taller en uso real (si se quiere gastar una voz), la subida con los mensajeros, el libro de piedra y las descargas a la raíz. También la noche y el celular.
-2. **Pulidos pendientes del Bosque**:
-   - Íconos: la puerta, la casa y el arcón siguen siendo los del Bosque anterior (ascensor de lianas, gran árbol, cofre). Pasarlos a la escalera, el mallorn y la raíz en `theme/icons-bosque.js`.
-   - Sonido: el de la puerta todavía es el crujido de lianas del ascensor (`theme/sound-bosque.js`, `door`). Pasarlo a pasos en la escalera.
+1. ~~Revisar el Bosque con Docker abierto~~ (hecho el 13-10): funcionan la portada, el salón con libros reales, el talan, la escalera, el atril, el lector, las descargas a la raíz, la piedra y la noche. Se corrigieron el celular (la barra y el estante, que ahora se centra si la escena lo recorta: `--scene-focus-x`), el paginador bajo la raíz, el contorno del logo, los nombres de sala por mundo y el taller, que ahora va en su propia viñeta (cielo, mallorn lejanos y panel de plata) para no mezclarse con el texto. Falta ver el taller y los mensajeros en uso real: Edge TTS respondió 403 desde la red del usuario (lo da Microsoft, no el código).
+2. **Pulidos del Bosque**: íconos (escalera, mallorn y raíz) y sonido de la puerta (pasos en la escalera) hechos el 13-10. Queda:
    - Rendimiento: dibujar la base de cada escena tarda de 150 a 240 ms (se cachea una vez por modo). Si se nota, aligerar las filas de árboles.
 3. **El Clásico**: hacer sus preguntas de diseño (editorial con identidad, sin pixel art ni personajes ni sonido, y referencia de accesibilidad; §7.10). Después, maqueta y paso a la app.
 

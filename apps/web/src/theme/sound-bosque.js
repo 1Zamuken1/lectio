@@ -152,25 +152,6 @@ function knock(a, { start, note = 52, gain = 0.2 }) {
   hiss(a, { start, duration: 0.03, gain: gain * 0.3, from: 2500, to: 1200 });
 }
 
-/** Crujido de liana o de madera: una sierra muy filtrada que se queja subiendo o bajando. */
-function creak(a, { start, note, duration, slide, gain = 0.04 }) {
-  const osc = a.ctx.createOscillator();
-  const lowpass = a.ctx.createBiquadFilter();
-  const env = a.ctx.createGain();
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(midi(note), start);
-  osc.frequency.linearRampToValueAtTime(midi(note + slide), start + duration);
-  lowpass.type = 'lowpass';
-  lowpass.frequency.value = 800;
-  lowpass.Q.value = 4;
-  env.gain.setValueAtTime(0.0001, start);
-  env.gain.linearRampToValueAtTime(gain, start + 0.03);
-  env.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-  osc.connect(lowpass).connect(env).connect(a.sfx);
-  osc.start(start);
-  osc.stop(start + duration + 0.05);
-}
-
 // ------------------------------------------------------------ efectos
 
 /** Pellizcos de arpa en fa lidio (fa sol la si do re mi). */
@@ -215,12 +196,16 @@ export const SFX = {
     glass(a, { note: 96, start: t, duration: 1.8, gain: 0.07 });
     glass(a, { note: 91, start: t + 0.42, duration: 2, gain: 0.05 });
   },
-  /** El ascensor de lianas: la liana cruje y se estira, la canasta roza y se asienta. */
+  /**
+   * La escalera de caracol: pasos ligeros en los peldaños de madera (uno y otro pie, cada
+   * vez un poco más agudos), las hojas que rozan al pasar y una nota de arpa al llegar.
+   */
   door: (t, a) => {
-    creak(a, { start: t, note: 47, duration: 0.35, slide: 5 });
-    hiss(a, { start: t + 0.05, duration: 0.5, gain: 0.03, from: 500, to: 1200, q: 0.7 });
-    creak(a, { start: t + 0.3, note: 54, duration: 0.28, slide: -3, gain: 0.03 });
-    knock(a, { start: t + 0.62, note: 45, gain: 0.14 });
+    [52, 50, 54, 52, 56].forEach((note, i) =>
+      knock(a, { start: t + i * 0.13, note, gain: i % 2 ? 0.07 : 0.1 }),
+    );
+    hiss(a, { start: t + 0.1, duration: 0.55, gain: 0.015, from: 3000, to: 5000, q: 0.8 });
+    harp(a, { note: 72, start: t + 0.72, duration: 0.9, gain: 0.05 });
   },
   /** El libro se marchita: hojas secas que caen una a una, cada vez más graves. */
   burn: (t, a) => {
@@ -240,7 +225,7 @@ export const SFX = {
       glass(a, { note, start: t + 0.4 + i * 0.09, duration: 0.6, gain: 0.03 }),
     );
   },
-  /** La tapa del cofre de raíz: "tok" hueco y su rebote. */
+  /** La raíz que guarda los capítulos: "tok" de madera hueca y su rebote. */
   chest: (t, a) => {
     knock(a, { start: t, note: 50, gain: 0.2 });
     knock(a, { start: t + 0.12, note: 45, gain: 0.1 });

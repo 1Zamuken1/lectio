@@ -374,6 +374,25 @@ let treeCount = 0;
 
 function songWorkshop(voice) {
   const uid = `bt${++treeCount}`;
+  // el fondo de la viñeta: cielo del atardecer (o de luna), mallorn lejanos y hojas caídas
+  const sky = canvas();
+  sky.rect('sky-1', 0, 0, TW, 12);
+  sky.rect('sky-2', 0, 12, TW, 12);
+  sky.rect('sky-3', 0, 24, TW, GROUND - 24);
+  sky.sprite(['.sss.', 'sssss', 'sssss', 'sssss', '.sss.'], { s: 'sun' }, 24, 5);
+  for (const [x, top] of [
+    [14, 10],
+    [44, 6],
+    [152, 8],
+    [176, 12],
+  ]) {
+    sky.rect('far-trunk', x, top + 4, 2, GROUND - top - 4);
+    sky.rect('far-leaf', x - 5, top, 12, 3);
+    sky.rect('far-leaf', x - 3, top - 2, 8, 2);
+    sky.rect('far-leaf', x - 4, top + 3, 10, 2);
+  }
+  for (const x of [10, 33, 58, 81, 119, 143, 161, 189])
+    sky.rect(x % 2 ? 'gleaf' : 'gleaf-d', x, GROUND - 1, 2, 1);
   const set = canvas();
   // el piso de mármol y los dos troncos que enmarcan
   set.rect('elf-o', 0, GROUND, TW, 2);
@@ -498,7 +517,7 @@ function songWorkshop(voice) {
   );
   return `<svg class="px-workshop px-song" data-voice="${voice}" viewBox="0 0 ${TW} ${TH}" shape-rendering="crispEdges" aria-hidden="true" focusable="false">
     <defs><clipPath id="${uid}-grow">${clips.join('')}</clipPath></defs>
-    ${set.svg()}${cushion.svg()}${harp.svg()}<g class="ws-bell">${bell.svg()}</g>
+    ${sky.svg()}${set.svg()}${cushion.svg()}${harp.svg()}<g class="ws-bell">${bell.svg()}</g>
     ${buds.svg()}<g class="ws-sheet" clip-path="url(#${uid}-grow)">${leaves.svg()}</g>
     <g class="ws-blossom">${blossom.svg()}</g><g class="ws-notes">${notes.svg()}</g>
     ${crew.join('')}${zzz}${companion}
