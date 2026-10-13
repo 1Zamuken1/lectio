@@ -10,7 +10,7 @@ Se construye **por fases que se cierran con commit**, y paramos a revisar al fin
 
 ### Fuera de esta etapa
 
-La PWA en React (`docs/lectio-frontend.md`), el despliegue (Railway/Render), el adaptador de Kokoro y el circuit breaker entre proveedores (queda el puerto listo), los temas Bosque y Solarpunk, y el conversor de PDF.
+El despliegue (Railway/Render), el adaptador de Kokoro y el circuit breaker entre proveedores (queda el puerto listo) y el conversor de PDF. (La PWA en React y los temas, que al principio quedaban fuera, ya se hicieron.)
 
 ---
 
@@ -130,7 +130,7 @@ Diseño decidido en `docs/lectio-frontend.md` §2.4 (y §6.3, §6.4, §2.1). Por
 
 ## Estado y cómo retomar (13-10-2026)
 
-Hechas las fases 0 a 6 y la **fase 7** salvo la prueba en un Android real (base PWA, descargas, progreso sin conexión, prerender y Playwright sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). Los últimos commits (desde `381122d`) están en `main` sin push.
+Hechas las fases 0 a 6 y la **fase 7** salvo la prueba en un Android real (base PWA, descargas, progreso sin conexión, prerender y Playwright sin conexión); el pipeline va en la **v3** y el reprocesamiento de libros está mergeado. Todo con tests: `pnpm check` (unitarios, lint, formato y tipos) y `pnpm test:integration` (la API contra Postgres y Redis reales). `origin/main` llega hasta `f7d6660` (el Solarpunk); lo posterior está en `main` sin push.
 
 **Levantar el entorno**
 
@@ -208,7 +208,7 @@ Probado en `pnpm dev` con Marianela (sin audio): atril, escena (escritorio y cel
    - Rendimiento: dibujar la base de cada escena tarda de 150 a 240 ms (se cachea una vez por modo). Si se nota, aligerar las filas de árboles.
 3. **El Clásico**: hacer sus preguntas de diseño (editorial con identidad, sin pixel art ni personajes ni sonido, y referencia de accesibilidad; §7.10). Después, maqueta y paso a la app.
 
-**Para más adelante (no ahora)**: la prueba en un Android real (`docs/lectio-prueba-android.md`, cuando el usuario tenga el celular a mano), el despliegue y Kokoro con el circuit breaker. Los commits desde `381122d` siguen en `main` sin push (37 al 13-10).
+**Para más adelante (no ahora)**: la prueba en un Android real (`docs/lectio-prueba-android.md`, cuando el usuario tenga el celular a mano), el despliegue y Kokoro con el circuit breaker.
 
 **Maquetas** (en `apps/web/.scratch/`, que git ignora): `solarpunk/` (servida con la configuración `maqueta-solarpunk`, :4180) y `bosque2/` (`maqueta-bosque`, :4181). `node render.mjs` (o `r4.mjs`, `r5.mjs` y `r6.mjs` en `bosque2/`) dibuja las escenas en PNG para revisarlas de cerca.
 

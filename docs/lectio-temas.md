@@ -13,8 +13,8 @@ Hay cuatro temas, cada uno con **día y noche**:
 | Tema | Mundo | Compañero |
 |---|---|---|
 | **Scriptorium** | Monasterio de copistas: pergamino, tinta, iniciales iluminadas en oro y rojo, atril. Día: luz de ventanal. Noche: velas. | Búho escriba |
-| **Bosque élfico** | Luminoso y noble, estilo Lothlórien: árboles plateados, oro y verde claro, luz filtrada. Noche: plata, linternas y luciérnagas. | Espíritu de luz |
-| **Solarpunk** | Tecnología en armonía con la naturaleza, optimista y limpia (nada de distopía). Paleta de **cielo y sol**: celeste, blanco y amarillo solar, con el verde solo en las plantas. Noche: luces cálidas de la ciudad. | Dron jardinero |
+| **Bosque élfico** | Luminoso y noble, estilo Lothlórien: árboles plateados, oro y verde claro, luz filtrada. Noche: plata, linternas y luciérnagas. | Retoño de mallorn (§7.10) |
+| **Solarpunk** | Tecnología en armonía con la naturaleza, optimista y limpia (nada de distopía). Paleta de **cielo y sol**: celeste, blanco y amarillo solar, con el verde solo en las plantas. Noche: luces cálidas de la ciudad. | Pol, el dron peluche (§7.8) |
 | **Clásico** | El tema editorial actual (crema y azul tinta, `lectio-frontend.md` §2.2): sobrio, sin ambientación, de máxima accesibilidad. | — |
 
 El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y el sol. Así se distinguen al primer vistazo.
@@ -52,8 +52,9 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 ## 5. Pendiente de decidir
 
 - ~~Qué tema se construye primero~~: el Scriptorium (ver §6).
-- Nombres y personalidad de los compañeros (el del Scriptorium: Sabio, el búho).
-- Motivos musicales de cada tema (instrumentación chiptune: laúd y órgano simulados para el scriptorium, arpa y flauta para el bosque, sintetizadores luminosos para el solarpunk).
+- ~~Nombres y personalidad de los compañeros~~: Sabio, el búho (Scriptorium); el retoño de mallorn (Bosque, §7.10); Pol, el dron peluche (Solarpunk, §7.8).
+- ~~Motivos musicales de cada tema~~: laúd y órgano en el Scriptorium; arpa, flauta y cristal en el Bosque; sintetizador y marimba en el Solarpunk.
+- El Clásico: sus preguntas de diseño, la maqueta y el paso a la app (§7.10).
 
 ## 6. Avance
 
@@ -65,12 +66,12 @@ El bosque se queda con el verde, el oro y la plata; el solarpunk con el cielo y 
 - **La cuadrilla que trae un libro (app):** al subir un EPUB, el maestro y dos aprendices (los mismos sprites del taller) traen un libro gigante en alto por la tabla de la repisa, desde la punta que les deja más camino; uno tropieza. Si el worker tarda, esperan junto al hueco; al dejarlo, aparece el lomo y suena la campanita. `Pixel.bookCrew()` y `apps/web/src/library/BookCrew.tsx`.
 - **El libro que arde (app):** un libro que no se pudo preparar arde con llamas de tres fotogramas (`Pixel.flames()`), queda en cenizas y renace con chispas como tarjeta de pergamino chamuscado. Solo la primera vez. En Clásico se desvanece. `apps/web/src/library/FailedBook.tsx`.
 - Código: `apps/cli/assets/theme/` (theme.js, icons.js, pixel.js, sound.js, scriptorium.css) y `apps/cli/assets/library/`.
-- Pendiente: Bosque élfico y Solarpunk (con sus talleres); más efectos de sonido en los botones; afinar la música tras escucharla.
+- Pendiente: más efectos de sonido en los botones; afinar la música tras escucharla. (El Bosque y el Solarpunk están en §7.)
 - **En la app (`apps/web`, fases 6 y 7):** el Scriptorium quedó completo también en la app: las dos salas (biblioteca del monasterio y tu estudio) con su puerta, el atril, el lector y el reproductor, el taller, la cuadrilla, el libro que arde, y las descargas (aprendices que llevan los capítulos a un arcón, panel "Descargas" con forma de arcón y vela). El código de la app vive en `apps/web/src/theme/` y `apps/web/src/styles/`; la copia de la CLI (`apps/cli/assets/theme/`) quedó en lo que tenía al portarse.
 
 ## 7. Bosque élfico y Solarpunk: adaptar desde el Scriptorium
 
-_El Bosque élfico quedó completo el 01-10-2026; lo siguiente es Solarpunk (§7.7). El despliegue y Kokoro quedan para más adelante._
+_Los cuatro temas están listos (Solarpunk el 02-10-2026). El Bosque se rediseñó del 06 al 09-10-2026 (§7.10) y falta su revisión; después se rediseña el Clásico. El despliegue y Kokoro quedan para más adelante._
 
 **El principio** (corregido el 01-10-2026): el Scriptorium está **completo** y no se toca. Bosque élfico y Solarpunk son **mundos propios**: cada uno tiene su composición, su HUD, sus lugares y su arte, y no reutiliza la estructura visual del Scriptorium (marcos, esquineros, la sala con estanterías a los lados y la ventana al centro). Lo que comparten es **la mecánica**: las mismas piezas (portada, dos salas y el paso entre ellas, compañero, taller, cuadrilla, libro fallido, descargas en escena, panel y sonidos), lo que cada una muestra (el avance real, los mismos estados y tiempos) y el mismo comportamiento con movimiento reducido y en el celular. La primera versión del Bosque (entregas 1 y 2, `2203f79` y `850b576`) era un Scriptorium con otra paleta y se rehace (§7.6).
 
@@ -139,6 +140,8 @@ Al agregar un mundo, estos puntos deciden si hay arte, escena o animación:
 - ¿La copia de la CLI (`apps/cli/assets/theme/`) también recibe los mundos nuevos, o solo la app?
 
 ### 7.5 Decisiones (01-10-2026)
+
+> Lo del Bosque en esta sección (Lumen, el tapiz, el ascensor de lianas, el cofre de raíz) es del primer diseño y quedó reemplazado por el rediseño de §7.10. Las decisiones generales siguen valiendo.
 
 **Generales**
 

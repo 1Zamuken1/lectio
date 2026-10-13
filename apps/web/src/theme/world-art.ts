@@ -86,14 +86,11 @@ export function workshopArt(world: WorldId, voice: string): string {
   return WORKSHOPS[world]?.(voice) ?? '';
 }
 
-/**
- * La cuadrilla que trae un libro subido, y la canasta en la que llega si el mundo la tiene
- * (el Bosque: sube por el ascensor de lianas, siempre desde la punta derecha de la repisa).
- */
-export function crewArt(world: WorldId): { svg: string; lift: string | null } {
-  if (world === 'bosque') return { svg: Bosque.bookCrew(), lift: null };
-  if (world === 'solarpunk') return { svg: Solarpunk.bookCrew(), lift: null };
-  return { svg: Pixel.bookCrew(), lift: null };
+/** La cuadrilla que trae un libro subido. */
+export function crewArt(world: WorldId): string {
+  if (world === 'bosque') return Bosque.bookCrew();
+  if (world === 'solarpunk') return Solarpunk.bookCrew();
+  return Pixel.bookCrew();
 }
 
 /**

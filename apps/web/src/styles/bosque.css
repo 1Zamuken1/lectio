@@ -1460,46 +1460,6 @@
   --px-wither-d: #4a3424;
 }
 
-/* ---------------------------------------------------------------- La cuadrilla */
-/* Sube en la canasta del ascensor de lianas (BookCrew.tsx): la canasta aparece en la punta
-   derecha de la repisa, sube, se queda mientras traen el libro y baja cuando se van. */
-
-.crew-lift {
-  position: absolute;
-  right: 0;
-  z-index: 3;
-  pointer-events: none;
-}
-
-.crew-lift svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-}
-
-.crew-lift.is-walking {
-  animation: lift-arrive 0.5s steps(5) both;
-}
-
-.crew-lift.is-leaving {
-  animation: lift-leave 0.5s steps(5) 0.9s forwards;
-}
-
-@keyframes lift-arrive {
-  from {
-    opacity: 0;
-    transform: translateY(40%);
-  }
-}
-
-@keyframes lift-leave {
-  to {
-    opacity: 0;
-    transform: translateY(40%);
-  }
-}
-
 /* ---------------------------------------------------------------- El libro que se vuelve piedra */
 /* FailedBook.tsx, con los mismos tiempos que el que arde: pierde su luz y se vuelve piedra
    (1,3 s; caen esquirlas), queda un montoncito de piedras (0,6 s) y vuelve a brillar con

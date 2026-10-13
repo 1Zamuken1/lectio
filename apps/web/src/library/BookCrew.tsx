@@ -10,9 +10,6 @@ const WIDTH = 48 * SCALE;
 const HEIGHT = 24 * SCALE;
 /** Centro del libro gigante dentro del sprite (x = 11 + 37 / 2). */
 const BOOK_CENTER = 29.5 * SCALE;
-/** La canasta del ascensor (Bosque): 20 × 39 píxeles de arte, a la misma escala. */
-const LIFT_WIDTH = 20 * SCALE;
-const LIFT_HEIGHT = 39 * SCALE;
 /** Lo mínimo que dura la entrada, aunque el worker termine antes. */
 const WALK_MS = 2800;
 const CHEER_MS = 900;
@@ -41,8 +38,7 @@ export function BookCrew({
 }) {
   const { world } = useTheme();
   // Se elige una vez: si cambia el mundo a mitad de camino, terminan como empezaron.
-  const [art] = useState(() => crewArt(world));
-  const svg = art.svg;
+  const [svg] = useState(() => crewArt(world));
   const element = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<Phase>('walking');
   const [place, setPlace] = useState<{
@@ -81,8 +77,7 @@ export function BookCrew({
       // la derecha el sprite va dado vuelta, así que el libro queda a WIDTH - BOOK_CENTER.
       const fromLeft = center - BOOK_CENTER;
       const fromRight = center - (WIDTH - BOOK_CENTER);
-      // Con ascensor (el Bosque), llegan siempre por la punta derecha, donde está la canasta.
-      const flip = art.lift ? true : rightEnd - fromRight > fromLeft;
+      const flip = rightEnd - fromRight > fromLeft;
       // La tabla está 10 px sobre el pie del hueco (padding de .slot).
       setPlace({
         shelf,
@@ -94,7 +89,6 @@ export function BookCrew({
     };
     find();
     return () => window.clearTimeout(timer);
-    // art se elige una vez al montar.
   }, [bookId]);
 
   // La entrada: de la punta de la repisa al hueco, a pasos.
@@ -147,31 +141,19 @@ export function BookCrew({
 
   if (!place) return null;
   return createPortal(
-    <>
-      {/* La canasta del ascensor queda fija en la punta de la repisa: sube y baja. */}
-      {art.lift && (
-        <div
-          className={`crew-lift is-${phase}`}
-          style={{ top: place.top + HEIGHT - LIFT_HEIGHT, width: LIFT_WIDTH, height: LIFT_HEIGHT }}
-          aria-hidden="true"
-        >
-          <PixelArt svg={art.lift} />
-        </div>
-      )}
-      <div
-        ref={element}
-        className={`book-crew is-${phase}`}
-        style={{
-          top: place.top,
-          width: WIDTH,
-          height: HEIGHT,
-          ['--walk' as string]: `${WALK_MS}ms`,
-        }}
-        aria-hidden="true"
-      >
-        <PixelArt svg={svg} />
-      </div>
-    </>,
+    <div
+      ref={element}
+      className={`book-crew is-${phase}`}
+      style={{
+        top: place.top,
+        width: WIDTH,
+        height: HEIGHT,
+        ['--walk' as string]: `${WALK_MS}ms`,
+      }}
+      aria-hidden="true"
+    >
+      <PixelArt svg={svg} />
+    </div>,
     place.shelf,
   );
 }
