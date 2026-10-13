@@ -27,7 +27,7 @@ export interface RasterScene {
   frame: ((base: Pix, mode: Mode, time: number) => Pix) | null;
   /** Donde van los libros reales (el hueco de la estantería dibujada). */
   shelf?: SceneRect;
-  /** La puerta a la otra sala (el ascensor de lianas). */
+  /** La puerta a la otra sala (en el Bosque, la escalera alrededor del tronco). */
   door?: SceneRect;
   /** El punto que queda a la vista cuando la pantalla recorta la escena (0 a 1). */
   focus: [number, number];

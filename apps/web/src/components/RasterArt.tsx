@@ -63,7 +63,10 @@ export function RasterArt({
         className="px-raster"
         width={W}
         height={H}
-        style={{ objectPosition: `${scene.focus[0] * 100}% ${scene.focus[1] * 100}%` }}
+        style={{
+          // En las salas, LibraryRoom puede mover el recorte para centrar la estantería.
+          objectPosition: `var(--scene-focus-x, ${scene.focus[0] * 100}%) ${scene.focus[1] * 100}%`,
+        }}
       />
     </div>
   );

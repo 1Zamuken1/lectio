@@ -16,7 +16,8 @@ import { useGoThroughDoor } from '../library/room-door';
 import { useOnline } from '../pwa/online';
 import { BlankBook, DropVeil, useBookUpload, useFileDrop, useFilePicker } from '../library/upload';
 import { Sound } from '../theme/sound';
-import { hasCrew } from '../theme/worlds';
+import { useTheme } from '../theme/theme';
+import { goToRoomLabel, hasCrew } from '../theme/worlds';
 
 type Notice = { text: string; id: number; action?: { label: string; run: () => void } };
 
@@ -35,6 +36,7 @@ export function Study() {
   const toLibrary = () => go('/biblioteca');
   const ask = useAuthPrompt((s) => s.ask);
   const books = useLibrary();
+  const { world } = useTheme();
   const signedIn = state.status === 'authenticated';
   // Sin conexión no se sube ni se quita nada: la sala muestra lo de la última visita.
   const online = useOnline();
@@ -82,7 +84,7 @@ export function Study() {
         <button
           type="button"
           className="tool door"
-          title="Ir a la biblioteca del monasterio"
+          title={goToRoomLabel(world, 'monastery')}
           onClick={toLibrary}
         >
           <Icon name="door" />

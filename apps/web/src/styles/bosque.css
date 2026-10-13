@@ -213,6 +213,17 @@
   padding: 0.5rem 0.8rem;
 }
 
+/* En el celular caben los seis botones de la barra: hojas más angostas. */
+@media (max-width: 700px) {
+  [data-world='bosque'] .topbar {
+    padding-inline: 0.6rem;
+  }
+
+  [data-world='bosque'] .topbar .tool {
+    padding-inline: 0.5rem;
+  }
+}
+
 /* En las salas, la barra flota sobre la escena (la sala ocupa toda la pantalla). */
 :root[data-world='bosque'] body[data-screen='library'] .topbar {
   position: fixed;
@@ -715,6 +726,19 @@
   border-radius: 0;
 }
 
+/*
+ * En el Bosque, la estantería se apoya en una raíz que baja unos 6 píxeles de escena bajo el
+ * hueco (bosque-scenes.js, mainShelf): las flechas y "Añadir libro" van debajo de ella.
+ */
+[data-world='bosque'] .library[data-layout='scene'] .shelf-pager,
+[data-world='bosque'] .library[data-layout='scene'] .shelf-tools {
+  top: calc(100% + 7 * var(--scene-px, 4px));
+}
+
+[data-world='bosque'] .library[data-layout='scene'] .bookcase:has(.shelf-pager) .shelf-tools {
+  top: calc(100% + 7 * var(--scene-px, 4px) + 3.2rem);
+}
+
 @media (max-width: 700px) {
   .library[data-layout='scene'] .shelf-hint {
     position: fixed;
@@ -728,7 +752,7 @@
   }
 }
 
-/* La puerta de la escena: el ascensor de lianas (solo el clic; el teclado usa la barra). */
+/* La puerta de la escena: la escalera del tronco (solo el clic; el teclado usa la barra). */
 .scene-door {
   position: absolute;
   left: var(--door-x);
@@ -905,16 +929,35 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #ffe2a0;
+  /* Contorno pixel oscuro: sin él, el oro claro se pierde en las copas doradas. */
+  --logo-outline: #4a2a0c;
   text-shadow:
-    0 3px 0 #a8701f,
-    0 6px 0 rgb(60 30 10 / 45%);
+    3px 0 0 var(--logo-outline),
+    -3px 0 0 var(--logo-outline),
+    0 -3px 0 var(--logo-outline),
+    3px -3px 0 var(--logo-outline),
+    -3px -3px 0 var(--logo-outline),
+    0 3px 0 var(--logo-outline),
+    3px 3px 0 var(--logo-outline),
+    -3px 3px 0 var(--logo-outline),
+    0 6px 0 #a8701f,
+    0 9px 0 rgb(60 30 10 / 45%);
 }
 
 [data-world='bosque'][data-mode='night'] .title-banner .logo {
   color: #f4ead6;
+  --logo-outline: #1c2436;
   text-shadow:
-    0 3px 0 #8b98b5,
-    0 6px 0 rgb(0 0 0 / 50%);
+    3px 0 0 var(--logo-outline),
+    -3px 0 0 var(--logo-outline),
+    0 -3px 0 var(--logo-outline),
+    3px -3px 0 var(--logo-outline),
+    -3px -3px 0 var(--logo-outline),
+    0 3px 0 var(--logo-outline),
+    3px 3px 0 var(--logo-outline),
+    -3px 3px 0 var(--logo-outline),
+    0 6px 0 #8b98b5,
+    0 9px 0 rgb(0 0 0 / 50%);
 }
 
 [data-world='bosque'] .logo::before,

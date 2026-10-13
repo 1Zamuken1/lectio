@@ -8,6 +8,8 @@ import { LibraryRoom } from '../library/LibraryRoom';
 import { readerHref } from '../library/progress';
 import { useGoThroughDoor } from '../library/room-door';
 import { useOnline } from '../pwa/online';
+import { useTheme } from '../theme/theme';
+import { goToRoomLabel, roomTitle } from '../theme/worlds';
 
 /**
  * La gran biblioteca del monasterio: el catálogo público. Se lee y se escucha sin cuenta;
@@ -19,6 +21,7 @@ export function PublicLibrary() {
   const { state } = useSession();
   const ask = useAuthPrompt((s) => s.ask);
   const online = useOnline();
+  const { world } = useTheme();
 
   // Sin conexión no se puede entrar: el estudio lo explica en vez de abrir el pergamino.
   const goToStudy = () => {
@@ -33,7 +36,12 @@ export function PublicLibrary() {
   return (
     <>
       <Topbar subtitle="biblioteca">
-        <button type="button" className="tool door" onClick={goToStudy} title="Ir a tu estudio">
+        <button
+          type="button"
+          className="tool door"
+          onClick={goToStudy}
+          title={goToRoomLabel(world, 'study')}
+        >
           <Icon name="door" />
           <span className="label">Mi estudio</span>
         </button>
@@ -43,7 +51,7 @@ export function PublicLibrary() {
         onDoor={goToStudy}
         books={books.data}
         loading={books.isPending}
-        empty={<p>La biblioteca del monasterio aún no tiene libros.</p>}
+        empty={<p>{roomTitle(world, 'monastery')} aún no tiene libros.</p>}
         hint={(book) =>
           book
             ? `«${book.title ?? 'Sin título'}». ${book.progress ? 'Sigamos donde lo dejaste.' : 'Buena elección.'}`

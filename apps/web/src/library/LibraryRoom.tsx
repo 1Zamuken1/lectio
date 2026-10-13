@@ -533,10 +533,21 @@ function useSceneLayout(
       const w = element.clientWidth;
       const h = element.clientHeight;
       const s = Math.max(w / 320, h / 180);
-      const ox = (w - 320 * s) * scene.focus[0];
+      const shelf = scene.shelf!;
+      const spanX = w - 320 * s;
+      // Si el recorte deja la estantería a medias (el celular en vertical), se centra en ella.
+      let fx = scene.focus[0];
+      const left = spanX * fx + shelf.x * s;
+      if (spanX < 0 && (left < 0 || left + shelf.w * s > w)) {
+        fx = Math.min(1, Math.max(0, ((shelf.x + shelf.w / 2) * s - w / 2) / -spanX));
+      }
+      const ox = spanX * fx;
       const oy = (h - 180 * s) * scene.focus[1];
       const vars: Record<string, string | number> = {
         '--spine-k': ((SPINE_SCENE_HEIGHT * s) / SPINE_HEIGHT).toFixed(4),
+        // El lienzo se recorta en el mismo punto (RasterArt), y el CSS mide en píxeles de escena.
+        '--scene-focus-x': `${(fx * 100).toFixed(2)}%`,
+        '--scene-px': `${s.toFixed(3)}px`,
       };
       const put = (name: string, r: SceneRect) => {
         vars[`--${name}-x`] = `${Math.round(ox + r.x * s)}px`;
@@ -544,7 +555,7 @@ function useSceneLayout(
         vars[`--${name}-w`] = `${Math.round(r.w * s)}px`;
         vars[`--${name}-h`] = `${Math.round(r.h * s)}px`;
       };
-      put('shelf', scene.shelf!);
+      put('shelf', shelf);
       if (scene.door) put('door', scene.door);
       setStyle((previous) =>
         JSON.stringify(previous) === JSON.stringify(vars) ? previous : (vars as CSSProperties),

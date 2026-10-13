@@ -122,3 +122,10 @@ export function hasHoloBookcase(world: string | undefined): boolean {
 export function roomTitle(world: string | undefined, room: 'monastery' | 'study'): string {
   return (byId(world)?.rooms ?? CLASSIC_ROOMS)[room];
 }
+
+/** "Ir a" una sala del mundo, con la contracción: "Ir al salón élfico", "Ir a tu talan". */
+export function goToRoomLabel(world: string | undefined, room: 'monastery' | 'study'): string {
+  const title = roomTitle(world, room);
+  if (title.startsWith('El ')) return `Ir al ${title.slice(3)}`;
+  return `Ir a ${title.charAt(0).toLowerCase()}${title.slice(1)}`;
+}
